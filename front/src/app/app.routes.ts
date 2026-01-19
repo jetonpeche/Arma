@@ -27,6 +27,11 @@ export const routes: Routes = [
         title: "Boutique"
     },
     { 
+        path: "gestion-boutique",
+        loadComponent: () => import("./pages/gestion-boutique/gestion-boutique").then(x => x.GestionBoutiquePage),
+        title: "Gestion de la boutique"
+    },
+    { 
         path: "logistique",
         loadComponent: () => import("./pages/logistique/logistique").then(x => x.LogistiquePage),
         title: "Logistique"

@@ -40,7 +40,7 @@ export class BoutiqueService
         if(_boutique.description?.trim().length == 0)
             _boutique.description = null;
 
-        return this.http.post<void>(`${this.BASE_API}/modifier${_idBoutique}`, _boutique).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.put<void>(`${this.BASE_API}/modifier/${_idBoutique}`, _boutique).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Supprimer(_idBoutique: number): Observable<void>

@@ -7,23 +7,32 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ButtonLoader } from "@jetonpeche/angular-mat-input";
+import { DialogConfirmationService } from '@services/DialogConfirmationService';
+import { SnackBarService } from '@services/SnackBarService';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { AjouterModifierBoutique } from '@modals/ajouter-modifier-boutique/ajouter-modifier-boutique';
 
 @Component({
   selector: 'app-gestion-boutique',
-  imports: [MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatPaginatorModule, MatIcon],
+  imports: [MatButtonModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatPaginatorModule, MatIcon, ButtonLoader],
   templateUrl: './gestion-boutique.html',
   styleUrl: './gestion-boutique.scss',
 })
-export class GestionBoutique implements OnInit, AfterViewInit
+export class GestionBoutiquePage implements OnInit, AfterViewInit
 {
     protected matSort = viewChild.required(MatSort);
     protected matPaginator = viewChild.required(MatPaginator);
 
-    protected displayedColumns: string[] = ["icon", "nom", "fonction", "nbOperationRequis", "info", "action"];
+    protected displayedColumns: string[] = ["titre", "nb", "action"];
     protected dataSource = signal<MatTableDataSource<BoutiqueAdmin>>(new MatTableDataSource());
     protected btnClick = signal<boolean>(false);
 
     private boutiqueServ = inject(BoutiqueService);
+    private snackBarServ = inject(SnackBarService);
+    private dialog = inject(MatDialog);
+    private dialogConfirmationServ = inject(DialogConfirmationService);
 
     ngOnInit(): void 
     {
@@ -51,9 +60,48 @@ export class GestionBoutique implements OnInit, AfterViewInit
         });
     }
 
+    protected OuvrirModalConfirmation(_boutique: BoutiqueAdmin): void
+    {
+        const TITRE = `Confirmation suppression ${_boutique.titre}`;
+        const MESSAGE = `Confirmez-vous la suppression de ${_boutique.titre} ?`;
+
+        this.dialogConfirmationServ.Ouvrir(TITRE, MESSAGE).subscribe({
+            next: (retour) =>
+            {
+                if(retour)
+                    this.Supprimer(_boutique.id);
+            }
+        });
+    }
+
     protected OuvrirModalAjouterModifierBoutique(_boutique?: BoutiqueAdmin): void
     {
-        
+        const DIALOG_REF = this.dialog.open(AjouterModifierBoutique, {
+            width: "60%", 
+            maxWidth: "100vw",
+            data: _boutique
+        });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (retour) => 
+            {
+                if(retour === true)
+                    this.Lister();
+            }
+        });
+    }
+
+    private Supprimer(_idBoutique: number): void
+    {
+        this.btnClick.set(true);
+        this.boutiqueServ.Supprimer(_idBoutique).subscribe({
+            next: () =>
+            {
+                this.btnClick.set(false);
+                this.snackBarServ.Ok("L'objet a été supprimé");
+            },
+            error: () => this.btnClick.set(false)
+        });
     }
 
     private Lister(): void

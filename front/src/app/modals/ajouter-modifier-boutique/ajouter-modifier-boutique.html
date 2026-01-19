@@ -2,14 +2,55 @@
 <mat-dialog-content>
     <form [formGroup]="form">
         <jp-grid-container>
-            <jp-grid-element [colXs]="12" [colMd]="6">
-                <jp-input-text label="Nom" formControlName="nom" />
+            <jp-grid-element [colXs]="12">
+                <jp-input-text label="Titre" formControlName="titre" />
             </jp-grid-element>
-            <jp-grid-element [colXs]="12" [colMd]="6">
-                <jp-input-number label="Prix" formControlName="prix" />
-            </jp-grid-element>
+
             <jp-grid-element [colDefault]="12">
                 <jp-textarea label="Description" formControlName="description" showMaxLength />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                
+                <div style="display: flex; justify-content: space-between;">
+                    <p style="font-size: 1.4em; margin: 0;">Liste prix</p>
+                    <jp-button-loader matMiniFab icon="add" (clicked)="AjouterBoutiquePrix()" />
+                </div>
+
+                <div formArrayName="listePrix">
+                    @for (element of listePrix.controls; track element; let i = $index; let last = $last) 
+                    {
+                        <jp-grid-container [formGroupName]="i" [gap]="15" style="margin-top: 15px;">
+                            <jp-grid-element [colDefault]="12">
+                                <jp-input-text label="Nom" formControlName="nom" showMaxLength />
+                            </jp-grid-element>
+                            
+                            <jp-grid-element [colDefault]="6">
+                                <jp-input-number label="Prix" formControlName="prix" />
+                            </jp-grid-element>
+
+                            <jp-grid-element [colDefault]="6">
+                                <jp-input-number label="Ordre" formControlName="ordre" />
+                            </jp-grid-element>
+
+                            <jp-grid-element [colDefault]="12">
+                                <div style="text-align: end;">
+                                    <jp-button-loader matMiniFab
+                                                                icon="close" 
+                                                                matTooltip="Supprimer" 
+                                                                (clicked)="SupprimerBoutiquePrix(i)" />
+                                </div>
+                            </jp-grid-element>
+
+                            @if(!last)
+                            {
+                                <jp-grid-element [colDefault]="12">
+                                    <hr>
+                                </jp-grid-element>
+                            }
+                        </jp-grid-container>
+                    }
+                </div>
             </jp-grid-element>
         </jp-grid-container>
     </form>
