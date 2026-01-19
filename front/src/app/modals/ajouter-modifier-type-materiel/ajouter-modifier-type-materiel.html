@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>{{ labelBtn() }} un type matériel</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-input-text label="Nom" formControlName="nom" />
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
+    <jp-button-loader [loading]="btnClick()" (clicked)="ValiderForm()" [label]="labelBtn()" />
+</mat-dialog-actions>

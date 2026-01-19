@@ -1,0 +1,101 @@
+.flexContainer
+{
+  margin-top: 10px;
+  display: flex; 
+  gap: 10px; 
+  flex-flow: wrap; 
+  justify-content: center;
+}
+
+.info-container 
+{
+  display: grid;
+
+  /* La 1ère colonne s'adapte au contenu, la 2ème prend le reste */
+  grid-template-columns: max-content 1fr; 
+  max-width: 300px;
+  column-gap: 5px;
+}
+
+mat-card {
+  width: 630px;
+  cursor: pointer;
+
+  .enfant {
+    display: none;
+  }
+
+  &:hover
+  {
+    background-color: var(--mat-sys-surface-dim);
+    color: var(--mat-sys-on-surface);
+
+    .enfant
+    {
+      display: block; 
+    }
+  }
+}
+
+mat-card-header {
+  margin-bottom: 10px;
+}
+
+section 
+{
+  display: flex; 
+  justify-content: space-between;
+}
+
+.divPhoto
+{
+  max-width: 125px;
+
+  img
+  {
+    max-width: 100%;
+    scale: 1;
+    height: 9rem;
+    object-fit: cover;
+  }
+
+  p 
+  {
+    margin: 0;
+  }
+}
+
+.divCodeBar
+{
+  width: 220px; 
+  font-size: 11px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+}
+
+@media screen and (max-width: 600px)
+{
+  .divLogoDroite
+  {
+    display: none;
+  }
+
+  .divPhoto img
+  {
+    width: 80px;
+  }
+}
+
+@media screen and (max-width: 493px)
+{
+  .divCodeBar
+  {
+    justify-content: end;
+
+    p
+    {
+      display: none;
+    }
+  }
+}

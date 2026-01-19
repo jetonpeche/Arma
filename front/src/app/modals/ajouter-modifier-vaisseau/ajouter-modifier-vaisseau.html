@@ -1,0 +1,170 @@
+<h2 mat-dialog-title>{{ labelBtn() }} un vaisseau</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colDefault]="12">
+                <jp-input-text label="Nom" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Vitesse" formControlName="vitesse" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Blindage" formControlName="blindage" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-number label="Prix" formControlName="prix" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-number label="Stock" formControlName="stock" />
+            </jp-grid-element>
+
+            <jp-grid-element formGroupName="equipage" [colXs]="12" [colMd]="6">
+                <jp-input-text label="Nombre max de passager" formControlName="nbPlacePassager" />
+            </jp-grid-element>
+
+            <jp-grid-element formGroupName="equipage" [colXs]="12" [colMd]="6">
+                <jp-input-text label="Nombre max de marines" formControlName="nbPlaceMarines" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Role" formControlName="role" showMaxLength />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Capacité spéciale" formControlName="capaciteSpeciale" showMaxLength />
+            </jp-grid-element>
+
+            <!-- liste des armements et stockages -->
+            <jp-grid-element [colDefault]="12">
+                <mat-accordion>
+
+                    <!-- liste des armements -->
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>Armement(s) ({{ listeArmement.length }})</mat-panel-title>
+                                <jp-button-loader matIconButton 
+                                                            icon="add" 
+                                                            (clicked)="AjouterArmement()"
+                                                            matTooltip="Ajouter un nouvelle armement" />
+                        </mat-expansion-panel-header>
+
+                    <div formArrayName="listeArmement">
+                    @for (element of listeArmement.controls; track element; let i = $index; let last = $last) 
+                    {
+                        <jp-grid-container [gap]="15" [formGroupName]="i" style="margin-top: 15px;">
+                            <jp-grid-element [colXs]="12" [colMd]="6">
+                                <jp-input-text label="Nom" formControlName="nom" />
+                            </jp-grid-element>
+
+                            <jp-grid-element [colXs]="12" [colMd]="6">
+                                <jp-input-number label="Nombre" formControlName="nombre" />
+                            </jp-grid-element>
+
+                            @if(!element.get("munitionInifini").value)
+                            {
+                                <jp-grid-element [colXs]="12" [colMd]="element.get('estUsageUnique').value ? 12 : 6">
+                                    <jp-input-number label="Munition" formControlName="munition" />
+                                </jp-grid-element>
+                            }
+
+                            @if(!element.get("estUsageUnique").value)
+                            {
+                                <jp-grid-element [colXs]="12" [colMd]="element.get('munitionInifini').value ? 12 : 6">
+                                    <jp-input-number label="Nombre de tours" formControlName="nbTourReload" />
+                                </jp-grid-element>
+                            }
+
+                            <jp-grid-element [colXs]="12" [colMd]="6">
+                                <mat-checkbox labelPosition="after" formControlName="munitionInifini">
+                                    Munition infini ?
+                                </mat-checkbox>
+                            </jp-grid-element>
+
+                            <jp-grid-element [colXs]="12" [colMd]="6">
+                                <mat-checkbox labelPosition="after" formControlName="estUsageUnique">
+                                    Usage unique ?
+                                </mat-checkbox>
+                            </jp-grid-element>
+
+                            <jp-grid-element [colDefault]="12">
+                                <jp-textarea label="Information supplémentaire" formControlName="information" />
+                            </jp-grid-element>
+
+                            <jp-grid-element [colDefault]="12">
+                                <div style="text-align: end;">
+                                    <jp-button-loader matMiniFab 
+                                                                (clicked)="SupprimerArmement(i)" 
+                                                                icon="delete" />
+                                </div>
+                            </jp-grid-element>
+
+                            @if(!last)
+                            {
+                                <jp-grid-element [colDefault]="12">
+                                    <hr>
+                                </jp-grid-element>
+                            }
+
+                        </jp-grid-container>
+                    }
+                    </div>
+                    </mat-expansion-panel>
+
+                    <!-- liste des stockages -->
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>Stockage(s) ({{ listeStockage.length }})</mat-panel-title>
+                                <jp-button-loader matIconButton 
+                                                            icon="add" 
+                                                            (clicked)="AjouterStockage()"
+                                                            matTooltip="Ajouter un nouveau stockage" />
+                        </mat-expansion-panel-header>
+                        <div formArrayName="listeStockage">
+                        @for (element of listeStockage.controls; track element; let i = $index; let last = $last) 
+                        {
+                            <jp-grid-container [formGroupName]="i" [gap]="15">
+                                <jp-grid-element [colXs]="12" [colMd]="6">
+                                    <jp-input-text label="Nom" formControlName="nom" />
+                                </jp-grid-element>
+
+                                <jp-grid-element [colXs]="12" [colMd]="6">
+                                    <jp-input-number label="Taille" formControlName="taille" />
+                                </jp-grid-element>
+
+                                <jp-grid-element [colDefault]="12">
+                                    <jp-autocomplete [dataSource]="dataSourceTypeStockage()"
+                                                                formControlName="idTypeStockage" 
+                                                                requireSelection />
+                                </jp-grid-element>
+
+                                <jp-grid-element [colDefault]="12">
+                                    <div style="text-align: end;">
+                                        <jp-button-loader matMiniFab 
+                                                                    icon="delete" 
+                                                                    (clicked)="SupprimerStockage(i)" />
+                                    </div>
+                                </jp-grid-element>
+                                
+                                @if(!last)
+                                {
+                                    <jp-grid-element [colDefault]="12">
+                                        <hr>
+                                    </jp-grid-element>
+                                }
+                            </jp-grid-container>
+                        }
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
+    <jp-button-loader [loading]="btnClick()" (clicked)="ValiderForm()" [label]="labelBtn()" />
+</mat-dialog-actions>

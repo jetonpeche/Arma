@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>{{ labelBtn() }} une spécialité</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-input-text style="display: block; margin-bottom: 15px;" label="Nom" formControlName="nom" />
+
+        <jp-textarea label="Description" formControlName="description" />
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
+    <jp-button-loader [loading]="btnClick()" (clicked)="ValiderForm()" [label]="labelBtn()" />
+</mat-dialog-actions>

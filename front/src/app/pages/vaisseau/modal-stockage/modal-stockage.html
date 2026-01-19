@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>Stockage du vaisseau {{ dialogData.nom }}</h2>
+<mat-dialog-content>
+    <ul>
+    @for (element of dialogData.listeStockage; track element.id) 
+    {
+        <li>
+            Nom: {{ element.nom }} <br>
+            Taille: {{ element.taille }} {{ element.typeStockage.nom }}
+        </li>
+    }
+    </ul>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="filled" mat-dialog-close>Fermer</button>
+</mat-dialog-actions>

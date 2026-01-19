@@ -1,0 +1,114 @@
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1>Vaisseau</h1>
+
+    <button matButton="filled" (click)="OuvrirModalAjouterModifierVaisseau()">
+        <mat-icon>add</mat-icon>
+        Nouveau vaisseau
+    </button>
+</div>
+
+<mat-form-field>
+    <mat-label>Recherche</mat-label>
+    <input matInput (keyup)="Recherche($event)" #input>
+</mat-form-field>
+
+<div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource()" matSort>
+
+        <!-- nom -->
+        <ng-container matColumnDef="nom">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
+            <td mat-cell *matCellDef="let element"> {{ element.nom }} </td>
+        </ng-container>
+
+        <!-- prix -->
+        <ng-container matColumnDef="prix">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Prix </th>
+            <td mat-cell *matCellDef="let element"> {{ element.prix }} </td>
+        </ng-container>
+
+        <!-- stock -->
+        <ng-container matColumnDef="stock">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Possédé </th>
+            <td mat-cell *matCellDef="let element"> {{ element.stock }} </td>
+        </ng-container>
+
+        <!-- role -->
+        <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef> Role </th>
+            <td mat-cell *matCellDef="let element"> 
+                {{ element.role }} 
+
+                @if(element.capaciteSpeciale)
+                {
+                    <br>
+                    <span style="color: var(--mat-sys-error)">{{ element.capaciteSpeciale }}</span>
+                }
+                </td>
+        </ng-container>
+
+        <!-- equipage -->
+        <ng-container matColumnDef="equipage">
+            <th mat-header-cell *matHeaderCellDef> Equipage </th>
+            <td mat-cell *matCellDef="let element">
+                Passagers: {{ element.equipage.nbPlacePassager }} <br>
+                Marines: {{ element.equipage.nbPlaceMarines }}
+            </td>
+        </ng-container>
+
+        <!-- armement -->
+        <ng-container matColumnDef="armement">
+            <th mat-header-cell *matHeaderCellDef> Armements </th>
+            <td mat-cell *matCellDef="let element">
+                {{ ListerArmementString(element.listeArmement) }}
+            </td>
+        </ng-container>
+
+        <!-- vitesse -->
+        <ng-container matColumnDef="vitesse">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Vitesse </th>
+            <td mat-cell *matCellDef="let element"> {{ element.vitesse }} </td>
+        </ng-container>
+
+        <!-- blindage -->
+        <ng-container matColumnDef="blindage">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Blindage </th>
+            <td mat-cell *matCellDef="let element"> {{ element.blindage }} </td>
+        </ng-container>
+
+        <!-- action -->
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef> Action </th>
+            <td mat-cell *matCellDef="let element">
+
+            <jp-button-loader matMiniFab 
+                                        icon="storage" 
+                                        matTooltip="Stockage du vaisseau"
+                                        [disabled]="element.listeStockage.length == 0"
+                                        (clicked)="OuvrirModalStockage(element)" />&nbsp;
+
+                <jp-button-loader matMiniFab 
+                                            icon="credit_card"
+                                            matTooltip="Acheter le vaisseau"
+                                            (clicked)="OuvrirModalConfirmationAcheterVaisseau(element)" />&nbsp;
+
+                <jp-button-loader matMiniFab 
+                                            icon="edit"
+                                            (clicked)="OuvrirModalAjouterModifierVaisseau(element)" />
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="4">Aucune donnée pour "{{input.value}}"</td>
+        </tr>
+    </table>
+
+    <mat-paginator  showFirstLastButtons
+                    [pageSizeOptions]="[10, 25, 100]" 
+                    aria-label="Vaisseau par page">
+    </mat-paginator>
+</div>

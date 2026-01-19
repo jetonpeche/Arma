@@ -1,0 +1,59 @@
+.spacer {
+    flex: 1 1 auto;
+  }
+
+#navbar
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-primary);
+
+    & button
+    {
+        color: var(--mat-sys-primary);
+    }
+}
+
+.drawer
+{
+    border-right: 1px solid var(--mat-sys-outline-variant);
+    width: 240px;
+    padding: 16px 8px;
+    overflow: auto;
+    box-sizing: border-box;
+
+    & mat-nav-list {
+        margin-top: 60px;
+
+        .active
+        {
+            background-color: var(--mat-sys-primary-container);
+        }
+    }
+}
+
+mat-drawer-container
+{
+    min-height: 100%;
+    height: auto !important; /*min-height hack*/
+    height: 100%;            /*min-height hack*/
+    margin-bottom: -4em; 
+}
+
+.marginTopDrawer 
+{
+    margin-left: 10px;
+
+    &.open
+    {
+        margin-left: 260px !important;
+        margin-right: 10px !important;
+    }
+    
+    margin-right: 10px;
+    margin-top: 80px;
+}

@@ -1,0 +1,84 @@
+<h2 mat-dialog-title>{{ labelBtn() }} un personnage</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Nom RP" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Nom discord" formControlName="nomDiscord" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="6">
+                <jp-input-text label="Matricule" formControlName="matricule" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="6">
+                <jp-input-text label="Groupe sanguin" formControlName="groupeSanguin" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="6" [colMd]="4">
+                <jp-autocomplete requireSelection
+                                 label="Grade"
+                                 formControlName="idGrade" 
+                                 [dataSource]="dataSourceGrade()" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="6" [colMd]="4">
+                <jp-autocomplete requireSelection
+                                 label="Planete d'origine"
+                                 formControlName="idPlaneteOrigine" 
+                                 [dataSource]="dataSourcePlanete()" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-autocomplete requireSelection
+                                 label="Spécialité"
+                                 formControlName="idSpecialite" 
+                                 [dataSource]="dataSourceSpecialite()" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="labelBtn() =='Modifier' ? 4 : 12">
+                <jp-input-number label="Point boutique" formControlName="nbPointBoutique" />
+            </jp-grid-element>
+
+            @if(labelBtn() == "Modifier")
+            {
+                <jp-grid-element [colXs]="6" [colMd]="4">
+                    <jp-input-number label="Nombre d'opération" formControlName="nbOperation" />
+                </jp-grid-element>
+
+                <jp-grid-element [colXs]="6" [colMd]="4">
+                    <jp-input-number label="Nombre de bootcamp" formControlName="nbBootcamp" />
+                </jp-grid-element>
+
+                <jp-grid-element [colXs]="6" [colMd]="4">
+                    <mat-checkbox labelPosition="before" formControlName="estFormateur">formateur ?</mat-checkbox>
+                </jp-grid-element>
+
+                <jp-grid-element [colXs]="6" [colMd]="4">
+                    <mat-checkbox labelPosition="before" formControlName="estFormateurSpecialite">formateur spé ?</mat-checkbox>
+                </jp-grid-element>
+
+                <jp-grid-element [colXs]="6" [colMd]="4">
+                    <mat-checkbox labelPosition="before" formControlName="formationFaite">formation faite ?</mat-checkbox>
+                </jp-grid-element>
+            }
+            @else 
+            {
+                <jp-grid-element [colDefault]="12">
+                    <mat-checkbox labelPosition="before" formControlName="formationFaite">formation faite ?</mat-checkbox>
+                </jp-grid-element>
+            }
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Etat de service" formControlName="etatService" showMaxLength />
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
+    <jp-button-loader [loading]="btnClick()" (clicked)="ValiderForm()" [label]="labelBtn()" />
+</mat-dialog-actions>

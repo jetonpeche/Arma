@@ -1,0 +1,105 @@
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1>Personnage</h1>
+
+    <button matButton="filled" (click)="OuvrirModalAjouterPersonne()">
+        <mat-icon>add</mat-icon>
+        Nouvelle recrue
+    </button>
+</div>
+
+<mat-form-field appearance="outline">
+    <mat-label>Recherche</mat-label>
+    <input #inputRecherche matInput type="search">
+</mat-form-field>
+
+<div class="flexContainer">
+
+    @for (element of Rechercher(inputRecherche.value); track element.id) 
+    {
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title><b>UNITED NATION SPACE COMMAND</b></mat-card-title>
+                <mat-card-subtitle>Identification and privilege card</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+                <section>
+                    <div class="divPhoto">
+                        <img [src]="element.urlPhotoIdentite" alt="Photo identité personnage">
+                        <p>N° {{ element.matricule }}</p>
+                    </div>
+                    <div>
+                        <div class="info-container">
+                            <span><b>Nom:</b></span>
+                            <span>{{ element.grade?.nom }} {{ element.nom }}</span>
+                            
+                            <span><b>Né le:</b></span>
+                            <span>20 Avril 2505</span>
+                            
+                            <span><b>Origine:</b></span>
+                            <span>{{ element.planeteOrigine?.nom ?? "NA" }}</span>
+
+                            <span><b>Groupe sanguin:</b></span>
+                            <span>{{ element.groupeSanguin }}</span>
+
+                            <span style="margin-top: 5px;"><b>Opérations:</b></span>
+                            <span style="margin-top: 5px;">{{ element.nbOperation }}</span>
+
+                            <span><b>Bootcamps:</b></span>
+                            <span>{{ element.nbBootcamp }}</span>
+                        </div>
+
+                        <p style="margin-top: 5px;">
+                            <b>
+                                Sector 1 command <br>
+                                Element UNSCMC 
+                                <span style="font-size: smaller;">88th MEU 21st compagny</span>
+                            </b>
+                        </p>
+                    </div>
+
+                    <div class="divLogoDroite">
+                        <img style="width: 180px;" src="logoDroite.png" alt="">
+                    </div>
+                </section>
+
+                <section>
+                    <div style="font-size: 11px; max-width: 220px;">
+                        <p style="line-height: 11px;">
+                            Attempted use by non-authorized individual is a violation of
+                            Unified Earth Government Law Chapter 9, Section 31
+                            <br><br>
+                            If lost or damaged proceed imediately to a authorized personnel
+                            for reissuance
+                        </p>
+                    </div>
+
+                    <div class="divCodeBar">
+                        <p style="line-height: 11px;">
+                            Expire date <br> 1 Janvier 2580 
+                            <br><br>
+                            Serial number <br>
+                            4501-52-46887-68
+                        </p>
+                        <img src="codeBar.webp" width="120" height="60" alt="logo UNSC code barre">
+                    </div>
+                </section>
+            </mat-card-content>
+
+            <div class="enfant" style="position: absolute; right: 10px; top: 10px;">
+                <jp-input-file-btn matMiniFab 
+                                    icon="photo" 
+                                    (fileChange)="UploadFichier(element.id, $any($event))"
+                                    accept=".png, .jpg, .webp, .jpeg" />&nbsp;
+
+                <button matMiniFab (click)="OuvrirModalAjouterPersonne(element)">
+                    <mat-icon>edit</mat-icon>
+                </button>&nbsp;
+
+                <button matMiniFab (click)="OuvrirModalSupprimer(element)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+        </mat-card>
+    }
+</div>

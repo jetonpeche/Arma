@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>{{ labelBtn() }} un objet logistique</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Nom" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-number label="Prix" formControlName="prix" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="6" [colMd]="4">
+                <jp-input-number label="Stock" formControlName="stock" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="6" [colMd]="4">
+                <jp-input-number label="Détruit" formControlName="nbDetruit" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-input-number label="Taille unitaire inventaire" formControlName="tailleUnitaireInventaire" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="6">
+                <jp-autocomplete [dataSource]="dataSourceTypeLogistique()" 
+                                            label="Type" 
+                                            formControlName="idType"
+                                            requireSelection />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="6">
+                <jp-autocomplete [dataSource]="dataSourceTypeStockageLogistique()" 
+                                            label="Type stockage" 
+                                            formControlName="idTypeStockage"
+                                            requireSelection />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="6">
+                <mat-checkbox labelPosition="before" formControlName="estKit">Est en kit ?</mat-checkbox>
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="6">
+                <mat-checkbox labelPosition="before" formControlName="ignoreTypeStockage">Ignore type stockage ?</mat-checkbox>
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
+    <jp-button-loader [loading]="btnClick()" (clicked)="ValiderForm()" [label]="labelBtn()" />
+</mat-dialog-actions>

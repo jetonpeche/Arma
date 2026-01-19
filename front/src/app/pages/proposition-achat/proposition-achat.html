@@ -1,0 +1,84 @@
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1>Proposition d'achat</h1>
+</div>
+
+<jp-autocomplete [dataSource]="listePropositionAutoCompleteAuteur()"
+                            label="Proposition de:" 
+                            [formControl]="formControl"
+                            requireSelection />
+
+<div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource()" matSort>
+
+        <ng-container matColumnDef="nom">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
+            <td mat-cell *matCellDef="let element"> {{ element.nom }} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+            <td mat-cell *matCellDef="let element"> 
+                {{ element.type == eTypeObjetProposer.Materiel ? "Matériel" : "Logistique" }} 
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+
+        <ng-container matColumnDef="quantite">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Quantité </th>
+            <td mat-cell *matCellDef="let element"> {{ element.quantite }} </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+
+        <ng-container matColumnDef="prixUnitaire">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Prix unitaire </th>
+            <td mat-cell *matCellDef="let element"> {{ element.prixUnitaire }} </td>
+            <td mat-footer-cell *matFooterCellDef><b>Total</b></td>
+        </ng-container>
+
+        <ng-container matColumnDef="prixTotal">
+            <th mat-header-cell *matHeaderCellDef> Total </th>
+            <td mat-cell *matCellDef="let element"> 
+                {{ element.prixUnitaire * element.quantite }} 
+            </td>
+            <td mat-footer-cell *matFooterCellDef><b>{{ prixTotal() }}</b></td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Action </th>
+            <td mat-cell *matCellDef="let element">
+
+                <jp-button-loader matMiniFab
+                                            matTooltip="Valider l'achat de l'objet" 
+                                            icon="check"
+                                            (clicked)="OuvrirModalConfirmationObjet(element, true)" />&nbsp;
+
+                <jp-button-loader matMiniFab
+                                            matTooltip="Refuser l'achat de l'objet" 
+                                            icon="delete"
+                                            (clicked)="OuvrirModalConfirmationObjet(element, false)" />
+            </td>
+
+            <td mat-footer-cell *matFooterCellDef>
+                @if (idPropositionSelectionner() != 0)
+                {
+                    <jp-button-loader matMiniFab
+                                                matTooltip="Valider tout les objets" 
+                                                icon="playlist_add_check"
+                                                (clicked)="OuvrirModalConfirmation(true)" />&nbsp;
+
+                    <jp-button-loader matMiniFab 
+                                                matTooltip="Refuser tout les objets" 
+                                                icon="close"
+                                                (clicked)="OuvrirModalConfirmation(false)" />
+                }
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[25, 50, 100]" aria-label="Objet proposé par page"></mat-paginator>
+</div>

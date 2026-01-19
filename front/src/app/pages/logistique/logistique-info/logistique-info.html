@@ -1,0 +1,89 @@
+<div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
+    <button matButton="filled" (click)="OuvrirModalAjouterModifierLogistique()">
+        <mat-icon>add</mat-icon>
+        Nouvelle objet
+    </button>
+</div>
+
+<jp-grid-container>
+    <jp-grid-element [colXs]="12" [colMd]="6">
+        <mat-form-field>
+            <mat-label>Recherche</mat-label>
+            <input matInput (keyup)="Recherche($event)" #input>
+        </mat-form-field>
+    </jp-grid-element>
+
+    <jp-grid-element [colXs]="12" [colMd]="6">
+        <mat-form-field>
+            <mat-label>Type</mat-label>
+            <mat-select (selectionChange)="FiltrerLogistiqueType($event)" [value]="null" canSelectNullableOptions>
+                <mat-option [value]="null">Tous</mat-option>
+                @for (element of listeType(); track element.id) 
+                {
+                    <mat-option [value]="element.id">{{ element.nom }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+    </jp-grid-element>
+</jp-grid-container>
+
+<div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource()" matSort>
+
+        <ng-container matColumnDef="nom">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
+            <td mat-cell *matCellDef="let element"> {{ element.nom }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="prix">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Prix </th>
+            <td mat-cell *matCellDef="let element">{{ element.prix }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="stock">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Stock </th>
+            <td mat-cell *matCellDef="let element">{{ element.stock }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="nbDetruit">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Détruit </th>
+            <td mat-cell *matCellDef="let element">{{ element.nbDetruit }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="tailleUnitaireInventaire">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Taille stock unitaire </th>
+            <td mat-cell *matCellDef="let element">{{ element.tailleUnitaireInventaire }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="typeStockage">
+            <th mat-header-cell *matHeaderCellDef> Stockage </th>
+            <td mat-cell *matCellDef="let element">{{ element.typeStockage.nom }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef> Action</th>
+            <td mat-cell *matCellDef="let element">
+
+                <button matMiniFab (click)="OuvrirModalPanierQuantite(element)">
+                    <mat-icon>add_shopping_cart</mat-icon>
+                </button>&nbsp;
+                
+                <button matMiniFab (click)="OuvrirModalAjouterModifierLogistique(element)">
+                    <mat-icon>edit</mat-icon>
+                </button>&nbsp;
+
+                <jp-button-loader matMiniFab icon="delete" [loading]="btnClick()" (clicked)="OuvrirModalConfirmationSupprimer(element)" />
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let element; columns: displayedColumns;"></tr>
+
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="7">Aucune donnée pour "{{input.value}}"</td>
+        </tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[10, 25, 100]" aria-label="Objet par page"></mat-paginator>
+</div>

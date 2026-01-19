@@ -1,0 +1,36 @@
+services:
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../nginx/conf:/etc/nginx/conf.d
+      - ../nginx/certs:/etc/letsencrypt
+    depends_on:
+      - api
+      - front
+    restart: always
+
+  api:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_URLS=http://+:8080
+    volumes:
+      - "./back/Bdd:/app/data"
+      - "./back/Photos:/app/Photos"
+    restart: on-failure
+
+  front:
+    image: front
+    build: 
+      context: ../front
+      dockerfile: Dockerfile
+    expose:
+      - "80"
+    restart: always
