@@ -121,8 +121,9 @@ public static class BoutiqueRoute
      {
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var liste = db.GetCollection<Boutique>().Query()
-               .Include(x => x.ListePrix)
+          var liste = db.GetCollection<Boutique>().Include(x => x.ListePrix)
+               .Query()
+               .ToArray()
                .Select(x => new BoutiqueAdminReponse
                {
                      Id = x.Id,
@@ -138,7 +139,7 @@ public static class BoutiqueRoute
                      }).ToArray()
                }).ToArray();
 
-          return Results.Ok(liste);
+          return Results.Extensions.Ok(liste, BoutiqueAdminReponseContext.Default);
      }
 
      async static Task<IResult> AjouterAsync(
