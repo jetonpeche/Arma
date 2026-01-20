@@ -8,7 +8,7 @@ public sealed class BoutiquePrix
      public int Id { get; set; }
 
      [BsonRef]
-     public Boutique? Boutique { get; set; } = null;
+     public Boutique Boutique { get; set; } = null;
 
      [BsonRef]
      public List<Personnage> ListePersonnage { get; set; } = [];

@@ -7,16 +7,18 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ButtonLoader } from "@jetonpeche/angular-mat-input";
+import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { SnackBarService } from '@services/SnackBarService';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierBoutique } from '@modals/ajouter-modifier-boutique/ajouter-modifier-boutique';
+import { ETypeRessource } from '@enums/ETypeRessource';
+import { FichierService } from '@services/FichierService';
 
 @Component({
   selector: 'app-gestion-boutique',
-  imports: [MatButtonModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatPaginatorModule, MatIcon, ButtonLoader],
+  imports: [MatButtonModule, MatFormFieldModule, MatInputModule, MatTableModule, MatSortModule, MatPaginatorModule, MatIcon, ButtonLoader, InputFile],
   templateUrl: './gestion-boutique.html',
   styleUrl: './gestion-boutique.scss',
 })
@@ -25,12 +27,13 @@ export class GestionBoutiquePage implements OnInit, AfterViewInit
     protected matSort = viewChild.required(MatSort);
     protected matPaginator = viewChild.required(MatPaginator);
 
-    protected displayedColumns: string[] = ["titre", "nb", "action"];
+    protected displayedColumns: string[] = ["image", "titre", "nb", "action"];
     protected dataSource = signal<MatTableDataSource<BoutiqueAdmin>>(new MatTableDataSource());
     protected btnClick = signal<boolean>(false);
 
     private boutiqueServ = inject(BoutiqueService);
     private snackBarServ = inject(SnackBarService);
+    private fichierServ = inject(FichierService);
     private dialog = inject(MatDialog);
     private dialogConfirmationServ = inject(DialogConfirmationService);
 
@@ -57,6 +60,28 @@ export class GestionBoutiquePage implements OnInit, AfterViewInit
         this.dataSource.update(x => {
             x.filter = filterValue.trim().toLowerCase()
             return x;
+        });
+    }
+
+    protected UploadFichier(_idBoutique: number, _fichier: File): void
+    {
+        this.fichierServ.Upload(_idBoutique, ETypeRessource.Boutique, _fichier).subscribe({
+            next: (url: string) => 
+            {
+                this.snackBarServ.Ok("Le fichier a été uploadé");
+                this.dataSource.update(x => 
+                {
+                    x.data = x.data.map(y => 
+                    {
+                        if (y.id == _idBoutique)
+                            return { ...y, urlImageObjet: `${url}?t=${new Date().getTime()}` }
+                        
+                        return y;
+                    });
+
+                    return x;
+                });
+            }
         });
     }
 
