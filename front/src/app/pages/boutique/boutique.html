@@ -1,19 +1,27 @@
-<div style="text-align: center; margin-bottom: 20px;">
-    <h1>Boutique</h1>
 
-    <p>
-        Venez dépenser vos points durement acquis sur le champ de bataille ou en votant ici.<br>
-        Nous proposons un large éventail d'objet en tout genre pour vous garantir <br>
-        une meilleur chance de survie dans le monde fantasmagorique du 24e siècle !
-    </p>
+<div style="text-align: center; margin-bottom: 20px;">
+    @if(idPersonnage() == 0)
+    {
+        <h1>Boutique</h1>
+
+        <p>
+            Venez dépenser vos points durement acquis sur le champ de bataille ou en votant ici.<br>
+            Nous proposons un large éventail d'objet en tout genre pour vous garantir <br>
+            une meilleur chance de survie dans le monde fantasmagorique du 24e siècle !
+        </p>
+    }
+    @else 
+    {
+        <h1>Objets achetés</h1>
+    }
 </div>
 
-<mat-form-field>
+<mat-form-field style="margin-bottom: 10px;">
     <mat-label>Recherche</mat-label>
     <input #inputRecherche matInput type="search">
 </mat-form-field>
 
-<jp-grid-container>
+<jp-grid-container style="margin-bottom: 5px;">
     @for (element of Rechercher(inputRecherche.value); track element.id) 
     {
         <jp-grid-element [colXs]="12" [colMd]="6" [colLg]="6" [colXl]="3">

@@ -47,7 +47,8 @@ public static class BoutiqueRoute
 
      async static Task<IResult> ListerAsync(
           HttpContext _httpContext,
-          [FromRoute(Name = "idPersonnage")] int _idPersonnage
+          [FromRoute(Name = "idPersonnage")] int _idPersonnage,
+          [FromQuery(Name = "posseder")] bool _possederUniquement = false
      )
      {
           if (_idPersonnage <= 0)
@@ -55,8 +56,37 @@ public static class BoutiqueRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          if(!db.GetCollection<Personnage>().Exists(x => x.Id == _idPersonnage))
-               return Results.NotFound("Le personnage n'existe pas");
+          // lister les objets achetés
+          if(_possederUniquement)
+          {
+               if (!db.GetCollection<Personnage>().Exists(x => x.Id == _idPersonnage))
+                    return Results.NotFound("Le personnage n'existe pas");
+
+               var ListeObjetAcheter = db.GetCollection<Personnage>()
+                    .Include(x => x.ListeBoutiquePrix)
+                    .Include(x => x.ListeBoutiquePrix.Select(y => y.Boutique))
+                    .FindById(_idPersonnage)
+                    .ListeBoutiquePrix
+                    .GroupBy(x => x.Boutique.Id);
+
+               var listePosseder = ListeObjetAcheter.Select(x =>
+               {
+                    var boutiquePrix = x.Last();
+
+                    return new BoutiqueReponse
+                    {
+                         Id = boutiquePrix.Boutique.Id,
+                         IdPrix = boutiquePrix.Id,
+                         Nom = boutiquePrix.Nom,
+                         Description = boutiquePrix.Boutique.Description,
+                         Prix = boutiquePrix.Prix,
+                         EstPosseder = true,
+                         UrlImageObjet = boutiquePrix.Boutique.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_BOUTIQUE + boutiquePrix.Boutique.NomFichier : ""
+                    };
+               }).ToArray();
+
+               return Results.Extensions.Ok(listePosseder, BoutiqueReponseContext.Default);
+          }
 
           var liste = db.GetCollection<Boutique>()
                .Query()

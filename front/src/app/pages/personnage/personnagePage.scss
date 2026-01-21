@@ -1,6 +1,7 @@
 .flexContainer
 {
   margin-top: 10px;
+  margin-bottom: 5px;
   display: flex; 
   gap: 10px; 
   flex-flow: wrap; 
@@ -19,7 +20,6 @@
 
 mat-card {
   width: 630px;
-  cursor: pointer;
 
   .enfant {
     display: none;

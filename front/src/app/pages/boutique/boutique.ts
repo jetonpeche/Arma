@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,6 +18,8 @@ import { BoutiqueService } from '@services/BoutiqueService';
 })
 export class BoutiquePage implements OnInit
 {
+    /** Permet d'avoir la liste des objets achetés du personnage */
+    idPersonnage = input<number>(0);
     protected listeBoutique = signal<Boutique[]>([]);
 
     private boutiqueServ = inject(BoutiqueService);
@@ -67,7 +69,9 @@ export class BoutiquePage implements OnInit
 
     private Lister(): void
     {
-        this.boutiqueServ.Lister(1).subscribe({
+        let idPersonnage = this.idPersonnage() == 0 ? 1 : this.idPersonnage();
+
+        this.boutiqueServ.Lister(idPersonnage, this.idPersonnage() != 0 ? true : false).subscribe({
             next: (retour) => this.listeBoutique.set(retour)
         });
     }

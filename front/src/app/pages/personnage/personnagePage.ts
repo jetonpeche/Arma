@@ -14,6 +14,7 @@ import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { InputFile } from "@jetonpeche/angular-mat-input";
 import { FichierService } from '@services/FichierService';
 import { ETypeRessource } from '@enums/ETypeRessource';
+import { ModalObjetPossede } from './modal-objet-possede/modal-objet-possede';
 
 @Component({
   selector: 'app-personnage',
@@ -60,6 +61,15 @@ export class PersonnagePage implements OnInit
                     });
                 });
             }
+        });
+    }
+
+    protected OuvrirModalObjetBoutiquePosseder(_personnage: Personnage): void
+    {
+        this.dialog.open(ModalObjetPossede, { 
+            width: "70%", 
+            maxWidth: "100vw",
+            data: _personnage.id
         });
     }
 

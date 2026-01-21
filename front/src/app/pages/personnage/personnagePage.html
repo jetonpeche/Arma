@@ -92,6 +92,10 @@
                                     (fileChange)="UploadFichier(element.id, $any($event))"
                                     accept=".png, .jpg, .webp, .jpeg" />&nbsp;
 
+                <button matMiniFab (click)="OuvrirModalObjetBoutiquePosseder(element)">
+                    <mat-icon>shopping_basket</mat-icon>
+                </button>&nbsp;
+
                 <button matMiniFab (click)="OuvrirModalAjouterPersonne(element)">
                     <mat-icon>edit</mat-icon>
                 </button>&nbsp;

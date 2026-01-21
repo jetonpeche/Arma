@@ -12,9 +12,11 @@ export class BoutiqueService
 
     private readonly BASE_API = `${environment.urlApi}/boutique`;
 
-    Lister(_idPersonnage: number): Observable<Boutique[]>
+    Lister(_idPersonnage: number, _possederUniquement: boolean = false): Observable<Boutique[]>
     {
-        return this.http.get<Boutique[]>(`${this.BASE_API}/lister/${_idPersonnage}`).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.get<Boutique[]>(
+            `${this.BASE_API}/lister/${_idPersonnage}?posseder=${_possederUniquement}`
+        ).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     ListerAdmin(): Observable<BoutiqueAdmin[]>
