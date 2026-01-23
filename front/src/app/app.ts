@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +10,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalPanier } from '@modals/modal-panier/modal-panier';
-import { Materiel } from '@models/Materiel';
+import { Location } from '@angular/common';
+import { environment } from '../environements/environement';
 
 @Component({
   selector: 'app-root',
@@ -18,12 +19,14 @@ import { Materiel } from '@models/Materiel';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App 
+export class App implements OnInit
 {
     protected mdcBackdrop = signal<BooleanInput>(false);
     protected drawerMode = signal<MatDrawerMode>("push");
 
     private dialog = inject(MatDialog);
+    private location = inject(Location);
+    private router = inject(Router);
 
     constructor(private breakpointObserver: BreakpointObserver) 
     {
@@ -35,15 +38,40 @@ export class App
         );
     }
 
-    EstConnecter()
+    ngOnInit(): void 
     {
-        return true;
+        // reconnexion automatique 
+        if(sessionStorage.getItem("utilisateur"))
+        {
+            environment.utilisateur = JSON.parse(sessionStorage.getItem("utilisateur")!);
+
+            const EXP = +JSON.parse(atob(environment.utilisateur.jwt.split(".")[1]))["exp"];            
+
+            // JWT expiré
+            if(new Date(EXP * 1_000).getTime() < new Date().getTime())
+            {
+                sessionStorage.clear();
+                environment.utilisateur = null;
+                return;
+            }
+
+            // la page précédente est l'application
+            if(document.referrer && document.referrer.includes(environment.urlFront))
+                this.location.back();
+        }
     }
 
-    Deconnexion()
+    EstConnecter(): boolean
     {
-
+        return sessionStorage.getItem("utilisateur") != null;
     }
+
+    Deconnexion(): void
+    {
+        sessionStorage.removeItem("utilisateur");
+        environment.utilisateur = null;
+        this.router.navigateByUrl("/");
+    }   
 
     OuvrirModalPanier(): void
     {

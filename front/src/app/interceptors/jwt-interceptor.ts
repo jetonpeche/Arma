@@ -25,32 +25,32 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) =>
 
             switch (erreur.status) 
             {
-            case 500:
-                snackBarServ.Erreur("Erreur interne c'est produite");
-                break;
+                case 500:
+                    snackBarServ.Erreur("Erreur interne c'est produite");
+                    break;
 
-            case 401:
-                snackBarServ.Erreur("Veuillez-vous connecter");
-                localStorage.removeItem("utilisateur");
-                router.navigateByUrl("/");
-                break;
+                case 401:
+                    snackBarServ.Erreur("Veuillez-vous connecter");
+                    localStorage.removeItem("utilisateur");
+                    router.navigateByUrl("/");
+                    break;
 
-            case 403:
-                snackBarServ.Erreur("Vous n'avez pas l'autorisation");
-                break;
+                case 403:
+                    snackBarServ.Erreur("Vous n'avez pas l'autorisation");
+                    break;
 
-            case 404:
-            case 400:
-                snackBarServ.Erreur(erreur.error);
-                break;
+                case 404:
+                case 400:
+                    snackBarServ.Erreur(erreur.error);
+                    break;
 
-            case 429:
-                snackBarServ.Erreur("Spam détecté veuillez patienter");
-                break;
-            
-            default:
-                snackBarServ.Erreur("Erreur pas de réseau");
-                break;
+                case 429:
+                    snackBarServ.Erreur("Spam détecté veuillez patienter");
+                    break;
+                
+                default:
+                    snackBarServ.Erreur("Erreur pas de réseau");
+                    break;
             }
             
             return throwError(() => null);

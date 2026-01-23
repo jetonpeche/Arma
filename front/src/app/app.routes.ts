@@ -1,6 +1,11 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+    {
+        path: "",
+        loadComponent: () => import("./pages/connexion/connexion").then(x => x.ConnexionPage),
+        title: "Connexion"
+    },
     { 
         path: "personnage",
         loadComponent: () => import("./pages/personnage/personnagePage").then(x => x.PersonnagePage),

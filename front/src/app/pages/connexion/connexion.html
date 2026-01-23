@@ -1,1 +1,24 @@
-<p>connexion works!</p>
+<mat-card appearance="outlined">
+    <mat-card-header>
+        <mat-card-title>Connexion</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+        <form [formGroup]="form">
+            <jp-grid-container [gap]="15">
+                <jp-grid-element [colDefault]="12">
+                    <jp-input-text label="Login" formControlName="login" />
+                </jp-grid-element>
+
+                <jp-grid-element [colDefault]="12">
+                    <jp-input-password label="Mot de passe" formControlName="mdp" />
+                </jp-grid-element>
+            </jp-grid-container>
+            
+        </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+        <jp-button-loader label="Connexion" [loading]="btnClick()" (clicked)="Valider()" />
+    </mat-card-actions>
+</mat-card>
