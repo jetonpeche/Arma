@@ -25,6 +25,9 @@ public sealed class Personnage
      [BsonRef]
      public List<BoutiquePrix> ListeBoutiquePrix { get; set; } = [];
 
+     public string Login { get; set; } = null!;
+     public string Mdp { get; set; } = null!;
+
      public string NomDiscord { get; set; } = null!;
     public string Nom { get; set; } = null!;
     public string Matricule { get; set; } = null!;

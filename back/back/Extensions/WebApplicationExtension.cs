@@ -9,6 +9,7 @@ public static class WebApplicationExtension
         var mapGroupe = _app.MapGroup("api");
 
           mapGroupe.MapGroup("").AjouterTestRoute();
+          mapGroupe.MapGroup("authentification").AjouterRouteAuthentification();
           mapGroupe.MapGroup("personnage").AjouterRoutePersonnage();
           mapGroupe.MapGroup("grade").AjouterRouteGrade();
           mapGroupe.MapGroup("planete-origine").AjouterRoutePlaneteOrigine();

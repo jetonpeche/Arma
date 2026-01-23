@@ -4,6 +4,7 @@ using back.ModelsExport;
 using back.ModelsImport;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
+using Services.Mdp;
 
 namespace back.Routes;
 
@@ -11,27 +12,27 @@ public static class PersonnageRoute
 {
     public static RouteGroupBuilder AjouterRoutePersonnage(this RouteGroupBuilder builder)
     {
-        builder.MapGet("lister", (Delegate)ListerAsync)
-            .WithDescription("Lister les personnages")
-            .Produces<PersonnageReponse[]>();
+          builder.MapGet("lister", (Delegate)ListerAsync)
+               .WithDescription("Lister les personnages")
+               .Produces<PersonnageReponse[]>();
 
-        builder.MapPost("ajouter", AjouterAsync)
-            .WithDescription("Ajouter un nouveau personnage")
-            .ProducesBadRequest()
-            .ProducesCreated<int>();
+          builder.MapPost("ajouter", AjouterAsync)
+               .WithDescription("Ajouter un nouveau personnage")
+               .ProducesBadRequest()
+               .ProducesCreated<int>();
 
-        builder.MapPut("modifier/{idPersonnage:int}", ModifierAsync)
-            .WithDescription("Modifier un personnage")
-            .ProducesNotFound()
-            .ProducesBadRequest()
-            .ProducesNoContent();
+          builder.MapPut("modifier/{idPersonnage:int}", ModifierAsync)
+               .WithDescription("Modifier un personnage")
+               .ProducesNotFound()
+               .ProducesBadRequest()
+               .ProducesNoContent();
 
-        builder.MapDelete("supprimer/{idPersonnage:int}", SupprimerAsync)
-            .WithDescription("Supprimer un personnage")
-            .ProducesNotFound()
-            .ProducesNoContent();
+          builder.MapDelete("supprimer/{idPersonnage:int}", SupprimerAsync)
+               .WithDescription("Supprimer un personnage")
+               .ProducesNotFound()
+               .ProducesNoContent();
 
-        return builder;
+          return builder;
     }
 
     static async Task<IResult> ListerAsync(
@@ -84,43 +85,60 @@ public static class PersonnageRoute
     }
 
     static async Task<IResult> AjouterAsync(
+         [FromServices] IMdpService _mdpServ,
         [FromBody] PersonnageRequete _requete
     )
     {
           if (_requete.NbPointBoutique < 0)
                return Results.BadRequest("Le nombre de point boutique ne peut pas être négatif");
 
-        using var db = new LiteDatabase(Constant.BDD_NOM);
-        
-        var col = db.GetCollection<Personnage>();
+          if (string.IsNullOrWhiteSpace(_requete.Login))
+               return Results.BadRequest("Le login ne peut pas être vide");
 
-        var personnage = new Personnage
-        {
-            Matricule = _requete.Matricule.XSS(),
-            Nom = _requete.Nom.XSS(),
-            NomDiscord = _requete.NomDiscord.XSS(),
-            EtatService = _requete.EtatService?.XSS(),
-            GroupeSanguin = _requete.GroupeSanguin.XSS(),
-            NbPointBoutique = _requete.NbPointBoutique,
-            DateCreation = DateTime.Now
-        };
+          if (string.IsNullOrWhiteSpace(_requete.Mdp))
+               return Results.BadRequest("Le login ne peut pas être vide");
 
-        if(_requete.FormationFaite)
-        {
-            personnage.FormationFaite = true;
-            personnage.NbBootcamp += 1;
-            personnage.DateDerniereParticipation = DateTime.Now;
-        }
+          if (_requete.Mdp.Length < 8)
+               return Results.BadRequest("Le mot de passe doit contenir au moins 8 caractères");
 
-        if (_requete.IdSpecialite is not null)
-            personnage.Specialite = db.GetCollection<Specialite>().FindById(_requete.IdSpecialite);
+          using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        personnage.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
-        personnage.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
+          var personnageCol = db.GetCollection<Personnage>();
 
-        var id = col.Insert(personnage).AsInt32;
+          if (personnageCol.Exists(x => x.Login == _requete.Login))
+               return Results.BadRequest("Le login existe déjà");
 
-        return Results.Created("", id);
+          string mdpHash = _mdpServ.Hasher(_requete.Mdp);
+
+          var personnage = new Personnage
+          {
+               Login = _requete.Login,
+               Mdp = mdpHash,
+               Matricule = _requete.Matricule.XSS(),
+               Nom = _requete.Nom.XSS(),
+               NomDiscord = _requete.NomDiscord.XSS(),
+               EtatService = _requete.EtatService?.XSS(),
+               GroupeSanguin = _requete.GroupeSanguin.XSS(),
+               NbPointBoutique = _requete.NbPointBoutique,
+               DateCreation = DateTime.Now
+          };
+
+          if(_requete.FormationFaite)
+          {
+               personnage.FormationFaite = true;
+               personnage.NbBootcamp += 1;
+               personnage.DateDerniereParticipation = DateTime.Now;
+          }
+
+          if (_requete.IdSpecialite is not null)
+               personnage.Specialite = db.GetCollection<Specialite>().FindById(_requete.IdSpecialite);
+
+          personnage.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
+          personnage.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
+
+          var id = personnageCol.Insert(personnage).AsInt32;
+
+          return Results.Created("", id);
     }
 
     static async Task<IResult> ModifierAsync(
@@ -137,39 +155,39 @@ public static class PersonnageRoute
 
           var personnageBdd = col.FindById(_idPersonnage);
 
-        if (personnageBdd is null)
-            return Results.NotFound("Le personnage n'existe pas");
+          if (personnageBdd is null)
+               return Results.NotFound("Le personnage n'existe pas");
 
-        var personnage = new Personnage
-        {
-            Id = _idPersonnage,
-            Matricule = _requete.Matricule.XSS(),
-            Nom = _requete.Nom.XSS(),
-            NomDiscord = _requete.Nom.XSS(),
-            EtatService = _requete.EtatService?.XSS(),
-            GroupeSanguin = _requete.GroupeSanguin.XSS(),
-            NbBootcamp = _requete.NbBootcamp,
-            NbOperation = _requete.NbOperation,
-            EstFormateur = _requete.EstFormateur,
-            EstFormateurSpecialite = _requete.EstFormateurSpecialite,
-            FormationFaite = _requete.FormationFaite,
-            NbPointBoutique = _requete.NbPointBoutique,
-            DateDerniereParticipation = personnageBdd.DateDerniereParticipation,
-            NomFichierPhotoIdentite = personnageBdd.NomFichierPhotoIdentite
-        };
+          var personnage = new Personnage
+          {
+               Id = _idPersonnage,
+               Matricule = _requete.Matricule.XSS(),
+               Nom = _requete.Nom.XSS(),
+               NomDiscord = _requete.Nom.XSS(),
+               EtatService = _requete.EtatService?.XSS(),
+               GroupeSanguin = _requete.GroupeSanguin.XSS(),
+               NbBootcamp = _requete.NbBootcamp,
+               NbOperation = _requete.NbOperation,
+               EstFormateur = _requete.EstFormateur,
+               EstFormateurSpecialite = _requete.EstFormateurSpecialite,
+               FormationFaite = _requete.FormationFaite,
+               NbPointBoutique = _requete.NbPointBoutique,
+               DateDerniereParticipation = personnageBdd.DateDerniereParticipation,
+               NomFichierPhotoIdentite = personnageBdd.NomFichierPhotoIdentite
+          };
 
-        personnage.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
-        personnage.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
+          personnage.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
+          personnage.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
 
-        if (_requete.IdSpecialite is not null)
-            personnage.Specialite = db.GetCollection<Specialite>().FindById(_requete.IdSpecialite);
+          if (_requete.IdSpecialite is not null)
+               personnage.Specialite = db.GetCollection<Specialite>().FindById(_requete.IdSpecialite);
 
-        if (_requete.NbBootcamp > personnageBdd.NbBootcamp || _requete.NbOperation > personnageBdd.NbOperation)
-            personnage.DateDerniereParticipation = DateTime.UtcNow;
+          if (_requete.NbBootcamp > personnageBdd.NbBootcamp || _requete.NbOperation > personnageBdd.NbOperation)
+               personnage.DateDerniereParticipation = DateTime.UtcNow;
 
-        var ok = col.Update(personnage);
+          var ok = col.Update(personnage);
 
-        return ok ? Results.NoContent() : Results.NotFound();
+          return ok ? Results.NoContent() : Results.NotFound();
     }
 
     static async Task<IResult> SupprimerAsync(
