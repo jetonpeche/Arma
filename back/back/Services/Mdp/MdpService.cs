@@ -1,95 +1,97 @@
 ﻿using System.Security.Cryptography;
 
-namespace Services.Mdp
+namespace Services.Mdp;
+
+public sealed class MdpService : IMdpService
 {
-    public sealed class MdpService : IMdpService
-    {
-        private readonly int longeurSel = 16;
-        private readonly int longeurCleHash = 32;
-        private readonly int nbIteration = 20_000;
-        private readonly char delimiteur = '$';
-        private char[] CARACTERE_ALPHANUMERIQUE = [
-            'A','B','C','D','E','F','G','H','I','J','K','L','M','N',
-            'O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b',
-            'c','d','e','f','g','h','i','j','k','l','m','n','o','p',
-            'q','r','s','t','u','v','w','x','y','z','0','1','2','3',
-            '4','5','6','7','8','9'
-        ];
-        private char[] CARACTERE_SPECIAUX = [
-            '@','"','!','@','#','$','£','%','^','&','*',
-            '\\','(',')','_','-','+','=','[','{',']','}',
-            ';',':','<','>','|','.','/','?','§'
-        ];
+     private readonly int longeurSel = 16;
+     private readonly int longeurCleHash = 32;
+     private readonly char delimiteur = '$';
+     private char[] CARACTERE_ALPHANUMERIQUE = [
+         'A','B','C','D','E','F','G','H','I','J','K','L','M','N',
+        'O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b',
+        'c','d','e','f','g','h','i','j','k','l','m','n','o','p',
+        'q','r','s','t','u','v','w','x','y','z','0','1','2','3',
+        '4','5','6','7','8','9'
+     ];
+     private char[] CARACTERE_SPECIAUX = [
+         '@','"','!','@','#','$','£','%','^','&','*',
+        '\\','(',')','_','-','+','=','[','{',']','}',
+        ';',':','<','>','|','.','/','?','§'
+     ];
 
-        public string Generer(ushort _longueurMdp, bool _contientCaractereSpeciaux = true, int _nbCaractereSpeciaux = 0)
-        {
-            Random.Shared.Shuffle(CARACTERE_ALPHANUMERIQUE);
-            Random.Shared.Shuffle(CARACTERE_SPECIAUX);
+     public string Generer(ushort _longueurMdp, bool _contientCaractereSpeciaux = true, int _nbCaractereSpeciaux = 0)
+     {
+          RandomNumberGenerator.Shuffle(CARACTERE_ALPHANUMERIQUE);
+          RandomNumberGenerator.Shuffle(CARACTERE_SPECIAUX);
 
-            char[] motDePasse = new char[_longueurMdp];
+          char[] motDePasse = new char[_longueurMdp];
 
-            byte[] octetsAleatoires = new byte[_longueurMdp];
-            octetsAleatoires = RandomNumberGenerator.GetBytes(_longueurMdp);
+          int nbCaracteresSpeciaux = 0;
 
-            int nbCaracteresSpeciaux = 0;
+          if (_contientCaractereSpeciaux)
+               nbCaracteresSpeciaux = _nbCaractereSpeciaux > 0 ? _nbCaractereSpeciaux : RandomNumberGenerator.GetInt32(1, _longueurMdp + 1);
 
-            if (_contientCaractereSpeciaux)
-                nbCaracteresSpeciaux = _nbCaractereSpeciaux > 0 ? _nbCaractereSpeciaux : RandomNumberGenerator.GetInt32(1, _longueurMdp + 1);
+          for (int i = 0; i < _longueurMdp; i++)
+          {
+               if (i < nbCaracteresSpeciaux)
+                    motDePasse[i] = CARACTERE_SPECIAUX[RandomNumberGenerator.GetInt32(CARACTERE_SPECIAUX.Length)];
+               else
+                    motDePasse[i] = CARACTERE_ALPHANUMERIQUE[RandomNumberGenerator.GetInt32(CARACTERE_ALPHANUMERIQUE.Length)];
+          }
 
-            for (int i = 0; i < _longueurMdp; i++)
-            {
-                int indexAleatoire;
+          // Mélangez le mot de passe pour plus de sécurité
+          RandomNumberGenerator.Shuffle(motDePasse);
 
-                if (i < nbCaracteresSpeciaux)
-                {
-                    indexAleatoire = octetsAleatoires[i] % CARACTERE_SPECIAUX.Length;
-                    motDePasse[i] = CARACTERE_SPECIAUX[indexAleatoire];
-                }
-                else
-                {
-                    indexAleatoire = octetsAleatoires[i] % CARACTERE_ALPHANUMERIQUE.Length;
-                    motDePasse[i] = CARACTERE_ALPHANUMERIQUE[indexAleatoire];
-                }
-            }
+          return new string(motDePasse);
+     }
 
-            // Mélangez le mot de passe pour plus de sécurité
-            RandomNumberGenerator.Shuffle<char>(motDePasse);
+     public string Hasher(string _mdp, int _nbIteration = 600_000)
+     {
+          if (string.IsNullOrWhiteSpace(_mdp))
+               return "";
 
-            return new string(motDePasse);
-        }
+          byte[] sel = RandomNumberGenerator.GetBytes(longeurSel);
+          byte[] hash = Rfc2898DeriveBytes.Pbkdf2(
+               _mdp,
+               sel,
+               _nbIteration,
+               HashAlgorithmName.SHA256,
+               longeurCleHash
+          );
 
-        public string Hasher(string _mdp)
-        {
-            if (string.IsNullOrWhiteSpace(_mdp))
-                return "";
+          return Convert.ToBase64String(sel) + delimiteur + _nbIteration + delimiteur + Convert.ToBase64String(hash);
+     }
 
-            byte[] sel = RandomNumberGenerator.GetBytes(longeurSel);
-            byte[] hash = GenererPbkdf2(sel, _mdp);
+     public bool VerifierHash(string _mdp, string _mdpHash)
+     {
+          if (string.IsNullOrWhiteSpace(_mdpHash) || string.IsNullOrWhiteSpace(_mdp))
+               return false;
 
-            return Convert.ToBase64String(sel) + delimiteur + Convert.ToBase64String(hash);
-        }
+          var listeElement = _mdpHash.Split(delimiteur);
 
-        public bool VerifierHash(string _mdp, string _mdpHash)
-        {
-            if (string.IsNullOrWhiteSpace(_mdpHash) || string.IsNullOrWhiteSpace(_mdp))
-                return false;
+          if (listeElement.Length != 3)
+               return false;
 
-            var listeElement = _mdpHash.Split(delimiteur);
+          try
+          {
+               byte[] sel = Convert.FromBase64String(listeElement[0]);
+               int nbIteration = int.Parse(listeElement[1]);
+               byte[] mdpHash = Convert.FromBase64String(listeElement[2]);
 
-            byte[] sel = Convert.FromBase64String(listeElement[0]);
-            byte[] mdpHash = Convert.FromBase64String(listeElement[1]);
+               var tPbkdf2Mdp = Rfc2898DeriveBytes.Pbkdf2(
+                    _mdp,
+                    sel,
+                    nbIteration,
+                    HashAlgorithmName.SHA256,
+                    longeurCleHash
+               );
 
-            var tPbkdf2Mdp = GenererPbkdf2(sel, _mdp);
-
-            return CryptographicOperations.FixedTimeEquals(mdpHash, tPbkdf2Mdp);
-        }
-
-        private byte[] GenererPbkdf2(ReadOnlySpan<byte> _sel, string _mdp)
-        {
-            // 10 000  => mini 
-            // 100 000 => max
-            // depend de la puissance de la machine
-            return Rfc2898DeriveBytes.Pbkdf2(_mdp, _sel, nbIteration, HashAlgorithmName.SHA256, longeurCleHash);
-        }
-    }
+               return CryptographicOperations.FixedTimeEquals(mdpHash, tPbkdf2Mdp);
+          }
+          catch
+          {
+               return false;
+          }
+     }
 }
