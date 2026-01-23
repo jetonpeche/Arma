@@ -11,7 +11,7 @@ import { GradeService } from '@services/GradeService';
 import { PlaneteService } from '@services/PlaneteService';
 import { SpecialiteService } from '@services/SpecialiteService';
 import { FichierService } from '@services/FichierService';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { EVENT_MANAGER_PLUGINS } from '@angular/platform-browser';
 import { DebounceEventPlugin } from '../Events/DebounceEventPlugin';
 import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarConfig } from '@angular/material/snack-bar';
@@ -26,6 +26,8 @@ import { MaterielService } from '@services/MaterielService';
 import { VaisseauService } from '@services/VaisseauService';
 import { PanierService } from '@services/PanierService';
 import { PropositionAchatService } from '@services/PropositionAchatService';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { jwtInterceptor } from './interceptors/jwt-interceptor';
 
 const matInput: MatFormFieldDefaultOptions = {
   appearance: 'outline',
@@ -61,7 +63,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([jwtInterceptor])),
     provideJpMatInput(),
     importProvidersFrom(MatNativeDateModule),
 
@@ -82,6 +84,7 @@ export const appConfig: ApplicationConfig = {
     { provide: DialogConfirmationService, useClass: DialogConfirmationService },
     { provide: PanierService, useClass: PanierService },
     { provide: PropositionAchatService, useClass: PropositionAchatService },
+    { provide: AuthentificationService, useClass: AuthentificationService },
 
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matInput },
     { provide: MAT_DATE_LOCALE, useValue: navigator.language },
