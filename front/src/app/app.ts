@@ -61,19 +61,19 @@ export class App implements OnInit
         }
     }
 
-    EstConnecter(): boolean
+    protected EstConnecter(): boolean
     {
         return sessionStorage.getItem("utilisateur") != null;
     }
 
-    Deconnexion(): void
+    protected Deconnexion(): void
     {
         sessionStorage.removeItem("utilisateur");
         environment.utilisateur = null;
         this.router.navigateByUrl("/");
-    }   
+    }
 
-    OuvrirModalPanier(): void
+    protected OuvrirModalPanier(): void
     {
         this.dialog.open(ModalPanier, {
             width: "50%", 

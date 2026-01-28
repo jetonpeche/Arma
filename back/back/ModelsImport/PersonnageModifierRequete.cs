@@ -5,6 +5,7 @@ public sealed class PersonnageModifierRequete
      public int IdGrade { get; set; }
      public required int IdPlaneteOrigine { get; set; }
      public required int? IdSpecialite { get; set; }
+     public required int IdDroitGroupe { get; set; }
      public required int NbOperation { get; set; }
      public required int NbBootcamp { get; set; }
      public int NbPointBoutique { get; set; }

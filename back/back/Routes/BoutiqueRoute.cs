@@ -371,10 +371,17 @@ public static class BoutiqueRoute
           if(!ok)
                return Results.NotFound("La boutique n'existe pas");
 
-          db.GetCollection<BoutiquePrix>().DeleteMany(x => x.Boutique.Id ==  _idBoutique);
-          db.GetCollection<Personnage>().DeleteMany(
-               x => x.ListeBoutiquePrix.Select(y => y.Boutique.Id).Any(y => y == _idBoutique)
-          );
+          db.GetCollection<BoutiquePrix>().DeleteMany(x => x.Boutique.Id == _idBoutique);
+
+          var personnageCol = db.GetCollection<Personnage>();
+          var listePersonnage = personnageCol.Query()
+               .Where(x => x.ListeBoutiquePrix.Select(y => y.Boutique.Id).Any(y => y == _idBoutique))
+               .ToList();
+
+          foreach (var element in listePersonnage)
+               element.ListeBoutiquePrix.RemoveAll(x => x.Id == _idBoutique);
+
+          personnageCol.Update(listePersonnage);
 
           return Results.NoContent();
      }

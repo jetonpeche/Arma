@@ -108,6 +108,9 @@ public static class PersonnageRoute
           if (personnageCol.Exists(x => x.Login == _requete.Login))
                return Results.BadRequest("Le login existe déjà");
 
+          if (!db.GetCollection<DroitGroupe>().Exists(x => x.Id == _requete.IdDroitGroupe))
+               return Results.NotFound("Le droit programmé n'existe pas");
+
           string mdpHash = _mdpServ.Hasher(_requete.Mdp);
 
           var personnage = new Personnage
@@ -120,7 +123,8 @@ public static class PersonnageRoute
                EtatService = _requete.EtatService?.XSS(),
                GroupeSanguin = _requete.GroupeSanguin.XSS(),
                NbPointBoutique = _requete.NbPointBoutique,
-               DateCreation = DateTime.Now
+               DateCreation = DateTime.Now,
+               DroitGroupe = new DroitGroupe { Id = _requete.IdDroitGroupe}
           };
 
           if(_requete.FormationFaite)
@@ -149,6 +153,9 @@ public static class PersonnageRoute
           if (_requete.NbPointBoutique < 0)
                return Results.BadRequest("Le nombre de point boutique ne peut pas être négatif");
 
+          if(_requete.IdDroitGroupe <= 0)
+               return Results.NotFound("Le droit programmé n'existe pas");
+
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
           var col = db.GetCollection<Personnage>();
@@ -176,6 +183,14 @@ public static class PersonnageRoute
                NomFichierPhotoIdentite = personnageBdd.NomFichierPhotoIdentite
           };
 
+          if (personnageBdd.DroitGroupe?.Id != _requete.IdDroitGroupe)
+          {
+               if (!db.GetCollection<DroitGroupe>().Exists(x => x.Id == _requete.IdDroitGroupe))
+                    return Results.NotFound("Le droit programmé n'existe pas");
+
+               personnage.DroitGroupe = new DroitGroupe { Id = _requete.IdDroitGroupe };
+          }
+
           personnage.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
           personnage.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
 
@@ -194,19 +209,28 @@ public static class PersonnageRoute
         [FromRoute(Name = "idPersonnage")] int _idPersonnage
     )
     {
-        using var db = new LiteDatabase(Constant.BDD_NOM);
+          using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        var col = db.GetCollection<Personnage>();
-        var personnage = col.FindById(_idPersonnage);
+          var col = db.GetCollection<Personnage>();
+          var personnage = col.FindById(_idPersonnage);
 
-        if (personnage is null)
-            return Results.NotFound("Le personnage n'existe pas");
+          if (personnage is null)
+               return Results.NotFound("Le personnage n'existe pas");
 
-        if (personnage.PersonnageSecondaire is not null)
-            db.GetCollection<PersonnageSecondaire>().Delete(personnage.PersonnageSecondaire.Id);
+          if (personnage.PersonnageSecondaire is not null)
+               db.GetCollection<PersonnageSecondaire>().Delete(personnage.PersonnageSecondaire.Id);
 
-        col.Delete(_idPersonnage);
+          var listeBoutiquePrix = db.GetCollection<BoutiquePrix>()
+               .Query()
+               .Where(x => x.ListePersonnage.Select(y => y.Id).Any(y => y == _idPersonnage))
+               .ToArray();
 
-        return Results.NoContent();
+          foreach (var element in listeBoutiquePrix)
+               element.ListePersonnage.RemoveAll(x => x.Id == _idPersonnage);
+
+          db.GetCollection<BoutiquePrix>().Update(listeBoutiquePrix);
+          col.Delete(_idPersonnage);
+
+          return Results.NoContent();
     }
 }
