@@ -1,8 +1,11 @@
 <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
-    <button matButton="filled" (click)="OuvrirModalAjouterModifierTypeMateriel()">
-        <mat-icon>add</mat-icon>
-        Nouveau type
-    </button>
+    @if (droit().peutEcrire) 
+    {
+        <button matButton="filled" (click)="OuvrirModalAjouterModifierTypeMateriel()">
+            <mat-icon>add</mat-icon>
+            Nouveau type
+        </button>
+    }
 </div>
 
 <mat-form-field>
@@ -21,9 +24,13 @@
         <ng-container matColumnDef="action">
             <th mat-header-cell *matHeaderCellDef> Action</th>
             <td mat-cell *matCellDef="let element">
-                <button matMiniFab (click)="OuvrirModalAjouterModifierTypeMateriel(element)">
-                    <mat-icon>edit</mat-icon>
-                </button>
+
+                @if (droit().peutEcrire) 
+                {
+                    <button matMiniFab (click)="OuvrirModalAjouterModifierTypeMateriel(element)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                }
             </td>
         </ng-container>
 

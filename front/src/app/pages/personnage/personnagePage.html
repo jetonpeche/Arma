@@ -1,10 +1,13 @@
 <div style="text-align: center; margin-bottom: 20px;">
     <h1>Personnage</h1>
 
-    <button matButton="filled" (click)="OuvrirModalAjouterPersonne()">
-        <mat-icon>add</mat-icon>
-        Nouvelle recrue
-    </button>
+    @if (droit.peutEcrire) 
+    {
+        <button matButton="filled" (click)="OuvrirModalAjouterPersonne()">
+            <mat-icon>add</mat-icon>
+            Nouvelle recrue
+        </button>
+    }
 </div>
 
 <mat-form-field appearance="outline">
@@ -87,22 +90,32 @@
             </mat-card-content>
 
             <div class="enfant" style="position: absolute; right: 10px; top: 10px;">
-                <jp-input-file-btn matMiniFab 
-                                    icon="photo" 
-                                    (fileChange)="UploadFichier(element.id, $any($event))"
-                                    accept=".png, .jpg, .webp, .jpeg" />&nbsp;
+
+                @if (droitFichier.peutEcrire) 
+                {
+                    <jp-input-file-btn matMiniFab 
+                                                icon="photo" 
+                                                (fileChange)="UploadFichier(element.id, $any($event))"
+                                                accept=".png, .jpg, .webp, .jpeg" />&nbsp;
+                }
 
                 <button matMiniFab (click)="OuvrirModalObjetBoutiquePosseder(element)">
                     <mat-icon>shopping_basket</mat-icon>
                 </button>&nbsp;
 
-                <button matMiniFab (click)="OuvrirModalAjouterPersonne(element)">
-                    <mat-icon>edit</mat-icon>
-                </button>&nbsp;
+                @if (droit.peutEcrire) 
+                {
+                    <button matMiniFab (click)="OuvrirModalAjouterPersonne(element)">
+                        <mat-icon>edit</mat-icon>
+                    </button>&nbsp;
+                }
 
-                <button matMiniFab (click)="OuvrirModalSupprimer(element)">
-                    <mat-icon>delete</mat-icon>
-                </button>
+                @if (droit.peutSupprimer) 
+                {
+                    <button matMiniFab (click)="OuvrirModalSupprimer(element)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                }
             </div>
         </mat-card>
     }

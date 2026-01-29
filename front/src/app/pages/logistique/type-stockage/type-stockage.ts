@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, inject, input, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from "@angular/material/icon";
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -10,6 +10,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { TypeStockageLogistiqueService } from '@services/TypeStockageLogistiqueService';
 import { AjouterModifierTypeStockageLogistique } from '@modals/ajouter-modifier-type-stockage-logistique/ajouter-modifier-type-logistique';
+import { Droit } from '@models/DroitGroupe';
 
 @Component({
   selector: 'app-type-stockage',
@@ -19,6 +20,8 @@ import { AjouterModifierTypeStockageLogistique } from '@modals/ajouter-modifier-
 })
 export class TypeStockagePage
 {
+    droit = input.required<Droit>();
+
     protected displayedColumns = ["nom", "action"];
     protected dataSource = signal<MatTableDataSource<TypeStockageLogistique>>(new MatTableDataSource());
 

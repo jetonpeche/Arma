@@ -10,6 +10,9 @@ import { AutocompleteDataSource, InputAutocomplete, ButtonLoader } from '@jetonp
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ETypeObjetProposer } from '@enums/ETypeObjetProposer';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { Droit } from '@models/DroitGroupe';
+import { EUrl } from '@enums/EUrl';
 
 @Component({
   selector: 'app-proposition-achat',
@@ -28,6 +31,7 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
     protected dataSource = signal(new MatTableDataSource<ObjetProposer>());
     protected btnClick = signal<boolean>(false);
     protected eTypeObjetProposer = ETypeObjetProposer;
+    protected droit: Droit;
     protected idPropositionSelectionner = signal<number>(0);
     protected prixTotal = computed(() => 
         this.liste().reduce(
@@ -38,6 +42,7 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
     private listePropositionAchat = signal<PropositionAchat[]>([]);
     private propositionAchatServ = inject(PropositionAchatService);
     private dialogConfirmationServ = inject(DialogConfirmationService);
+    private authServ = inject(AuthentificationService);
     private snackBarServ = inject(SnackBarService);
 
     /** Utiliser pour declancher le prixTotal computed */
@@ -46,6 +51,7 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
     ngOnInit(): void
     {
         this.Lister();
+        this.droit = this.authServ.RecupererDroit(EUrl.PropositionAchat);
     }
 
     ngAfterViewInit(): void 

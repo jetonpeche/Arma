@@ -1,10 +1,13 @@
 <div style="text-align: center; margin-bottom: 20px;">
     <h1>Gestion de la boutique</h1>
 
-    <button matButton="filled" (click)="OuvrirModalAjouterModifierBoutique()">
-        <mat-icon>add</mat-icon>
-        Nouvelle objet
-    </button>
+    @if (droit.peutEcrire) 
+    {
+        <button matButton="filled" (click)="OuvrirModalAjouterModifierBoutique()">
+            <mat-icon>add</mat-icon>
+            Nouvelle objet
+        </button>
+    }
 </div>
 
 <mat-form-field>
@@ -20,12 +23,15 @@
             <td mat-cell *matCellDef="let element" class="parent-td">
                 <img [src]="element.urlImageObjet" width="40" height="40">
 
-                <div class="enfant">
-                    <jp-input-file-btn matIconButton 
-                                    icon="photo"    
-                                    (fileChange)="UploadFichier(element.id, $any($event))"            
-                                    accept=".png, .jpg, .webp, .jpeg" />
-                </div>
+                @if (droit.peutEcrire)
+                {
+                    <div class="enfant">
+                        <jp-input-file-btn matIconButton 
+                                                    icon="photo"    
+                                                    (fileChange)="UploadFichier(element.id, $any($event))"            
+                                                    accept=".png, .jpg, .webp, .jpeg" />
+                    </div>
+                }
             </td>
         </ng-container>
 
@@ -42,14 +48,21 @@
         <ng-container matColumnDef="action">
             <th mat-header-cell *matHeaderCellDef> Action </th>
             <td mat-cell *matCellDef="let element">
-                <jp-button-loader matMiniFab
-                                            icon="edit" 
-                                            (clicked)="OuvrirModalAjouterModifierBoutique(element)" />&nbsp;
+
+                @if (droit.peutEcrire) 
+                {
+                    <jp-button-loader matMiniFab
+                                                icon="edit" 
+                                                (clicked)="OuvrirModalAjouterModifierBoutique(element)" />&nbsp;
+                }
                 
-                <jp-button-loader matMiniFab
-                                            [loading]="btnClick()"
-                                            icon="delete"
-                                            (clicked)="OuvrirModalConfirmation(element)" />
+                @if (droit.peutSupprimer) 
+                {
+                    <jp-button-loader matMiniFab
+                                                [loading]="btnClick()"
+                                                icon="delete"
+                                                (clicked)="OuvrirModalConfirmation(element)" />
+                }
             </td>
         </ng-container>
 

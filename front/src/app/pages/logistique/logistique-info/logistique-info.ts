@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit, signal, viewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import { MatSort, MatSortModule} from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule} from '@angular/material/table';
@@ -16,6 +16,7 @@ import { ButtonLoader } from "@jetonpeche/angular-mat-input";
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { SnackBarService } from '@services/SnackBarService';
 import { ModalInputQuantite } from '@modals/modal-input-quantite/modal-input-quantite';
+import { Droit } from '@models/DroitGroupe';
 
 @Component({
   selector: 'app-logistique-info',
@@ -25,6 +26,8 @@ import { ModalInputQuantite } from '@modals/modal-input-quantite/modal-input-qua
 })
 export class LogistiqueInfo implements OnInit, AfterViewInit
 {
+    droit = input.required<Droit>();
+
     protected displayedColumns = ["nom", "prix", "stock", "nbDetruit", "tailleUnitaireInventaire", "typeStockage", "action"];
     protected dataSource = signal<MatTableDataSource<Logistique>>(new MatTableDataSource());
     protected listeType = signal<TypeLogistique[]>([]);

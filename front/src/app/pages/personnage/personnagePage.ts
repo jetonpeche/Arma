@@ -15,6 +15,9 @@ import { InputFile } from "@jetonpeche/angular-mat-input";
 import { FichierService } from '@services/FichierService';
 import { ETypeRessource } from '@enums/ETypeRessource';
 import { ModalObjetPossede } from './modal-objet-possede/modal-objet-possede';
+import { Droit } from '@models/DroitGroupe';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { EUrl } from '@enums/EUrl';
 
 @Component({
   selector: 'app-personnage',
@@ -25,16 +28,22 @@ import { ModalObjetPossede } from './modal-objet-possede/modal-objet-possede';
 export class PersonnagePage implements OnInit
 {
     protected listePersonnage = signal<Personnage[]>([]);
+    protected droit: Droit;
+    protected droitFichier: Droit;
 
     private personnageServ = inject(PersonnageService);
     private dialog = inject(MatDialog);
     private snackBarServ = inject(SnackBarService);
     private fichierServ = inject(FichierService);
     private dialogServ = inject(DialogConfirmationService);
+    private authServ = inject(AuthentificationService);
 
     ngOnInit(): void 
     {
         this.Lister();
+
+        this.droit = this.authServ.RecupererDroit(EUrl.Personnage);
+        this.droitFichier = this.authServ.RecupererDroit(EUrl.UploadFichier);
     }
 
     protected Rechercher(_recherche: string): Personnage[]

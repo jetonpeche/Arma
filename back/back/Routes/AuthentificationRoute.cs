@@ -39,6 +39,7 @@ public static class AuthentificationRoute
 
           var infoLogin = db.GetCollection<Personnage>()
                .Query()
+               .Include(x => x.DroitGroupe)
                .Where(x => x.Login == _requete.Login)
                .Select(x => new
                {
@@ -46,7 +47,8 @@ public static class AuthentificationRoute
                     x.Login,
                     x.Mdp,
                     x.NbPointBoutique,
-                    x.Nom
+                    x.Nom,
+                    x.DroitGroupe
                })
                .FirstOrDefault();
 
@@ -59,12 +61,25 @@ public static class AuthentificationRoute
 
           int nbPointBanque = db.GetCollection<Banque>().Query().First().Argent;
 
+          if (infoLogin.DroitGroupe is null)
+               return Results.BadRequest("Vous n'avez aucun droit, contacter un administrateur");
+
+          var droitGroupe = new DroitGroupeReponse
+          { 
+               Id = infoLogin.DroitGroupe!.Id,
+               Nom = infoLogin.DroitGroupe.Nom,
+               PeutAcheterLogistiqueMateriel = infoLogin.DroitGroupe.PeutAcheterLogistiqueMateriel,
+               PeutAcheterVaisseau = infoLogin.DroitGroupe.PeutAcheterVaisseau,
+               ListeDroit = infoLogin.DroitGroupe.ListeDroit.ToArray()
+          };
+
           var retour = new ConnexionReponse
           {
                Jwt = jwt,
                Nom = infoLogin.Nom,
                NbPointBoutique = infoLogin.NbPointBoutique,
-               NbPointBanque = nbPointBanque
+               NbPointBanque = nbPointBanque,
+               Droit = droitGroupe
           };
 
           return Results.Extensions.Ok(retour, ConnexionReponseContext.Default);

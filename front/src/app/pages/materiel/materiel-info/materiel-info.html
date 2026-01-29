@@ -1,8 +1,11 @@
 <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
-    <button matButton="filled" (click)="OuvrirModalAjouterModifierMateriel()">
-        <mat-icon>add</mat-icon>
-        Nouvelle objet
-    </button>
+    @if (droit().peutEcrire) 
+    {
+        <button matButton="filled" (click)="OuvrirModalAjouterModifierMateriel()">
+            <mat-icon>add</mat-icon>
+            Nouvelle objet
+        </button>
+    }
 </div>
 
 <jp-grid-container>
@@ -67,11 +70,20 @@
                     <mat-icon>add_shopping_cart</mat-icon>
                 </button>&nbsp;
 
-                <button matMiniFab (click)="OuvrirModalAjouterModifierMateriel(element)">
-                    <mat-icon>edit</mat-icon>
-                </button>&nbsp;
+                @if (droit().peutEcrire) 
+                {
+                    <button matMiniFab (click)="OuvrirModalAjouterModifierMateriel(element)">
+                        <mat-icon>edit</mat-icon>
+                    </button>&nbsp;
+                }
 
-                <jp-button-loader matMiniFab icon="delete" [loading]="btnClick()" (clicked)="OuvrirModalConfirmationSupprimer(element)" />
+                @if (droit().peutSupprimer) 
+                {
+                    <jp-button-loader matMiniFab 
+                                                icon="delete" 
+                                                [loading]="btnClick()" 
+                                                (clicked)="OuvrirModalConfirmationSupprimer(element)" />
+                }
             </td>
         </ng-container>
 

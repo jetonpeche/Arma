@@ -13,6 +13,9 @@ import { ButtonLoader } from "@jetonpeche/angular-mat-input";
 import { AjouterModifierSpecialite } from '@modals/ajouter-modifier-specialite/ajouter-modifier-specialite';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { Droit } from '@models/DroitGroupe';
+import { EUrl } from '@enums/EUrl';
 
 @Component({
   selector: 'app-specialite',
@@ -28,8 +31,10 @@ export class SpecialitePage implements OnInit, AfterViewInit
     protected displayedColumns: string[] = ["nom", "action"];
     protected dataSource = signal<MatTableDataSource<Specialite>>(new MatTableDataSource());
     protected btnClick = signal<boolean>(false);
+    protected droit: Droit;
 
     private dialogServ = inject(DialogConfirmationService); 
+    private authServ = inject(AuthentificationService);
     private specialiteServ = inject(SpecialiteService);
     private snackBarServ = inject(SnackBarService);
     private dialog = inject(MatDialog);
@@ -37,6 +42,8 @@ export class SpecialitePage implements OnInit, AfterViewInit
     ngOnInit(): void 
     {
         this.Lister();
+
+        this.droit = this.authServ.RecupererDroit(EUrl.Specialite);
     }
 
     ngAfterViewInit(): void 

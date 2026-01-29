@@ -8,6 +8,7 @@ public sealed class ConnexionReponse
      public required string Jwt { get; set; }
      public required int NbPointBoutique { get; set; }
      public required int NbPointBanque { get; set; }
+     public required DroitGroupeReponse? Droit { get; set; }
 }
 
 [JsonSerializable(typeof(ConnexionReponse))]

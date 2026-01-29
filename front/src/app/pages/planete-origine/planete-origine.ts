@@ -14,6 +14,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { PlaneteService } from '@services/PlaneteService';
 import { PlaneteOrigine } from '@models/PlaneteOrigine';
 import { AjouterModifierPlaneteOrigine } from '@modals/ajouter-modifier-planete-origine/ajouter-modifier-planete-origine';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { Droit } from '@models/DroitGroupe';
+import { EUrl } from '@enums/EUrl';
 
 @Component({
     selector: 'app-planete-origine',
@@ -29,15 +32,18 @@ export class PlaneteOriginePage implements OnInit, AfterViewInit
     protected displayedColumns: string[] = ["nom", "action"];
     protected dataSource = signal<MatTableDataSource<PlaneteOrigine>>(new MatTableDataSource());
     protected btnClick = signal<boolean>(false);
+    protected droit: Droit;
 
     private snackBarServ = inject(SnackBarService);
     private dialog = inject(MatDialog);
     private dialogServ = inject(DialogConfirmationService);    
     private planeteServ = inject(PlaneteService);
+    private authServ = inject(AuthentificationService);
 
-    ngOnInit(): void 
+    ngOnInit(): void
     {
         this.Lister();
+        this.droit = this.authServ.RecupererDroit(EUrl.PlaneteOrigine);
     }
 
     ngAfterViewInit(): void 

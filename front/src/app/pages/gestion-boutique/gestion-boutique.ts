@@ -15,6 +15,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierBoutique } from '@modals/ajouter-modifier-boutique/ajouter-modifier-boutique';
 import { ETypeRessource } from '@enums/ETypeRessource';
 import { FichierService } from '@services/FichierService';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { Droit } from '@models/DroitGroupe';
+import { EUrl } from '@enums/EUrl';
 
 @Component({
   selector: 'app-gestion-boutique',
@@ -30,16 +33,22 @@ export class GestionBoutiquePage implements OnInit, AfterViewInit
     protected displayedColumns: string[] = ["image", "titre", "nb", "action"];
     protected dataSource = signal<MatTableDataSource<BoutiqueAdmin>>(new MatTableDataSource());
     protected btnClick = signal<boolean>(false);
+    protected droit: Droit;
+    protected droitFichier: Droit;
 
     private boutiqueServ = inject(BoutiqueService);
     private snackBarServ = inject(SnackBarService);
     private fichierServ = inject(FichierService);
     private dialog = inject(MatDialog);
     private dialogConfirmationServ = inject(DialogConfirmationService);
+    private authServ = inject(AuthentificationService);
 
     ngOnInit(): void 
     {
         this.Lister();
+
+        this.droit = this.authServ.RecupererDroit(EUrl.Boutique);
+        this.droitFichier = this.authServ.RecupererDroit(EUrl.UploadFichier);
     }
 
     ngAfterViewInit(): void 

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,17 +8,19 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { AjouterModifierTypeMateriel } from '@modals/ajouter-modifier-type-materiel/ajouter-modifier-type-materiel';
+import { Droit } from '@models/DroitGroupe';
 import { TypeMateriel } from '@models/Materiel';
 import { TypeMaterielService } from '@services/TypeMaterielService';
 
 @Component({
   selector: 'app-type-materiel',
   imports: [MatTableModule, MatIcon, MatButtonModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSortModule],
-  templateUrl: './type-materiel.html',
-  styleUrl: './type-materiel.scss',
+  templateUrl: './type-materiel.html'
 })
 export class TypeMaterielPage implements OnInit, AfterViewInit
 {
+    droit = input.required<Droit>();
+
     protected displayedColumns = ["nom", "action"];
     protected dataSource = signal<MatTableDataSource<TypeMateriel>>(new MatTableDataSource());
     protected paginator = viewChild.required(MatPaginator);

@@ -15,5 +15,6 @@ public sealed class DroitGroupeReponse
 }
 
 [JsonSerializable(typeof(DroitGroupeReponse[]))]
+[JsonSerializable(typeof(DroitGroupeReponse))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 public partial class DroitProgrammerReponseContext : JsonSerializerContext { }

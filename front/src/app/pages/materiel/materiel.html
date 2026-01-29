@@ -1,8 +1,15 @@
 <mat-tab-group>
-    <mat-tab label="Matériel">
-        <app-materiel-info />
-    </mat-tab>
-    <mat-tab label="Type matériel">
-        <app-type-materiel />
-    </mat-tab>
+    @if (droitMateriel.peutLire) 
+    {
+        <mat-tab label="Matériel">
+            <app-materiel-info [droit]="droitMateriel" />
+        </mat-tab>
+    }
+
+    @if (droitTypeMateriel.peutLire) 
+    {
+        <mat-tab label="Type matériel">
+            <app-type-materiel [droit]="droitTypeMateriel" />
+        </mat-tab>
+    }
 </mat-tab-group>

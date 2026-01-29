@@ -16,6 +16,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierGrade } from '@modals/ajouter-modifier-grade/ajouter-modifier-grade';
 import { ETypeRessource } from '@enums/ETypeRessource';
 import { FichierService } from '@services/FichierService';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { EUrl } from '@enums/EUrl';
+import { Droit } from '@models/DroitGroupe';
 
 @Component({
   selector: 'app-grade-page',
@@ -36,11 +39,18 @@ export class GradePage implements OnInit, AfterViewInit
     private snackBarServ = inject(SnackBarService);
     private fichierServ = inject(FichierService);
     private dialog = inject(MatDialog);
+    private authServ = inject(AuthentificationService);
     private dialogServ = inject(DialogConfirmationService);
+
+    protected droit: Droit;
+    protected droitFichier: Droit;
 
     ngOnInit(): void 
     {
         this.Lister();
+        
+        this.droit = this.authServ.RecupererDroit(EUrl.Grade);
+        this.droitFichier = this.authServ.RecupererDroit(EUrl.UploadFichier);
     }
 
     ngAfterViewInit(): void 

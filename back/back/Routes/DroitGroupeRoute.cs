@@ -40,6 +40,7 @@ public static class DroitGroupeRoute
 
           var liste = db.GetCollection<DroitGroupe>().Query()
                .OrderBy(x => x.Nom)
+               .ToEnumerable()
                .Select(x => new DroitGroupeReponse
                {
                     Id = x.Id,

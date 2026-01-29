@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit, signal, viewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
@@ -17,15 +17,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ModalInformation } from '@modals/modal-information/modal-information';
 import { ModalInputQuantite } from '@modals/modal-input-quantite/modal-input-quantite';
+import { Droit } from '@models/DroitGroupe';
 
 @Component({
   selector: 'app-materiel-info',
   imports: [MatTableModule, MatButtonModule, MatSelectModule, MatInputModule, MatFormFieldModule, MatSortModule, MatPaginatorModule, MatIcon, ButtonLoader, GridContainer, GridElement],
-  templateUrl: './materiel-info.html',
-  styleUrl: './materiel-info.scss',
+  templateUrl: './materiel-info.html'
 })
 export class MaterielInfoPage implements OnInit, AfterViewInit
 {
+    droit = input.required<Droit>();
+
     protected displayedColumns = ["nom", "prix", "stock", "nbPlacer", "nbDetruit", "action"];
     protected dataSource = signal<MatTableDataSource<Materiel>>(new MatTableDataSource());
     protected listeType = signal<TypeMateriel[]>([]);

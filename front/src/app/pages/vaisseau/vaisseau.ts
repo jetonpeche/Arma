@@ -14,6 +14,10 @@ import { ModalStockage } from './modal-stockage/modal-stockage';
 import { AjouterModifierVaisseau } from '@modals/ajouter-modifier-vaisseau/ajouter-modifier-vaisseau';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { SnackBarService } from '@services/SnackBarService';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { Droit } from '@models/DroitGroupe';
+import { EUrl } from '@enums/EUrl';
+import { environment } from '../../../environements/environement';
 
 @Component({
   selector: 'app-vaisseau',
@@ -32,15 +36,21 @@ export class VaisseauPage implements OnInit, AfterViewInit
     ];
     protected dataSource = signal<MatTableDataSource<Vaisseau>>(new MatTableDataSource());
     protected btnClick = signal<boolean>(false);
+    protected droit: Droit;
+    protected peutAcheterVaisseau: boolean;
 
     private vaisseauServ = inject(VaisseauService);
     private snackBarServ = inject(SnackBarService);
     private dialogConfirmationServ = inject(DialogConfirmationService);
+    private authServ = inject(AuthentificationService);
     private dialog = inject(MatDialog);
 
-    ngOnInit(): void 
+    ngOnInit(): void
     {
-        this.ListerVaisseau();    
+        this.ListerVaisseau();
+
+        this.droit = this.authServ.RecupererDroit(EUrl.Vaisseau);
+        this.peutAcheterVaisseau = environment.utilisateur.droit.peutAcheterVaisseau;
     }
 
     ngAfterViewInit(): void
@@ -76,6 +86,20 @@ export class VaisseauPage implements OnInit, AfterViewInit
         });
     }
 
+    protected OuvrirModalConfirmationSupprimerVaisseau(_vaisseau: Vaisseau): void
+    {
+        const TITRE = `Supprimer un vaisseau`;
+        const MESSAGE = `Confirmez-vous la suppression de ${_vaisseau.nom} ?`;
+
+        this.dialogConfirmationServ.Ouvrir(TITRE, MESSAGE).subscribe({
+            next: (retour) =>
+            {
+                if(retour)
+                    this.SupprimerVaisseau(_vaisseau.id);
+            }
+        });
+    }
+
     protected OuvrirModalConfirmationAcheterVaisseau(_vaisseau: Vaisseau): void
     {
         const TITRE = `Acheter un vaisseau`;
@@ -101,6 +125,26 @@ export class VaisseauPage implements OnInit, AfterViewInit
         DIALOG_REF.afterClosed().subscribe({
             next: () => this.ListerVaisseau()
         });
+    }
+
+    private SupprimerVaisseau(_idVaisseau: number): void
+    {
+        this.btnClick.set(true);
+
+        this.vaisseauServ.Supprimer(_idVaisseau).subscribe({
+            next: () =>
+            {
+                this.btnClick.set(false);
+                this.snackBarServ.Ok("Le vaisseau a été supprimé");
+
+                this.dataSource.update(x => {
+                    x.data = x.data.filter(x => x.id != _idVaisseau);
+
+                    return x;
+                });
+            },
+            error: () => this.btnClick.set(false)
+        })
     }
 
     private AcheterVaisseau(_idVaisseau: number): void

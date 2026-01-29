@@ -1,11 +1,22 @@
 <mat-tab-group>
-    <mat-tab label="Logistique">
-        <app-logistique-info />
-    </mat-tab>
-    <mat-tab label="Type stockage">
-        <app-type-stockage />
-    </mat-tab>
-    <mat-tab label="Type">
-        <app-type-logistique />
-    </mat-tab>
+    @if (droitLogistique.peutLire) 
+    {
+        <mat-tab label="Logistique">
+            <app-logistique-info [droit]="droitLogistique" />
+        </mat-tab>
+    }
+
+    @if (droitTypeStockage.peutLire) 
+    {
+        <mat-tab label="Type stockage">
+            <app-type-stockage [droit]="droitTypeStockage" />
+        </mat-tab>
+    }
+
+    @if (droitTypeLogistique.peutLire) 
+    {
+        <mat-tab label="Type">
+            <app-type-logistique [droit]="droitTypeLogistique" />
+        </mat-tab>
+    }
 </mat-tab-group>

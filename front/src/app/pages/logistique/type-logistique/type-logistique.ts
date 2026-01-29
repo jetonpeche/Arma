@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, input, OnInit, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { AjouterModifierTypeLogistique } from '@modals/ajouter-modifier-type-logistique/ajouter-modifier-type-logistique';
+import { Droit } from '@models/DroitGroupe';
 import { TypeLogistique } from '@models/Logistique';
 import { TypeLogistiqueService } from '@services/TypeLogistiqueService';
 
@@ -19,6 +20,8 @@ import { TypeLogistiqueService } from '@services/TypeLogistiqueService';
 })
 export class TypeLogistiquePage implements OnInit, AfterViewInit
 {
+    droit = input.required<Droit>();
+
     protected displayedColumns = ["nom", "action"];
     protected dataSource = signal<MatTableDataSource<TypeLogistique>>(new MatTableDataSource());
     protected paginator = viewChild.required(MatPaginator);

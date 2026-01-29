@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { connecterGuard } from './guards/connecter-guard';
 
 export const routes: Routes = [
     {
@@ -9,51 +10,61 @@ export const routes: Routes = [
     { 
         path: "personnage",
         loadComponent: () => import("./pages/personnage/personnagePage").then(x => x.PersonnagePage),
-        title: "Personnage"
+        title: "Personnage",
+        canActivate: [connecterGuard]
     },
     { 
         path: "grade",
         loadComponent: () => import("./pages/grade/grade-page").then(x => x.GradePage),
-        title: "Grade"
+        title: "Grade",
+        canActivate: [connecterGuard]
     },
     { 
         path: "planete-origine",
         loadComponent: () => import("./pages/planete-origine/planete-origine").then(x => x.PlaneteOriginePage),
-        title: "Planète d'origine"
+        title: "Planète d'origine",
+        canActivate: [connecterGuard]
     },
     { 
         path: "specialiste",
         loadComponent: () => import("./pages/specialite/specialite").then(x => x.SpecialitePage),
-        title: "Specialiste"
+        title: "Specialiste",
+        canActivate: [connecterGuard]
     },
     { 
         path: "boutique",
         loadComponent: () => import("./pages/boutique/boutique").then(x => x.BoutiquePage),
-        title: "Boutique"
+        title: "Boutique",
+        canActivate: [connecterGuard]
     },
     { 
         path: "gestion-boutique",
         loadComponent: () => import("./pages/gestion-boutique/gestion-boutique").then(x => x.GestionBoutiquePage),
-        title: "Gestion de la boutique"
+        title: "Gestion de la boutique",
+        canActivate: [connecterGuard]
     },
     { 
         path: "logistique",
         loadComponent: () => import("./pages/logistique/logistique").then(x => x.LogistiquePage),
-        title: "Logistique"
+        title: "Logistique",
+        canActivate: [connecterGuard]
     },
     { 
         path: "materiel",
         loadComponent: () => import("./pages/materiel/materiel").then(x => x.MaterielPage),
-        title: "Matériel"
+        title: "Matériel",
+        canActivate: [connecterGuard]
     },
     { 
         path: "vaisseau",
         loadComponent: () => import("./pages/vaisseau/vaisseau").then(x => x.VaisseauPage),
-        title: "Vaisseau"
+        title: "Vaisseau",
+        canActivate: [connecterGuard]
     },
     { 
         path: "proposition-achat",
         loadComponent: () => import("./pages/proposition-achat/proposition-achat").then(x => x.PropositionAchatPage),
-        title: "Proposition d'achat"
+        title: "Proposition d'achat",
+        canActivate: [connecterGuard]
     }
 ];
