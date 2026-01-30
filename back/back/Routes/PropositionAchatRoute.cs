@@ -69,9 +69,10 @@ public static class PropositionAchatRoute
           [FromBody] List<ObjetProposerRequete> _requete
      )
      {
-          int idPersonnage = _httpContext.RecupererIdPersonnage();
+          if (_requete.Count == 0)
+               return Results.BadRequest("Liste vide");
 
-          using var db = new LiteDatabase(Constant.BDD_NOM);
+          int idPersonnage = _httpContext.RecupererIdPersonnage();
 
           var listeIdTypeMateriel = _requete
                .Where(x => x.Type == ETypeObjetProposer.Materiel)
@@ -82,6 +83,8 @@ public static class PropositionAchatRoute
                .Where(x => x.Type == ETypeObjetProposer.Logistique)
                .Select(x => new BsonValue(x.IdType))
                .ToArray();
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
 
           IReadOnlyDictionary<int, InfoPropositionAchat> dictPrixMateriel = listeIdTypeMateriel.Length > 0 ? db.GetCollection<Materiel>()
                .Find(Query.In("_id", listeIdTypeMateriel))
@@ -152,74 +155,112 @@ public static class PropositionAchatRoute
 
      async static Task<IResult> AcheterAsync(
           HttpContext _httpContext,
-          [FromBody] ObjetProposerRequete _requete
+          [FromBody] List<ObjetProposerRequete> _requete
      )
      {
-          if (_requete.Quantite <= 0)
-               return Results.BadRequest($"La quantité doit être supérieur à zéro");
+          if (_requete.Count == 0)
+               return Results.BadRequest("Liste vide");
 
-          if (_requete.IdType <= 0)
-               return Results.BadRequest("L'objet n'existe pas");
+          var listeIdTypeMateriel = _requete
+               .Where(x => x.Type == ETypeObjetProposer.Materiel)
+               .Select(x => new BsonValue(x.IdType))
+               .ToArray();
+
+          var listeIdTypeLogistique = _requete
+               .Where(x => x.Type == ETypeObjetProposer.Logistique)
+               .Select(x => new BsonValue(x.IdType))
+               .ToArray();
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          int idPersonnage = _httpContext.RecupererIdPersonnage();
+          IReadOnlyDictionary<int, InfoPropositionAchat> dictPrixMateriel = listeIdTypeMateriel.Length > 0 ? db.GetCollection<Materiel>()
+               .Find(Query.In("_id", listeIdTypeMateriel))
+               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom)) : [];
 
-          InfoPropositionAchat info = default;
-
-          switch (_requete.Type)
-          {
-               case ETypeObjetProposer.Materiel:
-
-                    info = db.GetCollection<Materiel>().Query()
-                         .Where(x => x.Id == _requete.IdType)
-                         .Select(x => new InfoPropositionAchat(x.Prix, x.Nom))
-                         .FirstOrDefault();
-                    break;
-
-               case ETypeObjetProposer.Logistique:
-
-                    var logistique = db.GetCollection<Logistique>().Query()
-                         .Where(x => x.Id == _requete.IdType)
-                         .Select(x => new InfoPropositionAchat(x.Prix, x.Nom))
-                         .FirstOrDefault();
-                    break;
-
-               default:
-                    return Results.NotFound("L'objet n'existe pas");
-          }
-
-          if (info == default)
-               return Results.NotFound("L'objet n'existe pas");
-
-          _requete.Nom = info.Nom!;
-          _requete.PrixUnitaire = info.Prix;
+          IReadOnlyDictionary<int, InfoPropositionAchat> dictPrixLogistique = listeIdTypeLogistique.Length > 0 ? db.GetCollection<Logistique>()
+               .Find(Query.In("_id", listeIdTypeLogistique))
+               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom)) : [];
 
           var banque = db.GetCollection<Banque>().Query().First();
-          int prixTotal = _requete.PrixUnitaire * _requete.Quantite;
+
+          for (int i = 0; i < _requete.Count; i++)
+          {
+               var element = _requete[i];
+
+               if (element.Quantite <= 0)
+                    return Results.BadRequest($"La quantité de l'objet n°{i + 1} doit être supérieur à zéro");
+
+               if (element.IdType <= 0)
+                    return Results.BadRequest("L'objet n'existe pas");
+
+               switch (element.Type)
+               {
+                    case ETypeObjetProposer.Materiel:
+
+                         if (dictPrixMateriel.TryGetValue(element.IdType, out var infoMateriel))
+                         {
+                              element.PrixUnitaire = infoMateriel.Prix;
+                              element.Nom = infoMateriel.Nom;
+                         }
+                         else
+                              return Results.NotFound("L'objet n'existe pas");
+                         break;
+
+                    case ETypeObjetProposer.Logistique:
+                         if (dictPrixLogistique.TryGetValue(element.IdType, out var infoLogisitique))
+                         {
+                              element.PrixUnitaire = infoLogisitique.Prix;
+                              element.Nom = infoLogisitique.Nom;
+                         }
+                         else
+                              return Results.NotFound("L'objet n'existe pas");
+                         break;
+
+                    default:
+                         return Results.NotFound("L'objet n'existe pas");
+               }
+          }
+
+          int prixTotal = _requete.Sum(x => x.PrixUnitaire * x.Quantite);
 
           if (banque.Argent < prixTotal)
-               return Results.BadRequest("Vous n'avez pas assez d'argent en banque");
+               return Results.BadRequest("Vousn'avez pas assez d'argent en banque");
 
-          banque.Argent -= _requete.PrixUnitaire * _requete.Quantite;
-
+          banque.Argent -= prixTotal;
           db.GetCollection<Banque>().Update(banque);
 
-          if (_requete.Type == ETypeObjetProposer.Materiel)
+          var historiqueAchatCol = db.GetCollection<HistoriqueAchat>();
+
+          var nomPersonnage = db.GetCollection<Personnage>()
+               .Query()
+               .Where(x => x.Id == _httpContext.RecupererIdPersonnage())
+               .Select(x => x.Nom)
+               .First();
+
+          foreach (var element in _requete)
           {
-               db.Execute(
-                    $"UPDATE {nameof(Materiel)} SET Stock = Stock + @0 WHERE Id = @1",
-                    _requete.Quantite,
-                    _requete.IdType
-               );
-          }
-          else
-          {
-               db.Execute(
-                    $"UPDATE {nameof(Logistique)} SET Stock = Stock + @0 WHERE Id = @1",
-                    _requete.Quantite,
-                    _requete.IdType
-               );
+               if (element.Type == ETypeObjetProposer.Materiel)
+               {
+                    db.Execute(
+                         $"UPDATE {nameof(Materiel)} SET Stock = Stock + @0 WHERE _id = @1",
+                         element.Quantite,
+                         element.IdType
+                    );
+               }
+               else
+               {
+                    db.Execute(
+                         $"UPDATE {nameof(Logistique)} SET Stock = Stock + @0 WHERE _id = @1",
+                         element.Quantite,
+                         element.IdType
+                    );
+               }
+
+               historiqueAchatCol.Insert(new HistoriqueAchat
+               {
+                    Information = $"{nomPersonnage} a acheté {element.Nom} pour un prix de {element.PrixUnitaire * element.Quantite}",
+                    Date = DateTime.UtcNow
+               });
           }
 
           return Results.NoContent();
