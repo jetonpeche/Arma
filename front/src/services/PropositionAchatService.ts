@@ -22,7 +22,7 @@ export class PropositionAchatService
         return this.http.post<number>(`${this.BASE_API}/ajouter`, _listePropositionAchat).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    Acheter(_objetAcheter: ObjetProposerRequete): Observable<void>
+    Acheter(_objetAcheter: ObjetProposerRequete[]): Observable<void>
     {
         return this.http.post<void>(`${this.BASE_API}/acheter`, _objetAcheter).pipe(takeUntilDestroyed(this.destroyRef));
     }

@@ -14,6 +14,8 @@ import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { PanierService } from '@services/PanierService';
 import { PropositionAchatService } from '@services/PropositionAchatService';
 import { SnackBarService } from '@services/SnackBarService';
+import { environment } from '../../../environements/environement';
+import { Authentifier } from '@models/Authentification';
 
 @Component({
   selector: 'app-modal-panier',
@@ -30,6 +32,8 @@ export class ModalPanier implements OnInit, AfterViewInit
     protected dataSource = signal(new MatTableDataSource<Panier>());
     protected btnClick = signal<boolean>(false);
     protected eTypeObjetProposer = ETypeObjetProposer;
+
+    protected peutAcheterDirect = (environment.utilisateur as Authentifier).droit.peutAcheterLogistiqueMateriel;
 
     private dialog = inject(MatDialog);
     private panierServ = inject(PanierService);
@@ -114,15 +118,43 @@ export class ModalPanier implements OnInit, AfterViewInit
 
     protected OuvrirModalConfirmationAchat(): void
     {
-        const TITRE = "Valider le panier";
-        const MESSAGE = "Confirmez vous de vouloir valider le panier ?";
+        const TITRE = this.peutAcheterDirect ? "Acheter" : "Valider le panier";
+        const MESSAGE = this.peutAcheterDirect? "Confirmez vous vos achats ?" : "Confirmez vous la proposition d'achat ?";
 
         this.dialogConfirmationServ.Ouvrir(TITRE, MESSAGE).subscribe({
             next: (retour) =>
             {
                 if(retour)
-                    this.ProposerAchat();
+                    this.peutAcheterDirect ? this.Acheter() : this.ProposerAchat();
             }
+        });
+    }
+
+    private Acheter(): void
+    {
+        this.btnClick.set(true);
+
+        let liste: ObjetProposerRequete[] = this.dataSource().data
+            .map(x => ({ 
+                type: x.type, 
+                idType: x.idType, 
+                quantite: x.quantite
+            })
+        );
+
+        this.propositionAchatServ.Acheter(liste).subscribe({
+            next: () =>
+            {
+                this.btnClick.set(false);
+                this.panierServ.Vider();
+                this.dataSource.update(x => {
+                    x.data = [];
+                    return x;
+                });
+
+                this.snackBarServ.Ok("Le panier a été acheté");
+            },
+            error: () => this.btnClick.set(false)
         });
     }
 

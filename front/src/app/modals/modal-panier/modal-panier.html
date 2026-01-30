@@ -68,7 +68,7 @@
                                     label="Vider" 
                                     (clicked)="OuvrirModalConfirmation()" />&nbsp;
 
-        <jp-button-loader label="Acheter" 
+        <jp-button-loader [label]="peutAcheterDirect ? 'Acheter' : 'Proposer'" 
                                     [loading]="btnClick()" 
                                     (clicked)="OuvrirModalConfirmationAchat()" />
     }
