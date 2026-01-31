@@ -17,6 +17,7 @@ import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { SnackBarService } from '@services/SnackBarService';
 import { ModalInputQuantite } from '@modals/modal-input-quantite/modal-input-quantite';
 import { Droit } from '@models/DroitGroupe';
+import { environment } from '../../../../environements/environement';
 
 @Component({
   selector: 'app-logistique-info',
@@ -32,6 +33,8 @@ export class LogistiqueInfo implements OnInit, AfterViewInit
     protected dataSource = signal<MatTableDataSource<Logistique>>(new MatTableDataSource());
     protected listeType = signal<TypeLogistique[]>([]);
     protected btnClick = signal(false);
+    protected peutProposer = environment.utilisateur.droit.peutProposerLogistiqueMateriel;
+    protected peutAcheter = environment.utilisateur.droit.peutAcheterLogistiqueMateriel;
 
     protected paginator = viewChild.required(MatPaginator);
     protected sort = viewChild.required(MatSort);

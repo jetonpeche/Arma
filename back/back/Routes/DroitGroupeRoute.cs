@@ -47,6 +47,7 @@ public static class DroitGroupeRoute
                     Nom = x.Nom,
                     PeutAcheterVaisseau = x.PeutAcheterVaisseau,
                     PeutAcheterLogistiqueMateriel = x.PeutAcheterLogistiqueMateriel,
+                    PeutProposerLogistiqueMateriel = x.PeutProposerLogistiqueMateriel,
                     ListeDroit = x.ListeDroit.OrderBy(y => y.RouteGroupe).ToArray()
                })
                .ToArray();
@@ -65,6 +66,7 @@ public static class DroitGroupeRoute
           {
                Nom = _requete.Nom.XSS(),
                PeutAcheterLogistiqueMateriel = _requete.PeutAcheterLogistiqueMateriel,
+               PeutProposerLogistiqueMateriel = _requete.PeutProposerLogistiqueMateriel,
                PeutAcheterVaisseau = _requete.PeutAcheterVaisseau,
                ListeDroit = _requete.ListeDroit.ToList()
           };
@@ -94,6 +96,7 @@ public static class DroitGroupeRoute
                Id = _idDroitGroupe,
                Nom = _requete.Nom.XSS(),
                PeutAcheterLogistiqueMateriel = _requete.PeutAcheterLogistiqueMateriel,
+               PeutProposerLogistiqueMateriel = _requete.PeutProposerLogistiqueMateriel,
                PeutAcheterVaisseau = _requete.PeutAcheterVaisseau,
                ListeDroit = _requete.ListeDroit.ToList()
           };

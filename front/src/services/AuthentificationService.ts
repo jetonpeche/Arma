@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { DestroyRef, inject } from "@angular/core";
+import { DestroyRef, inject, signal } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -9,6 +9,8 @@ import { EUrl } from "@enums/EUrl"
 
 export class AuthentificationService
 {
+    estConnecter = signal<boolean>(false);
+    
     private http = inject(HttpClient);
     private destroyRef: DestroyRef = inject(DestroyRef);
 

@@ -8,5 +8,6 @@ public sealed class DroitGroupeRequete
 
      public required bool PeutAcheterVaisseau { get; set; }
      public required bool PeutAcheterLogistiqueMateriel { get; set; }
+     public required bool PeutProposerLogistiqueMateriel { get; set; }
      public required Droit[] ListeDroit { get; set; }
 }

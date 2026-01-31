@@ -26,9 +26,9 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
-        path: "specialiste",
+        path: "specialite",
         loadComponent: () => import("./pages/specialite/specialite").then(x => x.SpecialitePage),
-        title: "Specialiste",
+        title: "Specialité",
         canActivate: [connecterGuard]
     },
     { 

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { AfterViewInit, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ModalPanier } from '@modals/modal-panier/modal-panier';
 import { Location } from '@angular/common';
 import { environment } from '../environements/environement';
+import { AuthentificationService } from '@services/AuthentificationService';
 
 @Component({
   selector: 'app-root',
@@ -19,14 +20,17 @@ import { environment } from '../environements/environement';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App implements OnInit
+export class App implements AfterViewInit
 {
     protected mdcBackdrop = signal<BooleanInput>(false);
     protected drawerMode = signal<MatDrawerMode>("push");
-
+    
     private dialog = inject(MatDialog);
     private location = inject(Location);
     private router = inject(Router);
+    private authServ = inject(AuthentificationService);
+
+    protected estConnecter = computed(() => this.authServ.estConnecter());
 
     constructor(private breakpointObserver: BreakpointObserver) 
     {
@@ -38,7 +42,7 @@ export class App implements OnInit
         );
     }
 
-    ngOnInit(): void 
+    ngAfterViewInit(): void 
     {
         // reconnexion automatique 
         if(sessionStorage.getItem("utilisateur"))
@@ -52,22 +56,22 @@ export class App implements OnInit
             {
                 sessionStorage.clear();
                 environment.utilisateur = null;
+                this.authServ.estConnecter.set(false);
                 return;
             }
 
             // la page précédente est l'application
             if(document.referrer && document.referrer.includes(environment.urlFront))
+            {
+                this.authServ.estConnecter.set(true);
                 this.location.back();
+            }
         }
-    }
-
-    protected EstConnecter(): boolean
-    {
-        return sessionStorage.getItem("utilisateur") != null;
     }
 
     protected Deconnexion(): void
     {
+        this.authServ.estConnecter.set(false);
         sessionStorage.removeItem("utilisateur");
         environment.utilisateur = null;
         this.router.navigateByUrl("/");

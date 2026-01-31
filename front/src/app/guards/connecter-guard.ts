@@ -44,6 +44,6 @@ export const connecterGuard: CanActivateFn = (route, state) =>
     let droit = utilisateurDroit
         .listeDroit
         .find(x => url.startsWith(x.routeGroupe, 1));
-
+    
     return droit.peutLire;
 };

@@ -18,6 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { ModalInformation } from '@modals/modal-information/modal-information';
 import { ModalInputQuantite } from '@modals/modal-input-quantite/modal-input-quantite';
 import { Droit } from '@models/DroitGroupe';
+import { environment } from '../../../../environements/environement';
 
 @Component({
   selector: 'app-materiel-info',
@@ -32,6 +33,8 @@ export class MaterielInfoPage implements OnInit, AfterViewInit
     protected dataSource = signal<MatTableDataSource<Materiel>>(new MatTableDataSource());
     protected listeType = signal<TypeMateriel[]>([]);
     protected btnClick = signal(false);
+    protected peutProposer = environment.utilisateur.droit.peutProposerLogistiqueMateriel;
+    protected peutAcheter = environment.utilisateur.droit.peutAcheterLogistiqueMateriel;
 
     protected paginator = viewChild.required(MatPaginator);
     protected sort = viewChild.required(MatSort);
@@ -43,7 +46,7 @@ export class MaterielInfoPage implements OnInit, AfterViewInit
 
     ngOnInit(): void 
     {
-        this.Lister();    
+        this.Lister();
     }
 
     ngAfterViewInit(): void

@@ -21,7 +21,7 @@ export class ConnexionPage implements OnInit
     private authServ = inject(AuthentificationService);
     private router = inject(Router);
 
-    ngOnInit(): void 
+    ngOnInit(): void
     {
         this.form = new FormGroup({
             login: new FormControl("", [Validators.required]),
@@ -29,7 +29,7 @@ export class ConnexionPage implements OnInit
         });
     }
 
-    Valider(): void
+    protected Valider(): void
     {
         if(this.form.invalid)
             return;
@@ -42,6 +42,8 @@ export class ConnexionPage implements OnInit
                 this.btnClick.set(false);
                 environment.utilisateur = retour;
                 sessionStorage.setItem("utilisateur", JSON.stringify(retour));
+                this.authServ.estConnecter.set(true);
+
                 this.router.navigateByUrl("/personnage");
             },
             error: () => this.btnClick.set(false)

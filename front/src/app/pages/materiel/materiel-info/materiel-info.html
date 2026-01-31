@@ -66,9 +66,12 @@
                     <mat-icon>info</mat-icon>
                 </button>&nbsp;
 
-                <button matMiniFab (click)="OuvrirModalPanierQuantite(element)">
-                    <mat-icon>add_shopping_cart</mat-icon>
-                </button>&nbsp;
+                @if(peutProposer || peutAcheter)
+                {
+                    <button matMiniFab (click)="OuvrirModalPanierQuantite(element)">
+                        <mat-icon>add_shopping_cart</mat-icon>
+                    </button>&nbsp;
+                }
 
                 @if (droit().peutEcrire) 
                 {

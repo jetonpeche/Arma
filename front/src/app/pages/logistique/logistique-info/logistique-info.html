@@ -64,12 +64,15 @@
         </ng-container>
 
         <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef> Action</th>
+            <th mat-header-cell *matHeaderCellDef>Action</th>
             <td mat-cell *matCellDef="let element">
 
-                <button matMiniFab (click)="OuvrirModalPanierQuantite(element)">
-                    <mat-icon>add_shopping_cart</mat-icon>
-                </button>&nbsp;
+                @if (peutProposer || peutAcheter)
+                {
+                    <button matMiniFab (click)="OuvrirModalPanierQuantite(element)">
+                        <mat-icon>add_shopping_cart</mat-icon>
+                    </button>&nbsp;
+                }
                 
                 @if (droit().peutEcrire) 
                 {

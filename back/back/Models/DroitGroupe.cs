@@ -14,6 +14,7 @@ public sealed class DroitGroupe
 
      public bool PeutAcheterVaisseau { get; set; }
      public bool PeutAcheterLogistiqueMateriel { get; set; }
+     public bool PeutProposerLogistiqueMateriel { get; set; }
 
      /// <summary>
      /// Droit pour chaque Route du groupe de route
