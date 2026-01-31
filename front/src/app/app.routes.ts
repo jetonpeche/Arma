@@ -44,6 +44,12 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
+        path: "droit-groupe",
+        loadComponent: () => import("./pages/gestion-droit/gestion-droit").then(x => x.GestionDroitPage),
+        title: "Gestion des groupes droits",
+        canActivate: [connecterGuard]
+    },
+    { 
         path: "logistique",
         loadComponent: () => import("./pages/logistique/logistique").then(x => x.LogistiquePage),
         title: "Logistique",

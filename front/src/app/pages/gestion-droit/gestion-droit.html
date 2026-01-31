@@ -1,0 +1,11 @@
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1>Gestion droits</h1>
+
+    @if(droit.peutEcrire)
+    {
+        <button matButton="filled" (click)="OuvrirModalAjouterModifierDroitGroupe()">
+            <mat-icon>add</mat-icon>
+            Nouveau groupe droit
+        </button>
+    }
+</div>
