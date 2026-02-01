@@ -1,11 +1,44 @@
 <div style="text-align: center; margin-bottom: 20px;">
-    <h1>Gestion droits</h1>
+    <h1>Gestion des groupes de droits</h1>
 
     @if(droit.peutEcrire)
     {
         <button matButton="filled" (click)="OuvrirModalAjouterModifierDroitGroupe()">
             <mat-icon>add</mat-icon>
-            Nouveau groupe droit
+            Nouveau groupe de droit
         </button>
     }
 </div>
+
+<mat-list role="list">
+    @for (element of listeDroitGroupe(); track element.id; let last = $last) 
+    {
+        <mat-list-item  role="listitem">
+            <div>
+                {{ element.nom }}
+
+                <div>
+                    @if (droit.peutEcrire)
+                    {
+                        <button matMiniFab (click)="OuvrirModalAjouterModifierDroitGroupe(element)">
+                            <mat-icon>edit</mat-icon>
+                        </button>&nbsp;
+                    }
+
+                    @if (droit.peutSupprimer) 
+                    {
+                        <jp-button-loader matMiniFab 
+                                                    [loading]="btnClick()"
+                                                    icon="delete"
+                                                    (clicked)="OurvrirModalConfirmationSupprimer(element)" />
+                    }
+                </div>
+            </div>
+        </mat-list-item>
+
+        @if (!last)
+        {
+            <mat-divider role="separator"></mat-divider>
+        }
+    }
+</mat-list>

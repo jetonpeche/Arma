@@ -28,6 +28,7 @@ import { PanierService } from '@services/PanierService';
 import { PropositionAchatService } from '@services/PropositionAchatService';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { jwtInterceptor } from './interceptors/jwt-interceptor';
+import { DroitGroupeService } from '@services/DroitGroupeService';
 
 const matInput: MatFormFieldDefaultOptions = {
   appearance: 'outline',
@@ -85,6 +86,7 @@ export const appConfig: ApplicationConfig = {
     { provide: PanierService, useClass: PanierService },
     { provide: PropositionAchatService, useClass: PropositionAchatService },
     { provide: AuthentificationService, useClass: AuthentificationService },
+    { provide: DroitGroupeService, useClass: DroitGroupeService },
 
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matInput },
     { provide: MAT_DATE_LOCALE, useValue: navigator.language },

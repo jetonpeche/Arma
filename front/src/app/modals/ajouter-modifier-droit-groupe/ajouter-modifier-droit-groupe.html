@@ -1,0 +1,73 @@
+<h2 mat-dialog-title>{{ labelBtn() }} un groupe de droit</h2>
+<mat-dialog-content style="margin-top: 20px;">
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colDefault]="12">
+                <jp-input-text label="Nom" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <mat-checkbox labelPosition="before" formControlName="peutAcheterVaisseau">
+                    Peux acheter un vaisseau ?
+                </mat-checkbox>
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <mat-checkbox labelPosition="before" formControlName="peutAcheterLogistiqueMateriel">
+                    Peux acheter du materiel logistique ?
+                </mat-checkbox>
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <mat-checkbox labelPosition="before" formControlName="peutProposerLogistiqueMateriel">
+                    Peux proposer d'acheter du materiel logistique ?
+                </mat-checkbox>
+            </jp-grid-element>
+
+            
+                <jp-grid-element [colDefault]="12">
+                    <div formArrayName="listeDroit">
+                        @for (element of listeDroit.controls; track element; let i = $index; let last = $last) 
+                        {
+                            @let nomRoute = element.get("routeGroupe").value;
+
+                            <div [formGroupName]="i">
+                                <p style="font-size: 1.2em; text-decoration: underline;">
+                                    {{ nomRoute == "boutique" ? "Gestion boutique" : nomRoute }}
+                                </p>
+
+                                @if (nomRoute != "upload-fichier") 
+                                {
+                                    <mat-checkbox labelPosition="before" formControlName="peutLire">
+                                        Droit de lecture
+                                    </mat-checkbox>
+                                }
+
+                                <mat-checkbox labelPosition="before" formControlName="peutEcrire">
+                                    Droit d'écrire
+                                </mat-checkbox>
+
+                                @if (nomRoute != "upload-fichier") 
+                                {
+                                    <mat-checkbox labelPosition="before" formControlName="peutSupprimer">
+                                        Droit de suppression
+                                    </mat-checkbox>
+                                }
+                            </div>
+
+                            @if(!last)
+                            {
+                                <hr>
+                            }
+                        }
+                    </div>
+                </jp-grid-element>
+
+        </jp-grid-container>
+    </form>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
+    <jp-button-loader [label]="labelBtn()" (clicked)="Valider()" />
+</mat-dialog-actions>

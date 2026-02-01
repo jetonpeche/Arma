@@ -1,0 +1,10 @@
+mat-list-item div:first-child
+{
+    display: flex; 
+    justify-content: space-between;
+
+    button, ::ng-deep jp-button-loader button
+    {
+        box-shadow: none;
+    }
+}
