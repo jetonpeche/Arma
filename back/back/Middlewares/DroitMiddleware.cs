@@ -13,7 +13,7 @@ public class DroitMiddleware : IEndpointFilter
           var routeSplit = context.HttpContext.Request.Path.Value!.Split('/');
           string nomMapGroupe = routeSplit[2];
 
-         if (nomMapGroupe is "authentification" or "test")
+         if (nomMapGroupe is "authentification" or "test" or "bot-discord")
                return await next(context);
 
           using var db = new LiteDatabase(Constant.BDD_NOM);

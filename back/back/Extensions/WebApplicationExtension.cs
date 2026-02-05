@@ -25,6 +25,7 @@ public static class WebApplicationExtension
           mapGroupe.MapGroup("vaisseau").AjouterRouteVaisseau();
           mapGroupe.MapGroup("proposition-achat").AjouterRoutePropositionAchat();
           mapGroupe.MapGroup("droit-groupe").AjouterRouteDroitGroupe();
+          mapGroupe.MapGroup("bot-discord").AjouterRouteBotDiscord().ExcludeFromDescription();
 
           return _app;
      }

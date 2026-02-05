@@ -4,6 +4,7 @@ using back.ModelsExport;
 using back.ModelsImport;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Services.Mdp;
 
 namespace back.Routes;
@@ -85,6 +86,7 @@ public static class PersonnageRoute
     }
 
     static async Task<IResult> AjouterAsync(
+         [FromServices] IMemoryCache _cache,
          [FromServices] IMdpService _mdpServ,
         [FromBody] PersonnageRequete _requete
     )
@@ -142,10 +144,13 @@ public static class PersonnageRoute
 
           var id = personnageCol.Insert(personnage).AsInt32;
 
+          _cache.Remove("listePartiellePersonnage");
+
           return Results.Created("", id);
     }
 
     static async Task<IResult> ModifierAsync(
+        [FromServices] IMemoryCache _cache,
         [FromRoute(Name = "idPersonnage")] int _idPersonnage,
         [FromBody] PersonnageModifierRequete _requete
     )
@@ -202,10 +207,19 @@ public static class PersonnageRoute
 
           var ok = col.Update(personnage);
 
+          if(
+               (personnageBdd.Nom != personnage.Nom) || 
+               (personnage.NomDiscord != personnage.NomDiscord)
+          )
+          {
+               _cache.Remove("listePartiellePersonnage");
+          }
+
           return ok ? Results.NoContent() : Results.NotFound();
     }
 
     static async Task<IResult> SupprimerAsync(
+        [FromServices] IMemoryCache _cache,
         [FromRoute(Name = "idPersonnage")] int _idPersonnage
     )
     {
@@ -230,6 +244,8 @@ public static class PersonnageRoute
 
           db.GetCollection<BoutiquePrix>().Update(listeBoutiquePrix);
           col.Delete(_idPersonnage);
+
+          _cache.Remove("listePartiellePersonnage");
 
           return Results.NoContent();
     }

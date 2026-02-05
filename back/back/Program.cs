@@ -33,7 +33,7 @@ builder.Services.AjouterSecuriteJwt(rsa);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AjouterSwagger();
 
-
+builder.Services.AddMemoryCache();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddCors(x => x.AddDefaultPolicy(y => y.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 builder.Services.AjouterService(rsa);

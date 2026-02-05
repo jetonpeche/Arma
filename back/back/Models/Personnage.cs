@@ -40,6 +40,7 @@ public sealed class Personnage
      public int NbOperation { get; set; }
      public int NbBootcamp { get; set; }
      public int NbPointBoutique { get; set; }
+     public int NbVote { get; set; }
 
      public bool EstFormateur { get; set; }
      public bool EstFormateurSpecialite { get; set; }
