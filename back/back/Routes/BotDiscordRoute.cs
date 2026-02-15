@@ -57,15 +57,11 @@ public static class BotDiscordRoute
                _cache.Set("listePartiellePersonnage", listePartiellePersonnage, TimeSpan.FromMinutes(5));
           }
 
-          var personnage = listePartiellePersonnage
-               .Where(x => regex.IsMatch(x.Nom))
-               .FirstOrDefault();
+          var personnage = listePartiellePersonnage.FirstOrDefault(x => regex.IsMatch(x.Nom));
 
           if (personnage == default)
           {
-               personnage = listePartiellePersonnage
-                    .Where(x => regex.IsMatch(x.NomDiscord))
-                    .FirstOrDefault();
+               personnage = listePartiellePersonnage.FirstOrDefault(x => regex.IsMatch(x.NomDiscord));
 
                if (personnage == default)
                     return Results.NotFound();
