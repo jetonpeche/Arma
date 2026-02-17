@@ -154,9 +154,7 @@ export class VaisseauPage implements OnInit, AfterViewInit
 
         DIALOG_REF.afterClosed().subscribe({
             next: (retour) =>
-            {
-                console.log(retour);
-                
+            {   
                 if(!retour)
                     return;
 
