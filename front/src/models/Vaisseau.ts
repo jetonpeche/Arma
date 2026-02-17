@@ -40,3 +40,11 @@ export type VaisseauEquipage =
     nbPlacePassager: number,
     nbPlaceMarines: number
 }
+
+export type VaisseauAchaterRequete =
+{
+    idVaisseau: number,
+    nomVaisseau: string | null,
+    nomCommandant: string | null,
+    information: string | null
+}

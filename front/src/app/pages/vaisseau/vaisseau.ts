@@ -18,6 +18,7 @@ import { AuthentificationService } from '@services/AuthentificationService';
 import { Droit } from '@models/DroitGroupe';
 import { EUrl } from '@enums/EUrl';
 import { environment } from '../../../environements/environement';
+import { ModalInitInfo } from './modal-init-info/modal-init-info';
 
 @Component({
   selector: 'app-vaisseau',
@@ -149,21 +150,35 @@ export class VaisseauPage implements OnInit, AfterViewInit
 
     private AcheterVaisseau(_idVaisseau: number): void
     {
-        this.btnClick.set(true);
+        const DIALOG_REF = this.dialog.open(ModalInitInfo);
 
-        this.vaisseauServ.Acheter(_idVaisseau).subscribe({
-            next: () =>
+        DIALOG_REF.afterClosed().subscribe({
+            next: (retour) =>
             {
-                this.btnClick.set(false);
-                this.snackBarServ.Ok("Le vaisseau a été acheté");
+                console.log(retour);
+                
+                if(!retour)
+                    return;
 
-                this.dataSource.update(x => {
-                    x.data.find(x => x.id == _idVaisseau).stock += 1;
+                retour.idVaisseau = _idVaisseau;
 
-                    return x;
+                this.btnClick.set(true);
+
+                this.vaisseauServ.Acheter(retour).subscribe({
+                    next: () =>
+                    {
+                        this.btnClick.set(false);
+                        this.snackBarServ.Ok("Le vaisseau a été acheté");
+
+                        this.dataSource.update(x => {
+                            x.data.find(x => x.id == _idVaisseau).stock += 1;
+
+                            return x;
+                        });
+                    },
+                    error: () => this.btnClick.set(false)
                 });
-            },
-            error: () => this.btnClick.set(false)
+            }
         });
     }
 

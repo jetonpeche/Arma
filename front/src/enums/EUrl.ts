@@ -10,7 +10,7 @@ export enum EUrl
     TypeLogistique = "/type-logistique",
     TypeStockageLogistique = "/type-stockage-logistique",
     Materiel = "/materiel",
-    TypeMateriel = "/type-materie",
+    TypeMateriel = "/type-materiel",
     Vaisseau = "/vaisseau",
     PropositionAchat = "/proposition-achat",
     DroitGroupe = "/droit-groupe"

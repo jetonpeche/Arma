@@ -20,7 +20,7 @@ public static class VaisseauRoute
                .ProducesBadRequest()
                .ProducesCreated<int>();
 
-          builder.MapPost("acheter/{idVaisseau:int}", AcheterAsync)
+          builder.MapPost("acheter", AcheterAsync)
                .WithDescription("Acheter un vaisseau")
                .ProducesBadRequest()
                .ProducesNoContent();
@@ -211,10 +211,10 @@ public static class VaisseauRoute
      }
 
      static async Task<IResult> AcheterAsync(
-          [FromRoute(Name = "idVaisseau")] int _idVaisseau
+          [FromBody] VaisseauAcheterRequete _requete
      )
      {
-          if (_idVaisseau <= 0)
+          if (_requete.IdVaisseau <= 0)
                return Results.NotFound("Le vaisseau n'existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
@@ -222,7 +222,7 @@ public static class VaisseauRoute
           var banque = db.GetCollection<Banque>().Query().First();
 
           int prixVaisseau = db.GetCollection<Vaisseau>().Query()
-               .Where(x => x.Id == _idVaisseau)
+               .Where(x => x.Id == _requete.IdVaisseau)
                .Select(x => x.Prix)
                .FirstOrDefault();
 
@@ -237,8 +237,16 @@ public static class VaisseauRoute
 
           db.Execute(
                $"UPDATE {nameof(Vaisseau)} SET Stock = Stock + 1 WHERE _id = @0",
-               [_idVaisseau]
+               [_requete.IdVaisseau]
           );
+
+          db.GetCollection<VaisseauPosseder>().Insert(new VaisseauPosseder
+          {
+               Vaisseau = new Vaisseau { Id = _requete.IdVaisseau },
+               NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
+               NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
+               Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
+          });
 
           return Results.NoContent();
      }
