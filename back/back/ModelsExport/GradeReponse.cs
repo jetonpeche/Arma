@@ -13,8 +13,9 @@ public sealed class GradeReponse
     public required int Ordre { get; set; }
     public int? NbPlace { get; set; }
     public int? NbOperationRequis { get; set; }
+    public int NbPointBoutiqueGagnerParOperation { get; set; }
 
-    public required int Conserne { get; set; }
+     public required int Conserne { get; set; }
     public required bool CandidatureRequise { get; set; }
     public required bool EstHonorifique { get; set; }
 }

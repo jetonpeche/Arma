@@ -18,6 +18,7 @@ import { ModalObjetPossede } from './modal-objet-possede/modal-objet-possede';
 import { Droit } from '@models/DroitGroupe';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { EUrl } from '@enums/EUrl';
+import { ModalPersonnageParticiperOperation } from './modal-personnage-participer-operation/modal-personnage-participer-operation';
 
 @Component({
   selector: 'app-personnage',
@@ -70,6 +71,16 @@ export class PersonnagePage implements OnInit
                     });
                 });
             }
+        });
+    }
+
+
+    protected OuvrirModalPersonnageParticiper(): void
+    {
+        this.dialog.open(ModalPersonnageParticiperOperation, {
+            width: "50%", 
+            maxWidth: "100vw",
+            data: this.listePersonnage()
         });
     }
 

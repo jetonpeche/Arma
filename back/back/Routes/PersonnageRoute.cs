@@ -6,6 +6,7 @@ using LiteDB;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Services.Mdp;
+using System.Text;
 
 namespace back.Routes;
 
@@ -24,6 +25,12 @@ public static class PersonnageRoute
 
           builder.MapPut("modifier/{idPersonnage:int}", ModifierAsync)
                .WithDescription("Modifier un personnage")
+               .ProducesNotFound()
+               .ProducesBadRequest()
+               .ProducesNoContent();
+
+          builder.MapPatch("modifier-point", ModifierPointAsync)
+               .WithDescription("Ajouter les points du grade aux personnages choisi")
                .ProducesNotFound()
                .ProducesBadRequest()
                .ProducesNoContent();
@@ -217,6 +224,43 @@ public static class PersonnageRoute
 
           return ok ? Results.NoContent() : Results.NotFound();
     }
+
+     static async Task<IResult> ModifierPointAsync(
+          [FromServices] IMemoryCache _cache,
+          [FromBody] int[] _listeIdPersonnage
+     )
+     {
+          if (_listeIdPersonnage.Length is 0)
+               return Results.BadRequest("Aucun personnage");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var personnageCol = db.GetCollection<Personnage>();
+
+          var predicatBuilder = PredicateBuilder.True<Personnage>();
+
+          for (int i = 0; i < _listeIdPersonnage.Length; i++)
+               predicatBuilder.Or(x => x.Id == _listeIdPersonnage[i]);
+
+          var listePersonnage = personnageCol.Query()
+               .Include(x => x.Grade)
+               .Where(predicatBuilder)
+               .ToArray();
+
+          foreach (var element in listePersonnage)
+          {
+               element.DateDerniereParticipation = DateTime.UtcNow;
+
+               if(element.Grade is not null)
+                    element.NbPointBoutique += element.Grade.NbPointBoutiqueGagnerParOperation;
+          }
+
+          personnageCol.Update(listePersonnage);
+
+          _cache.Remove("listePartiellePersonnage");
+
+          return Results.NoContent();
+     }
 
     static async Task<IResult> SupprimerAsync(
         [FromServices] IMemoryCache _cache,

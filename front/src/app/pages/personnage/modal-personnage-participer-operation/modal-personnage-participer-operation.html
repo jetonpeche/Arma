@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>Liste des personnages</h2>
+<mat-dialog-content style="margin-top: 20px;">
+    <p>Selectionner les personnages ayant participé à l'opération. <br> Les points seront ajoutés à la validation</p>
+    <mat-selection-list #selectionPersonnage>
+
+        @for (element of liste(); track element.id)
+        {
+            <mat-list-option [value]="element.id">
+                    {{ element.nomGrade }} {{ element.nom }} ({{ element.nbPoint }} Pts)
+            </mat-list-option>
+        }
+    </mat-selection-list>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" label="fermer" matDialogClose />
+    <jp-button-loader label="Valider" [loading]="btnClick()" (clicked)="Valider(selectionPersonnage)" />
+</mat-dialog-actions>

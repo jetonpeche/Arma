@@ -65,6 +65,7 @@ public static class GradeRoute
             NbPlace = x.NbPlace,
             Nom = x.Nom,
             Ordre = x.Ordre,
+            NbPointBoutiqueGagnerParOperation = x.NbPointBoutiqueGagnerParOperation,
             UrlFichierIcone = x.NomFichierIcone != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_GRADE + x.NomFichierIcone : ""
         }).ToArray();
 

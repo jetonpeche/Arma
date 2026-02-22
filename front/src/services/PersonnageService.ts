@@ -47,6 +47,11 @@ export class PersonnageService
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idPersonnage}`, _personnage).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
+    ModifierPoint(_listeIdPersonnage: number[]): Observable<void>
+    {
+       return this.http.patch<void>(`${this.BASE_API}/modifier-point`, _listeIdPersonnage).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
     Supprimer(_idPersonnage: number): Observable<void>
     {
         return this.http.delete<void>(`${this.BASE_API}/supprimer/${_idPersonnage}`).pipe(takeUntilDestroyed(this.destroyRef));
