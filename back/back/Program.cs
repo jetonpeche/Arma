@@ -3,6 +3,7 @@ using back.Extensions;
 using back.Models;
 using FluentValidation;
 using LiteDB;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.FileProviders;
 using System.Security.Cryptography;
 
@@ -39,6 +40,12 @@ builder.Services.AddCors(x => x.AddDefaultPolicy(y => y.AllowAnyOrigin().AllowAn
 builder.Services.AjouterService(rsa);
 
 var app = builder.Build();
+
+// pour que api sache que la requete est de confiance et sécurisée par nginx dans docker
+app.UseForwardedHeaders(new()
+{
+     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 // permet d'avoir acces au fichier du dossier Photos par url
 app.UseStaticFiles(new StaticFileOptions
