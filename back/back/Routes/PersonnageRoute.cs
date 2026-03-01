@@ -250,6 +250,7 @@ public static class PersonnageRoute
           foreach (var element in listePersonnage)
           {
                element.DateDerniereParticipation = DateTime.UtcNow;
+               element.NbOperation++;
 
                if(element.Grade is not null)
                     element.NbPointBoutique += element.Grade.NbPointBoutiqueGagnerParOperation;
