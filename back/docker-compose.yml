@@ -5,8 +5,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ../nginx/conf:/etc/nginx/conf.d
-      - ../nginx/certs:/etc/letsencrypt
+      - ../nginx/conf:/etc/nginx/conf.d:ro
+      - ../nginx/certs:/etc/nginx/certs:ro 
     depends_on:
       - api
       - front
@@ -27,7 +27,6 @@ services:
     restart: on-failure
 
   front:
-    image: front
     build: 
       context: ../front
       dockerfile: Dockerfile
