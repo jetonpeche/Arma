@@ -20,10 +20,6 @@ export class AjouterModifierGrade implements OnInit
     protected labelBtn = signal<string>("Ajouter");
     protected btnClick = signal<boolean>(false);
     protected liste: AutocompleteDataSource[] = [{
-        value: 0,
-        display: "Les deux"
-    },
-    {
         value: 1,
         display: "Navy"
     },

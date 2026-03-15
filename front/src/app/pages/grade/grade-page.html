@@ -60,7 +60,7 @@
             <td mat-cell *matCellDef="let element"> 
                 {{ element.candidatureRequise ? "Candidature /" : "" }}
                 {{ element.estHonorifique ? "Honorifique /" : "" }} 
-                {{ element.conserne == 0 ? "Les deux" : element.conserne == 1 ? "Navy" : "Marines" }}
+                {{ element.conserne == 1 ? "Navy" : "Marines" }}
             </td>
         </ng-container>
 

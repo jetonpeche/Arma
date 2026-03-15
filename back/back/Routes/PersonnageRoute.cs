@@ -258,7 +258,7 @@ public static class PersonnageRoute
                {
                     element.NbPointBoutique += element.Grade.NbPointBoutiqueGagnerParOperation;
 
-                    var prochainGrade = listeGrade.FirstOrDefault(x => x.NbOperationRequis == element.NbOperation);
+                    var prochainGrade = listeGrade.FirstOrDefault(x => x.NbOperationRequis >= element.NbOperation && x.Conserne == element.Grade.Conserne);
 
                     if(prochainGrade is not null && prochainGrade.Id != element.Grade.Id)
                          element.Grade = prochainGrade;
