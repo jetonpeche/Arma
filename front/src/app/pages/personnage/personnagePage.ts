@@ -77,11 +77,13 @@ export class PersonnagePage implements OnInit
 
     protected OuvrirModalPersonnageParticiper(): void
     {
-        this.dialog.open(ModalPersonnageParticiperOperation, {
+        const DIALOG_REF = this.dialog.open(ModalPersonnageParticiperOperation, {
             width: "50%", 
             maxWidth: "100vw",
             data: this.listePersonnage()
         });
+
+        DIALOG_REF.afterClosed().subscribe(() => this.Lister());
     }
 
     protected OuvrirModalObjetBoutiquePosseder(_personnage: Personnage): void

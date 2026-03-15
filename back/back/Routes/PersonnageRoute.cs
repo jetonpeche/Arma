@@ -6,7 +6,6 @@ using LiteDB;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Services.Mdp;
-using System.Text;
 
 namespace back.Routes;
 
@@ -259,10 +258,9 @@ public static class PersonnageRoute
                {
                     element.NbPointBoutique += element.Grade.NbPointBoutiqueGagnerParOperation;
 
-                    var prochainGrade = listeGrade.Where(x => x.NbOperationRequis >= element.NbOperation && x.NbOperationRequis < gradeMaxPoint!.NbOperationRequis)
-                         .FirstOrDefault();
+                    var prochainGrade = listeGrade.FirstOrDefault(x => x.NbOperationRequis == element.NbOperation);
 
-                    if(prochainGrade is not null)
+                    if(prochainGrade is not null && prochainGrade.Id != element.Grade.Id)
                          element.Grade = prochainGrade;
                }
           }

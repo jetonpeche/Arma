@@ -1,7 +1,7 @@
-import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { ButtonLoader } from "@jetonpeche/angular-mat-input";
-import {MatListModule, MatListOption, MatSelectionList} from '@angular/material/list';
+import {MatListModule, MatSelectionList} from '@angular/material/list';
 import { Personnage } from '@models/Personnage';
 import { Grade } from '@models/Grade';
 import { GradeService } from '@services/GradeService';
