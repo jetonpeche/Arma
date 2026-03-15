@@ -12,6 +12,7 @@ import { SnackBarService } from '@services/SnackBarService';
 import { ButtonLoader } from "@jetonpeche/angular-mat-input";
 import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierDroitGroupe } from '@modals/ajouter-modifier-droit-groupe/ajouter-modifier-droit-groupe';
+import { ModalGoupeDroitPersonnage } from '@modals/modal-goupe-droit-personnage/modal-goupe-droit-personnage';
 
 @Component({
   selector: 'app-gestion-droit',
@@ -35,6 +36,13 @@ export class GestionDroitPage implements OnInit
     {
         this.droit = this.authServ.RecupererDroit(EUrl.DroitGroupe);
         this.Lister();
+    }
+
+    protected OuvrirModalDroitGroupePersonnage(): void
+    {
+        this.dialog.open(ModalGoupeDroitPersonnage, {
+            data: this.listeDroitGroupe().map(x => ({ id: x.id, nom: x.nom }))
+        });
     }
     
     protected OuvrirModalAjouterModifierDroitGroupe(_droitGroupe?: DroitGroupe): void

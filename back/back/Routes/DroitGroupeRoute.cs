@@ -15,6 +15,10 @@ public static class DroitGroupeRoute
                .WithDescription("Lister les droits")
                .Produces<DroitGroupeReponse[]>();
 
+          builder.MapGet("lister-personnage", ListerPersonnageAsync)
+               .WithDescription("Lister les personnages avec son id droit")
+               .Produces<PersonnageDroitGroupeReponse[]>();
+
           builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter un nouveau droit")
                .ProducesBadRequest()
@@ -22,6 +26,12 @@ public static class DroitGroupeRoute
 
           builder.MapPut("modifier/{idDroitGroupe:int}", ModifierAsync)
                .WithDescription("Modifier un groupe de droit")
+               .ProducesNotFound()
+               .ProducesBadRequest()
+               .ProducesNoContent();
+
+          builder.MapPut("modifier-droit-personnage", ModifierPersonnageAsync)
+               .WithDescription("Modifier le groupe de droit de personnage(s)")
                .ProducesNotFound()
                .ProducesBadRequest()
                .ProducesNoContent();
@@ -53,6 +63,23 @@ public static class DroitGroupeRoute
                .ToArray();
 
           return Results.Extensions.Ok(liste, DroitProgrammerReponseContext.Default);
+     }
+
+     async static Task<IResult> ListerPersonnageAsync()
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var liste = db.GetCollection<Personnage>().Query()
+               .OrderBy(x => x.Nom)
+               .Select(x => new PersonnageDroitGroupeReponse
+               {
+                    Id = x.Id,
+                    Nom = x.Nom,
+                    IdDroitGroupe = x.DroitGroupe.Id
+               })
+               .ToArray();
+
+          return Results.Extensions.Ok(liste, PersonnageDroitGroupeReponseContext.Default);
      }
 
      async static Task<IResult> AjouterAsync(
@@ -104,6 +131,22 @@ public static class DroitGroupeRoute
           var ok = db.GetCollection<DroitGroupe>().Update(droitGroupe);
 
           return ok ? Results.NoContent() : Results.NotFound("Le groupe de droit n'existe pas");
+     }
+
+     async static Task<IResult> ModifierPersonnageAsync(
+          [FromBody] DroitGroupePersonnageRequete[] _requete
+     )
+     {
+          if(_requete.Length is 0)
+               return Results.BadRequest("Aucun droit personnage à modifier");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var listeIdGroupe = db.GetCollection<DroitGroupe>().Query().Select(x => x.Id).ToArray();
+
+
+
+          return Results.NoContent();
      }
 
      async static Task<IResult> SupprimerAsync(
