@@ -177,46 +177,42 @@ public static class PersonnageRoute
           if (personnageBdd is null)
                return Results.NotFound("Le personnage n'existe pas");
 
-          var personnage = new Personnage
-          {
-               Id = _idPersonnage,
-               Matricule = _requete.Matricule.XSS(),
-               Nom = _requete.Nom.XSS(),
-               NomDiscord = _requete.Nom.XSS(),
-               EtatService = _requete.EtatService?.XSS(),
-               GroupeSanguin = _requete.GroupeSanguin.XSS(),
-               NbBootcamp = _requete.NbBootcamp,
-               NbOperation = _requete.NbOperation,
-               EstFormateur = _requete.EstFormateur,
-               EstFormateurSpecialite = _requete.EstFormateurSpecialite,
-               FormationFaite = _requete.FormationFaite,
-               NbPointBoutique = _requete.NbPointBoutique,
-               DateDerniereParticipation = personnageBdd.DateDerniereParticipation,
-               NomFichierPhotoIdentite = personnageBdd.NomFichierPhotoIdentite
-          };
+          personnageBdd.Matricule = _requete.Matricule.XSS();
+          personnageBdd.Nom = _requete.Nom.XSS();
+          personnageBdd.NomDiscord = _requete.Nom.XSS();
+          personnageBdd.EtatService = _requete.EtatService?.XSS();
+          personnageBdd.GroupeSanguin = _requete.GroupeSanguin.XSS();
+          personnageBdd.NbBootcamp = _requete.NbBootcamp;
+          personnageBdd.NbOperation = _requete.NbOperation;
+          personnageBdd.EstFormateur = _requete.EstFormateur;
+          personnageBdd.EstFormateurSpecialite = _requete.EstFormateurSpecialite;
+          personnageBdd.FormationFaite = _requete.FormationFaite;
+          personnageBdd.NbPointBoutique = _requete.NbPointBoutique;
+          personnageBdd.DateDerniereParticipation = personnageBdd.DateDerniereParticipation;
+          personnageBdd.NomFichierPhotoIdentite = personnageBdd.NomFichierPhotoIdentite;
 
           if (personnageBdd.DroitGroupe?.Id != _requete.IdDroitGroupe)
           {
                if (!db.GetCollection<DroitGroupe>().Exists(x => x.Id == _requete.IdDroitGroupe))
                     return Results.NotFound("Le droit programmé n'existe pas");
 
-               personnage.DroitGroupe = new DroitGroupe { Id = _requete.IdDroitGroupe };
+               personnageBdd.DroitGroupe = new DroitGroupe { Id = _requete.IdDroitGroupe };
           }
 
-          personnage.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
-          personnage.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
+          personnageBdd.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
+          personnageBdd.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
 
           if (_requete.IdSpecialite is not null)
-               personnage.Specialite = db.GetCollection<Specialite>().FindById(_requete.IdSpecialite);
+               personnageBdd.Specialite = db.GetCollection<Specialite>().FindById(_requete.IdSpecialite);
 
           if (_requete.NbBootcamp > personnageBdd.NbBootcamp || _requete.NbOperation > personnageBdd.NbOperation)
-               personnage.DateDerniereParticipation = DateTime.UtcNow;
+               personnageBdd.DateDerniereParticipation = DateTime.UtcNow;
 
-          var ok = col.Update(personnage);
+          var ok = col.Update(personnageBdd);
 
           if(
-               (personnageBdd.Nom != personnage.Nom) || 
-               (personnage.NomDiscord != personnage.NomDiscord)
+               (personnageBdd.Nom != _requete.Nom) || 
+               (personnageBdd.NomDiscord != _requete.NomDiscord)
           )
           {
                _cache.Remove("listePartiellePersonnage");
@@ -242,6 +238,13 @@ public static class PersonnageRoute
           for (int i = 0; i < _listeIdPersonnage.Length; i++)
                predicatBuilder.Or(x => x.Id == _listeIdPersonnage[i]);
 
+          var listeGrade = db.GetCollection<Grade>().Query()
+               .Where(x => x.NbOperationRequis > 0)
+               .OrderBy(x => x.Ordre)
+               .ToList();
+
+          var gradeMaxPoint = listeGrade.MaxBy(x => x.NbOperationRequis);
+
           var listePersonnage = personnageCol.Query()
                .Include(x => x.Grade)
                .Where(predicatBuilder)
@@ -253,7 +256,15 @@ public static class PersonnageRoute
                element.NbOperation++;
 
                if(element.Grade is not null)
+               {
                     element.NbPointBoutique += element.Grade.NbPointBoutiqueGagnerParOperation;
+
+                    var prochainGrade = listeGrade.Where(x => x.NbOperationRequis >= element.NbOperation && x.NbOperationRequis < gradeMaxPoint!.NbOperationRequis)
+                         .FirstOrDefault();
+
+                    if(prochainGrade is not null)
+                         element.Grade = prochainGrade;
+               }
           }
 
           personnageCol.Update(listePersonnage);
