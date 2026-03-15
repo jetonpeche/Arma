@@ -1,6 +1,9 @@
 <h2 mat-dialog-title>Liste des personnages</h2>
 <mat-dialog-content style="margin-top: 20px;">
-    <p>Selectionner les personnages ayant participé à l'opération. <br> Les points seront ajoutés à la validation</p>
+    <p>
+        Selectionner les personnages ayant participé à l'opération. 
+        <br> Les points seront ajoutés à la validation et les grades mise à jour.
+    </p>
     <mat-selection-list #selectionPersonnage>
 
         @for (element of liste(); track element.id)
