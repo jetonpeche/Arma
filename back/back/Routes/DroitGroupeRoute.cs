@@ -142,9 +142,22 @@ public static class DroitGroupeRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var listeIdGroupe = db.GetCollection<DroitGroupe>().Query().Select(x => x.Id).ToArray();
+          var listeIdPersonnage = _requete.Select(x => x.IdPersonnage);
+          var dictIdPersonnageIdDroitGroupe = _requete.ToDictionary(x => x.IdPersonnage, x => x.IdDroitGroupe);
 
+          var listeIdDroitGroupe = db.GetCollection<DroitGroupe>().Query().Select(x => x.Id).ToArray();
+          var listePersonnage = db.GetCollection<Personnage>().Query().Where(x => listeIdPersonnage.Contains(x.Id)).ToList();
 
+          if (listePersonnage.Count is 0)
+               return Results.NotFound("Aucun personnage existe");
+
+          foreach (var element in listePersonnage)
+          {
+               var idDroitGroupe = dictIdPersonnageIdDroitGroupe[element.Id];
+               element.DroitGroupe = idDroitGroupe.HasValue ? new DroitGroupe { Id = idDroitGroupe.Value } : null;
+          }
+
+          db.GetCollection<Personnage>().Update(listePersonnage);
 
           return Results.NoContent();
      }
