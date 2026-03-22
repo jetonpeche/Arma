@@ -88,10 +88,27 @@ public static class BoutiqueRoute
                return Results.Extensions.Ok(listePosseder, BoutiqueReponseContext.Default);
           }
 
+#pragma warning disable CS8602
+          var idSpecialite = db.GetCollection<Personnage>().Query()
+               .Where(x => x.Id == _idPersonnage)
+               .Select(x => x.Specialite.Id)
+               .FirstOrDefault();
+#pragma warning restore CS8602
+
           var liste = db.GetCollection<Boutique>()
                .Query()
               .Include(x => x.ListePrix)
               .ToArray();
+              
+          if(idSpecialite is not 0)
+          {
+               liste = liste.Where(x =>
+                    x.ListePrix.Any(y =>
+                         y.ListeSpecialiteRequise.Count == 0 || 
+                         y.ListeSpecialiteRequise.Any(z => z.Id == idSpecialite)
+                    )
+               ).ToArray();
+          }
 
           var retour = liste.Select(x =>
           {
@@ -165,7 +182,8 @@ public static class BoutiqueRoute
                           Id = y.Id,
                           Nom = y.Nom,
                           Ordre = y.Ordre,
-                          Prix = y.Prix
+                          Prix = y.Prix,
+                          ListeIdSpecialiteRequise = y.ListeSpecialiteRequise.Select(x => x.Id).ToArray()
                      }).ToArray()
                }).ToArray();
 
@@ -210,7 +228,8 @@ public static class BoutiqueRoute
                Prix = x.Prix,
                Ordre = x.Ordre,
                Boutique = boutique,
-               ListePersonnage = []
+               ListePersonnage = [],
+               ListeSpecialiteRequise = x.ListeIdSpecialiteRequise.Select(y => new Specialite { Id = y }).ToList()
           })
           .ToList();
 
@@ -334,6 +353,9 @@ public static class BoutiqueRoute
                     boutiquePrix.Nom = x.Nom.XSS();
                     boutiquePrix.Ordre = x.Ordre;
                     boutiquePrix.Prix = x.Prix;
+                    boutiquePrix.ListeSpecialiteRequise = x.ListeIdSpecialiteRequise
+                         .Select(y => new Specialite { Id = y })
+                         .ToList();
 
                     boutiquePrixCol.Update(boutiquePrix);
                     return boutiquePrix;
@@ -344,7 +366,10 @@ public static class BoutiqueRoute
                     Nom = x.Nom.XSS(),
                     Prix = x.Prix,
                     Ordre = x.Ordre,
-                    Boutique = new Boutique { Id = _idBoutique }
+                    Boutique = new Boutique { Id = _idBoutique },
+                    ListeSpecialiteRequise = x.ListeIdSpecialiteRequise
+                         .Select(y => new Specialite { Id = y })
+                         .ToList()
                };
 
                boutiquePrixCol.Insert(nouveauBoutiquePrix);

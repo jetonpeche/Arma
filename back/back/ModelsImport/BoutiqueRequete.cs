@@ -12,4 +12,6 @@ public sealed class BoutiquePrixRequete
      public required string Nom { get; set; }
      public int Ordre { get; set; }
      public int Prix { get; set; }
+
+     public List<int> ListeIdSpecialiteRequise { get; set; } = [];
 }

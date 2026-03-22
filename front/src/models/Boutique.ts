@@ -19,7 +19,8 @@ export type BoutiqueAdmin =
         id: number,
         nom :string,
         ordre: number,
-        prix: number
+        prix: number,
+        listeIdSpecialiteRequise: []
     }]
 }
 

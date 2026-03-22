@@ -20,6 +20,8 @@
                 <div formArrayName="listePrix">
                     @for (element of listePrix.controls; track element; let i = $index; let last = $last) 
                     {
+                        @let specialite = element.get('listeIdSpecialiteRequise')?.value;
+
                         <jp-grid-container [formGroupName]="i" [gap]="15" style="margin-top: 15px;">
                             <jp-grid-element [colDefault]="12">
                                 <jp-input-text label="Nom" formControlName="nom" showMaxLength />
@@ -31,6 +33,30 @@
 
                             <jp-grid-element [colDefault]="6">
                                 <jp-input-number label="Ordre" formControlName="ordre" />
+                            </jp-grid-element>
+
+                            <jp-grid-element [colDefault]="12">
+                                <mat-form-field>
+                                    <mat-label>Spécialité(s) requise(s)</mat-label>
+                                    <mat-select formControlName="listeIdSpecialiteRequise" multiple>
+                                        <mat-select-trigger>
+                                            {{ NomSpecialite (specialite?.[0]) }}
+
+                                            @if ((specialite?.length || 0) > 1) 
+                                            {
+                                                <span class="example-additional-selection">
+                                                    (+{{ (specialite?.length || 0) - 1 }} 
+                                                    {{ specialite?.length === 2 ? 'autre' : 'autres' }})
+                                                </span>
+                                            }
+                                        </mat-select-trigger>
+
+                                        @for (specialite of listeSpecialite(); track specialite.id)
+                                        {
+                                            <mat-option [value]="specialite.id">{{ specialite.nom }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
                             </jp-grid-element>
 
                             <jp-grid-element [colDefault]="12">

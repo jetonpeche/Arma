@@ -17,6 +17,7 @@ public sealed class BoutiqueAdminPrixReponse
      public required string Nom { get; set; }
      public required int Ordre { get; set; }
      public required int Prix { get; set; }
+     public required int[] ListeIdSpecialiteRequise { get; set; }
 }
 
 [JsonSerializable(typeof(BoutiqueAdminReponse[]))]
