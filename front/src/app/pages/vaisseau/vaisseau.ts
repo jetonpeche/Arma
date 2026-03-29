@@ -8,7 +8,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Vaisseau, VaisseauArmement } from '@models/Vaisseau';
 import { VaisseauService } from '@services/VaisseauService';
-import { ButtonLoader } from "@jetonpeche/angular-mat-input";
+import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
 import { MatDialog } from '@angular/material/dialog';
 import { ModalStockage } from './modal-stockage/modal-stockage';
 import { AjouterModifierVaisseau } from '@modals/ajouter-modifier-vaisseau/ajouter-modifier-vaisseau';
@@ -19,10 +19,12 @@ import { Droit } from '@models/DroitGroupe';
 import { EUrl } from '@enums/EUrl';
 import { environment } from '../../../environements/environement';
 import { ModalInitInfo } from './modal-init-info/modal-init-info';
+import { ETypeRessource } from '@enums/ETypeRessource';
+import { FichierService } from '@services/FichierService';
 
 @Component({
   selector: 'app-vaisseau',
-  imports: [MatIcon, MatTableModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSortModule, MatPaginatorModule, ButtonLoader],
+  imports: [MatIcon, MatTableModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSortModule, MatPaginatorModule, ButtonLoader, InputFile],
   templateUrl: './vaisseau.html',
   styleUrl: './vaisseau.scss',
 })
@@ -42,6 +44,7 @@ export class VaisseauPage implements OnInit, AfterViewInit
 
     private vaisseauServ = inject(VaisseauService);
     private snackBarServ = inject(SnackBarService);
+    private fichierServ = inject(FichierService);
     private dialogConfirmationServ = inject(DialogConfirmationService);
     private authServ = inject(AuthentificationService);
     private dialog = inject(MatDialog);
@@ -78,6 +81,28 @@ export class VaisseauPage implements OnInit, AfterViewInit
     protected ListerArmementString(_listeArmement: VaisseauArmement[]): string
     {
         return _listeArmement.map(x => `${x.nombre} ${x.nom}`).join(" / ");
+    }
+
+    protected UploadFichier(_idVaisseau: number, _fichier: File): void
+    {
+        this.fichierServ.Upload(_idVaisseau, ETypeRessource.Vaisseau, _fichier).subscribe({
+            next: (url: string) => 
+            {
+                this.snackBarServ.Ok("Le fichier a été uploadé");
+                this.dataSource.update(x => 
+                {
+                    x.data = x.data.map(y => 
+                    {
+                        if (y.id == _idVaisseau)
+                            return { ...y, urlImageObjet: `${url}?t=${new Date().getTime()}` }
+                        
+                        return y;
+                    });
+
+                    return x;
+                });
+            }
+        });
     }
 
     protected OuvrirModalStockage(_vaisseau: Vaisseau): void

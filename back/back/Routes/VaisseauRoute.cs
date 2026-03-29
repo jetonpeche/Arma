@@ -11,7 +11,7 @@ public static class VaisseauRoute
 {
      public static RouteGroupBuilder AjouterRouteVaisseau(this RouteGroupBuilder builder)
      {
-          builder.MapGet("lister", ListerAsync)
+          builder.MapGet("lister", (Delegate)ListerAsync)
               .WithDescription("Lister les vaisseaux")
               .Produces<VaisseauReponse[]>();
 
@@ -38,7 +38,7 @@ public static class VaisseauRoute
           return builder;
      }
 
-     static async Task<IResult> ListerAsync()
+     static async Task<IResult> ListerAsync(HttpContext _httpContext)
      {
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
@@ -49,43 +49,44 @@ public static class VaisseauRoute
                .ToList()
                .Select(x => new VaisseauReponse
                {
-                     Id = x.Id,
-                     Nom = x.Nom,
-                     Prix = x.Prix,
-                     Role = x.Role,
-                     Stock = x.Stock,
-                     CapaciteSpeciale = x.CapaciteSpeciale,
-                     Blindage = x.Blindage,
-                     Vitesse = x.Vitesse,
+                    Id = x.Id,
+                    Nom = x.Nom,
+                    Prix = x.Prix,
+                    Role = x.Role,
+                    Stock = x.Stock,
+                    CapaciteSpeciale = x.CapaciteSpeciale,
+                    Blindage = x.Blindage,
+                    Vitesse = x.Vitesse,
+                    NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_BOUTIQUE + x.NomFichier : "",
 
-                     Equipage = new ()
-                     {
-                          NbPlaceMarines = x.Equipage.NbPlaceMarines,
-                          NbPlacePassager = x.Equipage.NbPlacePassager
-                     },
-                     ListeArmement = x.ListeArmement.Select(y => new ArmementVaisseauReponse
-                     {
-                          Id = y.Id,
-                          Nom = y.Nom,
-                          Information = y.Information,
-                          Nombre = y.Nombre,
-                          MunitionInfini = y.MunitionInfini,
-                          Munition = y.Munition,
-                          NbTourReload = y.NbTourReload,
-                          EstUsageUnique = y.EstUsageUnique
-                     }).ToArray(),
+                    Equipage = new ()
+                    {
+                         NbPlaceMarines = x.Equipage.NbPlaceMarines,
+                         NbPlacePassager = x.Equipage.NbPlacePassager
+                    },
+                    ListeArmement = x.ListeArmement.Select(y => new ArmementVaisseauReponse
+                    {
+                         Id = y.Id,
+                         Nom = y.Nom,
+                         Information = y.Information,
+                         Nombre = y.Nombre,
+                         MunitionInfini = y.MunitionInfini,
+                         Munition = y.Munition,
+                         NbTourReload = y.NbTourReload,
+                         EstUsageUnique = y.EstUsageUnique
+                    }).ToArray(),
 
-                     ListeStockage = x.ListeStockage.Select(y => new StockageVaisseauReponse
-                     {
-                          Id = y.Id,
-                          Nom = y.Nom,
-                          Taille = y.Taille,
-                          TypeStockage = new ()
-                          { 
-                               Id = y.TypeStockage.Id,
-                               Nom = y.TypeStockage.Nom
-                          }
-                     }).ToArray()
+                    ListeStockage = x.ListeStockage.Select(y => new StockageVaisseauReponse
+                    {
+                         Id = y.Id,
+                         Nom = y.Nom,
+                         Taille = y.Taille,
+                         TypeStockage = new ()
+                         { 
+                              Id = y.TypeStockage.Id,
+                              Nom = y.TypeStockage.Nom
+                         }
+                    }).ToArray()
                })
                .ToArray();
 

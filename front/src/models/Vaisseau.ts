@@ -7,6 +7,7 @@ export type Vaisseau =
     prix: number,
     stock: number,
     role: string,
+    nomFichier: string,
     listeArmement: VaisseauArmement[],
     listeStockage: VaisseauStockage[],
     vitesse: string,
