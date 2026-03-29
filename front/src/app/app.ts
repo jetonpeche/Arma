@@ -10,7 +10,6 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalPanier } from '@modals/modal-panier/modal-panier';
-import { Location } from '@angular/common';
 import { environment } from '../environements/environement';
 import { AuthentificationService } from '@services/AuthentificationService';
 
@@ -26,7 +25,6 @@ export class App implements AfterViewInit
     protected drawerMode = signal<MatDrawerMode>("push");
     
     private dialog = inject(MatDialog);
-    private location = inject(Location);
     private router = inject(Router);
     private authServ = inject(AuthentificationService);
 
