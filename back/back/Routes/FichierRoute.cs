@@ -40,111 +40,98 @@ public static class FichierRoute
                });
           }
 
-          var baseUrl = Path.Combine(Environment.CurrentDirectory, "Photos");
-
-          using var db = new LiteDatabase(Constant.BDD_NOM);
-
           switch (_requete.TypeRessource)
           {
                case ETypeRessource.Personnage:
-                    var colPersonnage = db.GetCollection<Personnage>();
+                    var nouveauNomFichierPerso = await UploadAsync<Personnage>(
+                          _requete.idRessource,
+                          _requete.Fichier,
+                          Constant.CHEMIN_IMG_PERSONNAGE,
+                          (x) => x.NomFichierPhotoIdentite,
+                          (x, s) => x.NomFichierPhotoIdentite = s
+                    );
 
-                    var personnage = colPersonnage.FindById(_requete.idRessource);
-
-                    if (personnage is null)
-                          return Results.NotFound();
-
-                    string nomFichier = "";
-
-                    if (personnage.NomFichierPhotoIdentite is null)
-                    {
-                         nomFichier = $"{Guid.NewGuid()}{Path.GetExtension(_requete.Fichier.FileName)}";
-                         personnage.NomFichierPhotoIdentite = nomFichier;
-
-                         colPersonnage.Update(personnage);
-                    }
-                    else
-                         nomFichier = personnage.NomFichierPhotoIdentite;
-
-                    await UploadAsync(_requete.Fichier, Constant.CHEMIN_IMG_PERSONNAGE, nomFichier);
-                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_PERSONNAGE + nomFichier));
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_PERSONNAGE + nouveauNomFichierPerso));
                 
                case ETypeRessource.Grade:
-                    var colGrade = db.GetCollection<Grade>();
+                    var nouveauNomFichierGrade = await UploadAsync<Grade>(
+                          _requete.idRessource,
+                          _requete.Fichier,
+                          Constant.CHEMIN_IMG_GRADE,
+                          (x) => x.NomFichierIcone,
+                          (x, s) => x.NomFichierIcone = s
+                    );
 
-                    var grade = colGrade.FindById(_requete.idRessource);
-
-                    if (grade is null)
-                         return Results.NotFound();
-
-                    string nomFichierGrade = "";
-
-                    if (grade.NomFichierIcone is null)
-                    {
-                         nomFichierGrade = $"{Guid.NewGuid()}{Path.GetExtension(_requete.Fichier.FileName)}";
-                         grade.NomFichierIcone = nomFichierGrade;
-
-                         colGrade.Update(grade);
-                    }
-                    else
-                         nomFichierGrade = grade.NomFichierIcone;
-
-                    await UploadAsync(_requete.Fichier, Constant.CHEMIN_IMG_GRADE, nomFichierGrade);
-                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_GRADE + nomFichierGrade));
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_GRADE + nouveauNomFichierGrade));
 
                case ETypeRessource.PersonnageSecondaire:
-                    var colPersoSec = db.GetCollection<PersonnageSecondaire>();
+                    var nouveauNomFichierPersoSecondaire = await UploadAsync<PersonnageSecondaire>(
+                          _requete.idRessource,
+                          _requete.Fichier,
+                          Constant.CHEMIN_IMG_PERSONNAGE,
+                          (x) => x.NomFichierPhotoIdentite,
+                          (x, s) => x.NomFichierPhotoIdentite = s
+                    );
 
-                    var persoSec = colPersoSec.FindById(_requete.idRessource);
-
-                    if (persoSec is null)
-                         return Results.NotFound();
-
-                    string nomFichierPersoSec = "";
-
-                    if (persoSec.NomFichierPhotoIdentite is null)
-                    {
-                         nomFichierGrade = $"{Guid.NewGuid()}{Path.GetExtension(_requete.Fichier.FileName)}";
-                         persoSec.NomFichierPhotoIdentite = nomFichierGrade;
-
-                         colPersoSec.Update(persoSec);
-                    }
-                    else
-                         nomFichierPersoSec = persoSec.NomFichierPhotoIdentite;
-
-                    await UploadAsync(_requete.Fichier, Constant.CHEMIN_IMG_PERSONNAGE, nomFichierPersoSec);
-                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_PERSONNAGE + nomFichierPersoSec));
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_PERSONNAGE + nouveauNomFichierPersoSecondaire));
 
                case ETypeRessource.Boutique:
-                    var colBoutique = db.GetCollection<Boutique>();
+                    var nouveauNomFichierBoutique = await UploadAsync<Boutique>(
+                         _requete.idRessource,
+                         _requete.Fichier,
+                         Constant.CHEMIN_IMG_BOUTIQUE,
+                         (x) => x.NomFichier,
+                         (x, s) => x.NomFichier = s
+                    );
 
-                    var boutique = colBoutique.FindById(_requete.idRessource);
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_BOUTIQUE + nouveauNomFichierBoutique));
 
-                    if (boutique is null)
-                         return Results.NotFound();
+               case ETypeRessource.Vaisseau:
+                    var nouveauNomFichier = await UploadAsync<Vaisseau>(
+                         _requete.idRessource,
+                         _requete.Fichier,
+                         Constant.CHEMIN_IMG_VAISSEAU,
+                         (x) => x.NomFichier,
+                         (x, s) => x.NomFichier = s
+                    );
 
-                    string nomFichierBoutique = "";
-
-                    if (boutique.NomFichier is null)
-                    {
-                         nomFichierBoutique = $"{Guid.NewGuid()}{Path.GetExtension(_requete.Fichier.FileName)}";
-                         boutique.NomFichier = nomFichierBoutique;
-
-                         colBoutique.Update(boutique);
-                    }
-                    else
-                         nomFichierBoutique = boutique.NomFichier;
-
-                    await UploadAsync(_requete.Fichier, Constant.CHEMIN_IMG_BOUTIQUE, nomFichierBoutique);
-                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_BOUTIQUE + nomFichierBoutique));
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_VAISSEAU + nouveauNomFichier));
           }
 
-        return Results.BadRequest("Erreur type de ressource");
+          return Results.BadRequest("Erreur type de ressource");
      }
 
-     static async Task UploadAsync(IFormFile _fichier, string _cheminBase, string _nouveauNomFichier)
+     static async Task<string?> UploadAsync<T>(
+          int _idRessource, 
+          IFormFile _fichier, 
+          string _cheminBase, 
+          Func<T, string?> _getter, 
+          Action<T, string?> _setter
+     )
      {
-          var baseUrl = Path.Join(Environment.CurrentDirectory,  _cheminBase);
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var col = db.GetCollection<T>();
+
+          var ressource = col.FindById(_idRessource);
+
+          if (ressource is null)
+               return null;
+
+          string? nomFichier = _getter(ressource);
+          string? nouveauNomFichier = null;
+
+          if (string.IsNullOrWhiteSpace(nomFichier))
+          {
+               nouveauNomFichier = $"{Guid.NewGuid()}{Path.GetExtension(_fichier.FileName)}";
+               _setter(ressource, nouveauNomFichier);
+
+               col.Update(ressource);
+          }
+          else
+               nouveauNomFichier = nomFichier;
+
+          var baseUrl = Path.Join(Environment.CurrentDirectory, _cheminBase);
 
           if (!Directory.Exists(baseUrl))
                Directory.CreateDirectory(baseUrl);
@@ -156,8 +143,10 @@ public static class FichierRoute
 
                memoryStream.Seek(0, SeekOrigin.Begin);
 
-               File.WriteAllBytes(Path.Combine(baseUrl, _nouveauNomFichier), memoryStream.ToArray());
+               File.WriteAllBytes(Path.Combine(baseUrl, nouveauNomFichier), memoryStream.ToArray());
           }
+
+          return nouveauNomFichier;
      }
 
     static string ConstruireUrlFichier(HttpContext _httpContext, string _nomFichier)

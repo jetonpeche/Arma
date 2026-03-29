@@ -11,6 +11,7 @@ public sealed class Vaisseau
      public int Stock { get; set; }
      public string Role { get; set; } = null!;
      public string? CapaciteSpeciale { get; set; }
+     public string? NomFichier { get; set; }
 
      public List<ArmementVaisseau> ListeArmement { get; set; } = [];
 

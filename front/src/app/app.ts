@@ -53,7 +53,7 @@ export class App implements AfterViewInit
 
             // JWT expiré
             if(new Date(EXP * 1_000).getTime() < new Date().getTime())
-            {
+            {   
                 sessionStorage.clear();
                 environment.utilisateur = null;
                 this.authServ.estConnecter.set(false);
@@ -64,7 +64,6 @@ export class App implements AfterViewInit
             if(document.referrer && document.referrer.includes(environment.urlFront))
             {
                 this.authServ.estConnecter.set(true);
-                this.location.back();
             }
         }
     }
@@ -91,7 +90,7 @@ export class App implements AfterViewInit
         {
             this.drawerMode.set("over");
             this.mdcBackdrop.set(true);
-        } 
+        }
         else 
         {
             this.drawerMode.set("push");      

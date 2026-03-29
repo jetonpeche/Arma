@@ -5,5 +5,6 @@ public enum ETypeRessource
     Personnage,
     PersonnageSecondaire,
     Grade,
-    Boutique
+    Boutique,
+    Vaisseau
 }
