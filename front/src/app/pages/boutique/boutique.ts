@@ -67,6 +67,7 @@ export class BoutiquePage implements OnInit
                 this.snackBarServ.Ok("L'objet a été acheté");
                 this.pointPersonnage.update(x => x - _prix);
                 environment.utilisateur.nbPointBoutique -= _prix;
+                sessionStorage.setItem("utilisateur", environment.utilisateur);
                 this.Lister();
             }
         });
