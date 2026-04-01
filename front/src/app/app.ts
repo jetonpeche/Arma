@@ -29,6 +29,7 @@ export class App implements AfterViewInit
     private authServ = inject(AuthentificationService);
 
     protected estConnecter = computed(() => this.authServ.estConnecter());
+    protected pointCampagne = computed(() => this.authServ.nbPointBanque());
 
     constructor(private breakpointObserver: BreakpointObserver) 
     {
@@ -55,6 +56,7 @@ export class App implements AfterViewInit
                 sessionStorage.clear();
                 environment.utilisateur = null;
                 this.authServ.estConnecter.set(false);
+                this.authServ.nbPointBanque.set(0);
                 return;
             }
 
@@ -62,6 +64,7 @@ export class App implements AfterViewInit
             if(document.referrer && document.referrer.includes(environment.urlFront))
             {
                 this.authServ.estConnecter.set(true);
+                this.authServ.nbPointBanque.set(environment.utilisateur.nbPointBanque);
             }
         }
     }

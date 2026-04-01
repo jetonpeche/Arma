@@ -10,7 +10,8 @@ import { EUrl } from "@enums/EUrl"
 export class AuthentificationService
 {
     estConnecter = signal<boolean>(false);
-    
+    nbPointBanque = signal<number>(0);
+
     private http = inject(HttpClient);
     private destroyRef: DestroyRef = inject(DestroyRef);
 
@@ -19,6 +20,14 @@ export class AuthentificationService
     Connexion(_connexion: Authentification): Observable<Authentifier>
     {
         return this.http.post<Authentifier>(`${this.BASE_API}/connexion`, _connexion).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ModifierPointBanque(_prix: number): void
+    {
+        this.nbPointBanque.update(x => x - _prix);
+        environment.utilisateur.nbPointBanque -= _prix;
+
+        sessionStorage.setItem("utilisateur", environment.utilisateur);
     }
 
     RecupererDroit(_url: EUrl): Droit

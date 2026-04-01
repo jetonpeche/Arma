@@ -9,6 +9,7 @@ import { ButtonLoader } from "@jetonpeche/angular-mat-input";
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { Boutique, BoutiquePersonnageAcheterRequete } from '@models/Boutique';
 import { BoutiqueService } from '@services/BoutiqueService';
+import { environment } from '../../../environements/environement';
 
 @Component({
   selector: 'app-boutique',
@@ -20,6 +21,8 @@ export class BoutiquePage implements OnInit
 {
     /** Permet d'avoir la liste des objets achetés du personnage */
     idPersonnage = input<number>(0);
+
+    protected pointPersonnage = signal<number>(environment.utilisateur.nbPointBoutique);
     protected listeBoutique = signal<Boutique[]>([]);
 
     private boutiqueServ = inject(BoutiqueService);
@@ -40,7 +43,7 @@ export class BoutiquePage implements OnInit
             next: (retour) =>
             {
                 if(retour)
-                    this.Acheter(_boutique.id, _boutique.idPrix);
+                    this.Acheter(_boutique.id, _boutique.idPrix, _boutique.prix);
             }
         });
     }
@@ -51,7 +54,7 @@ export class BoutiquePage implements OnInit
         return this.listeBoutique().filter(x => x.nom.toLowerCase().includes(VALEUR));
     }
 
-    private Acheter(_idBoutique: number, _idBoutiquePrix: number): void
+    private Acheter(_idBoutique: number, _idBoutiquePrix: number, _prix: number): void
     {
         const INFO: BoutiquePersonnageAcheterRequete = {
             idBoutique: _idBoutique,
@@ -62,6 +65,8 @@ export class BoutiquePage implements OnInit
             next: () =>
             {
                 this.snackBarServ.Ok("L'objet a été acheté");
+                this.pointPersonnage.update(x => x - _prix);
+                environment.utilisateur.nbPointBoutique -= _prix;
                 this.Lister();
             }
         });

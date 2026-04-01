@@ -3,7 +3,7 @@
     @if (estConnecter()) 
     {
         <button matIconButton (click)="drawer.toggle()" aria-label="Menu vertical">
-        <mat-icon>menu</mat-icon>
+            <mat-icon>menu</mat-icon>
         </button>
     }
 
@@ -12,10 +12,8 @@
 
     @if (estConnecter())
     {
-        <button matIconButton 
-                    aria-label="Menu paramètre" 
-                    matTooltip="paramètres">
-            <mat-icon>settings</mat-icon>
+        <button style="background-color: white;" matButton="filled">
+            {{ pointCampagne() }} Pts campagne
         </button>
 
         <button matIconButton 

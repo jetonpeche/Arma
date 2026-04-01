@@ -135,7 +135,7 @@ export class VaisseauPage implements OnInit, AfterViewInit
             next: (retour) =>
             {
                 if(retour)
-                    this.AcheterVaisseau(_vaisseau.id);
+                    this.AcheterVaisseau(_vaisseau.id, _vaisseau.prix);
             }
         });
     }
@@ -173,13 +173,13 @@ export class VaisseauPage implements OnInit, AfterViewInit
         })
     }
 
-    private AcheterVaisseau(_idVaisseau: number): void
+    private AcheterVaisseau(_idVaisseau: number, _prix: number): void
     {
         const DIALOG_REF = this.dialog.open(ModalInitInfo);
 
         DIALOG_REF.afterClosed().subscribe({
             next: (retour) =>
-            {   
+            {
                 if(!retour)
                     return;
 
@@ -192,6 +192,7 @@ export class VaisseauPage implements OnInit, AfterViewInit
                     {
                         this.btnClick.set(false);
                         this.snackBarServ.Ok("Le vaisseau a été acheté");
+                        this.authServ.ModifierPointBanque(_prix);
 
                         this.dataSource.update(x => {
                             x.data.find(x => x.id == _idVaisseau).stock += 1;
