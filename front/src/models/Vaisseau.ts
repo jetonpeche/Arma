@@ -11,10 +11,17 @@ export type Vaisseau =
     bloquerAchat: boolean,
     listeArmement: VaisseauArmement[],
     listeStockage: VaisseauStockage[],
+    listeVaisseauEnfant: VaisseauLeger[],
     vitesse: string,
     blindage: string,
     capaciteSpeciale: string | null,
     equipage: VaisseauEquipage
+}
+
+export type VaisseauLeger =
+{
+    id: number,
+    nom: string
 }
 
 export type VaisseauArmement =

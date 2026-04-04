@@ -31,6 +31,31 @@
             </jp-grid-element>
 
             <jp-grid-element [colDefault]="12">
+                @let vaisseau = form.get('listeIdVaisseauEnfant')?.value;
+
+                <mat-form-field>
+                    <mat-label>Vaisseau(x) contenu(s)</mat-label>
+                    <mat-select formControlName="listeIdVaisseauEnfant" multiple>
+                        <mat-select-trigger>
+                            {{ NomVaisseau (vaisseau?.[0]) }}
+
+                            @if ((vaisseau?.length || 0) > 1) 
+                            {
+                                <span class="example-additional-selection">
+                                    (+{{ (vaisseau?.length || 0) - 1 }} 
+                                    {{ vaisseau?.length === 2 ? 'autre' : 'autres' }})
+                                </span>
+                            }
+                        </mat-select-trigger>
+                        @for (element of listeVaisseauLeger(); track element) 
+                        {
+                            <mat-option [value]="element.id">{{ element.nom }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
                 <jp-textarea label="Role" formControlName="role" showMaxLength />
             </jp-grid-element>
 

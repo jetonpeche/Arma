@@ -2,17 +2,19 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { InputText, ButtonLoader, InputNumber, InputTextarea, InputAutocomplete, AutocompleteDataSource } from "@jetonpeche/angular-mat-input";
-import { Vaisseau, VaisseauArmement, VaisseauStockage } from '@models/Vaisseau';
+import { Vaisseau, VaisseauArmement, VaisseauLeger, VaisseauStockage } from '@models/Vaisseau';
 import { SnackBarService } from '@services/SnackBarService';
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { TypeStockageLogistiqueService } from '@services/TypeStockageLogistiqueService';
 import { VaisseauService } from '@services/VaisseauService';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-ajouter-modifier-vaisseau',
-  imports: [MatExpansionModule, MatCheckboxModule, MatDialogModule, ReactiveFormsModule, InputText, ButtonLoader, GridContainer, GridElement, InputNumber, InputTextarea, InputAutocomplete],
+  imports: [MatFormFieldModule, MatSelectModule, MatExpansionModule, MatCheckboxModule, MatDialogModule, ReactiveFormsModule, InputText, ButtonLoader, GridContainer, GridElement, InputNumber, InputTextarea, InputAutocomplete],
   templateUrl: './ajouter-modifier-vaisseau.html',
   styleUrl: './ajouter-modifier-vaisseau.scss',
 })
@@ -22,6 +24,7 @@ export class AjouterModifierVaisseau implements OnInit
     protected labelBtn = signal<string>("Ajouter");
     protected btnClick = signal<boolean>(false);
     protected dataSourceTypeStockage = signal<AutocompleteDataSource[]>([]);
+    protected listeVaisseauLeger = signal<VaisseauLeger[]>([]);
 
     private matDialogData: Vaisseau = inject(MAT_DIALOG_DATA);
 
@@ -43,6 +46,7 @@ export class AjouterModifierVaisseau implements OnInit
     ngOnInit(): void
     {
         this.ListerTypeStockage();
+        this.ListerVaisseauLeger();
 
         this.form = new FormGroup({
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
@@ -63,6 +67,7 @@ export class AjouterModifierVaisseau implements OnInit
                     [Validators.required, Validators.min(0)]
                 )
             }),
+            listeIdVaisseauEnfant: new FormControl<number[]>(this.matDialogData?.listeVaisseauEnfant.map(x => x.id) ?? []),
             listeStockage: new FormArray([]),
             listeArmement: new FormArray([])
         });
@@ -77,6 +82,12 @@ export class AjouterModifierVaisseau implements OnInit
             for (const element of this.matDialogData.listeStockage) 
                 this.AjouterStockage(element);  
         }
+    }
+
+    protected NomVaisseau(_idVaisseau: number): string
+    {
+        const VAISSEAU = this.listeVaisseauLeger().find(t => t.id === _idVaisseau);
+        return VAISSEAU?.nom ?? "";
     }
 
     protected AjouterArmement(_armement?: VaisseauArmement): void
@@ -153,6 +164,19 @@ export class AjouterModifierVaisseau implements OnInit
                 this.dataSourceTypeStockage.set(
                     retour.map(x => ({ value: x.id, display: x.nom }))
                 );
+            }
+        });
+    }
+
+    private ListerVaisseauLeger(): void
+    {
+        this.vaisseauServ.ListerLeger().subscribe({
+            next: (retour) =>
+            {
+                if(this.matDialogData)
+                    retour = retour.filter(x => x.id != this.matDialogData.id);
+
+                this.listeVaisseauLeger.set(retour);
             }
         });
     }

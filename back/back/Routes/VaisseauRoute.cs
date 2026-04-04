@@ -15,6 +15,10 @@ public static class VaisseauRoute
               .WithDescription("Lister les vaisseaux")
               .Produces<VaisseauReponse[]>();
 
+          builder.MapGet("lister-leger", ListerLegerAsync)
+              .WithDescription("Lister les vaisseaux aleger")
+              .Produces<VaisseauLegerReponse[]>();
+
           builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter un nouveau vaisseau")
                .ProducesBadRequest()
@@ -65,6 +69,13 @@ public static class VaisseauRoute
                          NbPlaceMarines = x.Equipage.NbPlaceMarines,
                          NbPlacePassager = x.Equipage.NbPlacePassager
                     },
+
+                    ListeVaisseauEnfant = x.ListeVaisseauEnPlus.Select(y => new VaisseauLegerReponse
+                    { 
+                         Id = y.Id,
+                         Nom = y.Nom
+                    }).ToArray(),
+
                     ListeArmement = x.ListeArmement.Select(y => new ArmementVaisseauReponse
                     {
                          Id = y.Id,
@@ -92,6 +103,22 @@ public static class VaisseauRoute
                .ToArray();
 
           return Results.Extensions.Ok(liste, VaisseauReponseContext.Default);
+     }
+
+     static async Task<IResult> ListerLegerAsync()
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var liste = db.GetCollection<Vaisseau>()
+               .Query()
+               .OrderBy(x => x.Nom)
+               .Select(x => new VaisseauLegerReponse
+               {
+                    Id = x.Id,
+                    Nom = x.Nom
+               }).ToArray();
+
+          return Results.Extensions.Ok(liste, VaisseauLegerReponseContext.Default);
      }
 
      static async Task<IResult> AjouterAsync(
@@ -152,6 +179,14 @@ public static class VaisseauRoute
                     return Results.NotFound($"Le type de stockage de {element.Nom} n'existe pas");
           }
 
+          for (int i = 0; i < _requete.ListeIdVaisseauEnfant.Length; i++)
+          {
+               var element = _requete.ListeIdVaisseauEnfant[i];
+
+               if (element <= 0)
+                    return Results.BadRequest($"Le vaisseau n°{i} existe pas");
+          }
+
           var vaisseau = new Vaisseau
           {
                Nom = _requete.Nom.XSS(),
@@ -168,6 +203,22 @@ public static class VaisseauRoute
                     NbPlacePassager = _requete.Equipage.NbPlacePassager
                }
           };
+
+          if(_requete.ListeIdVaisseauEnfant.Length > 0)
+          {
+               var listeIdVaisseauBson = _requete.ListeIdVaisseauEnfant.Select(x => new BsonValue(x)).ToArray();
+               var listeIdVaisseau = db.GetCollection<Vaisseau>().Query()
+                    .Where(Query.In("_id", listeIdVaisseauBson))
+                    .Select(x => x.Id)
+                    .ToArray();
+
+               if (listeIdVaisseau.Length != _requete.ListeIdVaisseauEnfant.Length)
+                    return Results.BadRequest("Un ou plusieurs vaisseau(x) n'existe pas");
+
+               vaisseau.ListeVaisseauEnPlus = _requete.ListeIdVaisseauEnfant.Select(x => new Vaisseau { Id = x }).ToList();
+          }
+          else
+               vaisseau.ListeVaisseauEnPlus = [];
 
           for (int i = 0; i < _requete.ListeArmement.Length; i++)
           {
@@ -223,7 +274,7 @@ public static class VaisseauRoute
 
           var info = db.GetCollection<Vaisseau>().Query()
                .Where(x => x.Id == _requete.IdVaisseau)
-               .Select(x => new { x.Prix, x.BloquerAchat })
+               .Select(x => new { x.Prix, x.BloquerAchat, ListeVaisseauEnPlus = x.ListeVaisseauEnPlus.Select(y => y.Id).ToArray() })
                .FirstOrDefault();
 
           if (info.BloquerAchat)
@@ -238,18 +289,45 @@ public static class VaisseauRoute
           banque.Argent -= info.Prix;
           db.GetCollection<Banque>().Update(banque);
 
-          db.Execute(
-               $"UPDATE {nameof(Vaisseau)} SET Stock = Stock + 1 WHERE _id = @0",
-               [_requete.IdVaisseau]
-          );
-
-          db.GetCollection<VaisseauPosseder>().Insert(new VaisseauPosseder
+          List<VaisseauPosseder> listeVaisseau = [];
+          if (info.ListeVaisseauEnPlus.Length > 0)
           {
-               Vaisseau = new Vaisseau { Id = _requete.IdVaisseau },
-               NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
-               NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
-               Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
-          });
+               var listeIdVaisseau = info.ListeVaisseauEnPlus
+                   .Select(v => v)
+                   .Append(_requete.IdVaisseau)
+                   .ToArray();
+
+               var listeIdVaisseauBson = new BsonArray(listeIdVaisseau.Select(id => new BsonValue(id)));
+
+               db.Execute($@"UPDATE {nameof(Vaisseau)} SET Stock = Stock + 1 WHERE _id IN {listeIdVaisseauBson}");
+
+               listeVaisseau.AddRange(listeIdVaisseau.Select(x => new VaisseauPosseder
+               {
+                    Id = 0,
+                    Vaisseau = new Vaisseau { Id = x },
+                    NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
+                    NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
+                    Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
+               }));
+          }
+          else
+          {
+               db.Execute(
+                    $"UPDATE {nameof(Vaisseau)} SET Stock = Stock + 1 WHERE _id = @0",
+                    [_requete.IdVaisseau]
+               );
+
+               listeVaisseau.Add(new VaisseauPosseder
+               {
+                    Id = 0,
+                    Vaisseau = new Vaisseau { Id = _requete.IdVaisseau },
+                    NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
+                    NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
+                    Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
+               });
+          }
+
+          db.GetCollection<VaisseauPosseder>().Insert(listeVaisseau);
 
           return Results.NoContent();
      }
@@ -325,6 +403,14 @@ public static class VaisseauRoute
                     return Results.NotFound($"Le type de stockage de {element.Nom.XSS()} n'existe pas");
           }
 
+          for (int i = 0; i < _requete.ListeIdVaisseauEnfant.Length; i++)
+          {
+               var element = _requete.ListeIdVaisseauEnfant[i];
+
+               if (element <= 0)
+                    return Results.BadRequest($"Le vaisseau n°{i} existe pas");
+          }
+
           var vaisseau = db.GetCollection<Vaisseau>()
                .Include(x => x.ListeStockage)
                .FindById(_idVaisseau);
@@ -339,6 +425,23 @@ public static class VaisseauRoute
           vaisseau.CapaciteSpeciale = string.IsNullOrWhiteSpace(_requete.CapaciteSpeciale) ? null : _requete.CapaciteSpeciale.XSS();
           vaisseau.Equipage.NbPlaceMarines = _requete.Equipage.NbPlaceMarines;
           vaisseau.Equipage.NbPlacePassager = _requete.Equipage.NbPlacePassager;
+
+          if (_requete.ListeIdVaisseauEnfant.Length > 0)
+          {
+               var listeIdVaisseauBson = _requete.ListeIdVaisseauEnfant.Select(x => new BsonValue(x)).ToArray();
+
+               var listeIdVaisseau = db.GetCollection<Vaisseau>().Query()
+                    .Where(Query.In("_id", listeIdVaisseauBson))
+                    .Select(x => x.Id)
+                    .ToArray();
+
+               if (listeIdVaisseau.Length != _requete.ListeIdVaisseauEnfant.Length)
+                    return Results.BadRequest("Un ou plusieurs vaisseau(x) n'existe pas");
+
+               vaisseau.ListeVaisseauEnPlus = _requete.ListeIdVaisseauEnfant.Select(x => new Vaisseau { Id = x }).ToList();
+          }
+          else
+               vaisseau.ListeVaisseauEnPlus = [];
 
           var dictArmement = vaisseau.ListeArmement
               .ToDictionary(x => x.Id);
@@ -429,7 +532,9 @@ public static class VaisseauRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var nomFichier = db.GetCollection<Vaisseau>().Query()
+          var colVaisseau = db.GetCollection<Vaisseau>();
+
+          var nomFichier = colVaisseau.Query()
                .Where(x => x.Id == _idVaisseau)
                .Select(x => x.NomFichier)
                .FirstOrDefault();
@@ -437,10 +542,19 @@ public static class VaisseauRoute
           if (nomFichier is not null)
                File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_VAISSEAU + nomFichier));
 
-          var ok = db.GetCollection<Vaisseau>().Delete(_idVaisseau);
+          var ok = colVaisseau.Delete(_idVaisseau);
 
           if(ok)
                db.GetCollection<StockageVaisseau>().DeleteMany(x => x.Vaisseau.Id == _idVaisseau);
+
+          var listeVaisseau = colVaisseau.Query()
+               .Where(x => x.ListeVaisseauEnPlus.Select(y => y.Id).Any(y => y == _idVaisseau))
+               .ToArray();
+
+          foreach (var element in listeVaisseau)
+               element.ListeVaisseauEnPlus.RemoveAll(x => x.Id == _idVaisseau);
+
+          colVaisseau.Update(listeVaisseau);
 
           return ok ? Results.NoContent() : Results.NotFound("Le vaisseau n'existe pas");
      }

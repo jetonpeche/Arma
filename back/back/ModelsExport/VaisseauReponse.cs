@@ -15,6 +15,7 @@ public sealed class VaisseauReponse
 
      public required StockageVaisseauReponse[] ListeStockage { get; set; }
      public required ArmementVaisseauReponse[] ListeArmement { get; set; }
+     public required VaisseauLegerReponse[] ListeVaisseauEnfant { get; set; }
      public required EquipageVaisseauReponse Equipage { get; set; }
 
      public string Vitesse { get; set; } = null!;
