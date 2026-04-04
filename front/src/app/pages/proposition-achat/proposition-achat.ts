@@ -87,12 +87,12 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
 
     protected OuvrirModalConfirmationObjet(_objet: ObjetProposer, _decision: boolean): void
     {
-        const TITRE = `${ _decision ? 'Valider' : 'Refuser' } l'achat de`;
+        const TITRE = `${ _decision ? 'Valider' : 'Refuser' } l'achat`;
         const MESSAGE = `Confirmez vous ${ _decision ? 'la validation' : 'le refus' } d'achat de ${_objet.nom} ?`;
 
         this.dialogConfirmationServ.Ouvrir(TITRE, MESSAGE).subscribe({
             next: (retour) =>
-            {   
+            {
                 if(retour)
                     this.AccepterRefuserProposition(_decision, _objet);
             }
@@ -130,9 +130,19 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
                 this.btnClick.set(false);
 
                 if(_objet)
+                {
+                    if(_decision)
+                        this.authServ.ModifierPointBanque(_objet.prixUnitaire * _objet.quantite);
+
                     this.snackBarServ.Ok(`${_objet.nom} a été ${_decision ? 'acheté(e)' : 'refusé(e)'}`);
+                }
                 else
+                {
+                    if(_decision)
+                        this.authServ.ModifierPointBanque(this.prixTotal());
+
                     this.snackBarServ.Ok(`La proposition a été ${_decision ? 'acceptée' : 'refusée'}`);
+                }
 
                 this.MiseAjourListePropositionAchat(_objet);
             },
