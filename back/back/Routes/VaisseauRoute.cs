@@ -263,6 +263,7 @@ public static class VaisseauRoute
      }
 
      static async Task<IResult> AcheterAsync(
+          HttpContext _httpContext,
           [FromBody] VaisseauAcheterRequete _requete
      )
      {
@@ -275,7 +276,7 @@ public static class VaisseauRoute
 
           var info = db.GetCollection<Vaisseau>().Query()
                .Where(x => x.Id == _requete.IdVaisseau)
-               .Select(x => new { x.Prix, x.BloquerAchat, ListeVaisseauEnPlus = x.ListeVaisseauEnPlus.Select(y => y.Id).ToArray() })
+               .Select(x => new { x.Nom, x.Prix, x.BloquerAchat, ListeVaisseauEnPlus = x.ListeVaisseauEnPlus.Select(y => y.Id).ToArray() })
                .FirstOrDefault();
 
           if (info.BloquerAchat)
@@ -329,6 +330,13 @@ public static class VaisseauRoute
           }
 
           db.GetCollection<VaisseauPosseder>().Insert(listeVaisseau);
+
+          var nomPersonnage = db.GetCollection<Personnage>().FindById(_httpContext.RecupererIdPersonnage()).Nom;
+          db.GetCollection<Historique>().Insert(new Historique
+          {
+               Information = $"{nomPersonnage} à acheter le vaisseau {info.Nom} pour {info.Prix}",
+               Date = DateTime.UtcNow  
+          });
 
           return Results.NoContent();
      }
