@@ -285,8 +285,21 @@ public static class PersonnageRoute
           if (personnage is null)
                return Results.NotFound("Le personnage n'existe pas");
 
+          if (personnage.NomFichierPhotoIdentite is not null)
+               File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_PERSONNAGE + personnage.NomFichierPhotoIdentite));
+
           if (personnage.PersonnageSecondaire is not null)
+          {
+               var nomFichier = db.GetCollection<PersonnageSecondaire>().Query()
+                    .Where(x => x.Id == personnage.PersonnageSecondaire.Id)
+                    .Select(x => x.NomFichierPhotoIdentite)
+                    .FirstOrDefault();
+
+               if(nomFichier is not null)
+                    File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_PERSONNAGE + nomFichier));
+
                db.GetCollection<PersonnageSecondaire>().Delete(personnage.PersonnageSecondaire.Id);
+          }
 
           var listeBoutiquePrix = db.GetCollection<BoutiquePrix>()
                .Query()

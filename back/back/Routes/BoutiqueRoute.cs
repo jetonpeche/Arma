@@ -391,7 +391,10 @@ public static class BoutiqueRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var nomFichier = db.GetCollection<Boutique>().Query().FirstOrDefault()?.NomFichier;
+          var nomFichier = db.GetCollection<Boutique>().Query()
+               .Where(x => x.Id == _idBoutique)
+               .Select(x => x.NomFichier)
+               .FirstOrDefault();
 
           if(nomFichier is not null)
                File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_BOUTIQUE + nomFichier));

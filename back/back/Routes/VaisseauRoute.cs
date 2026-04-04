@@ -424,6 +424,14 @@ public static class VaisseauRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
+          var nomFichier = db.GetCollection<Vaisseau>().Query()
+               .Where(x => x.Id == _idVaisseau)
+               .Select(x => x.NomFichier)
+               .FirstOrDefault();
+
+          if (nomFichier is not null)
+               File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_VAISSEAU + nomFichier));
+
           var ok = db.GetCollection<Vaisseau>().Delete(_idVaisseau);
 
           if(ok)

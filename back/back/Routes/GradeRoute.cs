@@ -158,11 +158,19 @@ public static class GradeRoute
           if (_idGrade <= 0)
                return Results.NotFound("Le grade n'existe pas");
 
-        using var db = new LiteDatabase(Constant.BDD_NOM);
+          using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        bool ok = db.GetCollection<Grade>().Delete(_idGrade);
-        db.GetCollection<Personnage>().UpdateMany(x => new Personnage { Grade = null }, y => y.Grade != null && y.Grade.Id == _idGrade);
+          var nomFichier = db.GetCollection<Grade>().Query()
+               .Where(x => x.Id == _idGrade)
+               .Select(x => x.NomFichierIcone)
+               .FirstOrDefault();
 
-        return ok ? Results.NoContent() : Results.NotFound("Le grade n'existe pas");
+          if (nomFichier is not null)
+               File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_GRADE + nomFichier));
+
+          bool ok = db.GetCollection<Grade>().Delete(_idGrade);
+          db.GetCollection<Personnage>().UpdateMany(x => new Personnage { Grade = null }, y => y.Grade != null && y.Grade.Id == _idGrade);
+
+          return ok ? Results.NoContent() : Results.NotFound("Le grade n'existe pas");
      }
 }
