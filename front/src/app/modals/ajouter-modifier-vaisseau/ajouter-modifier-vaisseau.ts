@@ -52,6 +52,7 @@ export class AjouterModifierVaisseau implements OnInit
             capaciteSpeciale: new FormControl(this.matDialogData?.capaciteSpeciale, [Validators.maxLength(300)]),
             vitesse: new FormControl(this.matDialogData?.vitesse ?? "", [Validators.required, Validators.maxLength(50)]),
             blindage: new FormControl(this.matDialogData?.blindage ?? "", [Validators.required, Validators.maxLength(50)]),
+            bloquerAchat: new FormControl(this.matDialogData?.bloquerAchat ?? false, [Validators.required]),
             equipage: new FormGroup({
                 nbPlacePassager: new FormControl(
                     this.matDialogData?.equipage.nbPlacePassager ?? 0, 

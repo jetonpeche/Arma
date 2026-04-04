@@ -57,6 +57,7 @@ public static class VaisseauRoute
                     CapaciteSpeciale = x.CapaciteSpeciale,
                     Blindage = x.Blindage,
                     Vitesse = x.Vitesse,
+                    BloquerAchat = x.BloquerAchat,
                     NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_BOUTIQUE + x.NomFichier : "",
 
                     Equipage = new ()
@@ -160,6 +161,7 @@ public static class VaisseauRoute
                CapaciteSpeciale = string.IsNullOrWhiteSpace(_requete.CapaciteSpeciale) ? null : _requete.CapaciteSpeciale.XSS(),
                Prix = _requete.Prix,
                Stock = 0,
+               BloquerAchat = _requete.BloquerAchat,
                Equipage = new()
                {
                     NbPlaceMarines = _requete.Equipage.NbPlaceMarines,
@@ -219,18 +221,21 @@ public static class VaisseauRoute
 
           var banque = db.GetCollection<Banque>().Query().First();
 
-          int prixVaisseau = db.GetCollection<Vaisseau>().Query()
+          var info = db.GetCollection<Vaisseau>().Query()
                .Where(x => x.Id == _requete.IdVaisseau)
-               .Select(x => x.Prix)
+               .Select(x => new { x.Prix, x.BloquerAchat })
                .FirstOrDefault();
 
-          if(prixVaisseau is 0)
+          if (info.BloquerAchat)
+               return Results.BadRequest("L'achat de ce vaisseau est bloqué");
+
+          if(info.Prix is 0)
                return Results.NotFound("Le vaisseau n'existe pas");
 
-          if (prixVaisseau > banque.Argent)
+          if (info.Prix > banque.Argent)
                return Results.BadRequest("Vous n'avez pas assez d'argent");
 
-          banque.Argent -= prixVaisseau;
+          banque.Argent -= info.Prix;
           db.GetCollection<Banque>().Update(banque);
 
           db.Execute(
@@ -330,6 +335,7 @@ public static class VaisseauRoute
           vaisseau.Vitesse = _requete.Vitesse.XSS();
           vaisseau.Prix = _requete.Prix;
           vaisseau.Stock = _requete.Stock;
+          vaisseau.BloquerAchat = _requete.BloquerAchat;
           vaisseau.CapaciteSpeciale = string.IsNullOrWhiteSpace(_requete.CapaciteSpeciale) ? null : _requete.CapaciteSpeciale.XSS();
           vaisseau.Equipage.NbPlaceMarines = _requete.Equipage.NbPlaceMarines;
           vaisseau.Equipage.NbPlacePassager = _requete.Equipage.NbPlacePassager;

@@ -11,6 +11,7 @@ public class VaisseauModifierRequete
      public required string Vitesse { get; set; }
      public required string Blindage { get; set; }
      public string? CapaciteSpeciale { get; set; }
+     public bool BloquerAchat { get; set; }
      public required EquipageVaisseau Equipage { get; set; }
      public required ArmementVaisseauModifierRequete[] ListeArmement { get; set; }
      public required StockageVaisseauModifierRequete[] ListeStockage { get; set; }

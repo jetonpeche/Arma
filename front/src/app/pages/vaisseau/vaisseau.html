@@ -108,7 +108,7 @@
                                             [disabled]="element.listeStockage.length == 0"
                                             (clicked)="OuvrirModalStockage(element)" />&nbsp;
 
-                @if (peutAcheterVaisseau) 
+                @if (peutAcheterVaisseau && !element.bloquerAchat) 
                 {
                     <jp-button-loader matMiniFab 
                                                 icon="credit_card"

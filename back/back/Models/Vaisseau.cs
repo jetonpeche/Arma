@@ -12,11 +12,15 @@ public sealed class Vaisseau
      public string Role { get; set; } = null!;
      public string? CapaciteSpeciale { get; set; }
      public string? NomFichier { get; set; }
+     public bool BloquerAchat { get; set; }
 
      public List<ArmementVaisseau> ListeArmement { get; set; } = [];
 
      [BsonRef]
      public List<StockageVaisseau> ListeStockage { get; set; } = [];
+
+     [BsonRef]
+     public List<Vaisseau> ListeVaisseauEnPlus { get; set; } = [];
 
      public EquipageVaisseau Equipage { get; set; } = null!;
 

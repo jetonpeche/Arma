@@ -38,6 +38,12 @@
                 <jp-textarea label="Capacité spéciale" formControlName="capaciteSpeciale" showMaxLength />
             </jp-grid-element>
 
+            <jp-grid-element [colDefault]="12">
+                <mat-checkbox labelPosition="after" formControlName="bloquerAchat">
+                Achat bloquer
+                </mat-checkbox>
+            </jp-grid-element>
+
             <!-- liste des armements et stockages -->
             <jp-grid-element [colDefault]="12">
                 <mat-accordion>
