@@ -6,10 +6,12 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Authentifier, Authentification } from "@models/Authentification";
 import { Droit } from "@models/DroitGroupe";
 import { EUrl } from "@enums/EUrl"
+import { EModeBanque } from "@enums/EModeBanque";
 
 export class AuthentificationService
 {
     estConnecter = signal<boolean>(false);
+    peutModifierBanque = signal<boolean>(false);
     nbPointBanque = signal<number>(0);
 
     private http = inject(HttpClient);
@@ -22,10 +24,28 @@ export class AuthentificationService
         return this.http.post<Authentifier>(`${this.BASE_API}/connexion`, _connexion).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    ModifierPointBanque(_prix: number): void
+    ModifierPointBanque(_prix: number, _mode: EModeBanque = EModeBanque.Modifier): void
     {
-        this.nbPointBanque.update(x => x - _prix);
-        environment.utilisateur.nbPointBanque -= _prix;
+        if(_mode == EModeBanque.Modifier)
+        {
+            var nouveauSolde = environment.utilisateur.nbPointBanque - _prix;
+
+            if(nouveauSolde < 0)
+            {
+                this.nbPointBanque.set(0);
+                environment.utilisateur.nbPointBanque = 0;
+            }
+            else
+            {
+                this.nbPointBanque.set(nouveauSolde);
+                environment.utilisateur.nbPointBanque = nouveauSolde;
+            }
+        }
+        else
+        {
+            this.nbPointBanque.update(x => x + _prix);
+            environment.utilisateur.nbPointBanque += _prix;
+        }
 
         sessionStorage.setItem("utilisateur", environment.utilisateur);
     }

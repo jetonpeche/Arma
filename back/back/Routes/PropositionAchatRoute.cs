@@ -229,7 +229,7 @@ public static class PropositionAchatRoute
           banque.Argent -= prixTotal;
           db.GetCollection<Banque>().Update(banque);
 
-          var historiqueAchatCol = db.GetCollection<HistoriqueAchat>();
+          var historiqueAchatCol = db.GetCollection<Historique>();
 
           var nomPersonnage = db.GetCollection<Personnage>()
                .Query()
@@ -256,7 +256,7 @@ public static class PropositionAchatRoute
                     );
                }
 
-               historiqueAchatCol.Insert(new HistoriqueAchat
+               historiqueAchatCol.Insert(new Historique
                {
                     Information = $"{nomPersonnage} a acheté {element.Nom} pour un prix de {element.PrixUnitaire * element.Quantite}",
                     Date = DateTime.UtcNow
@@ -281,7 +281,7 @@ public static class PropositionAchatRoute
           if (propositionAchat is null)
                return Results.NotFound("La ressource n'existe pas");
 
-          var historiqueAchatCol = db.GetCollection<HistoriqueAchat>();
+          var historiqueAchatCol = db.GetCollection<Historique>();
 
           var nomPersonnage = db.GetCollection<Personnage>()
                .Query()
@@ -302,7 +302,7 @@ public static class PropositionAchatRoute
                          .Personnage.Nom;
 
                     historiqueAchatCol.Delete(_requete.IdPropositionAchat);
-                    historiqueAchatCol.Insert(new HistoriqueAchat
+                    historiqueAchatCol.Insert(new Historique
                     {
                          Information = $"{nomPersonnage} a refusé la proposition d'achat de {nomPersonnageAuteurProposition}",
                          Date = DateTime.UtcNow
@@ -340,7 +340,7 @@ public static class PropositionAchatRoute
                               );
                          }
 
-                         historiqueAchatCol.Insert(new HistoriqueAchat
+                         historiqueAchatCol.Insert(new Historique
                          {
                               Information = $"{nomPersonnage} a validé l'achat de {element.Nom} pour un prix de {prixTotal}",
                               Date = DateTime.UtcNow
@@ -394,7 +394,7 @@ public static class PropositionAchatRoute
                          );
                     }
 
-                    historiqueAchatCol.Insert(new HistoriqueAchat
+                    historiqueAchatCol.Insert(new Historique
                     {
                          Information = $"{nomPersonnage} a validé l'achat de {element.Nom} pour un prix de {prixTotal}",
                          Date = DateTime.UtcNow
@@ -402,7 +402,7 @@ public static class PropositionAchatRoute
                }
                else
                {
-                    historiqueAchatCol.Insert(new HistoriqueAchat
+                    historiqueAchatCol.Insert(new Historique
                     {
                          Information = $"{nomPersonnage} a refusé l'achat de {element.Nom} pour un prix de {prixTotal}",
                          Date = DateTime.UtcNow
@@ -443,7 +443,7 @@ public static class PropositionAchatRoute
 
           db.GetCollection<PropositionAchat>().Delete(_idPropositionAchat);
 
-          db.GetCollection<HistoriqueAchat>().Insert(new HistoriqueAchat
+          db.GetCollection<Historique>().Insert(new Historique
           {
                Information = $"{nomPersonnage} a supprimé ça proposition d'achat",
                Date = DateTime.UtcNow

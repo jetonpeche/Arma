@@ -68,6 +68,7 @@ public static class AuthentificationRoute
           { 
                Id = infoLogin.DroitGroupe!.Id,
                Nom = infoLogin.DroitGroupe.Nom,
+               PeutModifierBanque = infoLogin.DroitGroupe.PeutModifierBanque,
                PeutProposerLogistiqueMateriel = infoLogin.DroitGroupe.PeutProposerLogistiqueMateriel,
                PeutAcheterLogistiqueMateriel = infoLogin.DroitGroupe.PeutAcheterLogistiqueMateriel,
                PeutAcheterVaisseau = infoLogin.DroitGroupe.PeutAcheterVaisseau,

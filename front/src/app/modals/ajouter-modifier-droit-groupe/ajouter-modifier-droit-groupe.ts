@@ -35,6 +35,7 @@ export class AjouterModifierDroitGroupe implements OnInit
     {
         this.form = new FormGroup({
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(50)]),
+            peutModifierBanque: new FormControl(this.matDialogData?.peutModifierBanque ?? false),
             peutProposerLogistiqueMateriel: new FormControl(this.matDialogData?.peutProposerLogistiqueMateriel ?? false),
             peutAcheterLogistiqueMateriel: new FormControl(this.matDialogData?.peutAcheterLogistiqueMateriel ?? false),
             peutAcheterVaisseau: new FormControl(this.matDialogData?.peutAcheterVaisseau ?? false),

@@ -2,6 +2,7 @@ export type DroitGroupe =
 {
     id: number,
     nom: string,
+    peutModifierBanque: boolean,
     peutProposerLogistiqueMateriel: boolean,
     peutAcheterLogistiqueMateriel: boolean,
     peutAcheterVaisseau: boolean,

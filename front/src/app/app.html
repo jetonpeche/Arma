@@ -12,7 +12,8 @@
 
     @if (estConnecter())
     {
-        <button style="background-color: white;" matButton="filled">
+        <button style="background-color: white;" matButton="filled"
+                    (click)="OuvrirModalModifierPoint()">
             {{ pointCampagne() }} Pts campagne
         </button>
 

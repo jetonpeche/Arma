@@ -12,6 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ModalPanier } from '@modals/modal-panier/modal-panier';
 import { environment } from '../environements/environement';
 import { AuthentificationService } from '@services/AuthentificationService';
+import { ModalPointBanque } from '@modals/modal-point-banque/modal-point-banque';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +31,7 @@ export class App implements AfterViewInit
 
     protected estConnecter = computed(() => this.authServ.estConnecter());
     protected pointCampagne = computed(() => this.authServ.nbPointBanque());
+    protected peutModifierBanque = computed(() => this.authServ.peutModifierBanque());
 
     constructor(private breakpointObserver: BreakpointObserver) 
     {
@@ -57,6 +59,7 @@ export class App implements AfterViewInit
                 environment.utilisateur = null;
                 this.authServ.estConnecter.set(false);
                 this.authServ.nbPointBanque.set(0);
+                this.authServ.peutModifierBanque.set(false);
                 return;
             }
 
@@ -65,6 +68,7 @@ export class App implements AfterViewInit
             {
                 this.authServ.estConnecter.set(true);
                 this.authServ.nbPointBanque.set(environment.utilisateur.nbPointBanque);
+                this.authServ.peutModifierBanque.set(environment.utilisateur.droit.peutModifierBanque);
             }
         }
     }
@@ -77,8 +81,14 @@ export class App implements AfterViewInit
         this.router.navigateByUrl("/");
     }
 
-    protected OuvrirModalPanier(): void
+    protected OuvrirModalModifierPoint(): void
     {
+        if(this.peutModifierBanque())
+            this.dialog.open(ModalPointBanque);
+    }
+
+    protected OuvrirModalPanier(): void
+    { 
         this.dialog.open(ModalPanier, {
             width: "50%", 
             maxWidth: "100vw",

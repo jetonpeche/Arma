@@ -29,6 +29,7 @@ import { PropositionAchatService } from '@services/PropositionAchatService';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { jwtInterceptor } from './interceptors/jwt-interceptor';
 import { DroitGroupeService } from '@services/DroitGroupeService';
+import { BanqueService } from '@services/BanqueService';
 
 const matInput: MatFormFieldDefaultOptions = {
   appearance: 'outline',
@@ -87,6 +88,7 @@ export const appConfig: ApplicationConfig = {
     { provide: PropositionAchatService, useClass: PropositionAchatService },
     { provide: AuthentificationService, useClass: AuthentificationService },
     { provide: DroitGroupeService, useClass: DroitGroupeService },
+    { provide: BanqueService, useClass: BanqueService },
 
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matInput },
     { provide: MAT_DATE_LOCALE, useValue: navigator.language },

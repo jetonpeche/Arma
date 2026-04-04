@@ -55,6 +55,7 @@ public static class DroitGroupeRoute
                {
                     Id = x.Id,
                     Nom = x.Nom,
+                    PeutModifierBanque = x.PeutModifierBanque,
                     PeutAcheterVaisseau = x.PeutAcheterVaisseau,
                     PeutAcheterLogistiqueMateriel = x.PeutAcheterLogistiqueMateriel,
                     PeutProposerLogistiqueMateriel = x.PeutProposerLogistiqueMateriel,
@@ -92,9 +93,11 @@ public static class DroitGroupeRoute
           var droitGroupe = new DroitGroupe
           {
                Nom = _requete.Nom.XSS(),
+               PeutModifierBanque = _requete.PeutModifierBanque,
                PeutAcheterLogistiqueMateriel = _requete.PeutAcheterLogistiqueMateriel,
                PeutProposerLogistiqueMateriel = _requete.PeutProposerLogistiqueMateriel,
                PeutAcheterVaisseau = _requete.PeutAcheterVaisseau,
+
                ListeDroit = _requete.ListeDroit.ToList()
           };
 
@@ -122,6 +125,7 @@ public static class DroitGroupeRoute
           {
                Id = _idDroitGroupe,
                Nom = _requete.Nom.XSS(),
+               PeutModifierBanque = _requete.PeutModifierBanque,
                PeutAcheterLogistiqueMateriel = _requete.PeutAcheterLogistiqueMateriel,
                PeutProposerLogistiqueMateriel = _requete.PeutProposerLogistiqueMateriel,
                PeutAcheterVaisseau = _requete.PeutAcheterVaisseau,

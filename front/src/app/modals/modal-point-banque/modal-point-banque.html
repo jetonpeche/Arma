@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Ajouter ou retirer points de campagne</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <div style="margin-bottom: 10px;">
+            <jp-autocomplete label="Mode" [dataSource]="liste" formControlName="mode" requireSelection />
+        </div>
+        <jp-input-number label="nombre de point(s)" formControlName="quantite" />
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>Fermer</button>&nbsp;
+    <jp-button-loader (clicked)="Valider()" [loading]="btnClick()" label="Valider" />
+</mat-dialog-actions>

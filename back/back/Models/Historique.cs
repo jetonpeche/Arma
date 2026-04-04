@@ -2,7 +2,7 @@
 
 namespace back.Models;
 
-public sealed class HistoriqueAchat
+public sealed class Historique
 {
      [BsonId]
      public int Id { get; set; }

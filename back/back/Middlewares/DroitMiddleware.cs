@@ -66,6 +66,12 @@ public class DroitMiddleware : IEndpointFilter
                     if(nomMapGroupe == "boutique")
                          return await next(context);
                }
+
+               if (nomMapGroupe is "banque")
+               {
+                    if(!droitGroupe.PeutModifierBanque)
+                         return Results.Forbid();
+               }
                
                if (!droit.PeutLire || !droit.PeutEcrire)
                     return Results.Forbid();

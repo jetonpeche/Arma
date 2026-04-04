@@ -13,6 +13,7 @@ public sealed class DroitGroupe
      public string Nom { get; set; } = null!;
 
      public bool PeutAcheterVaisseau { get; set; }
+     public bool PeutModifierBanque { get; set; }
      public bool PeutAcheterLogistiqueMateriel { get; set; }
      public bool PeutProposerLogistiqueMateriel { get; set; }
 
