@@ -112,9 +112,6 @@ public static class VaisseauRoute
           if (_requete.Prix <= 0)
                return Results.BadRequest("Le prix doit être supérieur à zéro");
 
-          if (_requete.Stock < 0)
-               return Results.BadRequest("Le prix ne peut pas être inférieur à zéro");
-
           if (_requete.Equipage.NbPlaceMarines < 0)
                return Results.BadRequest("Le nombre de marines ne peut pas être inférieur à zéro");
 
@@ -128,13 +125,13 @@ public static class VaisseauRoute
                if (string.IsNullOrWhiteSpace(element.Nom))
                     return Results.BadRequest($"Le nom du stockage n°{i + 1} ne peut pas être vide");
 
-               if (element.NbTourReload <= 0)
+               if (!element.EstUsageUnique && element.NbTourReload <= 0)
                     return Results.BadRequest($"Le nombre de tour(s) de {element.Nom} ne peut pas être inférieur à zéro");
 
                if (element.Nombre <= 0)
                     return Results.BadRequest($"Le nombre de {element.Nom} ne peut pas être inférieur à zéro");
 
-               if (element.Munition <= 0)
+               if (!element.MunitionInfini && element.Munition <= 0)
                     return Results.BadRequest($"Le nombre de munitions de {element.Nom} ne peut pas être inférieur à zéro");
           }
 
@@ -162,7 +159,7 @@ public static class VaisseauRoute
                Role = _requete.Role.XSS(),
                CapaciteSpeciale = string.IsNullOrWhiteSpace(_requete.CapaciteSpeciale) ? null : _requete.CapaciteSpeciale.XSS(),
                Prix = _requete.Prix,
-               Stock = _requete.Stock,
+               Stock = 0,
                Equipage = new()
                {
                     NbPlaceMarines = _requete.Equipage.NbPlaceMarines,
@@ -293,13 +290,13 @@ public static class VaisseauRoute
                if (string.IsNullOrWhiteSpace(element.Nom))
                     return Results.BadRequest($"Le nom du stockage n°{i + 1} ne peut pas être vide");
 
-               if (element.NbTourReload <= 0)
+               if (!element.EstUsageUnique && element.NbTourReload <= 0)
                     return Results.BadRequest($"Le nombre de tour(s) de {element.Nom} ne peut pas être inférieur à zéro");
 
                if (element.Nombre <= 0)
                     return Results.BadRequest($"Le nombre de {element.Nom} ne peut pas être inférieur à zéro");
 
-               if (element.Munition <= 0)
+               if (!element.MunitionInfini && element.Munition <= 0)
                     return Results.BadRequest($"Le nombre de munitions de {element.Nom} ne peut pas être inférieur à zéro");
           }
 
@@ -350,6 +347,7 @@ public static class VaisseauRoute
                          Nombre = x.Nombre,
                          Nom = x.Nom.XSS(),
                          NbTourReload = x.NbTourReload,
+                         EstUsageUnique = x.EstUsageUnique,
                          Information = string.IsNullOrWhiteSpace(x.Information) ? null : x.Information.XSS(),
                          MunitionInfini = x.MunitionInfini,
                          Munition = x.MunitionInfini ? 0 : x.Munition
@@ -362,6 +360,7 @@ public static class VaisseauRoute
                     Nombre = x.Nombre,
                     Nom = x.Nom.XSS(),
                     NbTourReload = x.NbTourReload,
+                    EstUsageUnique = x.EstUsageUnique,
                     Information = string.IsNullOrWhiteSpace(x.Information) ? null : x.Information.XSS(),
                     MunitionInfini = x.MunitionInfini,
                     Munition = x.MunitionInfini ? 0 : x.Munition
@@ -391,7 +390,7 @@ public static class VaisseauRoute
                     stockage.Taille = x.Taille;
                     stockage.TypeStockage = new TypeStockageLogistique { Id = x.IdTypeStockage };
                     
-                    db.GetCollection<StockageVaisseau>().Insert(stockage);
+                    db.GetCollection<StockageVaisseau>().Update(stockage);
 
                     return stockage;
                }

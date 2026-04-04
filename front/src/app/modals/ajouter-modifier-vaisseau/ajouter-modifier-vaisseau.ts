@@ -8,6 +8,7 @@ import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { TypeStockageLogistiqueService } from '@services/TypeStockageLogistiqueService';
+import { VaisseauService } from '@services/VaisseauService';
 
 @Component({
   selector: 'app-ajouter-modifier-vaisseau',
@@ -26,6 +27,7 @@ export class AjouterModifierVaisseau implements OnInit
 
     private typeStockageServ = inject(TypeStockageLogistiqueService);
     private snackBarServ = inject(SnackBarService);
+    private vaisseauServ = inject(VaisseauService);
     private dialogRef = inject(MatDialogRef<AjouterModifierVaisseau>);
 
     get listeArmement(): FormArray 
@@ -84,7 +86,7 @@ export class AjouterModifierVaisseau implements OnInit
             nombre: new FormControl(_armement?.nombre ?? 1, [Validators.required, Validators.min(1)]),
             munition: new FormControl(_armement?.munition ?? 0, [Validators.required, Validators.min(0)]),
             nbTourReload: new FormControl(_armement?.nbTourReload ?? 0, [Validators.required, Validators.min(0)]),
-            munitionInifini: new FormControl(_armement?.munitionInifini ?? false, [Validators.required]),
+            munitionInfini: new FormControl(_armement?.munitionInfini ?? false, [Validators.required]),
             estUsageUnique: new FormControl(_armement?.estUsageUnique ?? false, [Validators.required])
         }));
     }
@@ -110,11 +112,36 @@ export class AjouterModifierVaisseau implements OnInit
     }
 
     protected ValiderForm(): void
-    {
-        console.log(this.form.valid);
-        console.log(this.form);
-        
-        
+    {   
+        if(this.form.invalid)
+            return;
+
+        this.btnClick.set(true);
+
+        if(this.matDialogData)
+        {
+            this.vaisseauServ.Modifier(this.matDialogData.id, this.form.value).subscribe({
+                next: () =>
+                {
+                    this.snackBarServ.Ok("Le vaisseau a été modifié");
+                    this.btnClick.set(false);
+                    this.dialogRef.close();
+                },
+                error: () => this.btnClick.set(false)
+            });
+        }
+        else
+        {
+            this.vaisseauServ.Ajouter(this.form.value).subscribe({
+                next: () =>
+                {
+                    this.snackBarServ.Ok("Le vaisseau a été ajouté");
+                    this.btnClick.set(false);
+                    this.dialogRef.close();
+                },
+                error: () => this.btnClick.set(false)
+            });
+        }
     }
 
     private ListerTypeStockage(): void

@@ -64,7 +64,7 @@
                                 <jp-input-number label="Nombre" formControlName="nombre" />
                             </jp-grid-element>
 
-                            @if(!element.get("munitionInifini").value)
+                            @if(!element.get("munitionInfini").value)
                             {
                                 <jp-grid-element [colXs]="12" [colMd]="element.get('estUsageUnique').value ? 12 : 6">
                                     <jp-input-number label="Munition" formControlName="munition" />
@@ -73,13 +73,13 @@
 
                             @if(!element.get("estUsageUnique").value)
                             {
-                                <jp-grid-element [colXs]="12" [colMd]="element.get('munitionInifini').value ? 12 : 6">
+                                <jp-grid-element [colXs]="12" [colMd]="element.get('munitionInfini').value ? 12 : 6">
                                     <jp-input-number label="Nombre de tours" formControlName="nbTourReload" />
                                 </jp-grid-element>
                             }
 
                             <jp-grid-element [colXs]="12" [colMd]="6">
-                                <mat-checkbox labelPosition="after" formControlName="munitionInifini">
+                                <mat-checkbox labelPosition="after" formControlName="munitionInfini">
                                     Munition infini ?
                                 </mat-checkbox>
                             </jp-grid-element>

@@ -7,7 +7,6 @@ public sealed class VaisseauRequete
 {
      public required string Nom { get; set; }
      public int Prix { get; set; }
-     public int Stock { get; set; }
      public required string Role { get; set; }
      public required string Vitesse { get; set; }
      public required string Blindage { get; set; }

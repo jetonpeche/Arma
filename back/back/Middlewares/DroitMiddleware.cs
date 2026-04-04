@@ -36,8 +36,9 @@ public class DroitMiddleware : IEndpointFilter
                .Where(x => x.RouteGroupe == nomMapGroupe)
                .FirstOrDefault();
 
-          if (droit is null)
-               return Results.Forbid();
+          if (nomMapGroupe is not "banque")
+               if(droit is null)
+                    return Results.Forbid();
 
           if(verbeHttp == HttpMethods.Get)
           {
@@ -73,12 +74,13 @@ public class DroitMiddleware : IEndpointFilter
                          return Results.Forbid();
                }
                
-               if (!droit.PeutLire || !droit.PeutEcrire)
-                    return Results.Forbid();
+               if(droit is not null)
+                    if (!droit.PeutLire || !droit.PeutEcrire)
+                         return Results.Forbid();
           }
           else if(verbeHttp == HttpMethods.Delete)
           {
-               if (!droit.PeutLire || !droit.PeutSupprimer)
+               if (!droit!.PeutLire || !droit.PeutSupprimer)
                     return Results.Forbid();
           }
 

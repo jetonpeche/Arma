@@ -3,7 +3,7 @@ import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Vaisseau, VaisseauAchaterRequete } from "@models/Vaisseau";
+import { Vaisseau, VaisseauAchaterRequete, VaisseauRequete } from "@models/Vaisseau";
 
 export class VaisseauService
 {
@@ -15,6 +15,16 @@ export class VaisseauService
     Lister(): Observable<Vaisseau[]>
     {
         return this.http.get<Vaisseau[]>(`${this.BASE_API}/lister`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    Ajouter(_vaisseau: VaisseauRequete): Observable<void>
+    {
+        return this.http.post<void>(`${this.BASE_API}/ajouter`, _vaisseau).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    Modifier(_idVaisseau: number, _vaisseau: VaisseauRequete): Observable<void>
+    {
+        return this.http.put<void>(`${this.BASE_API}/modifier/${_idVaisseau}`, _vaisseau).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Acheter(_vaisseauAcheter: VaisseauAchaterRequete): Observable<void>

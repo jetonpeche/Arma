@@ -18,19 +18,19 @@ export type Vaisseau =
 
 export type VaisseauArmement =
 {
-    id: string,
+    id?: string,
     nom: string,
     information: string | null,
     nombre: number,
     munition: number,
     nbTourReload: number
-    munitionInifini: boolean,
+    munitionInfini: boolean,
     estUsageUnique: boolean,
 }
 
 export type VaisseauStockage = 
 {
-    id: number,
+    id?: number,
     nom: string,
     taille: number,
     typeStockage: TypeStockageLogistique
@@ -48,4 +48,17 @@ export type VaisseauAchaterRequete =
     nomVaisseau: string | null,
     nomCommandant: string | null,
     information: string | null
+}
+
+export type VaisseauRequete =
+{
+    nom: string,
+    prix: number,
+    role: string,
+    vitesse: string,
+    blindage: string,
+    capaciteSpeciale: string | null,
+    equipage: VaisseauEquipage,
+    listeArmement: VaisseauArmement[],
+    listeStockage: VaisseauStockage[]
 }
