@@ -9,8 +9,6 @@
 *.user
 *.userosscache
 *.sln.docstates
-back/Rsa/*.bin
-back/Bdd/*.db
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -400,3 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 back/Photos/*
+back/Rsa/*
+back/Bdd/*
