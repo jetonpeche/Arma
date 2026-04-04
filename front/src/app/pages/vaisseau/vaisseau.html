@@ -81,7 +81,7 @@
         <ng-container matColumnDef="armement">
             <th mat-header-cell *matHeaderCellDef> Armements </th>
             <td mat-cell *matCellDef="let element">
-                {{ ListerArmementString(element.listeArmement) }}
+                {{ ListerArmementString(element.listeArmement, element.listeVaisseauEnfant) }}
             </td>
         </ng-container>
 

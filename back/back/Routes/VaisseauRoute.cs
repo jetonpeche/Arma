@@ -49,6 +49,7 @@ public static class VaisseauRoute
           var liste = db.GetCollection<Vaisseau>()
                .Query()
                .Include(x => x.ListeStockage)
+               .Include(x => x.ListeVaisseauEnPlus)
                .Include(x => x.ListeStockage.Select(y => y.TypeStockage))
                .ToList()
                .Select(x => new VaisseauReponse

@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { Vaisseau, VaisseauArmement } from '@models/Vaisseau';
+import { Vaisseau, VaisseauArmement, VaisseauLeger } from '@models/Vaisseau';
 import { VaisseauService } from '@services/VaisseauService';
 import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
 import { MatDialog } from '@angular/material/dialog';
@@ -78,9 +78,9 @@ export class VaisseauPage implements OnInit, AfterViewInit
         });
     }
 
-    protected ListerArmementString(_listeArmement: VaisseauArmement[]): string
+    protected ListerArmementString(_listeArmement: VaisseauArmement[], _listeVaisseauEnfant: VaisseauLeger[]): string
     {
-        return _listeArmement.map(x => `${x.nombre} ${x.nom}`).join(" / ");
+        return  _listeArmement.map(x => `${x.nombre} ${x.nom}`).join(" / ") + ( _listeVaisseauEnfant.length > 0 ? " / " : "") + _listeVaisseauEnfant.map(x => x.nom).join(" / ");
     }
 
     protected UploadFichier(_idVaisseau: number, _fichier: File): void
