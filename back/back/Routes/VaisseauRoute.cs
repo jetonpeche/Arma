@@ -334,7 +334,7 @@ public static class VaisseauRoute
           var nomPersonnage = db.GetCollection<Personnage>().FindById(_httpContext.RecupererIdPersonnage()).Nom;
           db.GetCollection<Historique>().Insert(new Historique
           {
-               Information = $"{nomPersonnage} à acheter le vaisseau {info.Nom} pour {info.Prix}",
+               Information = $"{nomPersonnage} à acheté(e) le vaisseau {info.Nom} pour {info.Prix}",
                Date = DateTime.UtcNow  
           });
 
