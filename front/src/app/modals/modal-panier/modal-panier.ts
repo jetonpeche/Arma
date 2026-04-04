@@ -16,6 +16,8 @@ import { PropositionAchatService } from '@services/PropositionAchatService';
 import { SnackBarService } from '@services/SnackBarService';
 import { environment } from '../../../environements/environement';
 import { Authentifier } from '@models/Authentification';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { EModeBanque } from '@enums/EModeBanque';
 
 @Component({
   selector: 'app-modal-panier',
@@ -40,6 +42,7 @@ export class ModalPanier implements OnInit, AfterViewInit
     private snackBarServ = inject(SnackBarService);
     private propositionAchatServ = inject(PropositionAchatService);
     private dialogConfirmationServ = inject(DialogConfirmationService);
+    private authServ = inject(AuthentificationService);
 
     ngOnInit(): void 
     {
@@ -142,6 +145,10 @@ export class ModalPanier implements OnInit, AfterViewInit
             })
         );
 
+        let total = 0;
+        for (const element of this.dataSource().data)
+            total += element.quantite * element.prixUnitaire;
+
         this.propositionAchatServ.Acheter(liste).subscribe({
             next: () =>
             {
@@ -152,6 +159,7 @@ export class ModalPanier implements OnInit, AfterViewInit
                     return x;
                 });
 
+                this.authServ.ModifierPointBanque(total);
                 this.snackBarServ.Ok("Le panier a été acheté");
             },
             error: () => this.btnClick.set(false)
