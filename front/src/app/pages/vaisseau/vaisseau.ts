@@ -34,7 +34,7 @@ export class VaisseauPage implements OnInit, AfterViewInit
     protected matPaginator = viewChild.required(MatPaginator);
 
     protected displayedColumns: string[] = [
-        "nom", "prix", "stock", "role",  "equipage", 
+        "image", "nom", "prix", "stock", "role",  "equipage", 
         "armement", "vitesse", "blindage", "action"
     ];
     protected dataSource = signal<MatTableDataSource<Vaisseau>>(new MatTableDataSource());
