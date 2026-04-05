@@ -35,6 +35,7 @@ public sealed class Personnage
      public string Nom { get; set; } = null!;
      public string Matricule { get; set; } = null!;
      public string GroupeSanguin { get; set; } = null!;
+     public string DateNaissance { get; set; } = null!;
      public string? EtatService { get; set; }
      public string? NomFichierPhotoIdentite { get; set; }
      public int NbOperation { get; set; }

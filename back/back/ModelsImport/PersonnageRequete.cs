@@ -15,10 +15,9 @@ public sealed class PersonnageRequete
      public required string Nom { get; set; }
      public required string Matricule { get; set; }
      public required string GroupeSanguin { get; set; }
+     public required string DateNaissance { get; set; }
      public string? EtatService { get; set; }
      public bool FormationFaite { get; set; }
-
-     public int IdDroitGroupe { get; set; }
 }
 
 [JsonSerializable(typeof(PersonnageRequete))]

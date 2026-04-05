@@ -66,6 +66,7 @@ public static class PersonnageRoute
                 NbPointBoutique = x.NbPointBoutique,
                 NomDiscord = x.NomDiscord,
                 EtatService = x.EtatService,
+                DateNaissance = x.DateNaissance,
                 DateCreation = x.DateCreation.ToString("yyyy-MM-dd"),
                 DateDerniereParticipation = x.DateDerniereParticipation.HasValue ? x.DateDerniereParticipation.Value.ToString("yyyy-MM-dd") : null,
                 Grade = x.Grade != null ? new GradeLegerReponse
@@ -116,9 +117,6 @@ public static class PersonnageRoute
           if (personnageCol.Exists(x => x.Login == _requete.Login))
                return Results.BadRequest("Le login existe déjà");
 
-          if (!db.GetCollection<DroitGroupe>().Exists(x => x.Id == _requete.IdDroitGroupe))
-               return Results.NotFound("Le droit programmé n'existe pas");
-
           string mdpHash = _mdpServ.Hasher(_requete.Mdp);
 
           var personnage = new Personnage
@@ -131,8 +129,9 @@ public static class PersonnageRoute
                EtatService = _requete.EtatService?.XSS(),
                GroupeSanguin = _requete.GroupeSanguin.XSS(),
                NbPointBoutique = _requete.NbPointBoutique,
+               DateNaissance = _requete.DateNaissance.XSS(),
                DateCreation = DateTime.Now,
-               DroitGroupe = new DroitGroupe { Id = _requete.IdDroitGroupe}
+               DroitGroupe = null
           };
 
           if(_requete.FormationFaite)
@@ -164,9 +163,6 @@ public static class PersonnageRoute
           if (_requete.NbPointBoutique < 0)
                return Results.BadRequest("Le nombre de point boutique ne peut pas être négatif");
 
-          if(_requete.IdDroitGroupe <= 0)
-               return Results.NotFound("Le droit programmé n'existe pas");
-
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
           var col = db.GetCollection<Personnage>();
@@ -189,14 +185,7 @@ public static class PersonnageRoute
           personnageBdd.NbPointBoutique = _requete.NbPointBoutique;
           personnageBdd.DateDerniereParticipation = personnageBdd.DateDerniereParticipation;
           personnageBdd.NomFichierPhotoIdentite = personnageBdd.NomFichierPhotoIdentite;
-
-          if (personnageBdd.DroitGroupe?.Id != _requete.IdDroitGroupe)
-          {
-               if (!db.GetCollection<DroitGroupe>().Exists(x => x.Id == _requete.IdDroitGroupe))
-                    return Results.NotFound("Le droit programmé n'existe pas");
-
-               personnageBdd.DroitGroupe = new DroitGroupe { Id = _requete.IdDroitGroupe };
-          }
+          personnageBdd.DateNaissance = _requete.DateNaissance.XSS();
 
           personnageBdd.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
           personnageBdd.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);

@@ -74,7 +74,6 @@ export class PersonnagePage implements OnInit
         });
     }
 
-
     protected OuvrirModalPersonnageParticiper(): void
     {
         const DIALOG_REF = this.dialog.open(ModalPersonnageParticiperOperation, {

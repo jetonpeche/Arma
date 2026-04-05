@@ -20,8 +20,9 @@ public sealed class PersonnageReponse
 
     public string? DateDerniereParticipation { get; set; }
     public required string DateCreation { get; set; }
+     public required string DateNaissance { get; set; }
 
-    public GradeLegerReponse? Grade { get; set; }
+     public GradeLegerReponse? Grade { get; set; }
     public PlaneteOrigineLegerReponse? PlaneteOrigine { get; set; }
     public SpecialiteLegerReponse? Specialite { get; set; }
 }

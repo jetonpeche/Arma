@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { InputText, InputNumber, ButtonLoader, InputAutocomplete, AutocompleteDataSource, InputTextarea } from "@jetonpeche/angular-mat-input";
+import { InputText, InputNumber, ButtonLoader, InputAutocomplete, AutocompleteDataSource, InputTextarea, InputPassword } from "@jetonpeche/angular-mat-input";
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { GradeService } from '@services/GradeService';
@@ -13,7 +13,7 @@ import { SnackBarService } from '@services/SnackBarService';
 
 @Component({
   selector: 'app-ajouter-modifier-personnage',
-  imports: [MatDialogModule, MatCheckboxModule, ReactiveFormsModule, InputText, GridContainer, GridElement, InputNumber, ButtonLoader, InputAutocomplete, InputTextarea],
+  imports: [MatDialogModule, MatCheckboxModule, ReactiveFormsModule, InputText, GridContainer, GridElement, InputNumber, ButtonLoader, InputAutocomplete, InputTextarea, InputPassword],
   templateUrl: './ajouter-modifier-personnage.html',
   styleUrl: './ajouter-modifier-personnage.scss',
 })
@@ -42,30 +42,34 @@ export class AjouterModifierPersonnage implements OnInit
     this.ListerSpecialite();
     
     this.form = new FormGroup({
-      nom: new FormControl<string>(
-        this.matDialogData?.nom ?? "", 
-        [Validators.required, Validators.maxLength(100)]
-      ),
-      nomDiscord: new FormControl<string>(
-        this.matDialogData?.nomDiscord ?? "", 
-        [Validators.required, Validators.maxLength(100)]
-      ),
-      matricule: new FormControl<string>(
-        this.matDialogData?.matricule ?? "", 
-        [Validators.required, Validators.maxLength(40)]
-      ),
-      groupeSanguin: new FormControl<string>(
-        this.matDialogData?.groupeSanguin ?? "", 
-        [Validators.required, Validators.maxLength(5)]
-      ),
-      etatService: new FormControl<string | null>(
-        this.matDialogData?.etatService, 
-        [Validators.maxLength(5_000)]
-      ),
-      nbPointBoutique: new FormControl<number>(
-        this.matDialogData?.nbPointBoutique ?? 0, 
-        [Validators.required, Validators.min(0)]
-      ),
+        nom: new FormControl<string>(
+            this.matDialogData?.nom ?? "", 
+            [Validators.required, Validators.maxLength(100)]
+        ),
+        nomDiscord: new FormControl<string>(
+            this.matDialogData?.nomDiscord ?? "", 
+            [Validators.required, Validators.maxLength(100)]
+        ),
+        matricule: new FormControl<string>(
+            this.matDialogData?.matricule ?? "", 
+            [Validators.required, Validators.maxLength(40)]
+        ),
+        groupeSanguin: new FormControl<string>(
+            this.matDialogData?.groupeSanguin ?? "", 
+            [Validators.required, Validators.maxLength(5)]
+        ),
+        dateNaissance: new FormControl<string>(
+            this.matDialogData?.dateNaissance ?? "20 avril 2520", 
+            [Validators.required]
+        ),
+        etatService: new FormControl<string | null>(
+            this.matDialogData?.etatService, 
+            [Validators.maxLength(5_000)]
+        ),
+        nbPointBoutique: new FormControl<number>(
+            this.matDialogData?.nbPointBoutique ?? 0, 
+            [Validators.required, Validators.min(0)]
+        ),
       idGrade: new FormControl<number>(
         this.matDialogData?.grade?.id ?? 0, 
         [Validators.required]
@@ -96,6 +100,16 @@ export class AjouterModifierPersonnage implements OnInit
       this.form.addControl(
         "estFormateurSpecialite", new FormControl<boolean>(this.matDialogData?.estFormateurSpecialite ?? false)
       );
+    }
+    else
+    {
+        this.form.addControl(
+            "login", new FormControl<string>("", [Validators.required, Validators.maxLength(30)])
+        );
+
+        this.form.addControl(
+            "mdp", new FormControl<string>("", [Validators.required])
+        );
     }
   }
 

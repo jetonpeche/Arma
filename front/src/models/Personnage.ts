@@ -8,6 +8,7 @@ export type Personnage =
     nom: string,
     nomDiscord: string,
     matricule: string,
+    dateNaissance: string,
     etatService: string | null,
     groupeSanguin: string,
     urlPhotoIdentite: string,
