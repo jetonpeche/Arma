@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,7 @@ import { ModalPointBanque } from '@modals/modal-point-banque/modal-point-banque'
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App implements AfterViewInit
+export class App implements OnInit
 {
     protected mdcBackdrop = signal<BooleanInput>(false);
     protected drawerMode = signal<MatDrawerMode>("push");
@@ -43,32 +43,34 @@ export class App implements AfterViewInit
         );
     }
 
-    ngAfterViewInit(): void 
+    ngOnInit(): void 
     {
-        // reconnexion automatique 
-        if(sessionStorage.getItem("utilisateur"))
+        const userJson = sessionStorage.getItem("utilisateur");
+
+        if (userJson) 
         {
-            environment.utilisateur = JSON.parse(sessionStorage.getItem("utilisateur")!);
-
-            const EXP = +JSON.parse(atob(environment.utilisateur.jwt.split(".")[1]))["exp"];            
-
-            // JWT expiré
-            if(new Date(EXP * 1_000).getTime() < new Date().getTime())
-            {   
-                sessionStorage.clear();
-                environment.utilisateur = null;
-                this.authServ.estConnecter.set(false);
-                this.authServ.nbPointBanque.set(0);
-                this.authServ.peutModifierBanque.set(false);
-                return;
-            }
-
-            // la page précédente est l'application
-            if(document.referrer && document.referrer.includes(environment.urlFront))
+            try 
             {
-                this.authServ.estConnecter.set(true);
-                this.authServ.nbPointBanque.set(environment.utilisateur.nbPointBanque);
-                this.authServ.peutModifierBanque.set(environment.utilisateur.droit.peutModifierBanque);
+                const utilisateur = JSON.parse(userJson);
+                const tokenData = JSON.parse(atob(utilisateur.jwt.split(".")[1]));
+                const expirationDate = new Date(tokenData.exp * 1000);
+
+                // JWT valide
+                if (expirationDate > new Date()) 
+                {
+                    environment.utilisateur = utilisateur;
+                    
+                    this.authServ.estConnecter.set(true);
+                    this.authServ.nbPointBanque.set(utilisateur.nbPointBanque);
+                    this.authServ.peutModifierBanque.set(utilisateur.droit.peutModifierBanque);
+                } 
+                else 
+                    this.Deconnexion();
+            } 
+            catch (e) 
+            {
+                console.error("Erreur lors de la restauration de la session", e);
+                this.Deconnexion();
             }
         }
     }
@@ -76,6 +78,8 @@ export class App implements AfterViewInit
     protected Deconnexion(): void
     {
         this.authServ.estConnecter.set(false);
+        this.authServ.peutModifierBanque.set(false);
+        this.authServ.nbPointBanque.set(0);
         sessionStorage.removeItem("utilisateur");
         environment.utilisateur = null;
         this.router.navigateByUrl("/");
