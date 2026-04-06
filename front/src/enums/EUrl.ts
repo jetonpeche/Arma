@@ -13,5 +13,6 @@ export enum EUrl
     TypeMateriel = "/type-materiel",
     Vaisseau = "/vaisseau",
     PropositionAchat = "/proposition-achat",
-    DroitGroupe = "/droit-groupe"
+    DroitGroupe = "/droit-groupe",
+    Medaille = "/medaille"
 }

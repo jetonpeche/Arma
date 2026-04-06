@@ -42,7 +42,7 @@
                                     {{ nomRoute == "boutique" ? "Gestion boutique" : nomRoute }}
                                 </p>
 
-                                @if (nomRoute != "upload-fichier") 
+                                @if (nomRoute != "upload-fichier" && nomRoute != "medaille") 
                                 {
                                     <mat-checkbox labelPosition="before" formControlName="peutLire">
                                         Droit de lecture
@@ -53,7 +53,7 @@
                                     Droit d'écrire
                                 </mat-checkbox>
 
-                                @if (nomRoute != "upload-fichier") 
+                                @if (nomRoute != "upload-fichier" && nomRoute != "medaille" ) 
                                 {
                                     <mat-checkbox labelPosition="before" formControlName="peutSupprimer">
                                         Droit de suppression

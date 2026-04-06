@@ -4,5 +4,6 @@ export enum ETypeRessource
     PersonnageSecondaire,
     Grade,
     Boutique,
-    Vaisseau
+    Vaisseau,
+    Medaille
 }

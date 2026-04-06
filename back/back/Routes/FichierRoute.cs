@@ -87,15 +87,25 @@ public static class FichierRoute
                     return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_BOUTIQUE + nouveauNomFichierBoutique));
 
                case ETypeRessource.Vaisseau:
-                    var nouveauNomFichier = await UploadAsync<Vaisseau>(
+                    var nouveauNomFichierVaisseau = await UploadAsync<Vaisseau>(
                          _requete.idRessource,
                          _requete.Fichier,
                          Constant.CHEMIN_IMG_VAISSEAU,
                          (x) => x.NomFichier,
                          (x, s) => x.NomFichier = s
                     );
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_BOUTIQUE + nouveauNomFichierVaisseau));
 
-                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_VAISSEAU + nouveauNomFichier));
+               case ETypeRessource.Medaille:
+                    var nouveauNomFichierMedaille = await UploadAsync<Medaille>(
+                         _requete.idRessource,
+                         _requete.Fichier,
+                         Constant.CHEMIN_IMG_MEDAILLE,
+                         (x) => x.NomFichier,
+                         (x, s) => x.NomFichier = s
+                    );
+
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_MEDAILLE + nouveauNomFichierMedaille));
           }
 
           return Results.BadRequest("Erreur type de ressource");

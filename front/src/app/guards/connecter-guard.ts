@@ -8,7 +8,7 @@ export const connecterGuard: CanActivateFn = (route, state) =>
     if(!environment.utilisateur)
         return false;
 
-    if(state.url == EUrl.Boutique)
+    if(state.url == EUrl.Boutique || state.url == EUrl.Medaille)
         return true;
 
     let utilisateurDroit = (environment.utilisateur as Authentifier).droit;

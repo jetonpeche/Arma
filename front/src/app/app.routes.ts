@@ -67,7 +67,13 @@ export const routes: Routes = [
         title: "Vaisseau",
         canActivate: [connecterGuard]
     },
-    { 
+    {
+        path: "medaille",
+        loadComponent: () => import("./pages/medaille/medaillePage").then(x => x.MedaillePage),
+        title: "Médaille",
+        canActivate: [connecterGuard]
+    },
+    {
         path: "proposition-achat",
         loadComponent: () => import("./pages/proposition-achat/proposition-achat").then(x => x.PropositionAchatPage),
         title: "Proposition d'achat",

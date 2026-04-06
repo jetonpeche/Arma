@@ -11,4 +11,5 @@ public static class Constant
     public const string CHEMIN_IMG_PERSONNAGE = "/Photos/Personnage/";
     public const string CHEMIN_IMG_VAISSEAU = "/Photos/Vaisseau/";
      public const string CHEMIN_IMG_GRADE = "/Photos/Grade/";
+     public const string CHEMIN_IMG_MEDAILLE = "/Photos/Medaille/";
 }

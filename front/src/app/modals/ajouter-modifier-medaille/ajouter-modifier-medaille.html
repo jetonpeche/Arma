@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>{{ btnLabel() }} une médaille</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container>
+            <jp-grid-element [colDefault]="9">
+                <jp-input-text label="Nom" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="3">
+                <jp-input-text label="Points" formControlName="nbPoint" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-autocomplete [dataSource]="listeGroupeMedaille" formControlName="groupe" requireSelection />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Description" formControlName="description" showMaxLength />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-input-file-drop-zone notMultiple 
+                                                      accept=".png, .jpg, .webp" 
+                                                      info="Image de la médaille" 
+                                                      (selectedFiles)="InitFichier($event)" />
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>Fermer</button>&nbsp;
+    <jp-button-loader [loading]="btnClick()" [label]="btnLabel()" (clicked)="Valider()" />
+</mat-dialog-actions>
