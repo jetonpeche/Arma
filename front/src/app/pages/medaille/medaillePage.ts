@@ -7,14 +7,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierMedaille } from '@modals/ajouter-modifier-medaille/ajouter-modifier-medaille';
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
-import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { AuthentificationService } from '@services/AuthentificationService';
 import { EUrl } from '@enums/EUrl';
 import { Droit } from '@models/DroitGroupe';
+import { ListeMedaille } from "./liste-medaille/liste-medaille";
 
 @Component({
   selector: 'app-medaille',
-  imports: [MatTabsModule, MatCardModule, MatButtonModule, MatIconModule, GridContainer, GridElement],
+  imports: [MatTabsModule, MatCardModule, MatButtonModule, MatIconModule, ListeMedaille],
   templateUrl: './medaillePage.html',
   styleUrl: './medaillePage.scss',
 })
@@ -35,9 +35,22 @@ export class MedaillePage implements OnInit
 
     protected OuvriModalAjouterModifierMedaille(_medaille?: Medaille): void
     {
-        this.dialog.open(AjouterModifierMedaille, {
+        const DIALOG_REF = this.dialog.open(AjouterModifierMedaille, {
             data: _medaille
         });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (retour) => 
+            {
+                if(retour === true)
+                    this.Lister();
+            }
+        });
+    }
+
+    protected ListerMedaille(_groupe: number): Medaille[]
+    {
+        return this.listeMedaille().filter(x => x.groupe == _groupe);
     }
 
     private Lister(): void

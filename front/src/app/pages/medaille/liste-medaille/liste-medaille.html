@@ -1,0 +1,27 @@
+<jp-grid-container [gap]="12" style="margin-top: 20px;">
+    @for (element of listeMedaille(); track element.id) 
+    {
+        <jp-grid-element [colXs]="12" [colMd]="6">
+            <mat-card>
+                <mat-card-header>
+                        <mat-card-title>{{ element.nom }}</mat-card-title>
+                        <mat-card-subtitle>{{ element.nbPoint > 1 ? "Points" : "Point" }}: {{ element.nbPoint }}</mat-card-subtitle>
+                    </mat-card-header>
+
+                    <mat-card-content>
+                        {{ element.description }}
+
+                        <img height="100" width="250" [src]="element.nomFichier">
+                    </mat-card-content>
+                    @if (peutEcrire())
+                    {
+                        <mat-card-actions align="end">
+                            <button matButton="filled" (click)="OnClick(element)">
+                                Modifier
+                            </button>
+                        </mat-card-actions>
+                    }
+            </mat-card>
+        </jp-grid-element>
+    }
+</jp-grid-container>

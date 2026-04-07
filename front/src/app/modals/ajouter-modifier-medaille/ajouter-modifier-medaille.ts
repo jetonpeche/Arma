@@ -69,7 +69,7 @@ export class AjouterModifierMedaille implements OnInit
                     else
                     {
                         this.btnClick.set(false);
-                        this.dialogRef.close();
+                        this.dialogRef.close(true);
                     }
                 },
                 error: () => this.btnClick.set(false)
@@ -86,7 +86,7 @@ export class AjouterModifierMedaille implements OnInit
                     else
                     {
                         this.btnClick.set(false);
-                        this.dialogRef.close();
+                        this.dialogRef.close(true);
                     }
                 },
                 error: () => this.btnClick.set(false)
@@ -100,7 +100,7 @@ export class AjouterModifierMedaille implements OnInit
             next: () => 
             {
                 this.btnClick.set(false);
-                this.dialogRef.close();
+                this.dialogRef.close(true);
             },
             error: () => this.btnClick.set(false)
         });
