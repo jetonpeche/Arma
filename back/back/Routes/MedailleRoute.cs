@@ -104,15 +104,16 @@ public static class MedailleRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var  ok = db.GetCollection<Medaille>().Update(new Medaille
+          var  nb = db.GetCollection<Medaille>().UpdateMany(x => new Medaille
           {
-               Id = _idMedaille,
                Description = _requete.Description.XSS(),
                Nom = _requete.Nom.XSS(),
                NbPoint = _requete.NbPoint,
-               Groupe = _requete.Groupe
-          });
+               Groupe = _requete.Groupe,
+               NomFichier = x.NomFichier
+          },
+          x => x.Id == _idMedaille);
 
-          return ok ? Results.NoContent() : Results.NotFound("La medaille n'existe pas");
+          return nb > 0 ? Results.NoContent() : Results.NotFound("La medaille n'existe pas");
      }
 }
