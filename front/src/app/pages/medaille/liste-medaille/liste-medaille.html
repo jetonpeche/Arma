@@ -1,7 +1,7 @@
 <jp-grid-container [gap]="12" style="margin-top: 20px;">
     @for (element of listeMedaille(); track element.id) 
     {
-        <jp-grid-element [colXs]="12" [colMd]="6">
+        <jp-grid-element [colXs]="12" [colSm]="6" [colXl]="4">
             <mat-card>
                 <mat-card-header>
                         <mat-card-title>{{ element.nom }}</mat-card-title>
@@ -11,7 +11,7 @@
                     <mat-card-content>
                         {{ element.description }}
 
-                        <img height="100" width="250" [src]="element.nomFichier">
+                        <img height="80" width="220" [src]="element.nomFichier">
                     </mat-card-content>
                     @if (peutEcrire())
                     {
