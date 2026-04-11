@@ -29,7 +29,6 @@
                     Peux proposer d'acheter du materiel logistique ?
                 </mat-checkbox>
             </jp-grid-element>
-
             
                 <jp-grid-element [colDefault]="12">
                     <div formArrayName="listeDroit">
@@ -42,7 +41,7 @@
                                     {{ nomRoute == "boutique" ? "Gestion boutique" : nomRoute }}
                                 </p>
 
-                                @if (nomRoute != "upload-fichier" && nomRoute != "medaille") 
+                                @if (nomRoute != "upload-fichier" && nomRoute != "medaille" && nomRoute != "historique-campagne") 
                                 {
                                     <mat-checkbox labelPosition="before" formControlName="peutLire">
                                         Droit de lecture

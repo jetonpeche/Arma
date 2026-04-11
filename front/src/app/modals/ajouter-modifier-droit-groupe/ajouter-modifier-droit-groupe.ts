@@ -60,16 +60,16 @@ export class AjouterModifierDroitGroupe implements OnInit
         {
             const LISTE = [
                 EUrl.Boutique, EUrl.DroitGroupe, EUrl.Grade, EUrl.Logistique, 
-                EUrl.Materiel, EUrl.Personnage, EUrl.Medaille, EUrl.PlaneteOrigine, 
-                EUrl.PropositionAchat, EUrl.Specialite, EUrl.TypeLogistique, EUrl.TypeMateriel,
-                EUrl.TypeStockageLogistique, EUrl.UploadFichier, EUrl.Vaisseau
+                EUrl.Materiel, EUrl.Personnage, EUrl.Medaille, EUrl.HistoriqueCampagne, 
+                EUrl.PlaneteOrigine, EUrl.PropositionAchat, EUrl.Specialite, EUrl.TypeLogistique, 
+                EUrl.TypeMateriel, EUrl.TypeStockageLogistique, EUrl.UploadFichier, EUrl.Vaisseau
             ];
 
             for (const element of LISTE)
             {
                 this.listeDroit.push(new FormGroup({
                     routeGroupe: new FormControl(element.replace("/", "")),
-                    peutLire: new FormControl(element == EUrl.UploadFichier || element == EUrl.Medaille ? true : false),
+                    peutLire: new FormControl(element == EUrl.UploadFichier || element == EUrl.Medaille || element == EUrl.HistoriqueCampagne ? true : false),
                     peutEcrire: new FormControl(false),
                     peutSupprimer: new FormControl(false)
                 }));

@@ -78,5 +78,11 @@ export const routes: Routes = [
         loadComponent: () => import("./pages/proposition-achat/proposition-achat").then(x => x.PropositionAchatPage),
         title: "Proposition d'achat",
         canActivate: [connecterGuard]
+    },
+    {
+        path: "historique-campagne",
+        loadComponent: () => import("./pages/historique-campagne/historique-campagne").then(x => x.HistoriqueCampagnePage),
+        title: "Historique de campagne",
+        canActivate: [connecterGuard]
     }
 ];

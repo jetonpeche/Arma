@@ -14,5 +14,6 @@ export enum EUrl
     Vaisseau = "/vaisseau",
     PropositionAchat = "/proposition-achat",
     DroitGroupe = "/droit-groupe",
-    Medaille = "/medaille"
+    Medaille = "/medaille",
+    HistoriqueCampagne = "/historique-campagne"
 }
