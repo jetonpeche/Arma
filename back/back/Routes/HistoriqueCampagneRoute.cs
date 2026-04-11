@@ -12,7 +12,7 @@ public static class HistoriqueCampagneRoute
      {
           builder.MapGet("lister", ListerAsync)
                .WithDescription("Lister les campagnes précédentes")
-               .Produces<HistoriqueCampagneReponse[]>();
+               .Produces<PaginationReponse<HistoriqueCampagneReponse>>();
 
           return builder;
      }
@@ -29,7 +29,7 @@ public static class HistoriqueCampagneRoute
 
           string baseUrl = _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_CAMPAGNE;
 
-          int nb = db.GetCollection<HistoriqueCampagne>().Query().Count();
+          int total = db.GetCollection<HistoriqueCampagne>().Query().Count();
 
           var liste = db.GetCollection<HistoriqueCampagne>().Query()
                .OrderBy(x => x.Id)
@@ -42,8 +42,16 @@ public static class HistoriqueCampagneRoute
                })
                .Offset((_page - 1) * 2)
                .Limit(2)
-               .ToList();
+               .ToArray();
 
-          return Results.Extensions.Ok(liste, HistoriqueCampagneReponseContext.Default);
+          return Results.Extensions.Ok(
+               new PaginationReponse<HistoriqueCampagneReponse> 
+               { 
+                    Page = _page,
+                    Total = total,
+                    Liste = liste 
+               },
+               PaginationReponseContext.Default
+          );
      }
 }
