@@ -12,12 +12,15 @@ export class FichierService
 
     private readonly BASE_API = `${environment.urlApi}/upload-fichier`;
 
-    Upload(_idRessource: number, _typeRessource: ETypeRessource, _fichier: File): Observable<string>
+    Upload(_idRessource: number, _typeRessource: ETypeRessource, _fichier: File, _ancienNomFichierHistoriqueCampagne: string | null = null): Observable<string>
     {   
         let formData = new FormData();
         formData.append("idRessource", _idRessource.toString());
         formData.append("typeRessource", _typeRessource.toString());
         formData.append("fichier", _fichier, _fichier.name);
+
+        if(_ancienNomFichierHistoriqueCampagne)
+            formData.append("ancienNomFichierHistoriqueCampagne", _ancienNomFichierHistoriqueCampagne);
 
         return this.http.post<string>(this.BASE_API, formData).pipe(takeUntilDestroyed(this.destroyRef));
     }

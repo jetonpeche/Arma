@@ -32,7 +32,7 @@ export class GestionDroitPage implements OnInit
     private dialogConfirmationServ = inject(DialogConfirmationService);
     private snackBarServ = inject(SnackBarService);
 
-    ngOnInit(): void 
+    ngOnInit(): void
     {
         this.droit = this.authServ.RecupererDroit(EUrl.DroitGroupe);
         this.Lister();

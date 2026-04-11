@@ -7,5 +7,6 @@ public enum ETypeRessource
     Grade,
     Boutique,
     Vaisseau,
-    Medaille
+    Medaille,
+     HistoriqueCampagne
 }

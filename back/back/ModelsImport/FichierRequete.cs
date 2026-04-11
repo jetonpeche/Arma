@@ -7,4 +7,5 @@ public class FichierRequete
     public required int idRessource { get; set; }
     public required ETypeRessource TypeRessource { get; set; }
     public required IFormFile Fichier { get; set; }
+     public string? AncienNomFichierHistoriqueCampagne { get; set; }
 }

@@ -106,6 +106,27 @@ public static class FichierRoute
                     );
 
                     return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_MEDAILLE + nouveauNomFichierMedaille));
+
+               case ETypeRessource.HistoriqueCampagne:
+                    var nouveauNomFichierHistoCampagne = await UploadAsync<HistoriqueCampagne>(
+                         _requete.idRessource,
+                         _requete.Fichier,
+                         Constant.CHEMIN_IMG_CAMPAGNE,
+                         (x) => x.ListeNomFichier.Find(x => x == _requete.AncienNomFichierHistoriqueCampagne),
+                         (x, s) =>
+                         {
+                              if(!string.IsNullOrWhiteSpace(_requete.AncienNomFichierHistoriqueCampagne))
+                              {
+                                   var index = x.ListeNomFichier.FindIndex(x => x == _requete.AncienNomFichierHistoriqueCampagne);
+                                   x.ListeNomFichier[index] = s!;
+                              }
+                              else
+                                   x.ListeNomFichier.Add(s!);
+                         }
+                    );
+
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_CAMPAGNE + nouveauNomFichierHistoCampagne));
+
           }
 
           return Results.BadRequest("Erreur type de ressource");
