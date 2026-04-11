@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { HistoriqueCampagne } from "@models/HistoriqueCampagne";
+import { Pagination } from "@models/Pagination";
 
 export class HistoriqueCampagneService
 {
@@ -12,9 +13,9 @@ export class HistoriqueCampagneService
 
     private readonly BASE_API = `${environment.urlApi}/historique-campagne`;
 
-    Lister(_page: number): Observable<HistoriqueCampagne[]>
+    Lister(_page: number): Observable<Pagination<HistoriqueCampagne>>
     {
-        return this.http.get<HistoriqueCampagne[]>(`${this.BASE_API}/lister?page=${_page}`).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.get<Pagination<HistoriqueCampagne>>(`${this.BASE_API}/lister?page=${_page}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Ajouter(_historiqueCampagne: HistoriqueCampagne): Observable<number>

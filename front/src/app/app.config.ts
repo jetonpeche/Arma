@@ -31,6 +31,7 @@ import { jwtInterceptor } from './interceptors/jwt-interceptor';
 import { DroitGroupeService } from '@services/DroitGroupeService';
 import { BanqueService } from '@services/BanqueService';
 import { MedailleService } from '@services/MedailleService';
+import { HistoriqueCampagneService } from '@services/HistoriqueCampagneService';
 
 const matInput: MatFormFieldDefaultOptions = {
   appearance: 'outline',
@@ -91,6 +92,7 @@ export const appConfig: ApplicationConfig = {
     { provide: DroitGroupeService, useClass: DroitGroupeService },
     { provide: BanqueService, useClass: BanqueService },
     { provide: MedailleService, useClass: MedailleService },
+    { provide: HistoriqueCampagneService, useClass: HistoriqueCampagneService },
 
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matInput },
     { provide: MAT_DATE_LOCALE, useValue: navigator.language },

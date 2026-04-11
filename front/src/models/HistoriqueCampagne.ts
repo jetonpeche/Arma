@@ -3,7 +3,7 @@ export type HistoriqueCampagne =
     id: number,
     titre: string,
     message: string,
-    ListeUrlImage: string[]
+    listeUrlImage: string[]
 }
 
 export type HistoriqueCampagneRequete =

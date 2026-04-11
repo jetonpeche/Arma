@@ -48,6 +48,7 @@ public static class HistoriqueCampagneRoute
                .Select(x => new HistoriqueCampagneReponse
                {
                     Id = x.Id,
+                    Titre = x.Titre,
                     Texte = x.Texte,
                     ListeUrlImage = x.ListeNomFichier.Select(y => baseUrl + y)
                     .ToArray(),
