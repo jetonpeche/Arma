@@ -31,7 +31,16 @@
             @if(droit.peutEcrire)
             {
                 <button matButton="filled" (click)="OuvriModalAjouterModifierHistoriqueCampagne(element)">
+                    <mat-icon>edit</mat-icon>
                     Modifier
+                </button>&nbsp;
+            }
+
+            @if(droit.peutSupprimer)
+            {
+                <button matButton="filled" (click)="OuvrirModalConfirmerSupprimer(element)">
+                    <mat-icon>delete</mat-icon>
+                    Supprimer
                 </button>
             }
         </mat-card-actions>

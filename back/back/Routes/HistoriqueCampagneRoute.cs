@@ -4,6 +4,7 @@ using back.ModelsExport;
 using back.ModelsImport;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 
 namespace back.Routes;
 
@@ -19,6 +20,12 @@ public static class HistoriqueCampagneRoute
                .WithDescription("Ajouter un historique de campagne")
                .ProducesBadRequest()
                .ProducesCreated();
+
+          builder.MapDelete("supprimer-image/{idHistoriqueCampagne:int}", SupprimerImageAsync)
+               .WithDescription("Supprimer une image d'une campagne")
+               .ProducesNotFound()
+               .ProducesBadRequest()
+               .ProducesNoContent();
 
           builder.MapDelete("supprimer/{idHistoriqueCampagne:int}", SupprimerAsync)
                .WithDescription("Supprimer un historique de campagne")
@@ -98,13 +105,46 @@ public static class HistoriqueCampagneRoute
           return Results.Created();
      }
 
+     static async Task<IResult> SupprimerImageAsync(
+          HttpContext _httpContext,
+          [FromRoute(Name = "idHistoriqueCampagne")] int _idHistoriqueCampagne,
+          [FromQuery(Name = "nomFichier")] string _nomFichier
+     )
+     {
+          if (_idHistoriqueCampagne <= 0)
+               return Results.NotFound("La campagne n'existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var historiqueCampagne = db.GetCollection<HistoriqueCampagne>().Query()
+               .Where(x => x.Id == _idHistoriqueCampagne)
+               .FirstOrDefault();
+
+          if(historiqueCampagne is null)
+               return Results.NotFound("La campagne n'existe pas");
+
+          var nomFichier = historiqueCampagne.ListeNomFichier
+               .FirstOrDefault(x => x.Equals(_nomFichier.Trim(), StringComparison.OrdinalIgnoreCase));
+
+          if (string.IsNullOrWhiteSpace(nomFichier))
+               return Results.NotFound("Le fichier n'existe pas");
+
+          File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_CAMPAGNE + nomFichier));
+
+          historiqueCampagne.ListeNomFichier.Remove(nomFichier);
+
+          db.GetCollection<HistoriqueCampagne>().Update(historiqueCampagne);
+
+          return Results.NoContent();
+     }
+
      static async Task<IResult> SupprimerAsync(
           HttpContext _httpContext,
           [FromRoute(Name = "idHistoriqueCampagne")] int _idHistoriqueCampagne
      )
      {
           if (_idHistoriqueCampagne <= 0)
-               return Results.NotFound();
+               return Results.NotFound("La campagne n'existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
