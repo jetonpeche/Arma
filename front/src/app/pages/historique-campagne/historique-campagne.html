@@ -13,9 +13,9 @@
 @for (element of listeHistoriqueCampagne(); track $index) 
 {
     <mat-card>
-        <mat-card-title>{{ element.titre }}</mat-card-title>
+        <mat-card-title style="text-align: center;">{{ element.titre }}</mat-card-title>
         <mat-card-content>
-            {{ element.titre }}
+            <p>{{ element.titre }}</p>
 
             <jp-grid-container>     
                 @for (urlImg of element.listeUrlImage; track $index) 
