@@ -59,7 +59,7 @@ public static class HistoriqueCampagneRoute
                     ListeUrlImage = x.ListeNomFichier.Select(y => baseUrl + y)
                     .ToArray(),
                })
-               .Offset((_page - 1) * 2)
+               .Offset((_page - 1) * 5)
                .Limit(2)
                .ToArray();
 
