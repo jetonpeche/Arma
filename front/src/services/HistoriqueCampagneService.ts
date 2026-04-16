@@ -32,4 +32,9 @@ export class HistoriqueCampagneService
     {
         return this.http.delete<void>(`${this.BASE_API}/supprimer/${_idHistoriqueCampagne}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
+
+    SupprimerImage(_idHistoriqueCampagne: number, _nomFichier: string): Observable<void>
+    {
+        return this.http.delete<void>(`${this.BASE_API}/supprimer-image/${_idHistoriqueCampagne}?nomFichier=${_nomFichier}`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
 }
