@@ -13,10 +13,11 @@ import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { InputFile } from "@jetonpeche/angular-mat-input";
 import { ETypeRessource } from '@enums/ETypeRessource';
 import { FichierService } from '@services/FichierService';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-historique-campagne',
-  imports: [MatButtonModule, MatIconModule, MatCardModule, GridContainer, GridElement, InputFile],
+  imports: [MatPaginatorModule, MatButtonModule, MatIconModule, MatCardModule, GridContainer, GridElement, InputFile],
   templateUrl: './historique-campagne.html',
   styleUrl: './historique-campagne.scss',
 })
@@ -26,6 +27,8 @@ export class HistoriqueCampagnePage implements OnInit
     protected droit: Droit;
     protected droitFichier: Droit;
     protected listeHistoriqueCampagne = signal<HistoriqueCampagne[]>([]);
+    protected nbElement = signal<number>(0);
+    protected pageIndex = signal<number>(0);
 
     private authServ = inject(AuthentificationService);
     private histoCampagneServ = inject(HistoriqueCampagneService);
@@ -39,6 +42,11 @@ export class HistoriqueCampagnePage implements OnInit
 
         this.droit = this.authServ.RecupererDroit(EUrl.HistoriqueCampagne);
         this.droitFichier = this.authServ.RecupererDroit(EUrl.UploadFichier);
+    }
+
+    handlePageEvent(e: PageEvent): void
+    {
+        this.Lister(e.pageIndex++);
     }
 
     protected UploadFichier(_idHistoriqueCompagne: number, _ancienUrlFichier: string, _fichier: File): void
@@ -129,12 +137,14 @@ export class HistoriqueCampagnePage implements OnInit
         });
     }
 
-    private Lister(): void
+    private Lister(_page: number = 1): void
     {
-        this.histoCampagneServ.Lister(1).subscribe({
+        this.histoCampagneServ.Lister(_page).subscribe({
             next: (retour) =>
             {
                 this.listeHistoriqueCampagne.set(retour.liste);
+                this.nbElement.set(retour.total);
+                this.pageIndex.set(retour.page - 1);
             }
         });
     }
