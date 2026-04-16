@@ -2,12 +2,12 @@ export type HistoriqueCampagne =
 {
     id: number,
     titre: string,
-    message: string,
+    texte: string,
     listeUrlImage: string[]
 }
 
 export type HistoriqueCampagneRequete =
 {
     titre: string,
-    message: string
+    texte: string
 }

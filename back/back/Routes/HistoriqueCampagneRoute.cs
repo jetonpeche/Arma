@@ -84,11 +84,11 @@ public static class HistoriqueCampagneRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          db.GetCollection<HistoriqueCampagne>().Insert(new HistoriqueCampagne()
+          var id = db.GetCollection<HistoriqueCampagne>().Insert(new HistoriqueCampagne()
           {
                Titre = _requete.Titre.XSS(),
                Texte = _requete.Texte.XSS()
-          });
+          }).AsInt32;
 
           var nomPersonnage = db.GetCollection<Personnage>().Query()
                .Where(x => x.Id == _httpContext.RecupererIdPersonnage())
@@ -101,7 +101,7 @@ public static class HistoriqueCampagneRoute
                Date = DateTime.UtcNow
           });
 
-          return Results.Created();
+          return Results.Created("", id);
      }
 
      static async Task<IResult> SupprimerImageAsync(

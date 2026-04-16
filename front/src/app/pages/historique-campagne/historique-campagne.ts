@@ -14,6 +14,7 @@ import { InputFile } from "@jetonpeche/angular-mat-input";
 import { ETypeRessource } from '@enums/ETypeRessource';
 import { FichierService } from '@services/FichierService';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { AjouterModifierHistoriqueCampagne } from '@modals/ajouter-modifier-historique-campagne/ajouter-modifier-historique-campagne';
 
 @Component({
   selector: 'app-historique-campagne',
@@ -82,7 +83,9 @@ export class HistoriqueCampagnePage implements OnInit
 
     protected OuvriModalAjouterModifierHistoriqueCampagne(_historiqueCampagne?: HistoriqueCampagne): void
     {
-
+        this.dialog.open(AjouterModifierHistoriqueCampagne, {
+            data: _historiqueCampagne
+        });
     }
 
     protected OuvrirModalConfirmerSupprimerImage(_idHistoriqueCompagne: number, _nomFichier: string): void

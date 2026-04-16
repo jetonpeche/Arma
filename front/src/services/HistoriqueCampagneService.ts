@@ -3,7 +3,7 @@ import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { HistoriqueCampagne } from "@models/HistoriqueCampagne";
+import { HistoriqueCampagne, HistoriqueCampagneRequete } from "@models/HistoriqueCampagne";
 import { Pagination } from "@models/Pagination";
 
 export class HistoriqueCampagneService
@@ -18,12 +18,12 @@ export class HistoriqueCampagneService
         return this.http.get<Pagination<HistoriqueCampagne>>(`${this.BASE_API}/lister?page=${_page}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    Ajouter(_historiqueCampagne: HistoriqueCampagne): Observable<number>
+    Ajouter(_historiqueCampagne: HistoriqueCampagneRequete): Observable<number>
     {
         return this.http.post<number>(`${this.BASE_API}/ajouter`, _historiqueCampagne).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    Modifier(_idHistoriqueCampagne: number, _historiqueCampagne: HistoriqueCampagne): Observable<void>
+    Modifier(_idHistoriqueCampagne: number, _historiqueCampagne: HistoriqueCampagneRequete): Observable<void>
     {
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idHistoriqueCampagne}`, _historiqueCampagne).pipe(takeUntilDestroyed(this.destroyRef));
     }
