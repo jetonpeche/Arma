@@ -83,8 +83,16 @@ export class HistoriqueCampagnePage implements OnInit
 
     protected OuvriModalAjouterModifierHistoriqueCampagne(_historiqueCampagne?: HistoriqueCampagne): void
     {
-        this.dialog.open(AjouterModifierHistoriqueCampagne, {
+        const DIALOG_REF = this.dialog.open(AjouterModifierHistoriqueCampagne, {
             data: _historiqueCampagne
+        });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (ok) =>
+            {
+                if(ok === true)
+                    this.Lister(1);
+            }
         });
     }
 
