@@ -7,7 +7,7 @@ import { SnackBarService } from '@services/SnackBarService';
 import { InputText, InputTextarea, InputFileDropZone, ButtonLoader } from "@jetonpeche/angular-mat-input";
 import { FichierService } from '@services/FichierService';
 import { ETypeRessource } from '@enums/ETypeRessource';
-import { forkJoin } from 'rxjs';
+import { concat, forkJoin, toArray } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -92,15 +92,20 @@ export class AjouterModifierHistoriqueCampagne implements OnInit
                         this.fichierServ.Upload(id, ETypeRessource.HistoriqueCampagne, element)
                     );
 
-                    // equivalent Task.WhenAll
-                    forkJoin(uploads).subscribe({
+                    concat(...uploads).pipe(
+                        toArray()
+                    ).subscribe({
                         next: () => 
                         {
                             this.btnClick.set(false);
-                            this.snackBarServ.Ok("La campagne a été ajoutée");                          
+                            this.snackBarServ.Ok("Tous les fichiers ont été enregistrés avec succès.");
                             this.dialogRef.close(true);
                         },
-                        error: () => this.btnClick.set(false)
+                        error: () =>
+                        {
+                            this.btnClick.set(false);
+                            this.snackBarServ.Erreur("Une erreur est survenue lors de l'envoi des fichiers.");
+                        }
                     });
 
                     this.btnClick.set(false);

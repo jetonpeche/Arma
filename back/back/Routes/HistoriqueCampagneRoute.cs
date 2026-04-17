@@ -60,7 +60,7 @@ public static class HistoriqueCampagneRoute
                     .ToArray(),
                })
                .Offset((_page - 1) * 5)
-               .Limit(2)
+               .Limit(5)
                .ToArray();
 
           return Results.Extensions.Ok(
@@ -149,8 +149,7 @@ public static class HistoriqueCampagneRoute
 
           var listeNomFichier = db.GetCollection<HistoriqueCampagne>().Query()
                .Where(x => x.Id == _idHistoriqueCampagne)
-               .Select(x => x.ListeNomFichier)
-               .FirstOrDefault();
+               .FirstOrDefault()?.ListeNomFichier ?? [];
 
           var ok = db.GetCollection<HistoriqueCampagne>().Delete(_idHistoriqueCampagne);
 

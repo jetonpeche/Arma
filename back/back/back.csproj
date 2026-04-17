@@ -22,6 +22,7 @@
 	<!-- SqlServer / MySql -->
 
 	<ItemGroup>
+		<Folder Include="Photos\Campagne\" />
 		<Folder Include="Rsa\" />
 		<Folder Include="Services\" />
 		<Folder Include="Rsa\" />
