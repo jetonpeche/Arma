@@ -55,40 +55,9 @@ export class GestionDroitPage implements OnInit
 
         DIALOG_REF.afterClosed().subscribe({
             next: (droitGroupeRetour: DroitGroupe | null) =>
-            {
-                if(!droitGroupeRetour)
-                    return;
-
-                this.listeDroitGroupe.update(x => 
-                {
-                    if(_droitGroupe)
-                    {
-                        return x.map(y =>
-                        {
-                            if (y.id == _droitGroupe.id)
-                                return droitGroupeRetour;
-                            
-                            return y;
-                        });
-                    }
-
-                    x.push(droitGroupeRetour);
-                    x.sort((a, b) => 
-                    {
-                        let nomA = a.nom.toLowerCase();
-                        let nomB = b.nom.toLowerCase();
-
-                        if(nomA < nomB)
-                            return -1;
-
-                        if(nomA > nomB)
-                            return 1;
-
-                        return 0;
-                    });
-
-                    return x;
-                });
+            {   
+                if(droitGroupeRetour)
+                    this.Lister();
             }
         });
     }
