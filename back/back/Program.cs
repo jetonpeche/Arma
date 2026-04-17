@@ -55,7 +55,7 @@ app.UseStaticFiles(new StaticFileOptions
         Path.Combine(builder.Environment.ContentRootPath, "Photos")
     ),
 #else
-     FileProvider = new PhysicalFileProvider("/app/Photos"),
+     //FileProvider = new PhysicalFileProvider("/app/Photos"),
 #endif
      RequestPath = "/Photos"
 });
