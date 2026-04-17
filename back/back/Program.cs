@@ -50,10 +50,14 @@ app.UseForwardedHeaders(new()
 // permet d'avoir acces au fichier du dossier Photos par url
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
+#if DEBUG
+     FileProvider = new PhysicalFileProvider(
         Path.Combine(builder.Environment.ContentRootPath, "Photos")
     ),
-    RequestPath = "/Photos"
+#else
+     FileProvider = new PhysicalFileProvider("/app/Photos"),
+#endif
+     RequestPath = "/Photos"
 });
 
 app.UseCors();
