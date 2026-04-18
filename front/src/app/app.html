@@ -12,9 +12,13 @@
 
     @if (estConnecter())
     {
-        <button style="background-color: white;" matButton="filled"
+        <button matButton="filled"
                     (click)="OuvrirModalModifierPoint()">
             {{ pointCampagne() }} Pts campagne
+        </button>
+
+        <button matIconButton (click)="toggleTheme()">
+            <mat-icon>{{ estLightMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
         </button>
 
         <button matIconButton 

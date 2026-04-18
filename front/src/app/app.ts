@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DOCUMENT, inject, OnInit, Renderer2, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,10 +24,13 @@ export class App implements OnInit
 {
     protected mdcBackdrop = signal<BooleanInput>(false);
     protected drawerMode = signal<MatDrawerMode>("push");
+    protected estLightMode = signal<boolean>(false);
     
     private dialog = inject(MatDialog);
     private router = inject(Router);
     private authServ = inject(AuthentificationService);
+    private document = inject(DOCUMENT);
+    private renderer = inject(Renderer2);
 
     protected estConnecter = computed(() => this.authServ.estConnecter());
     protected pointCampagne = computed(() => this.authServ.nbPointBanque());
@@ -72,6 +75,19 @@ export class App implements OnInit
                 console.error("Erreur lors de la restauration de la session", e);
                 this.Deconnexion();
             }
+        }
+    }
+
+    toggleTheme(): void
+    {
+        this.estLightMode.set(!this.estLightMode());
+        if (this.estLightMode()) 
+        {
+            this.renderer.addClass(this.document.documentElement, 'light-mode');
+        } 
+        else 
+            {
+            this.renderer.removeClass(this.document.documentElement, 'light-mode');
         }
     }
 
