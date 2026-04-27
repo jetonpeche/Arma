@@ -28,6 +28,8 @@ public sealed class Personnage
      [BsonRef]
      public List<BoutiquePrix> ListeBoutiquePrix { get; set; } = [];
 
+     public List<MedaillePersonnage> ListeMedaille { get; set; } = [];
+
      public string Login { get; set; } = null!;
      public string Mdp { get; set; } = null!;
 

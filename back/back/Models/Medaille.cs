@@ -10,6 +10,7 @@ public sealed class Medaille
      public string Description { get; set; } = null!;
      public string? NomFichier { get; set; }
      public int NbPoint { get; set; }
+     public bool ObtentionUnique { get; set; }
 
      /// <summary>
      /// 0 => Personnelle, 1 => services, 2 => campagne

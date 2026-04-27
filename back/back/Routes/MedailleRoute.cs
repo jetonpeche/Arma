@@ -15,11 +15,18 @@ public static class MedailleRoute
                .WithDescription("Lister les medailles")
                .Produces<Medaille[]>();
 
+          builder.MapGet("lister-personnage/{idMedaille:int}", ListerPersonnageAsync)
+               .Produces<List<IdValeurReponse>>();
+
           builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter une medaille")
                .ProducesBadRequest()
                .ProducesNoContent();
 
+          builder.MapPut("attribuer", AttribuerAsync)
+               .WithDescription("Attribuer des médailles aux personnages")
+               .ProducesNotFound()
+               .ProducesNoContent();
 
           builder.MapPut("modifier/{idMedaille}", ModifierAsync)
                .WithDescription("Modifier une medaille")
@@ -49,6 +56,117 @@ public static class MedailleRoute
                }).ToArray();
 
           return Results.Extensions.Ok(liste, MedailleReponseContext.Default);
+     }
+
+     static async Task<IResult> ListerPersonnageAsync(
+          [FromRoute(Name = "idMedaille")] int _idMedaille
+     )
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var medaille = db.GetCollection<Medaille>().Query()
+               .Where(x => x.Id == _idMedaille)
+               .Select(x => new
+               {
+                    x.Id,
+                    x.ObtentionUnique
+               })
+               .FirstOrDefault();
+
+          var listePersonnage = db.GetCollection<Personnage>().Query().ToList();
+
+          IEnumerable<Personnage> listeRetour = [];
+
+          if(medaille.ObtentionUnique)
+          {
+               listeRetour = listePersonnage.Where(x => x.ListeMedaille.Any(y => y.Medaille.Id != _idMedaille));
+          }
+          else
+          {
+               listeRetour = listePersonnage.ToList();
+          }
+
+          return Results.Extensions.Ok(listeRetour.Select(x => new IdValeurReponse
+          {
+               Id = x.Id,
+               Nom = x.Nom
+          }), IdValeurReponseContext.Default);
+     }
+
+     static async Task<IResult> AttribuerAsync(
+          HttpContext _httpContext,
+          [FromBody] MedaillePersonnageRequete _requete
+     )
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var medaille = db.GetCollection<Medaille>().Query()
+               .Where(x => x.Id == _requete.IdMedaille)
+               .Select(x => new
+               {
+                    x.Id,
+                    x.Nom,
+                    x.ObtentionUnique,
+                    x.NbPoint
+               })
+               .FirstOrDefault();
+
+          if (medaille is null)
+               return Results.NotFound("La medaille n'existe pas");
+
+          var listeBsonId = _requete.ListeIdPersonnage.Select(x => new BsonValue(x)).ToArray();
+
+          var listePersonnage = db.GetCollection<Personnage>().Query()
+               .Where(Query.In("_id", listeBsonId))
+               .ToList();
+
+          if (listePersonnage.Count is 0) 
+               return Results.NotFound("Aucun personnage n'existe");
+
+          var nomAttributeur = db.GetCollection<Personnage>().Query().Where(x => x.Id == _httpContext.RecupererIdPersonnage())
+               .Select(x => x.Nom)
+               .First();
+
+          foreach (var element in listePersonnage)
+          {
+               if (!element.ListeMedaille.Any(x => x.Medaille.Id == _requete.IdMedaille))
+               {
+                    element.ListeMedaille.Add(new()
+                    {
+                         Id = Guid.NewGuid(),
+                         Medaille = new Medaille { Id = medaille.Id },
+                         Quantite = 1
+                    });
+
+                    element.NbPointBoutique += medaille.NbPoint;
+
+                    db.GetCollection<Historique>().Insert(new Historique
+                    {
+                         Information = $"{nomAttributeur} à attribuer la médaille {medaille.Nom} à {element.Nom}",
+                         Date = DateTime.Now
+                    });
+               }
+               else
+               {
+                    if (medaille.ObtentionUnique)
+                         continue;
+
+                    var medaillePersonnage = element.ListeMedaille.First(x => x.Medaille.Id == medaille.Id);
+                    medaillePersonnage.Quantite += 1;
+
+                    element.NbPointBoutique += medaille.NbPoint;
+
+                    db.GetCollection<Historique>().Insert(new Historique
+                    {
+                         Information = $"{nomAttributeur} à attribuer la médaille {medaille.Nom} à {element.Nom}",
+                         Date = DateTime.Now
+                    });
+               }
+          }
+
+          db.GetCollection<Personnage>().Update(listePersonnage);
+
+          return Results.NoContent();
      }
 
      static async Task<IResult> AjouterAsync(
