@@ -9,7 +9,7 @@ public sealed class MedailleReponse
      public required string Description { get; set; }
      public required string? NomFichier { get; set; }
      public required int NbPoint { get; set; }
-
+     public required bool ObtentionUnique { get; set; }
      /// <summary>
      /// 0 => Personnelle, 1 => services, 2 => campagne
      /// </summary>

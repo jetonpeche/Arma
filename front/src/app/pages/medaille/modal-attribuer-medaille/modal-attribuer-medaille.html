@@ -1,1 +1,24 @@
-<p>modal-attribuer-medaille works!</p>
+<h2 mat-dialog-title>Attribuer {{ nomMedaille() }}</h2>
+<mat-dialog-content>
+    <jp-autocomplete label="Personnage" 
+                                [dataSource]="listePersonnageAutoComplete()" 
+                                [formControl]="formControl"
+                                requireSelection />
+
+    @for (element of listePersonnageChoisi(); track $index) 
+    {
+        <div class="flex">
+            <span style="font-size: 1em; padding-top: 10px;">{{ element.nom }}</span>
+            <span>
+                <button (click)="Supprimer(element)" matIconButton>
+                    <mat-icon>close</mat-icon>
+                </button>
+            </span>
+        </div>
+    }
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" label="Fermer" matDialogClose />&nbsp;
+    <jp-button-loader (clicked)="Valider()" [loading]="btnClick()" label="Valider" />
+</mat-dialog-actions>
+

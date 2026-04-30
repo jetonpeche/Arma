@@ -25,6 +25,12 @@ export type Personnage =
     dateCreation: Date
 }
 
+export type PersonnageLeger =
+{
+    id: number,
+    nom: string
+}
+
 export type PersonnageRequete =
 {
     nom: string,

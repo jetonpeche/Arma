@@ -8,10 +8,11 @@ import { MedailleService } from '@services/MedailleService';
 import { FichierService } from '@services/FichierService';
 import { ETypeRessource } from '@enums/ETypeRessource';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-ajouter-modifier-medaille',
-  imports: [MatButtonModule, MatDialogModule, GridContainer, GridElement, InputText, ReactiveFormsModule, InputTextarea, InputFileDropZone, ButtonLoader, InputAutocomplete],
+  imports: [MatCheckboxModule, MatButtonModule, MatDialogModule, GridContainer, GridElement, InputText, ReactiveFormsModule, InputTextarea, InputFileDropZone, ButtonLoader, InputAutocomplete],
   templateUrl: './ajouter-modifier-medaille.html',
   styleUrl: './ajouter-modifier-medaille.scss',
 })
@@ -41,7 +42,8 @@ export class AjouterModifierMedaille implements OnInit
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(50)]),
             description: new FormControl(this.matDialogData?.description ?? "", [Validators.required, Validators.maxLength(1_000)]),
             nbPoint: new FormControl(0, [Validators.required, Validators.min(0)]),
-            groupe: new FormControl(0, [Validators.required])
+            groupe: new FormControl(this.matDialogData?.groupe ?? 0, [Validators.required]),
+            obtentionUnique: new FormControl(this.matDialogData?.obtentionUnique ?? false)
         });
     }
 

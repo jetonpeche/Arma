@@ -49,6 +49,7 @@ public static class MedailleRoute
                {
                     Id = x.Id,
                     Nom = x.Nom,
+                    ObtentionUnique = x.ObtentionUnique,
                     Description = x.Description,
                     Groupe = x.Groupe,
                     NbPoint = x.NbPoint,
@@ -79,7 +80,7 @@ public static class MedailleRoute
 
           if(medaille.ObtentionUnique)
           {
-               listeRetour = listePersonnage.Where(x => x.ListeMedaille.Any(y => y.Medaille.Id != _idMedaille));
+               listeRetour = listePersonnage.Where(x => x.ListeMedaille.Count == 0 || !x.ListeMedaille.Any(y => y.Medaille.Id == _idMedaille));
           }
           else
           {
@@ -90,7 +91,7 @@ public static class MedailleRoute
           {
                Id = x.Id,
                Nom = x.Nom
-          }), IdValeurReponseContext.Default);
+          }).ToList(), IdValeurReponseContext.Default);
      }
 
      static async Task<IResult> AttribuerAsync(
@@ -192,7 +193,8 @@ public static class MedailleRoute
                Description = _requete.Description.XSS(),
                Nom = _requete.Nom.XSS(),
                NbPoint = _requete.NbPoint,
-               Groupe = _requete.Groupe
+               Groupe = _requete.Groupe,
+               ObtentionUnique = _requete.ObtentionUnique
           };
           
           db.GetCollection<Medaille>().Insert(medaille);
@@ -228,7 +230,8 @@ public static class MedailleRoute
                Nom = _requete.Nom.XSS(),
                NbPoint = _requete.NbPoint,
                Groupe = _requete.Groupe,
-               NomFichier = x.NomFichier
+               NomFichier = x.NomFichier,
+               ObtentionUnique = _requete.ObtentionUnique
           },
           x => x.Id == _idMedaille);
 

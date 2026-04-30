@@ -5,7 +5,8 @@ export type Medaille =
     description: string,
     groupe: number,
     nomFichier: string | null
-    nbPoint: number
+    nbPoint: number,
+    obtentionUnique: boolean
 }
 
 export type MedailleRequete =
@@ -14,4 +15,10 @@ export type MedailleRequete =
     description: string,
     groupe: number,
     nbPoint: number
+}
+
+export type AttribuerMedailleRequete =
+{
+    idMedaille: number,
+    listeIdPersonnage: number[]
 }

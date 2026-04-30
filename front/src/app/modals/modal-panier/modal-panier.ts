@@ -17,7 +17,6 @@ import { SnackBarService } from '@services/SnackBarService';
 import { environment } from '../../../environements/environement';
 import { Authentifier } from '@models/Authentification';
 import { AuthentificationService } from '@services/AuthentificationService';
-import { EModeBanque } from '@enums/EModeBanque';
 
 @Component({
   selector: 'app-modal-panier',
