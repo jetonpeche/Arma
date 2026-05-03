@@ -18,6 +18,8 @@ public sealed class PersonnageRequete
      public required string DateNaissance { get; set; }
      public string? EtatService { get; set; }
      public bool FormationFaite { get; set; }
+     public bool EstFormateur { get; set; }
+     public bool EstFormateurSpecialite { get; set; }
 }
 
 [JsonSerializable(typeof(PersonnageRequete))]

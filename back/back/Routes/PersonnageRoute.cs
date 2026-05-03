@@ -132,6 +132,9 @@ public static class PersonnageRoute
                NbPointBoutique = _requete.NbPointBoutique,
                DateNaissance = _requete.DateNaissance.XSS(),
                DateCreation = DateTime.Now,
+               EstFormateur = _requete.EstFormateur,
+               EstFormateurSpecialite = _requete.EstFormateurSpecialite,
+               FormationFaite = _requete.FormationFaite,
                DroitGroupe = null
           };
 
