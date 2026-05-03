@@ -20,7 +20,7 @@ public sealed class PersonnageReponse
      public required bool EstValider { get; set; }
 
      public string? DateDerniereParticipation { get; set; }
-    public required string DateCreation { get; set; }
+     public required string DateCreation { get; set; }
      public required string DateNaissance { get; set; }
 
      public GradeLegerReponse? Grade { get; set; }

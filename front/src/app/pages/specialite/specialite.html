@@ -1,7 +1,7 @@
 <div style="text-align: center; margin-bottom: 20px;">
     <h1>Spécialité</h1>
 
-    @if(droit.peutLire)
+    @if(droit?.peutLire)
     {
         <button matButton="filled" (click)="GestionSpecialite()">
             <mat-icon>edit</mat-icon>

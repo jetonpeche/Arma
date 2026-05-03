@@ -1,11 +1,8 @@
 <mat-toolbar id="navbar">
 
-    @if (estConnecter()) 
-    {
-        <button matIconButton (click)="drawer.toggle()" aria-label="Menu vertical">
-            <mat-icon>menu</mat-icon>
-        </button>
-    }
+    <button matIconButton (click)="drawer.toggle()" aria-label="Menu vertical">
+        <mat-icon>menu</mat-icon>
+    </button>
 
     <span>Halo RP</span>
     <span class="spacer"></span>
@@ -52,35 +49,45 @@
 
 <mat-drawer-container [hasBackdrop]="mdcBackdrop()">
 
-    <mat-drawer #drawer class="drawer" [mode]="drawerMode()" [opened]="estConnecter()">
+    <mat-drawer #drawer class="drawer" [mode]="drawerMode()">
         <mat-nav-list role="navigation">
 
-            <a mat-list-item routerLink="personnage" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Personnage</a>
-            <a mat-list-item routerLink="grade" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Grade</a>
-
-            @if(droitPlanete())
+            @if (estConnecter()) 
             {
-                <a mat-list-item routerLink="planete-origine" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Planète d'origine</a>
+                <a mat-list-item routerLink="personnage" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Personnage</a>
+                <a mat-list-item routerLink="grade" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Grade</a>
+
+                @if(droitPlanete())
+                {
+                    <a mat-list-item routerLink="planete-origine" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Planète d'origine</a>
+                }
+
+                <a mat-list-item routerLink="specialite" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Spécialité</a>
+                <a mat-list-item routerLink="boutique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Boutique</a>
+
+                @if(droit())
+                {
+                    <a mat-list-item routerLink="droit-groupe" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Gestion droits</a>
+                }
+
+                <a mat-list-item routerLink="logistique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Logistique</a>
+                <a mat-list-item routerLink="materiel" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Matériel</a>
+                <a mat-list-item routerLink="vaisseau" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Vaisseau</a>
+
+                @if (droitPropositionAchat())
+                {
+                    <a mat-list-item routerLink="proposition-achat" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Proposition d'achat</a>
+                }
+
+                <a mat-list-item routerLink="historique-campagne" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Historique campagne</a>
+                <a mat-list-item routerLink="medaille" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Médaille</a>
             }
-
-            <a mat-list-item routerLink="specialite" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Spécialité</a>
-            <a mat-list-item routerLink="boutique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Boutique</a>
-
-            @if(droit())
+            @else 
             {
-                <a mat-list-item routerLink="droit-groupe" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Gestion droits</a>
+                <a mat-list-item routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
+                <a mat-list-item routerLink="historique-campagne" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Historique campagne</a>
+                <a mat-list-item routerLink="specialite" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Spécialité</a>
             }
-
-            <a mat-list-item routerLink="logistique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Logistique</a>
-            <a mat-list-item routerLink="materiel" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Matériel</a>
-            <a mat-list-item routerLink="vaisseau" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Vaisseau</a>
-
-            @if (droitPropositionAchat())
-            {
-                <a mat-list-item routerLink="proposition-achat" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Proposition d'achat</a>
-            }
-            <a mat-list-item routerLink="medaille" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Médaille</a>
-            <a mat-list-item routerLink="historique-campagne" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Historique campagne</a>
         </mat-nav-list>
     </mat-drawer>
     <mat-drawer-content [class.open]="drawer.opened && drawerMode() == 'push'" class="marginTopDrawer">

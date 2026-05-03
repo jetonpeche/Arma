@@ -1,7 +1,7 @@
 <div style="text-align: center; margin-bottom: 20px;">
     <h1>Historique de campagne</h1>
 
-    @if (droit.peutEcrire)
+    @if (droit?.peutEcrire)
     {
         <button matButton="filled" (click)="OuvriModalAjouterModifierHistoriqueCampagne()">
             <mat-icon>add</mat-icon>
@@ -21,11 +21,11 @@
                 @for (urlImg of element.listeUrlImage; track $index) 
                 {
                     <jp-grid-element [colXs]="12" [colSm]="6" [colLg]="4">
-                        <div [class]="droitFichier.peutEcrire ? 'parent' : 'parentPasDroitFichier'">
+                        <div [class]="droitFichier?.peutEcrire ? 'parent' : 'parentPasDroitFichier'">
 
                             <img [src]="urlImg" alt="photo de campagne">
 
-                            @if(droitFichier.peutEcrire)
+                            @if(droitFichier?.peutEcrire)
                             {
                                 <div class="enfant">
                                     <jp-input-file-btn matMiniFab
@@ -46,7 +46,7 @@
         </mat-card-content>
         
         <mat-card-actions align="end">
-            @if(droit.peutEcrire)
+            @if(droit?.peutEcrire)
             {
                 <button matButton="filled" (click)="OuvriModalAjouterModifierHistoriqueCampagne(element)">
                     <mat-icon>edit</mat-icon>
@@ -54,7 +54,7 @@
                 </button>&nbsp;
             }
 
-            @if(droit.peutSupprimer)
+            @if(droit?.peutSupprimer)
             {
                 <button matButton="filled" (click)="OuvrirModalConfirmerSupprimer(element)">
                     <mat-icon>delete</mat-icon>

@@ -18,7 +18,7 @@ import { SpecialiteService } from '@services/SpecialiteService';
 export class SpecialitePage implements OnInit
 {
     protected listeSpecialite = signal<Specialite[]>([]);
-    protected droit: Droit;
+    protected droit: Droit | null;
 
     private specialiteServ = inject(SpecialiteService);
     private authServ = inject(AuthentificationService);

@@ -39,8 +39,7 @@ export const routes: Routes = [
         { 
         path: "specialite",
         loadComponent: () => import("./pages/specialite/specialite").then(x => x.SpecialitePage),
-        title: "Specialité",
-        canActivate: [connecterGuard]
+        title: "Specialité"
     },
     { 
         path: "boutique",
@@ -93,7 +92,6 @@ export const routes: Routes = [
     {
         path: "historique-campagne",
         loadComponent: () => import("./pages/historique-campagne/historique-campagne").then(x => x.HistoriqueCampagnePage),
-        title: "Historique de campagne",
-        canActivate: [connecterGuard]
+        title: "Historique de campagne"
     }
 ];
