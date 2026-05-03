@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Authentifier, Authentification, Inscription } from "@models/Authentification";
-import { Droit } from "@models/DroitGroupe";
+import { Droit, DroitGroupe } from "@models/DroitGroupe";
 import { EUrl } from "@enums/EUrl"
 import { EModeBanque } from "@enums/EModeBanque";
 
@@ -13,6 +13,7 @@ export class AuthentificationService
     estConnecter = signal<boolean>(false);
     peutModifierBanque = signal<boolean>(false);
     nbPointBanque = signal<number>(0);
+    droitGroupe = signal<DroitGroupe>(null);
 
     private http = inject(HttpClient);
     private destroyRef: DestroyRef = inject(DestroyRef);
@@ -55,8 +56,11 @@ export class AuthentificationService
         sessionStorage.setItem("utilisateur", environment.utilisateur);
     }
 
-    RecupererDroit(_url: EUrl): Droit
+    RecupererDroit(_url: EUrl): Droit | null
     {
+        if(!environment.utilisateur)
+            return null;
+
         return (environment.utilisateur as Authentifier)
             .droit.listeDroit.find(x => _url.startsWith(x.routeGroupe, 1));
     }

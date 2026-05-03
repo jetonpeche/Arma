@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { InputText, InputNumber, ButtonLoader, InputAutocomplete, AutocompleteDataSource, InputTextarea, InputPassword } from "@jetonpeche/angular-mat-input";
+import { InputText, InputNumber, ButtonLoader, InputAutocomplete, AutocompleteDataSource, InputTextarea } from "@jetonpeche/angular-mat-input";
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { GradeService } from '@services/GradeService';
@@ -13,7 +13,7 @@ import { SnackBarService } from '@services/SnackBarService';
 
 @Component({
   selector: 'app-ajouter-modifier-personnage',
-  imports: [MatDialogModule, MatCheckboxModule, ReactiveFormsModule, InputText, GridContainer, GridElement, InputNumber, ButtonLoader, InputAutocomplete, InputTextarea, InputPassword],
+  imports: [MatDialogModule, MatCheckboxModule, ReactiveFormsModule, InputText, GridContainer, GridElement, InputNumber, ButtonLoader, InputAutocomplete, InputTextarea],
   templateUrl: './ajouter-modifier-personnage.html',
   styleUrl: './ajouter-modifier-personnage.scss',
 })
@@ -79,45 +79,15 @@ export class AjouterModifierPersonnage implements OnInit
         [Validators.required]
       ),
       idSpecialite: new FormControl<number | null>(this.matDialogData?.specialite?.id),
-      formationFaite: new FormControl<boolean>(this.matDialogData?.formationFaite ?? false)
+      formationFaite: new FormControl<boolean>(this.matDialogData?.formationFaite ?? false),
+      nbOperation: new FormControl<number>(this.matDialogData?.nbOperation ?? 0, [Validators.min(0)]),
+      nbBootcamp: new FormControl<number>(this.matDialogData?.nbBootcamp ?? 0, [Validators.min(0)]),
+      estFormateur: new FormControl<boolean>(this.matDialogData?.estFormateur ?? false),
+      estFormateurSpecialite: new FormControl<boolean>(this.matDialogData?.estFormateurSpecialite ?? false)
     });
 
     if(this.matDialogData)
-    {
       this.labelBtn.set("Modifier");
-      this.form.addControl(
-        "nbOperation", new FormControl<number>(this.matDialogData?.nbOperation ?? 0, [Validators.min(0)])
-      );
-
-      this.form.addControl(
-        "nbBootcamp", new FormControl<number>(this.matDialogData?.nbBootcamp ?? 0, [Validators.min(0)])
-      );
-
-      this.form.addControl(
-        "estFormateur", new FormControl<boolean>(this.matDialogData?.estFormateur ?? false)
-      );
-
-      this.form.addControl(
-        "estFormateurSpecialite", new FormControl<boolean>(this.matDialogData?.estFormateurSpecialite ?? false)
-      );
-    }
-    else
-    {
-        this.form.addControl(
-            "login", new FormControl<string>("", [Validators.required, Validators.maxLength(30)])
-        );
-
-        this.form.addControl(
-            "mdp", new FormControl<string>("", [Validators.required])
-        );
-    }
-  }
-
-  protected ValiderCompte(): void
-  {
-    this.form.addControl(
-        "estValider", new FormControl<boolean>(true)
-    );
   }
 
   protected ValiderForm(): void

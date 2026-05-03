@@ -27,9 +27,6 @@ export class App implements OnInit
     protected mdcBackdrop = signal<BooleanInput>(false);
     protected drawerMode = signal<MatDrawerMode>("push");
     protected estLightMode = signal<boolean>(false);
-    protected droit = signal<Droit>(null);
-    protected droitPlanete = signal<Droit>(null);
-    protected droitPropositionAchat = signal<Droit>(null);
     
     private dialog = inject(MatDialog);
     private router = inject(Router);
@@ -40,6 +37,21 @@ export class App implements OnInit
     protected estConnecter = computed(() => this.authServ.estConnecter());
     protected pointCampagne = computed(() => this.authServ.nbPointBanque());
     protected peutModifierBanque = computed(() => this.authServ.peutModifierBanque());
+    protected droit = computed(() => 
+    {
+        this.authServ.droitGroupe(); // On "écoute" le changement
+        return this.authServ.RecupererDroit(EUrl.DroitGroupe)?.peutLire ?? false;
+    });
+
+    protected droitPlanete = computed(() => {
+        this.authServ.droitGroupe(); 
+        return this.authServ.RecupererDroit(EUrl.PlaneteOrigine)?.peutLire ?? false;
+    });
+
+    protected droitPropositionAchat = computed(() => {
+        this.authServ.droitGroupe();
+        return this.authServ.RecupererDroit(EUrl.PropositionAchat)?.peutLire ?? false;
+    });
 
     constructor(private breakpointObserver: BreakpointObserver) 
     {
@@ -71,9 +83,7 @@ export class App implements OnInit
                     this.authServ.estConnecter.set(true);
                     this.authServ.nbPointBanque.set(utilisateur.nbPointBanque);
                     this.authServ.peutModifierBanque.set(utilisateur.droit.peutModifierBanque);
-                    this.droit.set(this.authServ.RecupererDroit(EUrl.DroitGroupe));
-                    this.droitPlanete.set(this.authServ.RecupererDroit(EUrl.PlaneteOrigine));
-                    this.droitPropositionAchat.set(this.authServ.RecupererDroit(EUrl.PropositionAchat));
+                   this.authServ.droitGroupe.set(utilisateur.droit);
                 } 
                 else 
                     this.Deconnexion();
@@ -97,6 +107,11 @@ export class App implements OnInit
             {
             this.renderer.removeClass(this.document.documentElement, 'light-mode');
         }
+    }
+
+    protected Connexion(): void
+    {
+        this.router.navigateByUrl("/connexion");
     }
 
     protected Deconnexion(): void

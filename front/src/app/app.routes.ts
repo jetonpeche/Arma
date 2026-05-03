@@ -4,6 +4,11 @@ import { connecterGuard } from './guards/connecter-guard';
 export const routes: Routes = [
     {
         path: "",
+        loadComponent: () => import("./pages/accueil/accueil").then(x => x.Accueil),
+        title: "Accueil"
+    },
+    {
+        path: "connexion",
         loadComponent: () => import("./pages/connexion/connexion").then(x => x.ConnexionPage),
         title: "Connexion"
     },

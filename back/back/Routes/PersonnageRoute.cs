@@ -102,14 +102,14 @@ public static class PersonnageRoute
           if (_requete.NbPointBoutique < 0)
                return Results.BadRequest("Le nombre de point boutique ne peut pas être négatif");
 
-          if (string.IsNullOrWhiteSpace(_requete.Login))
-               return Results.BadRequest("Le login ne peut pas être vide");
+          if(!string.IsNullOrWhiteSpace(_requete.Login))
+          {
+               if (string.IsNullOrWhiteSpace(_requete.Mdp))
+                    return Results.BadRequest("Le login ne peut pas être vide");
 
-          if (string.IsNullOrWhiteSpace(_requete.Mdp))
-               return Results.BadRequest("Le login ne peut pas être vide");
-
-          if (_requete.Mdp.Length < 8)
-               return Results.BadRequest("Le mot de passe doit contenir au moins 8 caractères");
+               if (_requete.Mdp.Length < 8)
+                    return Results.BadRequest("Le mot de passe doit contenir au moins 8 caractères");
+          }
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
@@ -118,7 +118,7 @@ public static class PersonnageRoute
           if (personnageCol.Exists(x => x.Login == _requete.Login))
                return Results.BadRequest("Le login existe déjà");
 
-          string mdpHash = _mdpServ.Hasher(_requete.Mdp);
+          string? mdpHash = _requete.Mdp is not null ? _mdpServ.Hasher(_requete.Mdp) : null;
 
           var personnage = new Personnage
           {

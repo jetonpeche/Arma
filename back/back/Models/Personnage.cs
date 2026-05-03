@@ -30,8 +30,8 @@ public sealed class Personnage
 
      public List<MedaillePersonnage> ListeMedaille { get; set; } = [];
 
-     public string Login { get; set; } = null!;
-     public string Mdp { get; set; } = null!;
+     public string? Login { get; set; }
+     public string? Mdp { get; set; } = null!;
 
      public string NomDiscord { get; set; } = null!;
      public string Nom { get; set; } = null!;

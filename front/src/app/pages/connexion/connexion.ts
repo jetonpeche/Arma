@@ -52,6 +52,7 @@ export class ConnexionPage implements OnInit
                 environment.utilisateur = retour;
                 sessionStorage.setItem("utilisateur", JSON.stringify(retour));
                 this.authServ.estConnecter.set(true);
+                this.authServ.droitGroupe.set(retour.droit);
                 this.authServ.nbPointBanque.set(retour.nbPointBanque);
                 this.authServ.peutModifierBanque.set(retour.droit.peutModifierBanque);
 

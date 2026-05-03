@@ -16,11 +16,14 @@
                     (click)="OuvrirModalModifierPoint()">
             {{ pointCampagne() }} Pts campagne
         </button>
+    }
 
-        <button matIconButton (click)="toggleTheme()">
-            <mat-icon>{{ estLightMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
-        </button>
+    <button matIconButton (click)="toggleTheme()">
+        <mat-icon>{{ estLightMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+    </button>
 
+    @if (estConnecter())
+    {
         <button matIconButton 
                     aria-label="Panier d'achat" 
                     matTooltip="Panier d'achat" 
@@ -35,6 +38,16 @@
             <mat-icon>logout</mat-icon>
         </button>
     }
+
+    @if (!estConnecter())
+    {
+        <button matIconButton 
+                    aria-label="Connexion" 
+                    matTooltip="Se connecter" 
+                    (click)="Connexion()">
+            <mat-icon>login</mat-icon>
+        </button>
+    }
 </mat-toolbar>
 
 <mat-drawer-container [hasBackdrop]="mdcBackdrop()">
@@ -45,7 +58,7 @@
             <a mat-list-item routerLink="personnage" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Personnage</a>
             <a mat-list-item routerLink="grade" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Grade</a>
 
-            @if(droitPlanete().peutLire)
+            @if(droitPlanete())
             {
                 <a mat-list-item routerLink="planete-origine" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Planète d'origine</a>
             }
@@ -53,7 +66,7 @@
             <a mat-list-item routerLink="specialite" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Spécialité</a>
             <a mat-list-item routerLink="boutique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Boutique</a>
 
-            @if(droit().peutLire)
+            @if(droit())
             {
                 <a mat-list-item routerLink="droit-groupe" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Gestion droits</a>
             }
@@ -62,7 +75,7 @@
             <a mat-list-item routerLink="materiel" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Matériel</a>
             <a mat-list-item routerLink="vaisseau" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Vaisseau</a>
 
-            @if (droitPropositionAchat().peutLire) 
+            @if (droitPropositionAchat())
             {
                 <a mat-list-item routerLink="proposition-achat" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Proposition d'achat</a>
             }
