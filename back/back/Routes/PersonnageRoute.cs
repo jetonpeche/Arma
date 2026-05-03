@@ -48,47 +48,47 @@ public static class PersonnageRoute
     {
         using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        var liste = db.GetCollection<Personnage>().Query()
-            .Include(x => x.Grade)
-            .Include(x => x.Specialite)
-            .Include(x => x.PlaneteOrigine)
-            .Select(x => new PersonnageReponse
-            {
-                Id = x.Id,
-                EstFormateur = x.EstFormateur,
-                EstFormateurSpecialite = x.EstFormateurSpecialite,
-                FormationFaite = x.FormationFaite,
-                EstValider = true,
-                GroupeSanguin = x.GroupeSanguin,
-                Matricule = x.Matricule,
-                NbBootcamp = x.NbBootcamp,
-                NbOperation = x.NbOperation,
-                Nom = x.Nom,
-                NbPointBoutique = x.NbPointBoutique,
-                NomDiscord = x.NomDiscord,
-                EtatService = x.EtatService,
-                DateNaissance = x.DateNaissance,
-                DateCreation = x.DateCreation.ToString("yyyy-MM-dd"),
-                DateDerniereParticipation = x.DateDerniereParticipation.HasValue ? x.DateDerniereParticipation.Value.ToString("yyyy-MM-dd") : null,
-                Grade = x.Grade != null ? new GradeLegerReponse
-                {
+          var liste = db.GetCollection<Personnage>().Query()
+               .Include(x => x.Grade)
+               .Include(x => x.Specialite)
+               .Include(x => x.PlaneteOrigine)
+               .Select(x => new PersonnageReponse
+               {
+                    Id = x.Id,
+                    EstFormateur = x.EstFormateur,
+                    EstFormateurSpecialite = x.EstFormateurSpecialite,
+                    FormationFaite = x.FormationFaite,
+                    EstValider = x.Valider,
+                    GroupeSanguin = x.GroupeSanguin,
+                    Matricule = x.Matricule,
+                    NbBootcamp = x.NbBootcamp,
+                    NbOperation = x.NbOperation,
+                    Nom = x.Nom,
+                    NbPointBoutique = x.NbPointBoutique,
+                    NomDiscord = x.NomDiscord,
+                    EtatService = x.EtatService,
+                    DateNaissance = x.DateNaissance,
+                    DateCreation = x.DateCreation.ToString("yyyy-MM-dd"),
+                    DateDerniereParticipation = x.DateDerniereParticipation.HasValue ? x.DateDerniereParticipation.Value.ToString("yyyy-MM-dd") : null,
+                    Grade = x.Grade != null ? new GradeLegerReponse
+                    {
                     Id = x.Grade.Id,
                     Nom = x.Grade.Nom
-                } : null,
-                PlaneteOrigine = x.PlaneteOrigine != null ? new PlaneteOrigineLegerReponse
-                { 
+                    } : null,
+                    PlaneteOrigine = x.PlaneteOrigine != null ? new PlaneteOrigineLegerReponse
+                    { 
                     Id = x.PlaneteOrigine.Id,
                     Nom = x.PlaneteOrigine.Nom
-                } : null,
-                Specialite = x.Specialite != null ? new SpecialiteLegerReponse
-                {
+                    } : null,
+                    Specialite = x.Specialite != null ? new SpecialiteLegerReponse
+                    {
                     Id = x.Specialite.Id,
                     Nom = x.Specialite.Nom
-                } : null,
-                UrlPhotoIdentite = x.NomFichierPhotoIdentite != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PERSONNAGE + x.NomFichierPhotoIdentite : "",
+                    } : null,
+                    UrlPhotoIdentite = x.NomFichierPhotoIdentite != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PERSONNAGE + x.NomFichierPhotoIdentite : "",
 
-            })
-            .ToArray();
+               })
+               .ToArray();
 
         return Results.Extensions.Ok(liste, PersonnageReponseContext.Default);
     }

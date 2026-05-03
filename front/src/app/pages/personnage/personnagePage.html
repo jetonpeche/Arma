@@ -19,6 +19,13 @@
     <input #inputRecherche matInput type="search">
 </mat-form-field>
 
+@if(droit.peutEcrire)
+{
+    <mat-checkbox (change)="FiltrerPasValider($event)">
+        Pas validé ({{ nbPasValider() }})
+    </mat-checkbox>
+}
+
 <div class="flexContainer">
 
     @for (element of Rechercher(inputRecherche.value); track element.id) 

@@ -19,10 +19,11 @@ import { Droit } from '@models/DroitGroupe';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { EUrl } from '@enums/EUrl';
 import { ModalPersonnageParticiperOperation } from './modal-personnage-participer-operation/modal-personnage-participer-operation';
+import { MatCheckboxChange, MatCheckboxModule } from "@angular/material/checkbox";
 
 @Component({
   selector: 'app-personnage',
-  imports: [MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon, MatFormField, MatLabel, InputFile],
+  imports: [MatCheckboxModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon, MatFormField, MatLabel, InputFile],
   templateUrl: './personnagePage.html',
   styleUrl: './personnagePage.scss',
 })
@@ -31,7 +32,10 @@ export class PersonnagePage implements OnInit
     protected listePersonnage = signal<Personnage[]>([]);
     protected droit: Droit;
     protected droitFichier: Droit;
+    protected nbPasValider = signal<number>(0);
 
+    private listePersonnageCopie = signal<Personnage[]>([]);
+    private pasValiderCheck = signal<boolean>(false);
     private personnageServ = inject(PersonnageService);
     private dialog = inject(MatDialog);
     private snackBarServ = inject(SnackBarService);
@@ -39,7 +43,7 @@ export class PersonnagePage implements OnInit
     private dialogServ = inject(DialogConfirmationService);
     private authServ = inject(AuthentificationService);
 
-    ngOnInit(): void 
+    ngOnInit(): void
     {
         this.Lister();
 
@@ -51,6 +55,12 @@ export class PersonnagePage implements OnInit
     {
         const VALEUR = _recherche.toLowerCase();
         return this.listePersonnage().filter(x => x.nomDiscord.toLowerCase().includes(VALEUR) || x.nom.toLowerCase().includes(VALEUR));
+    }
+
+    protected FiltrerPasValider(_event: MatCheckboxChange): void
+    {   
+        this.pasValiderCheck.set(_event.checked);
+        this.listePersonnage.set(this.listePersonnageCopie().filter(x => x.estValider == !_event.checked));
     }
 
     protected UploadFichier(_idPersonnage: number, _fichier: File): void
@@ -138,7 +148,13 @@ export class PersonnagePage implements OnInit
     private Lister(): void
     {
         this.personnageServ.Lister().subscribe({
-            next: (x) => this.listePersonnage.set(x)
+            next: (x) => 
+            {
+                this.nbPasValider.set(x.filter(x => !x.estValider).length);
+                this.listePersonnageCopie.set(x);
+
+                this.listePersonnage.set(x.filter(x => x.estValider == !this.pasValiderCheck()));
+            }
         });
     }
 }

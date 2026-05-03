@@ -23,7 +23,7 @@ export type Personnage =
     planeteOrigine: PlaneteOrigine | null,
     dateDerniereParticipation: Date | null,
     dateCreation: Date,
-    EstValider: boolean
+    estValider: boolean
 }
 
 export type PersonnageLeger =
