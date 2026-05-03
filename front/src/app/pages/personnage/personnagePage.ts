@@ -50,7 +50,7 @@ export class PersonnagePage implements OnInit
     protected Rechercher(_recherche: string): Personnage[]
     {
         const VALEUR = _recherche.toLowerCase();
-        return this.listePersonnage().filter(x => x.nom.toLowerCase().includes(VALEUR));
+        return this.listePersonnage().filter(x => x.nomDiscord.toLowerCase().includes(VALEUR) || x.nom.toLowerCase().includes(VALEUR));
     }
 
     protected UploadFichier(_idPersonnage: number, _fichier: File): void

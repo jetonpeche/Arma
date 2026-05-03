@@ -174,8 +174,6 @@ public static class PersonnageRoute
                return Results.NotFound("Le personnage n'existe pas");
 
           personnageBdd.Matricule = _requete.Matricule.XSS();
-          personnageBdd.Nom = _requete.Nom.XSS();
-          personnageBdd.NomDiscord = _requete.Nom.XSS();
           personnageBdd.EtatService = _requete.EtatService?.XSS();
           personnageBdd.GroupeSanguin = _requete.GroupeSanguin.XSS();
           personnageBdd.NbBootcamp = _requete.NbBootcamp;
@@ -192,6 +190,17 @@ public static class PersonnageRoute
           personnageBdd.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
           personnageBdd.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
 
+          if (
+               (personnageBdd.Nom != _requete.Nom) ||
+               (personnageBdd.NomDiscord != _requete.NomDiscord)
+          )
+          {
+               _cache.Remove("listePartiellePersonnage");
+          }
+
+          personnageBdd.Nom = _requete.Nom.XSS();
+          personnageBdd.NomDiscord = _requete.NomDiscord.XSS();
+
           if (_requete.IdSpecialite is not null)
                personnageBdd.Specialite = db.GetCollection<Specialite>().FindById(_requete.IdSpecialite);
 
@@ -199,14 +208,6 @@ public static class PersonnageRoute
                personnageBdd.DateDerniereParticipation = DateTime.UtcNow;
 
           var ok = col.Update(personnageBdd);
-
-          if(
-               (personnageBdd.Nom != _requete.Nom) || 
-               (personnageBdd.NomDiscord != _requete.NomDiscord)
-          )
-          {
-               _cache.Remove("listePartiellePersonnage");
-          }
 
           return ok ? Results.NoContent() : Results.NotFound();
     }
