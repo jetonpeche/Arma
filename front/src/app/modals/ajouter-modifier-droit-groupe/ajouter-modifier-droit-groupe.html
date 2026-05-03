@@ -38,10 +38,29 @@
 
                             <div [formGroupName]="i">
                                 <p style="font-size: 1.2em; text-decoration: underline;">
-                                    {{ nomRoute == "boutique" ? "Gestion boutique" : nomRoute }}
+                                    @if(nomRoute == "boutique")
+                                    {
+                                        Gestion boutique
+                                    }
+                                    @else if(nomRoute == "specialite")
+                                    {
+                                        Gestion spécialité
+                                    }
+                                    @else if(nomRoute == "personnage")
+                                    {
+                                        Gestion personnage
+                                    }
+                                    @else if(nomRoute == "medaille")
+                                    {
+                                        Gestion médaille
+                                    }
+                                    @else
+                                    {
+                                        {{ nomRoute }}
+                                    }
                                 </p>
 
-                                @if (nomRoute != "upload-fichier" && nomRoute != "medaille" && nomRoute != "historique-campagne") 
+                                @if (nomRoute != "upload-fichier" && nomRoute != "medaille" && nomRoute != "historique-campagne" && nomRoute != "personnage") 
                                 {
                                     <mat-checkbox labelPosition="before" formControlName="peutLire">
                                         Droit de lecture

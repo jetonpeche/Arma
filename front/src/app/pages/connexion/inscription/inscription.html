@@ -1,0 +1,56 @@
+<h2 mat-dialog-title>Création de compte</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Nom RP" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Nom discord" formControlName="nomDiscord" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="4">
+                <jp-input-text label="Matricule" formControlName="matricule" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="4">
+                <jp-input-text label="Date naissance" formControlName="dateNaissance" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="4">
+                <jp-input-text label="Groupe sanguin" formControlName="groupeSanguin" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-autocomplete requireSelection
+                                 label="Planete d'origine"
+                                 formControlName="idPlaneteOrigine" 
+                                 [dataSource]="dataSourcePlanete()" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-autocomplete requireSelection
+                                 label="Spécialité"
+                                 formControlName="idSpecialite" 
+                                 [dataSource]="dataSourceSpecialite()" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="6">
+                <jp-input-text label="Login" formControlName="login" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="6">
+                <jp-input-password label="Mot de passe" formControlName="mdp" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Etat de service" formControlName="etatService" showMaxLength />
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
+    <jp-button-loader [loading]="btnClick()" (clicked)="ValiderForm()" label="Valider" />
+</mat-dialog-actions>

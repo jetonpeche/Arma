@@ -22,7 +22,8 @@ export type Personnage =
     specialite: SpecialiteLeger | null,
     planeteOrigine: PlaneteOrigine | null,
     dateDerniereParticipation: Date | null,
-    dateCreation: Date
+    dateCreation: Date,
+    EstValider: boolean
 }
 
 export type PersonnageLeger =
@@ -34,6 +35,8 @@ export type PersonnageLeger =
 export type PersonnageRequete =
 {
     nom: string,
+    login: string | null,
+    mdp: string | null,
     nomDiscord: string,
     matricule: string,
     groupeSanguin: string,

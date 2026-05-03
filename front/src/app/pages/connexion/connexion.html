@@ -19,6 +19,7 @@
     </mat-card-content>
 
     <mat-card-actions align="end">
+        <jp-button-loader label="Inscription" (clicked)="OuvrirModalInscription()" />&nbsp;
         <jp-button-loader label="Connexion" [loading]="btnClick()" (clicked)="Valider()" />
     </mat-card-actions>
 </mat-card>

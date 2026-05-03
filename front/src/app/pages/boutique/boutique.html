@@ -4,6 +4,13 @@
     {
         <h1>Boutique</h1>
 
+        @if(droit.peutLire)
+        {
+            <button (click)="GestionBoutique()" matButton="filled">
+                Gestion boutique
+            </button>
+        }
+
         <p>
             Venez dépenser vos points durement acquis sur le champ de bataille ou en votant ici.<br>
             Nous proposons un large éventail d'objet en tout genre pour vous garantir <br>

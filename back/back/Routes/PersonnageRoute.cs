@@ -58,6 +58,7 @@ public static class PersonnageRoute
                 EstFormateur = x.EstFormateur,
                 EstFormateurSpecialite = x.EstFormateurSpecialite,
                 FormationFaite = x.FormationFaite,
+                EstValider = true,
                 GroupeSanguin = x.GroupeSanguin,
                 Matricule = x.Matricule,
                 NbBootcamp = x.NbBootcamp,
@@ -186,6 +187,7 @@ public static class PersonnageRoute
           personnageBdd.DateDerniereParticipation = personnageBdd.DateDerniereParticipation;
           personnageBdd.NomFichierPhotoIdentite = personnageBdd.NomFichierPhotoIdentite;
           personnageBdd.DateNaissance = _requete.DateNaissance.XSS();
+          personnageBdd.Valider = true;
 
           personnageBdd.Grade = db.GetCollection<Grade>().FindById(_requete.IdGrade);
           personnageBdd.PlaneteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);

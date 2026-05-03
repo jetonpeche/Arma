@@ -6,6 +6,9 @@ import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { AuthentificationService } from '@services/AuthentificationService';
 import { environment } from '../../../environements/environement';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { AjouterModifierPersonnage } from '@modals/ajouter-modifier-personnage/ajouter-modifier-personnage';
+import { Inscription } from './inscription/inscription';
 
 @Component({
   selector: 'app-connexion',
@@ -19,6 +22,7 @@ export class ConnexionPage implements OnInit
     protected btnClick = signal<boolean>(false);
 
     private authServ = inject(AuthentificationService);
+    private dialog = inject(MatDialog);
     private router = inject(Router);
 
     ngOnInit(): void
@@ -27,6 +31,11 @@ export class ConnexionPage implements OnInit
             login: new FormControl("", [Validators.required]),
             mdp: new FormControl("", [Validators.required])
         });
+    }
+
+    protected OuvrirModalInscription(): void
+    {
+        this.dialog.open(Inscription);
     }
 
     protected Valider(): void

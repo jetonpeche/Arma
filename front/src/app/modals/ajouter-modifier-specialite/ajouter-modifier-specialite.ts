@@ -5,10 +5,11 @@ import { ButtonLoader, InputText, InputTextarea } from "@jetonpeche/angular-mat-
 import { Specialite } from '@models/Specialite';
 import { SnackBarService } from '@services/SnackBarService';
 import { SpecialiteService } from '@services/SpecialiteService';
+import { MatCheckbox } from "@angular/material/checkbox";
 
 @Component({
   selector: 'app-ajouter-modifier-specialite',
-  imports: [ReactiveFormsModule, MatDialogModule, ButtonLoader, InputText, InputTextarea],
+  imports: [ReactiveFormsModule, MatDialogModule, ButtonLoader, InputText, InputTextarea, MatCheckbox],
   templateUrl: './ajouter-modifier-specialite.html',
   styleUrl: './ajouter-modifier-specialite.scss',
 })
@@ -30,6 +31,7 @@ export class AjouterModifierSpecialite
 
         this.form = new FormGroup({
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
+            estNavy: new FormControl(this.matDialogData?.estNavy ?? false),
             description: new FormControl(this.matDialogData?.description, [Validators.maxLength(1_000)])
         });
     }

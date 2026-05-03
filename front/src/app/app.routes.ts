@@ -26,6 +26,12 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
+        path: "gestion-specialite",
+        loadComponent: () => import("./pages/gestion-specialite/gestion-specialite").then(x => x.GestionSpecialitePage),
+        title: "Specialité",
+        canActivate: [connecterGuard]
+    },
+        { 
         path: "specialite",
         loadComponent: () => import("./pages/specialite/specialite").then(x => x.SpecialitePage),
         title: "Specialité",

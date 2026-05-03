@@ -8,7 +8,11 @@ export const connecterGuard: CanActivateFn = (route, state) =>
     if(!environment.utilisateur)
         return false;
 
-    if(state.url == EUrl.Boutique || state.url == EUrl.Medaille || state.url == EUrl.HistoriqueCampagne)
+    if(
+        state.url == EUrl.Boutique || state.url == EUrl.Personnage || 
+        state.url == EUrl.Specialite || state.url == EUrl.Medaille || 
+        state.url == EUrl.HistoriqueCampagne
+    )
         return true;
 
     let utilisateurDroit = (environment.utilisateur as Authentifier).droit;
@@ -37,6 +41,9 @@ export const connecterGuard: CanActivateFn = (route, state) =>
     }
 
     let url = state.url;
+
+    if(state.url == "/gestion-specialite")
+        url = EUrl.Specialite;
 
     if(state.url == "/gestion-boutique")
         url = EUrl.Boutique;

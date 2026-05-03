@@ -19,21 +19,21 @@ import { SnackBarService } from '@services/SnackBarService';
 })
 export class AjouterModifierPersonnage implements OnInit
 {
-  protected form: FormGroup;
-  protected labelBtn = signal<string>("Ajouter");
-  protected btnClick = signal<boolean>(false);
+    protected form: FormGroup;
+    protected labelBtn = signal<string>("Ajouter");
+    protected btnClick = signal<boolean>(false);
 
-  protected dataSourceGrade = signal<AutocompleteDataSource[]>([]);
-  protected dataSourcePlanete = signal<AutocompleteDataSource[]>([]);
-  protected dataSourceSpecialite = signal<AutocompleteDataSource[]>([]);
+    protected dataSourceGrade = signal<AutocompleteDataSource[]>([]);
+    protected dataSourcePlanete = signal<AutocompleteDataSource[]>([]);
+    protected dataSourceSpecialite = signal<AutocompleteDataSource[]>([]);
 
-  private matDialogData = inject<Personnage>(MAT_DIALOG_DATA);
-  private gradeServ = inject(GradeService);
-  private planeteServ = inject(PlaneteService);
-  private specialiteServ = inject(SpecialiteService);
-  private personnageServ = inject(PersonnageService);
-  private snackBarServ = inject(SnackBarService);
-  private dialogRef = inject(MatDialogRef<AjouterModifierPersonnage>);
+    private matDialogData = inject<Personnage>(MAT_DIALOG_DATA);
+    private gradeServ = inject(GradeService);
+    private planeteServ = inject(PlaneteService);
+    private specialiteServ = inject(SpecialiteService);
+    private personnageServ = inject(PersonnageService);
+    private snackBarServ = inject(SnackBarService);
+    private dialogRef = inject(MatDialogRef<AjouterModifierPersonnage>);
 
   ngOnInit(): void 
   {
@@ -111,6 +111,13 @@ export class AjouterModifierPersonnage implements OnInit
             "mdp", new FormControl<string>("", [Validators.required])
         );
     }
+  }
+
+  protected ValiderCompte(): void
+  {
+    this.form.addControl(
+        "estValider", new FormControl<boolean>(true)
+    );
   }
 
   protected ValiderForm(): void

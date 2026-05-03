@@ -3,6 +3,9 @@
     <form [formGroup]="form">
         <jp-input-text style="display: block; margin-bottom: 15px;" label="Nom" formControlName="nom" />
 
+        <mat-checkbox labelPosition="before" 
+                                formControlName="estNavy">Navy ?</mat-checkbox>
+
         <jp-textarea label="Description" formControlName="description" />
     </form>
 </mat-dialog-content>

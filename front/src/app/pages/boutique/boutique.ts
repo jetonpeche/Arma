@@ -10,6 +10,10 @@ import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { Boutique, BoutiquePersonnageAcheterRequete } from '@models/Boutique';
 import { BoutiqueService } from '@services/BoutiqueService';
 import { environment } from '../../../environements/environement';
+import { Droit } from '@models/DroitGroupe';
+import { EUrl } from '@enums/EUrl';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-boutique',
@@ -24,14 +28,23 @@ export class BoutiquePage implements OnInit
 
     protected pointPersonnage = signal<number>(environment.utilisateur.nbPointBoutique);
     protected listeBoutique = signal<Boutique[]>([]);
+    protected droit: Droit;
 
+    private router = inject(Router);
     private boutiqueServ = inject(BoutiqueService);
     private snackBarServ = inject(SnackBarService);
+    private authServ = inject(AuthentificationService);
     private dialogConfimationServ = inject(DialogConfirmationService);
 
-    ngOnInit(): void 
+    ngOnInit(): void
     {
+        this.droit = this.authServ.RecupererDroit(EUrl.Boutique);
         this.Lister();  
+    }
+
+    protected GestionBoutique(): void
+    {
+        this.router.navigateByUrl("/gestion-boutique");
     }
 
     protected OuvrirModalConfirmationPayer(_boutique: Boutique): void

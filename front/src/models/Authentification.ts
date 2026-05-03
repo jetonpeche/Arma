@@ -14,3 +14,17 @@ export type Authentifier =
     nbPointBanque: number,
     droit: DroitGroupe | null
 }
+
+export type Inscription =
+{
+    login: string,
+    mdp: string,
+    nom: string,
+    nomDiscord: string,
+    dateNaissance: string,
+    matricule: string,
+    groupeSanguin: string,
+    etatService: string | null,
+    idPlaneteOrigine: number,
+    idSpecialite: number | null
+}

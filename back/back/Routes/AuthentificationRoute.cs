@@ -4,6 +4,7 @@ using back.ModelsExport;
 using back.ModelsImport;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Services.Jwts;
 using Services.Mdp;
 using System.Security.Claims;
@@ -19,6 +20,8 @@ public static class AuthentificationRoute
                .ProducesBadRequest()
                .ProducesNotFound()
                .Produces<ConnexionReponse>();
+
+          builder.MapPost("inscription", InscriptionAsync);
 
           return builder;
      }
@@ -85,5 +88,65 @@ public static class AuthentificationRoute
           };
 
           return Results.Extensions.Ok(retour, ConnexionReponseContext.Default);
+     }
+
+     async static Task<IResult> InscriptionAsync(
+          [FromServices] IMemoryCache _cache,
+          [FromServices] IMdpService _mdpServ,
+          [FromServices] IJwtService _jwtServ,
+          [FromBody] InscriptionRequete _requete
+     )
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var personnageCol = db.GetCollection<Personnage>();
+
+          if (personnageCol.Exists(x => x.Login == _requete.Login))
+               return Results.BadRequest("Le login existe déjà");
+
+          var specialite = db.GetCollection<Specialite>().Query()
+               .Where(x => x.Id == _requete.IdSpecialite)
+               .Select(x => new { x.Id, x.EstNavy })
+               .FirstOrDefault();
+
+          if (specialite is null)
+               return Results.BadRequest("Spécialité existe pas");
+
+          var idPlaneteOrigine = db.GetCollection<PlaneteOrigine>().Query()
+               .Where(x => x.Id == _requete.IdPlaneteOrigine)
+               .Select(x => x.Id)
+               .FirstOrDefault();
+
+          if (idPlaneteOrigine is 0)
+               return Results.BadRequest("Planete existe pas");
+
+          var idGrade = db.GetCollection<Grade>().Query()
+               .OrderBy(x => x.Ordre)
+               .Where(x => x.Conserne == (specialite.EstNavy ?  1 : 2))
+               .Select(x => x.Id)
+               .FirstOrDefault();
+
+          var personnage = new Personnage
+          {
+               DateNaissance = _requete.DateNaissance.XSS(),
+               EtatService = _requete.EtatService?.XSS(),
+               Grade = new Grade { Id = idGrade },
+               Login = _requete.Login,
+               Matricule = _requete.Matricule.XSS(),
+               Mdp = _mdpServ.Hasher(_requete.Mdp),
+               Nom = _requete.Nom.XSS(),
+               NomDiscord = _requete.NomDiscord.XSS(),
+               PlaneteOrigine = new PlaneteOrigine { Id = idPlaneteOrigine },
+               Specialite = new Specialite { Id = specialite.Id },
+               DateDerniereParticipation = null,
+               DateCreation = DateTime.Now,
+               GroupeSanguin = _requete.GroupeSanguin.XSS()
+          };
+
+          personnageCol.Insert(personnage);
+
+          _cache.Remove("listePartiellePersonnage");
+
+          return Results.NoContent();
      }
 }

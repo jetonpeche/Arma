@@ -48,6 +48,7 @@ public sealed class Personnage
      public bool EstFormateur { get; set; }
      public bool EstFormateurSpecialite { get; set; }
      public bool FormationFaite { get; set; }
+     public bool Valider { get; set; }
 
      public DateTime? DateDerniereParticipation { get; set; }
      public DateTime DateCreation { get; set; }

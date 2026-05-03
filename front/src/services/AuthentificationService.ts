@@ -3,7 +3,7 @@ import { DestroyRef, inject, signal } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Authentifier, Authentification } from "@models/Authentification";
+import { Authentifier, Authentification, Inscription } from "@models/Authentification";
 import { Droit } from "@models/DroitGroupe";
 import { EUrl } from "@enums/EUrl"
 import { EModeBanque } from "@enums/EModeBanque";
@@ -22,6 +22,11 @@ export class AuthentificationService
     Connexion(_connexion: Authentification): Observable<Authentifier>
     {
         return this.http.post<Authentifier>(`${this.BASE_API}/connexion`, _connexion).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    Inscription(_inscription: Inscription): Observable<void>
+    {
+        return this.http.post<void>(`${this.BASE_API}/inscription`, _inscription).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     ModifierPointBanque(_prix: number, _mode: EModeBanque = EModeBanque.Modifier): void

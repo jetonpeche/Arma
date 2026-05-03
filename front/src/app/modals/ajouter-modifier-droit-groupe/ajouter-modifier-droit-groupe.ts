@@ -69,7 +69,7 @@ export class AjouterModifierDroitGroupe implements OnInit
             {
                 this.listeDroit.push(new FormGroup({
                     routeGroupe: new FormControl(element.replace("/", "")),
-                    peutLire: new FormControl(element == EUrl.UploadFichier || element == EUrl.Medaille || element == EUrl.HistoriqueCampagne ? true : false),
+                    peutLire: new FormControl(element == EUrl.UploadFichier || element == EUrl.Personnage || element == EUrl.Medaille || element == EUrl.HistoriqueCampagne ? true : false),
                     peutEcrire: new FormControl(false),
                     peutSupprimer: new FormControl(false)
                 }));

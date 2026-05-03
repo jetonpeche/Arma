@@ -13,6 +13,8 @@ import { ModalPanier } from '@modals/modal-panier/modal-panier';
 import { environment } from '../environements/environement';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { ModalPointBanque } from '@modals/modal-point-banque/modal-point-banque';
+import { Droit } from '@models/DroitGroupe';
+import { EUrl } from '@enums/EUrl';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +27,9 @@ export class App implements OnInit
     protected mdcBackdrop = signal<BooleanInput>(false);
     protected drawerMode = signal<MatDrawerMode>("push");
     protected estLightMode = signal<boolean>(false);
+    protected droit = signal<Droit>(null);
+    protected droitPlanete = signal<Droit>(null);
+    protected droitPropositionAchat = signal<Droit>(null);
     
     private dialog = inject(MatDialog);
     private router = inject(Router);
@@ -66,6 +71,9 @@ export class App implements OnInit
                     this.authServ.estConnecter.set(true);
                     this.authServ.nbPointBanque.set(utilisateur.nbPointBanque);
                     this.authServ.peutModifierBanque.set(utilisateur.droit.peutModifierBanque);
+                    this.droit.set(this.authServ.RecupererDroit(EUrl.DroitGroupe));
+                    this.droitPlanete.set(this.authServ.RecupererDroit(EUrl.PlaneteOrigine));
+                    this.droitPropositionAchat.set(this.authServ.RecupererDroit(EUrl.PropositionAchat));
                 } 
                 else 
                     this.Deconnexion();

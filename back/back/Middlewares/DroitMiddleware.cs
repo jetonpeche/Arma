@@ -12,9 +12,16 @@ public class DroitMiddleware : IEndpointFilter
           // recupere le groupe de l'endpoint
           var routeSplit = context.HttpContext.Request.Path.Value!.Split('/');
           string nomMapGroupe = routeSplit[2];
+          string verbeHttp = context.HttpContext.Request.Method;
 
-         if (nomMapGroupe is "authentification" or "test" or "bot-discord")
+          if (nomMapGroupe is "authentification" or "test" or "bot-discord")
                return await next(context);
+
+          if (verbeHttp == HttpMethods.Get)
+          {
+               if (nomMapGroupe is "specialite" or "grade" or "personnage")
+                    return await next(context);
+          }
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
@@ -30,11 +37,7 @@ public class DroitMiddleware : IEndpointFilter
           if (droitGroupe is null)
                return Results.NotFound("Le personnage n'existe pas");
 
-          string verbeHttp = context.HttpContext.Request.Method;
-
-          var droit = droitGroupe.ListeDroit
-               .Where(x => x.RouteGroupe == nomMapGroupe)
-               .FirstOrDefault();
+          var droit = droitGroupe.ListeDroit.FirstOrDefault(x => x.RouteGroupe == nomMapGroupe);
 
           if (nomMapGroupe is not "banque")
                if(droit is null)
@@ -42,7 +45,10 @@ public class DroitMiddleware : IEndpointFilter
 
           if(verbeHttp == HttpMethods.Get)
           {
-               if(!droit.PeutLire)
+               if(nomMapGroupe is "boutique")
+                    return await next(context);
+
+               if (!droit.PeutLire)
                     return Results.Forbid();
           }
           else if(verbeHttp == HttpMethods.Post || verbeHttp == HttpMethods.Put)

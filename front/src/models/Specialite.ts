@@ -2,7 +2,8 @@ export type Specialite =
 {
     id: number,
     nom: string,
-    description: string
+    description: string,
+    estNavy: boolean
 }
 
 export type SpecialiteLeger = Omit<Specialite, "description">;
