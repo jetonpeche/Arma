@@ -20,6 +20,8 @@ public static class HistoriqueCampagneRoute
                .ProducesBadRequest()
                .ProducesCreated();
 
+          builder.MapPut("modifier/{idHistoriqueCampagne:int}", ModifierAsync);
+
           builder.MapDelete("supprimer-image/{idHistoriqueCampagne:int}", SupprimerImageAsync)
                .WithDescription("Supprimer une image d'une campagne")
                .ProducesNotFound()
@@ -102,6 +104,37 @@ public static class HistoriqueCampagneRoute
           });
 
           return Results.Created("", id);
+     }
+
+     static async Task<IResult> ModifierAsync(
+          HttpContext _httpContext,
+          [FromRoute(Name = "idHistoriqueCampagne")] int _idHistoriqueCampagne,
+          [FromBody] HistoriqueCampagneRequete _requete
+     )
+     {
+          if (string.IsNullOrWhiteSpace(_requete.Texte) || string.IsNullOrWhiteSpace(_requete.Titre))
+               return Results.BadRequest("Le texte et le titre sont obligatoires");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var id = db.GetCollection<HistoriqueCampagne>().UpdateMany(x => new HistoriqueCampagne
+          {
+               Titre = _requete.Titre.XSS(),
+               Texte = _requete.Texte.XSS()
+          }, x => x.Id == _idHistoriqueCampagne);
+
+          var nomPersonnage = db.GetCollection<Personnage>().Query()
+               .Where(x => x.Id == _httpContext.RecupererIdPersonnage())
+               .Select(x => x.Nom)
+               .First();
+
+          db.GetCollection<Historique>().Insert(new Historique
+          {
+               Information = $"{nomPersonnage} a modifié(e) l'historique de campagne: {_requete.Titre.XSS()}",
+               Date = DateTime.UtcNow
+          });
+
+          return Results.NoContent();
      }
 
      static async Task<IResult> SupprimerImageAsync(

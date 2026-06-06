@@ -11,6 +11,7 @@ import { AuthentificationService } from '@services/AuthentificationService';
 import { EUrl } from '@enums/EUrl';
 import { Droit } from '@models/DroitGroupe';
 import { ListeMedaille } from "./liste-medaille/liste-medaille";
+import { SnackBarService } from '@services/SnackBarService';
 
 @Component({
   selector: 'app-medaille',
@@ -25,6 +26,7 @@ export class MedaillePage implements OnInit
 
     private medailleServ = inject(MedailleService);
     private authServ = inject(AuthentificationService);
+    private snackBarServ = inject(SnackBarService);
     private dialog = inject(MatDialog);
 
     ngOnInit(): void
@@ -51,6 +53,17 @@ export class MedaillePage implements OnInit
     protected ListerMedaille(_groupe: number): Medaille[]
     {
         return this.listeMedaille().filter(x => x.groupe == _groupe);
+    }
+
+    protected Supprimer(_medaille: Medaille): void
+    {
+        this.medailleServ.Supprimer(_medaille.id).subscribe({
+            next: () =>
+            {
+                this.listeMedaille.update(x => x.filter(y => y.id != _medaille.id));
+                this.snackBarServ.Ok("La médaille est supprimée");
+            }
+        });
     }
 
     private Lister(): void

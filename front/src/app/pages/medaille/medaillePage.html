@@ -14,19 +14,22 @@
 
     <mat-tab label="Distinction personnelle">
         <app-liste-medaille [listeMedaille]="ListerMedaille(0)" 
-                                      [peutEcrire]="droit.peutEcrire"
-                                      (onClickMedaille)="OuvriModalAjouterModifierMedaille($event)" />
+                                       [droit]="droit"
+                                      (onClickMedaille)="OuvriModalAjouterModifierMedaille($event)"
+                                      (onClickSuppMedaille)="Supprimer($event)" />
     </mat-tab>
 
     <mat-tab label="Distinction de service (Unique)">
         <app-liste-medaille [listeMedaille]="ListerMedaille(1)" 
-                                      [peutEcrire]="droit.peutEcrire"
-                                      (onClickMedaille)="OuvriModalAjouterModifierMedaille($event)" />
+                                      [droit]="droit"
+                                      (onClickMedaille)="OuvriModalAjouterModifierMedaille($event)"
+                                      (onClickSuppMedaille)="Supprimer($event)" />
     </mat-tab>
 
     <mat-tab label="Campagne (unique)">
         <app-liste-medaille [listeMedaille]="ListerMedaille(2)" 
-                                      [peutEcrire]="droit.peutEcrire"
-                                      (onClickMedaille)="OuvriModalAjouterModifierMedaille($event)" />
+                                      [droit]="droit"
+                                      (onClickMedaille)="OuvriModalAjouterModifierMedaille($event)"
+                                      (onClickSuppMedaille)="Supprimer($event)" />
     </mat-tab>
 </mat-tab-group>

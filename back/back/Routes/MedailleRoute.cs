@@ -34,6 +34,11 @@ public static class MedailleRoute
                .ProducesNotFound()
                .ProducesNoContent();
 
+          builder.MapDelete("supprimer/{idMedaille}", SupprimerAsync)
+               .WithDescription("Supprimer une medaille")
+               .ProducesNotFound()
+               .ProducesNoContent();
+
           return builder;
      }
 
@@ -236,5 +241,40 @@ public static class MedailleRoute
           x => x.Id == _idMedaille);
 
           return nb > 0 ? Results.NoContent() : Results.NotFound("La medaille n'existe pas");
+     }
+
+     static async Task<IResult> SupprimerAsync(
+          HttpContext _httpContext,
+          [FromRoute(Name = "idMedaille")] int _idMedaille
+     )
+     {
+          if (_idMedaille <= 0)
+               return Results.NotFound("La medaille n'existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var nomFichier = db.GetCollection<Medaille>().Query()
+                .Where(x => x.Id == _idMedaille)
+                .Select(x => x.NomFichier)
+                .FirstOrDefault();
+
+          if (nomFichier is not null)
+               File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_MEDAILLE + nomFichier));
+
+          bool ok = db.GetCollection<Medaille>().Delete(_idMedaille);
+
+          if(ok)
+          {
+               var listePersonnage = db.GetCollection<Personnage>().Query()
+                    .Where(x => x.ListeMedaille.Select(y => y.Medaille.Id).Any(y => y == _idMedaille))
+                    .ToList();
+
+               foreach (var element in listePersonnage)
+                    element.ListeBoutiquePrix.RemoveAll(x => x.Id == _idMedaille);
+
+               db.GetCollection<Personnage>().Update(listePersonnage);
+          }
+
+          return ok ? Results.NoContent() : Results.NotFound("La medaille n'existe pas");
      }
 }

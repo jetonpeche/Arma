@@ -89,9 +89,9 @@ public static class BoutiqueRoute
           }
 
 #pragma warning disable CS8602
-          var idSpecialite = db.GetCollection<Personnage>().Query()
+          var specialite = db.GetCollection<Personnage>().Query()
                .Where(x => x.Id == _idPersonnage)
-               .Select(x => x.Specialite.Id)
+               .Select(x => x.Specialite)
                .FirstOrDefault();
 #pragma warning restore CS8602
 
@@ -100,12 +100,12 @@ public static class BoutiqueRoute
               .Include(x => x.ListePrix)
               .ToArray();
               
-          if(idSpecialite is not 0)
+          if(specialite?.Id is not 0)
           {
                liste = liste.Where(x =>
                     x.ListePrix.Any(y =>
                          y.ListeSpecialiteRequise.Count == 0 || 
-                         y.ListeSpecialiteRequise.Any(z => z.Id == idSpecialite)
+                         y.ListeSpecialiteRequise.Any(z => z.Id == specialite!.Id)
                     )
                ).ToArray();
           }

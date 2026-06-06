@@ -37,4 +37,9 @@ export class MedailleService
     {
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idMedaille}`, _medaille).pipe(takeUntilDestroyed(this.destroyRef));
     }
+
+    Supprimer(_idMedaille: number): Observable<void>
+    {
+        return this.http.delete<void>(`${this.BASE_API}/supprimer/${_idMedaille}`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
 }

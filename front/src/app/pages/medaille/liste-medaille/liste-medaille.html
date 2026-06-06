@@ -13,18 +13,27 @@
 
                         <img height="80" width="220" [src]="element.nomFichier">
                     </mat-card-content>
-                    @if (peutEcrire())
+                    @if (droit().peutEcrire || droit().peutSupprimer)
                     {
                         <mat-card-actions align="end">
-                            <button matButton="filled" (click)="OnClick(element)">
-                                Modifier
-                            </button>
-                        </mat-card-actions>
 
-                        <mat-card-actions align="end">
-                            <button matButton="filled" (click)="OuvrirModalAttribuerMedaille(element)">
-                                Attribuer
-                            </button>
+                            @if(droit().peutEcrire)
+                            {
+                                <button matButton="filled" (click)="OnClick(element)">
+                                    Modifier
+                                </button>&nbsp;
+
+                                <button matButton="filled" (click)="OuvrirModalAttribuerMedaille(element)">
+                                    Attribuer
+                                </button>
+                            }
+
+                            @if (droit().peutSupprimer) 
+                            {
+                                &nbsp;<button matButton="filled" (click)="OuvrirSupprimerMedaille(element)">
+                                    Supprimer
+                                </button>
+                            }
                         </mat-card-actions>
                     }
             </mat-card>
