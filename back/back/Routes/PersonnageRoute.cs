@@ -73,7 +73,8 @@ public static class PersonnageRoute
                     Grade = x.Grade != null ? new GradeLegerReponse
                     {
                     Id = x.Grade.Id,
-                    Nom = x.Grade.Nom
+                    Nom = x.Grade.Nom,
+                    NomRaccourci = x.Grade.NomRaccourci
                     } : null,
                     PlaneteOrigine = x.PlaneteOrigine != null ? new PlaneteOrigineLegerReponse
                     { 
