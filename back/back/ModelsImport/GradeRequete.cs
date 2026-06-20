@@ -5,7 +5,8 @@ namespace back.ModelsImport;
 public sealed class GradeRequete
 {
     public required string Nom { get; set; }
-    public string? Fonction { get; set; }
+     public required string NomRaccourci { get; set; }
+     public string? Fonction { get; set; }
 
     public int Ordre { get; set; }
 

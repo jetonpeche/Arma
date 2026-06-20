@@ -48,7 +48,8 @@ public static class GradeRoute
                 requete.Select(x => new
                 {
                     x.Id,
-                    x.Nom
+                    x.Nom,
+                    x.NomRaccourci
                 })
                 .ToArray()
             );
@@ -64,6 +65,7 @@ public static class GradeRoute
             NbOperationRequis = x.NbOperationRequis,
             NbPlace = x.NbPlace,
             Nom = x.Nom,
+            NomRaccourci = x.NomRaccourci,
             Ordre = x.Ordre,
             NbPointBoutiqueGagnerParOperation = x.NbPointBoutiqueGagnerParOperation,
             UrlFichierIcone = x.NomFichierIcone != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_GRADE + x.NomFichierIcone : ""
@@ -95,6 +97,7 @@ public static class GradeRoute
         var grade = new Grade
         {
             Nom = _requete.Nom.XSS(),
+            NomRaccourci = _requete.NomRaccourci.XSS(),
             Fonction = _requete.Fonction?.XSS(),
             Ordre = _requete.Ordre,
             NbOperationRequis = _requete.NbOperationRequis,
@@ -121,6 +124,9 @@ public static class GradeRoute
           if (string.IsNullOrWhiteSpace(_requete.Nom))
                return Results.BadRequest("Le nom ne peut pas être vide");
 
+          if (string.IsNullOrWhiteSpace(_requete.NomRaccourci))
+               return Results.BadRequest("Le nom raccourci ne peut pas être vide");
+
           if (_requete.Fonction is not null && string.IsNullOrWhiteSpace(_requete.Fonction))
                return Results.BadRequest("La fonction ne peut pas être vide");
 
@@ -137,6 +143,7 @@ public static class GradeRoute
           var nb = db.GetCollection<Grade>().UpdateMany(x => new Grade
           {
                Nom = _requete.Nom.XSS(),
+               NomRaccourci = _requete.NomRaccourci.XSS(),
                Fonction = fonction,
                Ordre = _requete.Ordre,
                NbOperationRequis = _requete.NbOperationRequis,

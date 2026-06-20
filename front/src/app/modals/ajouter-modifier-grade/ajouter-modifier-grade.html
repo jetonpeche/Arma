@@ -2,8 +2,12 @@
 <mat-dialog-content>
     <form [formGroup]="form">
         <jp-grid-container [gap]="15">
-            <jp-grid-element [colDefault]="12">
+            <jp-grid-element [colXs]="12" [colMd]="8">
                 <jp-input-text label="Nom" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-input-text label="Raccourci" formControlName="nomRaccourci" />
             </jp-grid-element>
 
             <jp-grid-element [colDefault]="12">

@@ -31,7 +31,7 @@ export class GradePage implements OnInit, AfterViewInit
     protected matSort = viewChild.required(MatSort);
     protected matPaginator = viewChild.required(MatPaginator);
 
-    protected displayedColumns: string[] = ["icon", "nom", "fonction", "nbOperationRequis", "info", "action"];
+    protected displayedColumns: string[] = ["icon", "nom", "nomRaccourci", "fonction", "nbOperationRequis", "info", "action"];
     protected dataSource = signal<MatTableDataSource<Grade>>(new MatTableDataSource());
     protected btnClick = signal<boolean>(false);
 

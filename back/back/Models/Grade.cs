@@ -8,7 +8,8 @@ public sealed class Grade
     public int Id { get; set; }
 
     public string Nom { get; set; } = null!;
-    public string? NomFichierIcone { get; set; }
+     public string NomRaccourci { get; set; } = null!;
+     public string? NomFichierIcone { get; set; }
     public string? Fonction { get; set; }
 
     public int Ordre { get; set; }

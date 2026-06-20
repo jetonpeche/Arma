@@ -6,8 +6,9 @@ public sealed class GradeReponse
 {
     public required int Id { get; set; }
 
-    public required string Nom { get; set; } = null!;
-    public required string UrlFichierIcone { get; set; }
+    public required string Nom { get; set; }
+     public required string NomRaccourci { get; set; }
+     public required string UrlFichierIcone { get; set; }
     public string? Fonction { get; set; }
 
     public required int Ordre { get; set; }

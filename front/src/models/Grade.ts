@@ -2,6 +2,7 @@ export type Grade =
 {
     id: number,
     nom: string,
+    nomRaccourci: string,
     urlFichierIcone: string | null,
     fonction: string | null,
     ordre: number,
@@ -16,7 +17,8 @@ export type Grade =
 export type GradeLeger =
 {
     id: number,
-    nom: string
+    nom: string,
+    nomRaccourci
 }
 
 export type GradeRequete = Omit<Grade, "id"|"nomFichier">;
