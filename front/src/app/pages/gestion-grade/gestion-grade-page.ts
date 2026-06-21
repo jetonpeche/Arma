@@ -21,12 +21,12 @@ import { EUrl } from '@enums/EUrl';
 import { Droit } from '@models/DroitGroupe';
 
 @Component({
-  selector: 'app-grade-page',
+  selector: 'app-gestion-grade-page',
   imports: [MatTableModule, MatSortModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatIconModule, MatButtonModule, ButtonLoader, CdkTableModule, InputFile],
-  templateUrl: './grade-page.html',
-  styleUrl: './grade-page.scss',
+  templateUrl: './gestion-grade-page.html',
+  styleUrl: './gestion-grade-page.scss',
 })
-export class GradePage implements OnInit, AfterViewInit
+export class GestionGradePage implements OnInit, AfterViewInit
 {
     protected matSort = viewChild.required(MatSort);
     protected matPaginator = viewChild.required(MatPaginator);

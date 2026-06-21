@@ -38,25 +38,31 @@
 
                             <div [formGroupName]="i">
                                 <p style="font-size: 1.2em; text-decoration: underline;">
-                                    @if(nomRoute == "boutique")
+                                    @switch (nomRoute) 
                                     {
-                                        Gestion boutique
-                                    }
-                                    @else if(nomRoute == "specialite")
-                                    {
-                                        Gestion spécialité
-                                    }
-                                    @else if(nomRoute == "personnage")
-                                    {
-                                        Gestion personnage
-                                    }
-                                    @else if(nomRoute == "medaille")
-                                    {
-                                        Gestion médaille
-                                    }
-                                    @else
-                                    {
-                                        {{ nomRoute }}
+                                        @case ("boutique") 
+                                        {
+                                            Gestion boutique
+                                        }
+                                        @case ("specialite") 
+                                        {
+                                            Gestion spécialité
+                                        }
+                                        @case ("personnage") 
+                                        {
+                                            Gestion personnage
+                                        }
+                                        @case ("medaille") 
+                                        {
+                                            Gestion médaille
+                                        }
+                                        @case ("grade") 
+                                        {
+                                            Gestion grade
+                                        }
+                                        @default {
+                                            {{ nomRoute }}
+                                        }
                                     }
                                 </p>
 

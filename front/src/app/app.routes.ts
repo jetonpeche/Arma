@@ -19,9 +19,9 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
-        path: "grade",
-        loadComponent: () => import("./pages/grade/grade-page").then(x => x.GradePage),
-        title: "Grade",
+        path: "gestion-grade",
+        loadComponent: () => import("./pages/gestion-grade/gestion-grade-page").then(x => x.GestionGradePage),
+        title: "Gestion grade",
         canActivate: [connecterGuard]
     },
     { 
@@ -36,10 +36,15 @@ export const routes: Routes = [
         title: "Specialité",
         canActivate: [connecterGuard]
     },
-        { 
+    { 
         path: "specialite",
         loadComponent: () => import("./pages/specialite/specialite").then(x => x.SpecialitePage),
         title: "Specialité"
+    },
+    { 
+        path: "grade",
+        loadComponent: () => import("./pages/grade/grade").then(x => x.GradePage),
+        title: "Grade"
     },
     { 
         path: "boutique",
