@@ -6,6 +6,7 @@ public sealed class GradeLegerReponse
 {
     public required int Id { get; set; }
     public required string Nom { get; set; }
+     public required string NomRaccourci { get; set; }
 }
 
 [JsonSerializable(typeof(GradeLegerReponse))]

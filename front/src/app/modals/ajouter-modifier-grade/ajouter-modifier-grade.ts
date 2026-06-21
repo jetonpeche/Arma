@@ -43,6 +43,10 @@ export class AjouterModifierGrade implements OnInit
                 this.matDialogData?.nom ?? "", 
                 [Validators.required, Validators.maxLength(100)]
             ),
+            nomRaccourci: new FormControl(
+                this.matDialogData?.nomRaccourci ?? "", 
+                [Validators.required, Validators.maxLength(5)]
+            ),
             fonction: new FormControl<string | null>(
                 this.matDialogData?.fonction, 
                 [Validators.maxLength(300)]
