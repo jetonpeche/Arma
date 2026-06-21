@@ -60,14 +60,16 @@ export class ModalPersonnageParticiperOperation implements OnInit
                 this.listeGrade.set(retour);
 
                 const GRADE_MAP = new Map(retour.map(x => [x.id, x.nbPointBoutiqueGagnerParOperation]));
-
+                
                 this.liste.set(this.listePersonnage.map(x => ({
                         id: x.id,
                         nom: x.nom,
-                        nomGrade: x.grade.nom,
-                        nbPoint: GRADE_MAP.get(x.grade.id)
+                        nomGrade: x.grade?.nom ?? "XXX",
+                        nbPoint: GRADE_MAP.get(x.grade?.id) ?? 1
                     })
                 ));
+
+                console.log(this.liste());
             }
         });
     }
