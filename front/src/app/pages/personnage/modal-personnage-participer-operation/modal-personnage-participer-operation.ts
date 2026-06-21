@@ -68,8 +68,6 @@ export class ModalPersonnageParticiperOperation implements OnInit
                         nbPoint: GRADE_MAP.get(x.grade?.id) ?? 1
                     })
                 ));
-
-                console.log(this.liste());
             }
         });
     }
