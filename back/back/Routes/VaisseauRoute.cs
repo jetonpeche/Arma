@@ -205,7 +205,7 @@ public static class VaisseauRoute
                }
           };
 
-          if(_requete.ListeIdVaisseauEnfant.Length > 0)
+          if (_requete.ListeIdVaisseauEnfant.Length > 0)
           {
                var listeIdVaisseauBson = _requete.ListeIdVaisseauEnfant.Select(x => new BsonValue(x)).ToArray();
                var listeIdVaisseau = db.GetCollection<Vaisseau>().Query()
@@ -272,71 +272,89 @@ public static class VaisseauRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var banque = db.GetCollection<Banque>().Query().First();
+        var banque = db.GetCollection<Banque>().Query().First();
 
-          var info = db.GetCollection<Vaisseau>().Query()
-               .Where(x => x.Id == _requete.IdVaisseau)
-               .Select(x => new { x.Nom, x.Prix, x.BloquerAchat, ListeVaisseauEnPlus = x.ListeVaisseauEnPlus.Select(y => y.Id).ToArray() })
-               .FirstOrDefault();
+     var vaisseauDb = db.GetCollection<Vaisseau>()
+          .Include(x => x.ListeVaisseauEnPlus) 
+          .Include("$.ListeVaisseauEnPlus[*].ListeVaisseauEnPlus") 
+          .FindById(_requete.IdVaisseau);
 
-          if (info.BloquerAchat)
-               return Results.BadRequest("L'achat de ce vaisseau est bloqué");
+     if (vaisseauDb == null)
+          return Results.NotFound("Vaisseau introuvable");
 
-          if(info.Prix is 0)
-               return Results.NotFound("Le vaisseau n'existe pas");
+     // 2. Préparation des listes d'Ids
+     var idsEnfants = vaisseauDb.ListeVaisseauEnPlus.Select(e => e.Id);
 
-          if (info.Prix > banque.Argent)
-               return Results.BadRequest("Vous n'avez pas assez d'argent");
+     var idsPetitsEnfants = vaisseauDb.ListeVaisseauEnPlus
+          .Where(e => e.ListeVaisseauEnPlus != null)
+          .SelectMany(e => e.ListeVaisseauEnPlus.Select(pe => pe.Id));
 
-          banque.Argent -= info.Prix;
-          db.GetCollection<Banque>().Update(banque);
+     // 3. Création de l'objet final
+     var info = new
+     {
+          vaisseauDb.Nom,
+          vaisseauDb.Prix,
+          vaisseauDb.BloquerAchat,
+          ListeVaisseauEnPlus = idsEnfants.Concat(idsPetitsEnfants).ToArray()
+     };
 
-          List<VaisseauPosseder> listeVaisseau = [];
-          if (info.ListeVaisseauEnPlus.Length > 0)
+     if (info.BloquerAchat)
+          return Results.BadRequest("L'achat de ce vaisseau est bloqué");
+
+     if(info.Prix is 0)
+          return Results.NotFound("Le vaisseau n'existe pas");
+
+     if (info.Prix > banque.Argent)
+          return Results.BadRequest("Vous n'avez pas assez d'argent");
+
+     banque.Argent -= info.Prix;
+     db.GetCollection<Banque>().Update(banque);
+
+     List<VaisseauPosseder> listeVaisseau = [];
+     if (info.ListeVaisseauEnPlus.Length > 0)
+     {
+          var listeIdVaisseauBson = new BsonArray(info.ListeVaisseauEnPlus.Select(id => new BsonValue(id)))
           {
-               var listeIdVaisseau = info.ListeVaisseauEnPlus
-                   .Select(v => v)
-                   .Append(_requete.IdVaisseau)
-                   .ToArray();
+              new(_requete.IdVaisseau)
+          };
 
-               var listeIdVaisseauBson = new BsonArray(listeIdVaisseau.Select(id => new BsonValue(id)));
+          foreach (var element in listeIdVaisseauBson)
+               db.Execute($"UPDATE {nameof(Vaisseau)} SET Stock = Stock + 1 WHERE _id = {element}");
 
-               db.Execute($@"UPDATE {nameof(Vaisseau)} SET Stock = Stock + 1 WHERE _id IN {listeIdVaisseauBson}");
-
-               listeVaisseau.AddRange(listeIdVaisseau.Select(x => new VaisseauPosseder
-               {
-                    Id = 0,
-                    Vaisseau = new Vaisseau { Id = x },
-                    NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
-                    NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
-                    Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
-               }));
-          }
-          else
+          listeVaisseau.AddRange(listeIdVaisseauBson.Select(x => new VaisseauPosseder
           {
-               db.Execute(
-                    $"UPDATE {nameof(Vaisseau)} SET Stock = Stock + 1 WHERE _id = @0",
-                    [_requete.IdVaisseau]
-               );
+               Id = 0,
+               Vaisseau = new Vaisseau { Id = x },
+               NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
+               NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
+               Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
+          }));
+     }
+     else
+     {
+          db.Execute(
+               $"UPDATE {nameof(Vaisseau)} SET Stock = Stock + 1 WHERE _id = @0",
+               [_requete.IdVaisseau]
+          );
 
-               listeVaisseau.Add(new VaisseauPosseder
-               {
-                    Id = 0,
-                    Vaisseau = new Vaisseau { Id = _requete.IdVaisseau },
-                    NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
-                    NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
-                    Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
-               });
-          }
-
-          db.GetCollection<VaisseauPosseder>().Insert(listeVaisseau);
-
-          var nomPersonnage = db.GetCollection<Personnage>().FindById(_httpContext.RecupererIdPersonnage()).Nom;
-          db.GetCollection<Historique>().Insert(new Historique
+          listeVaisseau.Add(new VaisseauPosseder
           {
-               Information = $"{nomPersonnage} à acheté(e) le vaisseau {info.Nom} pour {info.Prix}",
-               Date = DateTime.UtcNow  
+               Id = 0,
+               Vaisseau = new Vaisseau { Id = _requete.IdVaisseau },
+               NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
+               NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
+               Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
           });
+     }
+
+     db.GetCollection<VaisseauPosseder>().Insert(listeVaisseau);
+
+     var nomPersonnage = db.GetCollection<Personnage>().FindById(_httpContext.RecupererIdPersonnage()).Nom;
+     db.GetCollection<Historique>().Insert(new Historique
+     {
+          Information = $"{nomPersonnage} à acheté(e) le vaisseau {info.Nom} pour {info.Prix}",
+          Date = DateTime.UtcNow  
+     });
 
           return Results.NoContent();
      }
