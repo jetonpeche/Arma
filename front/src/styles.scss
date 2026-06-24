@@ -1,0 +1,103 @@
+
+@use '@angular/material' as mat;
+
+// On garde tes définitions de base
+$my-primary: mat.$green-palette;
+$my-tertiary: mat.$cyan-palette;
+
+$my-typography: (
+  brand-family: 'Roboto, sans-serif',
+  plain-family: 'Roboto, sans-serif',
+);
+
+$dark-theme: mat.define-theme((
+  color: (
+    theme-type: dark,
+    primary: $my-primary,
+    tertiary: $my-tertiary,
+  ),
+  typography: $my-typography,
+  density: (scale: 0),
+));
+
+$light-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: $my-primary,
+    tertiary: $my-tertiary,
+  ),
+  typography: $my-typography,
+  density: (scale: 0),
+));
+
+html {
+  @include mat.all-component-themes($dark-theme);
+  @include mat.system-level-colors($dark-theme);
+  @include mat.system-level-typography($dark-theme);
+  color-scheme: dark;
+
+  &.light-mode {
+    @include mat.all-component-colors($light-theme);
+    @include mat.system-level-colors($light-theme);
+    color-scheme: light;
+
+    $unsc-green: #4B6344;
+    $unsc-white: #ffffff;
+
+    --mat-sys-primary: #{$unsc-green}; 
+    --mat-sys-on-primary: #{$unsc-white}; 
+
+    --mat-sys-primary-container: #CDE8C2; 
+    --mat-sys-on-primary-container: #0B1F07;
+
+    --mat-sys-outline: #74796D;
+
+    .mat-mdc-fab, .mat-mdc-mini-fab {
+        --mat-fab-small-container-color: #{$unsc-green} !important;
+        --mat-fab-small-foreground-color: #{$unsc-white} !important;
+    }
+  }
+}
+
+body {
+  color-scheme: dark;
+
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  margin: 0;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+table, .mat-mdc-form-field
+{
+  width: 100%;
+}
+
+jp-grid-element {
+  border: none !important;
+  padding: 0 !important;
+}
+
+mat-dialog-content {
+  padding-top: 6px !important;
+}
+
+.primaire .mat-mdc-snackbar-surface {
+  background-color: var(--mat-sys-primary) !important;
+  color: var(--mat-sys-on-primary) !important;
+}
+
+.erreur .mat-mdc-snackbar-surface {
+  background-color: var(--mat-sys-error) !important;
+  color: var(--mat-sys-on-error) !important;
+}
+
+.mat-mdc-row:nth-child(even)
+{
+    background-color: var(--mat-sys-surface-variant);
+    color: var(--mat-sys-on-surface);
+}

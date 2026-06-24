@@ -1,0 +1,42 @@
+<jp-grid-container [gap]="12" style="margin-top: 20px;">
+    @for (element of listeMedaille(); track element.id) 
+    {
+        <jp-grid-element [colXs]="12" [colSm]="6" [colXl]="4">
+            <mat-card>
+                <mat-card-header>
+                        <mat-card-title>{{ element.nom }}</mat-card-title>
+                        <mat-card-subtitle>{{ element.nbPoint > 1 ? "Points" : "Point" }}: {{ element.nbPoint }}</mat-card-subtitle>
+                    </mat-card-header>
+
+                    <mat-card-content>
+                        {{ element.description }}
+
+                        <img height="80" width="220" [src]="element.nomFichier">
+                    </mat-card-content>
+                    @if (droit().peutEcrire || droit().peutSupprimer)
+                    {
+                        <mat-card-actions align="end">
+
+                            @if(droit().peutEcrire)
+                            {
+                                <button matButton="filled" (click)="OnClick(element)">
+                                    Modifier
+                                </button>&nbsp;
+
+                                <button matButton="filled" (click)="OuvrirModalAttribuerMedaille(element)">
+                                    Attribuer
+                                </button>
+                            }
+
+                            @if (droit().peutSupprimer) 
+                            {
+                                &nbsp;<button matButton="filled" (click)="OuvrirSupprimerMedaille(element)">
+                                    Supprimer
+                                </button>
+                            }
+                        </mat-card-actions>
+                    }
+            </mat-card>
+        </jp-grid-element>
+    }
+</jp-grid-container>

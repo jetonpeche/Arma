@@ -1,0 +1,9 @@
+<mat-dialog-content style="margin-top: 20px;">
+    <jp-input-number label="Quantité" [formControl]="formControl" />
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="filled" (click)="Valider()">
+        <mat-icon>add_shopping_cart</mat-icon> 
+        {{ btnLabel() }}
+    </button>
+</mat-dialog-actions>

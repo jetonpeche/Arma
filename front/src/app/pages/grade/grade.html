@@ -1,0 +1,75 @@
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1>Grades</h1>
+
+    @if(droit?.peutLire)
+    {
+        <button (click)="GestionGrade()" matButton="filled">
+            Gestion grade
+        </button>
+    }
+</div>
+
+<mat-tab-group (selectedTabChange)="Filtrer($event)" dynamicHeight>
+    <mat-tab label="Marines">
+            <div class="grades-wrapper">
+                <div class="grades-grid">
+                    @for (grade of listeGrade(); track grade.id) 
+                    {
+                        <ng-container *ngTemplateOutlet="gradeCard; context: { $implicit: grade }"></ng-container>
+                    }
+                </div>
+            </div>
+    </mat-tab>
+
+    <mat-tab label="Navy">
+            <div class="grades-wrapper">
+                <div class="grades-grid">
+                    @for (grade of listeGrade(); track grade.id) 
+                    {
+                        <ng-container *ngTemplateOutlet="gradeCard; context: { $implicit: grade }"></ng-container>
+                    }
+                </div>
+            </div>
+    </mat-tab>
+</mat-tab-group>
+
+<ng-template #gradeCard let-grade>
+    <mat-card appearance="outlined" class="grade-card">
+    
+        <mat-card-header class="card-header">
+            <mat-card-title class="card-title">{{ grade.nom }} ({{ grade.nomRaccourci }})</mat-card-title>
+        </mat-card-header>
+
+        <mat-divider></mat-divider>
+
+        <mat-card-content class="card-icon-container">
+            @if (grade.urlFichierIcone) 
+            {
+                <img [src]="grade.urlFichierIcone" [alt]="grade.nom" class="grade-icon"/>
+            }
+        </mat-card-content>
+
+        <div class="card-details">
+            @if (grade.candidatureRequise) 
+            {
+                <mat-divider></mat-divider>
+                <div class="detail-row">Candidature</div>
+            }
+            @if (grade.nbOperationRequis > 0) 
+            {
+                <mat-divider></mat-divider>
+                <div class="detail-row">{{ grade.nbOperationRequis }} Ops</div>
+            }
+            @if (grade.fonction) 
+            {
+                <mat-divider></mat-divider>
+                <div class="detail-row">{{ grade.fonction }}</div>
+            }
+            @if (grade.estHonorifique) 
+            {
+                <mat-divider></mat-divider>
+                <div class="detail-row">Honorifique</div>
+            }
+        </div>
+    </mat-card>
+</ng-template>

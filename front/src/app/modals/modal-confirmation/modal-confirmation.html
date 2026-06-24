@@ -1,0 +1,8 @@
+<h2 mat-dialog-title>{{ titre() }}</h2>
+<mat-dialog-content>
+    {{ message() }}
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" [mat-dialog-close]="false">Non</button>
+    <button matButton="text" [mat-dialog-close]="true">Oui</button>
+</mat-dialog-actions>

@@ -1,0 +1,154 @@
+import { Component, computed, DOCUMENT, inject, OnInit, Renderer2, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatDrawerMode, MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { BooleanInput } from '@angular/cdk/coercion';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalPanier } from '@modals/modal-panier/modal-panier';
+import { environment } from '../environements/environement';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { ModalPointBanque } from '@modals/modal-point-banque/modal-point-banque';
+import { Droit } from '@models/DroitGroupe';
+import { EUrl } from '@enums/EUrl';
+
+@Component({
+  selector: 'app-root',
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatTooltipModule, MatListModule, MatSidenavModule, MatToolbarModule],
+  templateUrl: './app.html',
+  styleUrl: './app.scss'
+})
+export class App implements OnInit
+{
+    protected mdcBackdrop = signal<BooleanInput>(false);
+    protected drawerMode = signal<MatDrawerMode>("push");
+    protected estLightMode = signal<boolean>(false);
+    
+    private dialog = inject(MatDialog);
+    private router = inject(Router);
+    private authServ = inject(AuthentificationService);
+    private document = inject(DOCUMENT);
+    private renderer = inject(Renderer2);
+
+    protected estConnecter = computed(() => this.authServ.estConnecter());
+    protected pointCampagne = computed(() => this.authServ.nbPointBanque());
+    protected peutModifierBanque = computed(() => this.authServ.peutModifierBanque());
+    protected droit = computed(() => 
+    {
+        this.authServ.droitGroupe(); // On "écoute" le changement
+        return this.authServ.RecupererDroit(EUrl.DroitGroupe)?.peutLire ?? false;
+    });
+
+    protected droitPlanete = computed(() => {
+        this.authServ.droitGroupe(); 
+        return this.authServ.RecupererDroit(EUrl.PlaneteOrigine)?.peutLire ?? false;
+    });
+
+    protected droitPropositionAchat = computed(() => {
+        this.authServ.droitGroupe();
+        return this.authServ.RecupererDroit(EUrl.PropositionAchat)?.peutLire ?? false;
+    });
+
+    constructor(private breakpointObserver: BreakpointObserver) 
+    {
+        let breakpoint$ = this.breakpointObserver
+        .observe([ '(max-width: 500px)']);
+
+        breakpoint$.subscribe(() =>
+        this.BreakpointChanges()
+        );
+    }
+
+    ngOnInit(): void 
+    {
+        const userJson = sessionStorage.getItem("utilisateur");
+
+        if (userJson) 
+        {
+            try 
+            {
+                const utilisateur = JSON.parse(userJson);
+                const tokenData = JSON.parse(atob(utilisateur.jwt.split(".")[1]));
+                const expirationDate = new Date(tokenData.exp * 1000);
+
+                // JWT valide
+                if (expirationDate > new Date()) 
+                {
+                    environment.utilisateur = utilisateur;
+                    
+                    this.authServ.estConnecter.set(true);
+                    this.authServ.nbPointBanque.set(utilisateur.nbPointBanque);
+                    this.authServ.peutModifierBanque.set(utilisateur.droit.peutModifierBanque);
+                   this.authServ.droitGroupe.set(utilisateur.droit);
+                } 
+                else 
+                    this.Deconnexion();
+            } 
+            catch (e) 
+            {
+                console.error("Erreur lors de la restauration de la session", e);
+                this.Deconnexion();
+            }
+        }
+    }
+
+    toggleTheme(): void
+    {
+        this.estLightMode.set(!this.estLightMode());
+        if (this.estLightMode()) 
+        {
+            this.renderer.addClass(this.document.documentElement, 'light-mode');
+        } 
+        else 
+            {
+            this.renderer.removeClass(this.document.documentElement, 'light-mode');
+        }
+    }
+
+    protected Connexion(): void
+    {
+        this.router.navigateByUrl("/connexion");
+    }
+
+    protected Deconnexion(): void
+    {
+        this.authServ.estConnecter.set(false);
+        this.authServ.peutModifierBanque.set(false);
+        this.authServ.nbPointBanque.set(0);
+        sessionStorage.removeItem("utilisateur");
+        environment.utilisateur = null;
+        this.router.navigateByUrl("/");
+    }
+
+    protected OuvrirModalModifierPoint(): void
+    {
+        if(this.peutModifierBanque())
+            this.dialog.open(ModalPointBanque);
+    }
+
+    protected OuvrirModalPanier(): void
+    { 
+        this.dialog.open(ModalPanier, {
+            width: "50%", 
+            maxWidth: "100vw",
+        });
+    }
+
+    private BreakpointChanges(): void 
+    {
+        if (this.breakpointObserver.isMatched('(max-width: 500px)')) 
+        {
+            this.drawerMode.set("over");
+            this.mdcBackdrop.set(true);
+        }
+        else 
+        {
+            this.drawerMode.set("push");      
+            this.mdcBackdrop.set(false);
+        }
+    }
+}

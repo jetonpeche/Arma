@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Modifier groupe droit personnage</h2>
+<mat-dialog-content>
+    <mat-form-field style="margin-bottom: 5px;">
+        <mat-label>Groupe droit</mat-label>
+        <mat-select (selectionChange)="ChoisirGroupeDroit($event)">
+            @for (element of listeDroitGroupe(); track element.id) 
+            {
+                <mat-option [value]="element.id">{{ element.nom }}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <jp-autocomplete [dataSource]="listePersonnageAutoComplete()" 
+                                [formControl]="formControl" />
+
+    <div>
+        @for (element of listePersonnageDroitGroupe(); track $index) 
+        {
+            <div class="flex">
+                <span style="font-size: 1em; padding-top: 10px;">{{ element.nom }}</span>
+                <span>
+                    <button (click)="Supprimer(element)" matIconButton>
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </span>
+            </div>
+        }
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>Fermer</button>
+    <button matButton="filled" (click)="Valider()">Valider</button>
+</mat-dialog-actions>

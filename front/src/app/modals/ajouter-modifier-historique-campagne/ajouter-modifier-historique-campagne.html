@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>{{ labelBtn() }} une campagne</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-input-text label="Titre" formControlName="titre" showMaxLength />
+
+        <jp-textarea label="Description" formControlName="texte" showMaxLength />
+
+        <jp-input-file-drop-zone accept=".png, .jpg, .jpeg, .webp"
+                                              (selectedFiles)="FichierChoisi($event)" />
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="filled" mat-dialog-close>Fermer</button>&nbsp;
+    <jp-button-loader [label]="labelBtn()" [loading]="btnClick()" (clicked)="Valider()" />
+</mat-dialog-actions>

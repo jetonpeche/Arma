@@ -1,0 +1,10 @@
+jp-input-text, jp-textarea
+{
+    display: block;
+}
+
+jp-input-text:nth-child(2) 
+{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

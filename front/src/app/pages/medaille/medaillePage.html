@@ -1,0 +1,35 @@
+<div style="text-align: center; margin-bottom: 20px;">
+    <h1>Médaille</h1>
+
+    @if (droit.peutEcrire)
+    {
+        <button matButton="filled" (click)="OuvriModalAjouterModifierMedaille()">
+            <mat-icon>add</mat-icon>
+            Ajouter une médaille
+        </button>
+    }
+</div>
+
+<mat-tab-group>
+
+    <mat-tab label="Distinction personnelle">
+        <app-liste-medaille [listeMedaille]="ListerMedaille(0)" 
+                                       [droit]="droit"
+                                      (onClickMedaille)="OuvriModalAjouterModifierMedaille($event)"
+                                      (onClickSuppMedaille)="Supprimer($event)" />
+    </mat-tab>
+
+    <mat-tab label="Distinction de service (Unique)">
+        <app-liste-medaille [listeMedaille]="ListerMedaille(1)" 
+                                      [droit]="droit"
+                                      (onClickMedaille)="OuvriModalAjouterModifierMedaille($event)"
+                                      (onClickSuppMedaille)="Supprimer($event)" />
+    </mat-tab>
+
+    <mat-tab label="Campagne (unique)">
+        <app-liste-medaille [listeMedaille]="ListerMedaille(2)" 
+                                      [droit]="droit"
+                                      (onClickMedaille)="OuvriModalAjouterModifierMedaille($event)"
+                                      (onClickSuppMedaille)="Supprimer($event)" />
+    </mat-tab>
+</mat-tab-group>
