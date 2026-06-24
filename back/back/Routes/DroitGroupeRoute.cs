@@ -59,7 +59,7 @@ public static class DroitGroupeRoute
                     PeutAcheterVaisseau = x.PeutAcheterVaisseau,
                     PeutAcheterLogistiqueMateriel = x.PeutAcheterLogistiqueMateriel,
                     PeutProposerLogistiqueMateriel = x.PeutProposerLogistiqueMateriel,
-                    ListeDroit = x.ListeDroit.OrderBy(y => y.RouteGroupe).ToArray()
+                    ListeDroit = [.. x.ListeDroit.OrderBy(y => y.RouteGroupe)]
                })
                .ToArray();
 
@@ -98,7 +98,7 @@ public static class DroitGroupeRoute
                PeutProposerLogistiqueMateriel = _requete.PeutProposerLogistiqueMateriel,
                PeutAcheterVaisseau = _requete.PeutAcheterVaisseau,
 
-               ListeDroit = _requete.ListeDroit.ToList()
+               ListeDroit = [.. _requete.ListeDroit]
           };
 
           using var db = new LiteDatabase(Constant.BDD_NOM);

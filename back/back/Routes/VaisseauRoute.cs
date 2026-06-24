@@ -610,7 +610,7 @@ public static class VaisseauRoute
           if (_requete.ListeStockage.Count(x => x.Id.HasValue) < vaisseau.ListeStockage.Count)
           {
                var stockageSupprimer = vaisseau.ListeStockage
-                    .Where(x => !_requete.ListeStockage.Any(y => y.Id.HasValue && y.Id.Value == x.Id))
+                    .Where(x => !_requete.ListeStockage.Any(y => y.Id == x.Id))
                     .Select(x => x.Id)
                     .ToArray();
 
@@ -621,7 +621,7 @@ public static class VaisseauRoute
           var dictStockage = vaisseau.ListeStockage
               .ToDictionary(x => x.Id);
 
-          vaisseau.ListeStockage = _requete.ListeStockage.Select(x =>
+          vaisseau.ListeStockage = [.. _requete.ListeStockage.Select(x =>
           {
                if(x.Id.HasValue && dictStockage.TryGetValue(x.Id.Value, out var stockage))
                {
@@ -646,7 +646,7 @@ public static class VaisseauRoute
 
                return nouveauStockage;
 
-          }).ToList();
+          })];
 
           var ok = db.GetCollection<Vaisseau>().Update(vaisseau);
 
