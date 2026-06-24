@@ -81,10 +81,12 @@ public class DroitMiddleware : IEndpointFilter
                     if(!droitGroupe.PeutModifierBanque)
                          return Results.Forbid();
                }
-               
-               if(droit is not null)
+
+               if (droit is not null)
+               {
                     if (!droit.PeutLire || !droit.PeutEcrire)
-                         return Results.Forbid();
+                         return Results.Forbid();    
+               }
           }
           else if(verbeHttp == HttpMethods.Delete)
           {

@@ -78,6 +78,8 @@ export class LogistiqueInfo implements OnInit, AfterViewInit
     protected OuvrirModalPanierQuantite(_logistique: Logistique): void
     {
         this.dialog.open(ModalInputQuantite, {
+            width: "60%", 
+            maxWidth: "100vw",
             data: _logistique
         });
     }

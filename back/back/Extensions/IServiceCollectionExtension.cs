@@ -12,12 +12,11 @@ namespace back.Extensions
 {
     public static class IServiceCollectionExtension
     {
-        public static IServiceCollection AjouterService(this IServiceCollection _service, RSA _rsa = null)
+        public static IServiceCollection AjouterService(this IServiceCollection _service, RSA _rsa)
         {
             _service
                 .AddSingleton<IJwtService>(new JwtService(_rsa, ""))
                 .AddSingleton<IMdpService, MdpService>();
-
 
             // donne acces a httpContext dans les validators
             _service.AddHttpContextAccessor();

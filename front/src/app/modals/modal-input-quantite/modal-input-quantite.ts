@@ -1,46 +1,227 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { InputNumber } from '@jetonpeche/angular-mat-input';
 import { PanierService } from '@services/PanierService';
 import { MatIcon } from "@angular/material/icon";
+import { VaisseauService } from '@services/VaisseauService';
+import { VaisseauPossederStockage, VaisseauPossederStockageCompatible } from '@models/VaisseauPosseder';
+import { MatSelectModule } from "@angular/material/select";
+import { SnackBarService } from '@services/SnackBarService';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatInput } from "@angular/material/input";
+import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
+import {MatListModule} from '@angular/material/list';
+
+interface Stockage extends VaisseauPossederStockage
+{
+    idVaisseau: number,
+    cacher: boolean
+}
+
+type VaisseauLeger = 
+{ 
+    id: number, 
+    nomVaisseau: string, 
+    nomVaisseauAlias: string 
+}
+
+type RepartitionValider =
+{
+    quantite: number,
+    idStockage: number,
+    volume: number,
+    vaisseau: VaisseauLeger
+}
 
 @Component({
   selector: 'app-modal-input-quantite',
-  imports: [MatIcon, MatButtonModule, MatDialogModule, InputNumber, ReactiveFormsModule, MatIcon],
+  imports: [MatListModule, MatFormFieldModule, MatIcon, MatButtonModule, MatDialogModule, ReactiveFormsModule, MatIcon, MatSelectModule, MatInput, GridContainer, GridElement],
   templateUrl: './modal-input-quantite.html',
-  styleUrl: './modal-input-quantite.scss',
+  styleUrl: './modal-input-quantite.scss'
 })
 export class ModalInputQuantite implements OnInit
 {
-    protected formControl = new FormControl(1, [Validators.min(1)]);
-    protected btnLabel = signal("Ajouter au panier");
+    protected form: FormGroup;
+    protected listeValider = signal<RepartitionValider[]>([]);
 
-    private matDialogData = inject(MAT_DIALOG_DATA);
+    protected btnLabel = signal("Ajouter au panier");
+    protected listeVaisseau = signal<VaisseauLeger[]>([]);
+    protected listeStockage = signal<Stockage[]>([]);
+
+    private listeVaisseauStockage = signal<VaisseauPossederStockageCompatible[]>([])
+    protected matDialogData = inject(MAT_DIALOG_DATA);
     private dialogRef = inject(MatDialogRef<ModalInputQuantite>);
     private panierServ = inject(PanierService);
+    private vaisseauServ = inject(VaisseauService);
+    private snackBarServ = inject(SnackBarService);
 
     ngOnInit(): void 
     {
-        if(this.matDialogData?.quantite)
+        console.log(this.matDialogData);
+        
+        this.form = new FormGroup({
+            quantite: new FormControl<number>(this.matDialogData?.quantite ?? 1, [Validators.min(1)]),
+        });
+
+        if(this.matDialogData.kind == "Logistique")
         {
-            this.formControl.setValue(this.matDialogData.quantite);    
-            this.btnLabel.set("Modifier la quantité");
+            this.form.addControl("idVaisseau", new FormControl<number>(null, [Validators.required]));
+            this.form.addControl("stockage", new FormControl<Stockage>(null, [Validators.required]));
+
+            this.form.controls["quantite"].valueChanges.subscribe((valeur) =>
+            {
+                if(!this.form.value.idVaisseau || valeur < 0)
+                    return;
+
+                const ID_VAISSEAU = this.form.value.idVaisseau;
+                this.ListerStockage(ID_VAISSEAU, valeur);
+            });
+
+            this.ListerStockageCompatible();
         }
+        
+        if(this.matDialogData?.quantite)
+            this.btnLabel.set("Modifier la quantité");
+    }
+
+    protected AjouterRepartition(): void
+    {
+        if(this.form.invalid)
+            return;
+        
+        let ajouter = false;
+
+        const VOLUME = this.form.value.quantite * this.matDialogData.tailleUnitaireInventaire;
+        const ID_VAISSEAU = this.form.value.idVaisseau;
+        const ID_STOCKAGE = this.form.value.stockage.id;
+
+        this.listeVaisseauStockage.update(x =>
+        {
+            const LISTE_STOCKAGE = x.find(y => y.id == ID_VAISSEAU).listeStockage;
+            let stockage = LISTE_STOCKAGE.find(y => y.id == ID_STOCKAGE);
+
+            if(stockage.disponible == 0)
+                return x;
+
+            ajouter = true;
+
+            stockage.disponible -= VOLUME;
+            stockage.occuper += VOLUME;
+
+            return x;
+        });
+
+        this.listeStockage.update(x => 
+        {
+            let stockage = x.find(y => y.idVaisseau == ID_VAISSEAU && y.id == ID_STOCKAGE);
+
+            if(stockage.disponible == 0)
+                return x;
+
+            ajouter = true;
+
+            stockage.disponible -= VOLUME;
+            stockage.occuper += VOLUME;
+
+            stockage.cacher = stockage.disponible <= 0;
+            
+            return x;
+        });
+
+        if(ajouter)
+        {
+            this.listeValider.update(x => [...x, {
+                quantite: this.form.value.quantite,
+                idStockage: ID_STOCKAGE,
+                volume : VOLUME,
+                vaisseau: this.listeVaisseau().find(x => x.id == ID_VAISSEAU),
+            }]);
+        }
+    }
+
+    protected SupprimerRepartition(element: RepartitionValider): void
+    {
+        this.listeValider.update(x => 
+            x.filter(y => !(y.idStockage == element.idStockage && y.vaisseau.id == element.vaisseau.id && y.quantite == element.quantite))
+        );
+
+        this.listeVaisseauStockage.update(x =>
+        {
+            const LISTE_STOCKAGE = x.find(y => y.id == element.vaisseau.id).listeStockage;
+            let stockage = LISTE_STOCKAGE.find(y => y.id == element.idStockage);
+
+            stockage.disponible += element.volume;
+            stockage.occuper -= element.volume;
+
+            return x;
+        });
+
+        this.listeStockage.update(x => 
+        {
+            let stockage = x.find(y => y.idVaisseau == element.vaisseau.id && y.id == element.idStockage);
+            stockage.disponible += element.volume;
+            stockage.occuper -= element.volume;
+
+            stockage.cacher = stockage.disponible <= 0;
+            
+            return x;
+        });
+    }
+
+    protected ListerStockage(_idVaisseau: number, _quantite: number = null): void
+    {
+        const VOLUME = _quantite ?? this.form.value.quantite * this.matDialogData.tailleUnitaireInventaire;
+        const LISTE_STOCKAGE = this.listeVaisseauStockage().find(x => x.id == _idVaisseau).listeStockage.map(x => ({
+            ...x, idVaisseau: _idVaisseau,
+            cacher: x.disponible < VOLUME 
+        }));
+
+        this.listeStockage.set(LISTE_STOCKAGE);
     }
 
     protected Valider(): void
     {
-        if(this.formControl.invalid)
+        // if(this.form.invalid)
+        //     return;
+
+        // if(this.matDialogData?.quantite)
+        //     this.panierServ.Modifier(this.matDialogData, this.formControl.value);
+
+        // else
+        //     this.panierServ.Ajouter(this.matDialogData, this.formControl.value);
+
+        // this.dialogRef.close();
+    }
+
+    private ListerStockageCompatible(): void
+    {   
+        if(this.matDialogData.kind != "Logistique")
             return;
 
-        if(this.matDialogData?.quantite)
-            this.panierServ.Modifier(this.matDialogData, this.formControl.value);
+        this.vaisseauServ.ListerStockageCompatible(this.matDialogData.typeStockage.id).subscribe({
+            next: (retour) =>
+            {
+                if(retour.length == 0)
+                {
+                    this.snackBarServ.Erreur("Aucun vaisseau disponible");
+                    return;
+                }
 
-        else
-            this.panierServ.Ajouter(this.matDialogData, this.formControl.value);
+                if(retour.every(x => x.listeStockage.length == 0))
+                {
+                    this.snackBarServ.Erreur("Aucun stockage disponible");
+                    return;
+                }
 
-        this.dialogRef.close();
+                const LISTE_VAISSEAU = retour.map(x => ({ id: x.id, nomVaisseau: x.nomVaisseau, nomVaisseauAlias: x.nomVaisseauAlias }));
+                this.listeVaisseau.set(LISTE_VAISSEAU);
+
+                this.listeVaisseauStockage.set(retour);
+
+                this.form.controls["idVaisseau"].setValue(LISTE_VAISSEAU[0].id);
+                this.ListerStockage(LISTE_VAISSEAU[0].id, this.form.value.quantite);
+            }
+        });
     }
 }

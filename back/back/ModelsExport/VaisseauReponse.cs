@@ -51,4 +51,4 @@ public sealed class ArmementVaisseauReponse
 
 [JsonSerializable(typeof(VaisseauReponse[]))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-public partial class VaisseauReponseContext : JsonSerializerContext { }
+public partial class VaisseauReponseContext : JsonSerializerContext;

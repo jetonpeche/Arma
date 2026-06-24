@@ -1,7 +1,74 @@
 <mat-dialog-content style="margin-top: 20px;">
-    <jp-input-number label="Quantité" [formControl]="formControl" />
+    <form [formGroup]="form">
+        @if(matDialogData.kind == "Logistique")
+        {
+            <jp-grid-container>
+                <jp-grid-element [colXs]="12" [colMd]="3">
+                    <mat-form-field>
+                        <mat-label>Quantité</mat-label>
+                        <input matInput type="number" formControlName="quantite" min="1">
+                        <mat-hint>{{ matDialogData.tailleUnitaireInventaire * form.value.quantite  }} place requise</mat-hint>
+                    </mat-form-field>
+                </jp-grid-element>
+
+                <jp-grid-element [colXs]="12" [colMd]="4">
+                    <mat-form-field>
+                        <mat-label>Vaisseau</mat-label>
+                        <mat-select formControlName="idVaisseau"  (selectionChange)="ListerStockage($event.value, null)">
+                            @for (element of listeVaisseau(); track element.id) 
+                            {
+                                <mat-option [value]="element.id">{{ element.nomVaisseauAlias }} {{ element.nomVaisseau }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </jp-grid-element>
+
+                <jp-grid-element [colXs]="12" [colMd]="4">
+                    <mat-form-field>
+                        <mat-label>Stockage compatible</mat-label>
+                        <mat-select formControlName="stockage">
+                            @for (element of listeStockage(); track element.id)
+                            {
+                                <mat-option [value]="element" [class.cacher]="element.cacher">{{ element.nom }} reste: {{ element.disponible }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </jp-grid-element>
+
+                <jp-grid-element [colXs]="12" [colMd]="1">
+                    <button matFab (click)="AjouterRepartition()">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </jp-grid-element>
+            </jp-grid-container>
+        }
+        @else 
+        {
+            <mat-form-field>
+                <mat-label>Quantité</mat-label>
+                <input matInput type="number" formControlName="quantite" min="1">
+            </mat-form-field>
+        }
+    </form>
+
+    <mat-list role="list">
+        @for (element of listeValider(); track $index) 
+        {
+            <mat-list-item role="listitem">
+
+                <div style="display: flex; gap: 5px; align-items: center;">
+                    <button matIconButton (click)="SupprimerRepartition(element)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+
+                    <span>{{ element.vaisseau.nomVaisseau }} - x{{ element.quantite }} ({{ element.volume }})</span>
+                </div>
+            </mat-list-item>
+        }
+    </mat-list>
 </mat-dialog-content>
 <mat-dialog-actions>
+
     <button matButton="filled" (click)="Valider()">
         <mat-icon>add_shopping_cart</mat-icon> 
         {{ btnLabel() }}

@@ -44,15 +44,6 @@ export type VaisseauStockage =
     typeStockage: TypeStockageLogistique
 }
 
-export type VaisseauPossederStockage = 
-{
-    id: number,
-    nom: string,
-    taille: number,
-    occuper: number,
-    disponible: number
-}
-
 export type VaisseauEquipage = 
 {
     nbPlacePassager: number,
@@ -79,14 +70,4 @@ export type VaisseauRequete =
     equipage: VaisseauEquipage,
     listeArmement: VaisseauArmement[],
     listeStockage: VaisseauStockage[]
-}
-
-export type VaisseauPosseder =
-{
-    id: number,
-    nomVaisseau: string,
-    nomCommandant: string,
-    nomVaisseauAlias: string,
-    listeArmement: VaisseauArmement[],
-    listeStockage: VaisseauPossederStockage[]
 }

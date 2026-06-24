@@ -23,9 +23,9 @@ public static class VaisseauRoute
                .ProducesNotFound()
                .Produces<VaisseauPossederReponse[]>();
 
-          builder.MapGet("lister-stockage-compatible/{idLogistique:int}", ListerStockageCompatibleAsync)
+          builder.MapGet("lister-stockage-compatible/{idTypeStockage:int}", ListerStockageCompatibleAsync)
                .ProducesNotFound()
-               .Produces<VaisseauPossederReponse[]>();
+               .Produces<StockageCompatibleVaisseauPossederReponse[]>();
 
         builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter un nouveau vaisseau")
@@ -180,21 +180,13 @@ public static class VaisseauRoute
      }
 
     static async Task<IResult> ListerStockageCompatibleAsync(
-          [FromRoute(Name = "idLogistique")] int _idLogistique
+          [FromRoute(Name = "idTypeStockage")] int _idTypeStockage
     )
     {
-          if(_idLogistique <= 0)
+          if(_idTypeStockage <= 0)
                return Results.NotFound();
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
-
-          var idTypeStockage = db.GetCollection<Logistique>().Query()
-               .Where(x => x.Id == _idLogistique)
-               .Select(x => x.TypeStockage.Id)
-               .FirstOrDefault();
-
-          if (idTypeStockage == 0)
-               return Results.NotFound();
 
             var liste = db.GetCollection<VaisseauPosseder>()
                .Include(v => v.Vaisseau)
@@ -202,28 +194,26 @@ public static class VaisseauRoute
                .Include(x => x.ListeStockage)
                .Query()
                .ToList()
-               .ConvertAll(x => new
+               .ConvertAll(x => new StockageCompatibleVaisseauPossederReponse
                {
-                    x.Id,
-                    x.NomCommandant,
+                    Id = x.Id,
                     NomVaisseauAlias = x.NomVaisseau,
                     NomVaisseau = x.Vaisseau.Nom,
                     
-                    EtatDesStockages = x.Vaisseau.ListeStockage.Select(y => new
+                    ListeStockage = [..x.Vaisseau.ListeStockage.Select(y => new StockageVaisseauPossederReponse
                     {
-                         IdStockage = y.Id,
+                         Id = y.Id,
                          IdTypeStockage = y.TypeStockage.Id,
-                         NomStockage = y.Nom,
-                         TailleMax = y.Taille,
-                         QuantiteOccupee = x.ListeStockage
+                         Nom = y.Nom,
+                         Taille = y.Taille,
+                         Occuper = x.ListeStockage
                               .Where(z => z.Stockage != null && z.Stockage.Id == y.Id)
                               .Sum(z => z.Quantite)
                     })
-                    .Where(y => y.QuantiteOccupee < y.TailleMax && y.IdTypeStockage == idTypeStockage)
-                    .ToArray() 
+                    .Where(y => y.Occuper < y.Taille && y.IdTypeStockage == _idTypeStockage)]
                });
 
-        return Results.Ok();
+        return Results.Extensions.Ok(liste, StockageCompatibleVaisseauPossederReponseContext.Default);
     }
 
 
@@ -568,7 +558,7 @@ public static class VaisseauRoute
                if (listeIdVaisseau.Length != _requete.ListeIdVaisseauEnfant.Length)
                     return Results.BadRequest("Un ou plusieurs vaisseau(x) n'existe pas");
 
-               vaisseau.ListeVaisseauEnPlus = _requete.ListeIdVaisseauEnfant.Select(x => new Vaisseau { Id = x }).ToList();
+               vaisseau.ListeVaisseauEnPlus = [.. _requete.ListeIdVaisseauEnfant.Select(x => new Vaisseau { Id = x })];
           }
           else
                vaisseau.ListeVaisseauEnPlus = [];
