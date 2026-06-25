@@ -37,7 +37,7 @@
 
                 <jp-grid-element [colXs]="12" [colMd]="1">
                     <button matFab (click)="AjouterRepartition()">
-                        <mat-icon>add</mat-icon>
+                        <mat-icon>{{ idAmodifier() > 0 ? 'edit' : 'add' }}</mat-icon>
                     </button>
                 </jp-grid-element>
             </jp-grid-container>
@@ -57,11 +57,15 @@
             <mat-list-item role="listitem">
 
                 <div style="display: flex; gap: 5px; align-items: center;">
-                    <button matIconButton (click)="SupprimerRepartition(element)">
+                    <button matIconButton (click)="ModifierRepartition(element)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+
+                    <button matIconButton (click)="SupprimerRepartition(element.id)">
                         <mat-icon>delete</mat-icon>
                     </button>
 
-                    <span>{{ element.vaisseau.nomVaisseau }} - x{{ element.quantite }} ({{ element.volume }})</span>
+                    <span>{{ element.vaisseau.nomVaisseau }} - x{{ element.quantite }} (volume: {{ element.volume }})</span>
                 </div>
             </mat-list-item>
         }

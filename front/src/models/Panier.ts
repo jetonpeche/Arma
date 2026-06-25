@@ -6,5 +6,11 @@ export type Panier =
     idType: number,
     nom: string,
     quantite: number,
-    prixUnitaire: number
+    prixUnitaire: number,
+    volume?: number,
+    idStockage?: number,
+    vaisseau?: {
+        id: number,
+        nom: string
+    }
 }

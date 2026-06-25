@@ -12,6 +12,8 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import { MatInput } from "@angular/material/input";
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import {MatListModule} from '@angular/material/list';
+import { Panier } from '@models/Panier';
+import { ETypeObjetProposer } from '@enums/ETypeObjetProposer';
 
 interface Stockage extends VaisseauPossederStockage
 {
@@ -28,6 +30,7 @@ type VaisseauLeger =
 
 type RepartitionValider =
 {
+    id: number,
     quantite: number,
     idStockage: number,
     volume: number,
@@ -48,6 +51,7 @@ export class ModalInputQuantite implements OnInit
     protected btnLabel = signal("Ajouter au panier");
     protected listeVaisseau = signal<VaisseauLeger[]>([]);
     protected listeStockage = signal<Stockage[]>([]);
+    protected idAmodifier = signal<number>(0);
 
     private listeVaisseauStockage = signal<VaisseauPossederStockageCompatible[]>([])
     protected matDialogData = inject(MAT_DIALOG_DATA);
@@ -96,13 +100,28 @@ export class ModalInputQuantite implements OnInit
         const ID_VAISSEAU = this.form.value.idVaisseau;
         const ID_STOCKAGE = this.form.value.stockage.id;
 
+        if(this.idAmodifier() > 0)
+        {
+            this.SupprimerRepartition(this.idAmodifier());
+            this.idAmodifier.set(0);
+        }
+
         this.listeVaisseauStockage.update(x =>
         {
             const LISTE_STOCKAGE = x.find(y => y.id == ID_VAISSEAU).listeStockage;
             let stockage = LISTE_STOCKAGE.find(y => y.id == ID_STOCKAGE);
 
             if(stockage.disponible == 0)
+            {
+                this.snackBarServ.Erreur("Stockage plein");
                 return x;
+            }
+
+            if(stockage.disponible - VOLUME < 0)
+            {
+                this.snackBarServ.Erreur("Le volume est plus gros que la place disponible");
+                return x;
+            }
 
             ajouter = true;
 
@@ -116,7 +135,7 @@ export class ModalInputQuantite implements OnInit
         {
             let stockage = x.find(y => y.idVaisseau == ID_VAISSEAU && y.id == ID_STOCKAGE);
 
-            if(stockage.disponible == 0)
+            if(stockage.disponible == 0 || stockage.disponible - VOLUME < 0)
                 return x;
 
             ajouter = true;
@@ -131,20 +150,49 @@ export class ModalInputQuantite implements OnInit
 
         if(ajouter)
         {
-            this.listeValider.update(x => [...x, {
-                quantite: this.form.value.quantite,
-                idStockage: ID_STOCKAGE,
-                volume : VOLUME,
-                vaisseau: this.listeVaisseau().find(x => x.id == ID_VAISSEAU),
-            }]);
+            this.listeValider.update(x => 
+            {
+                const OBJET = x.find(y => y.idStockage == ID_STOCKAGE && y.vaisseau.id == ID_VAISSEAU);
+
+                if(OBJET)
+                {
+                    OBJET.quantite += this.form.value.quantite;
+                    OBJET.volume += VOLUME;
+                }
+
+                else
+                {
+                    x.push({
+                        id: Math.floor(Math.random() * 10_000) + 1,
+                        quantite: this.form.value.quantite,
+                        idStockage: ID_STOCKAGE,
+                        volume : VOLUME,
+                        vaisseau: this.listeVaisseau().find(x => x.id == ID_VAISSEAU),
+                    });
+                }
+
+                return x;
+            });
         }
     }
 
-    protected SupprimerRepartition(element: RepartitionValider): void
+    protected ModifierRepartition(_element: RepartitionValider): void
     {
-        this.listeValider.update(x => 
-            x.filter(y => !(y.idStockage == element.idStockage && y.vaisseau.id == element.vaisseau.id && y.quantite == element.quantite))
-        );
+        const STOCKAGE = this.listeStockage().find(x => x.id == _element.idStockage);
+        STOCKAGE.cacher = false;
+
+        this.form.controls["quantite"].setValue(_element.quantite);
+        this.form.controls["idVaisseau"].setValue(_element.vaisseau.id);
+        this.form.controls["stockage"].setValue(STOCKAGE);
+
+        this.idAmodifier.set(_element.id);
+    }
+
+    protected SupprimerRepartition(_idRepartition: number): void
+    {
+        let element = {...this.listeValider().find(x => x.id == _idRepartition) };
+
+        this.listeValider.update(x => x.filter(y => y.id != _idRepartition));
 
         this.listeVaisseauStockage.update(x =>
         {
@@ -182,14 +230,44 @@ export class ModalInputQuantite implements OnInit
 
     protected Valider(): void
     {
-        // if(this.form.invalid)
-        //     return;
+        if(this.listeValider().length == 0)
+            return;
+
+        const TYPE = this.matDialogData.kind == "Logistique" ? ETypeObjetProposer.Logistique : ETypeObjetProposer.Materiel;
+        console.log(this.listeVaisseau());
+        
+
+
+        let listePanier: Panier[] = this.listeValider().map(x =>
+        {
+            if(TYPE == ETypeObjetProposer.Logistique)
+            {
+                
+            }
+            const VAISSEAU = this.listeVaisseau().find(y => y.id == x.vaisseau.id);
+
+            return {
+                nom: this.matDialogData.nom,
+                quantite: x.quantite,
+                volume: x.volume,
+                prixUnitaire: this.matDialogData.prix,
+                idStockage: x.idStockage,
+                vaisseau: TYPE == ETypeObjetProposer.Logistique ? {
+                    id: x.vaisseau.id,  
+                    nom: VAISSEAU.nomVaisseauAlias ?? VAISSEAU.nomVaisseau
+                } : null,
+                type: TYPE,
+                idType: this.matDialogData.id
+            }
+        });
+
+        this.panierServ.Ajouter(listePanier);
 
         // if(this.matDialogData?.quantite)
         //     this.panierServ.Modifier(this.matDialogData, this.formControl.value);
 
         // else
-        //     this.panierServ.Ajouter(this.matDialogData, this.formControl.value);
+        //     this.panierServ.Ajouter();
 
         // this.dialogRef.close();
     }

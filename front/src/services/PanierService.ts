@@ -19,39 +19,40 @@ export class PanierService
         return [];
     }
 
-    Ajouter(_objet: Materiel | Logistique, _quantite: number): void
+    Ajouter(_liste: Panier[]): void
     {
-        let obj: Panier = {
-            idType: _objet.id,
-            type: _objet.kind == "Materiel" ? ETypeObjetProposer.Materiel : ETypeObjetProposer.Logistique,
-            nom: _objet.nom,
-            quantite: _quantite,
-            prixUnitaire: _objet.prix
-        };
-
         let liste: Panier[] = [];
+        const NOM = _liste[0].nom;
         
         if(localStorage.getItem(this.CLE_LOCAL_STORAGE))
         {
             liste = JSON.parse(localStorage.getItem(this.CLE_LOCAL_STORAGE)) as Panier[];
 
-            const INDEX = liste.findIndex(x => x.idType == obj.idType && x.type == obj.type);
+            for (const element of liste) 
+            {
+                const INDEX = liste.findIndex(x => 
+                    x.idType == element.idType && 
+                    x.type == element.type &&
+                    x.vaisseau?.id == element.vaisseau?.id &&
+                    x.idStockage == element.idStockage
+                );
 
-            if(INDEX != -1)
-            {
-                liste[INDEX].quantite = obj.quantite;
-                this.snackBarServ.Ok(`La quantité de ${obj.nom} a été modifiée`);
-            }
-            else
-            {
-                liste.push(obj);
-                this.snackBarServ.Ok(`${obj.nom} à été ajouté au panier`);
+                if(INDEX != -1)
+                {
+                    liste[INDEX].quantite = element.quantite;
+                    this.snackBarServ.Ok(`La quantité de ${NOM} a été modifiée`);
+                }
+                else
+                {
+                    liste.push(element);
+                    this.snackBarServ.Ok(`${NOM} à été ajouté au panier`);
+                }
             }
         }
         else
         {
-            liste.push(obj);
-            this.snackBarServ.Ok(`${obj.nom} à été ajouté au panier`);
+            liste = [..._liste];
+            this.snackBarServ.Ok(`${NOM} à été ajouté au panier`);
         }
 
         localStorage.setItem(this.CLE_LOCAL_STORAGE, JSON.stringify(liste));
