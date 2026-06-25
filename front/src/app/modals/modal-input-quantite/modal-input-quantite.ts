@@ -52,6 +52,7 @@ export class ModalInputQuantite implements OnInit
     protected listeVaisseau = signal<VaisseauLeger[]>([]);
     protected listeStockage = signal<Stockage[]>([]);
     protected idAmodifier = signal<number>(0);
+    protected modalModeModifier = signal(false);
 
     private listeVaisseauStockage = signal<VaisseauPossederStockageCompatible[]>([])
     protected matDialogData = inject(MAT_DIALOG_DATA);
@@ -68,10 +69,13 @@ export class ModalInputQuantite implements OnInit
             quantite: new FormControl<number>(this.matDialogData?.quantite ?? 1, [Validators.min(1)]),
         });
 
-        if(this.matDialogData.kind == "Logistique")
+        if(this.matDialogData?.kind == "Logistique" || this.matDialogData?.quantite)
         {
+            if(this.matDialogData?.quantite)
+                this.modalModeModifier.set(true);
+
             this.form.addControl("idVaisseau", new FormControl<number>(null, [Validators.required]));
-            this.form.addControl("stockage", new FormControl<Stockage>(null, [Validators.required]));
+            this.form.addControl("idStockage", new FormControl<number>(null, [Validators.required]));
 
             this.form.controls["quantite"].valueChanges.subscribe((valeur) =>
             {
@@ -98,7 +102,7 @@ export class ModalInputQuantite implements OnInit
 
         const VOLUME = this.form.value.quantite * this.matDialogData.tailleUnitaireInventaire;
         const ID_VAISSEAU = this.form.value.idVaisseau;
-        const ID_STOCKAGE = this.form.value.stockage.id;
+        const ID_STOCKAGE = this.form.value.idStockage;
 
         if(this.idAmodifier() > 0)
         {
@@ -159,11 +163,10 @@ export class ModalInputQuantite implements OnInit
                     OBJET.quantite += this.form.value.quantite;
                     OBJET.volume += VOLUME;
                 }
-
                 else
                 {
                     x.push({
-                        id: Math.floor(Math.random() * 10_000) + 1,
+                        id: this.modalModeModifier() ? this.matDialogData.id : Math.floor(Math.random() * 10_000) + 1,
                         quantite: this.form.value.quantite,
                         idStockage: ID_STOCKAGE,
                         volume : VOLUME,
@@ -181,15 +184,18 @@ export class ModalInputQuantite implements OnInit
         const STOCKAGE = this.listeStockage().find(x => x.id == _element.idStockage);
         STOCKAGE.cacher = false;
 
-        this.form.controls["quantite"].setValue(_element.quantite);
         this.form.controls["idVaisseau"].setValue(_element.vaisseau.id);
-        this.form.controls["stockage"].setValue(STOCKAGE);
+        this.form.controls["idStockage"].setValue(STOCKAGE.id);
+        this.form.controls["quantite"].setValue(_element.quantite);
 
         this.idAmodifier.set(_element.id);
     }
 
     protected SupprimerRepartition(_idRepartition: number): void
     {
+        if(this.listeValider().length == 0)
+            return;
+
         let element = {...this.listeValider().find(x => x.id == _idRepartition) };
 
         this.listeValider.update(x => x.filter(y => y.id != _idRepartition));
@@ -230,54 +236,70 @@ export class ModalInputQuantite implements OnInit
 
     protected Valider(): void
     {
+        if (this.modalModeModifier())
+            this.AjouterRepartition();
+
         if(this.listeValider().length == 0)
             return;
 
-        const TYPE = this.matDialogData.kind == "Logistique" ? ETypeObjetProposer.Logistique : ETypeObjetProposer.Materiel;
-        console.log(this.listeVaisseau());
-        
-
+        const TYPE = this.matDialogData?.kind == "Logistique" || this.matDialogData?.idType == 1 ? ETypeObjetProposer.Logistique : ETypeObjetProposer.Materiel;
 
         let listePanier: Panier[] = this.listeValider().map(x =>
         {
-            if(TYPE == ETypeObjetProposer.Logistique)
-            {
-                
-            }
             const VAISSEAU = this.listeVaisseau().find(y => y.id == x.vaisseau.id);
 
-            return {
-                nom: this.matDialogData.nom,
-                quantite: x.quantite,
-                volume: x.volume,
-                prixUnitaire: this.matDialogData.prix,
-                idStockage: x.idStockage,
-                vaisseau: TYPE == ETypeObjetProposer.Logistique ? {
-                    id: x.vaisseau.id,  
-                    nom: VAISSEAU.nomVaisseauAlias ?? VAISSEAU.nomVaisseau
-                } : null,
-                type: TYPE,
-                idType: this.matDialogData.id
+            if(this.modalModeModifier())
+            {
+                return {
+                    id: x.id,
+                    nom: this.matDialogData.nom,
+                    quantite: x.quantite,
+                    volume: x.volume,
+                    idTypeStockage: this.matDialogData?.idTypeStockage,
+                    prixUnitaire: this.matDialogData.prixUnitaire,
+                    idStockage: x.idStockage,
+                    tailleUnitaireInventaire: this.matDialogData.tailleUnitaireInventaire,
+                    vaisseau: TYPE == ETypeObjetProposer.Logistique ? {
+                        id: x.vaisseau.id,  
+                        nom: VAISSEAU.nomVaisseauAlias ?? VAISSEAU.nomVaisseau
+                    } : null,
+                    type: this.matDialogData.type,
+                    idType: this.matDialogData.idType
+                }
+            }
+            else
+            {
+                return {
+                    id: x.id,
+                    nom: this.matDialogData.nom,
+                    quantite: x.quantite,
+                    volume: x.volume,
+                    idTypeStockage: this.matDialogData.typeStockage.id,
+                    prixUnitaire: this.matDialogData.prix,
+                    idStockage: x.idStockage,
+                    tailleUnitaireInventaire: this.matDialogData.tailleUnitaireInventaire,
+                    vaisseau: TYPE == ETypeObjetProposer.Logistique ? {
+                        id: x.vaisseau.id,  
+                        nom: VAISSEAU.nomVaisseauAlias ?? VAISSEAU.nomVaisseau
+                    } : null,
+                    type: TYPE,
+                    idType: this.matDialogData.id
+                }
             }
         });
 
-        this.panierServ.Ajouter(listePanier);
+        if(this.matDialogData?.quantite)
+            this.panierServ.Modifier(listePanier[0]);
 
-        // if(this.matDialogData?.quantite)
-        //     this.panierServ.Modifier(this.matDialogData, this.formControl.value);
+        else
+            this.panierServ.Ajouter(listePanier);
 
-        // else
-        //     this.panierServ.Ajouter();
-
-        // this.dialogRef.close();
+        this.dialogRef.close();
     }
 
     private ListerStockageCompatible(): void
-    {   
-        if(this.matDialogData.kind != "Logistique")
-            return;
-
-        this.vaisseauServ.ListerStockageCompatible(this.matDialogData.typeStockage.id).subscribe({
+    {
+        this.vaisseauServ.ListerStockageCompatible(this.matDialogData?.typeStockage?.id ?? this.matDialogData.idTypeStockage).subscribe({
             next: (retour) =>
             {
                 if(retour.length == 0)
@@ -299,6 +321,19 @@ export class ModalInputQuantite implements OnInit
 
                 this.form.controls["idVaisseau"].setValue(LISTE_VAISSEAU[0].id);
                 this.ListerStockage(LISTE_VAISSEAU[0].id, this.form.value.quantite);
+
+                if(this.matDialogData?.idTypeStockage)
+                {
+                    let info: RepartitionValider = {
+                        volume: this.matDialogData.volume,
+                        vaisseau: LISTE_VAISSEAU.find(x => x.id == this.matDialogData.vaisseau.id),
+                        quantite: this.matDialogData.quantite,
+                        idStockage: this.matDialogData.idStockage,
+                        id: this.matDialogData.id
+                    }
+                    
+                    this.ModifierRepartition(info);
+                }
             }
         });
     }

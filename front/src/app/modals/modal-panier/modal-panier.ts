@@ -77,7 +77,7 @@ export class ModalPanier implements OnInit, AfterViewInit
         this.panierServ.Supprimer(_objet);
         this.dataSource.update(x => 
         {
-            x.data = x.data.filter(y => !(y.idType == _objet.idType && y.type == _objet.type));    
+            x.data = x.data.filter(y => !(y.idType == _objet.idType && y.type == _objet.type && y.idStockage == _objet.idStockage && y.vaisseau?.id == y.vaisseau?.id));    
             return x;
         });
     }
@@ -85,6 +85,8 @@ export class ModalPanier implements OnInit, AfterViewInit
     protected OuvrirModalQuantite(_objet: Panier): void
     {
         const DIALOG_REF = this.dialog.open(ModalInputQuantite, {
+            width: "60%", 
+            maxWidth: "100vw",
             data: _objet
         });
 

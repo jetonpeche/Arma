@@ -1,6 +1,6 @@
 <mat-dialog-content style="margin-top: 20px;">
     <form [formGroup]="form">
-        @if(matDialogData.kind == "Logistique")
+        @if(matDialogData?.kind == "Logistique" || matDialogData?.type == 1)
         {
             <jp-grid-container>
                 <jp-grid-element [colXs]="12" [colMd]="3">
@@ -11,7 +11,7 @@
                     </mat-form-field>
                 </jp-grid-element>
 
-                <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-grid-element [colXs]="12" [colMd]="this.modalModeModifier() ? 5 : 4">
                     <mat-form-field>
                         <mat-label>Vaisseau</mat-label>
                         <mat-select formControlName="idVaisseau"  (selectionChange)="ListerStockage($event.value, null)">
@@ -26,20 +26,23 @@
                 <jp-grid-element [colXs]="12" [colMd]="4">
                     <mat-form-field>
                         <mat-label>Stockage compatible</mat-label>
-                        <mat-select formControlName="stockage">
+                        <mat-select formControlName="idStockage">
                             @for (element of listeStockage(); track element.id)
                             {
-                                <mat-option [value]="element" [class.cacher]="element.cacher">{{ element.nom }} reste: {{ element.disponible }}</mat-option>
+                                <mat-option [value]="element.id" [class.cacher]="element.cacher">{{ element.nom }} reste: {{ element.disponible }}</mat-option>
                             }
                         </mat-select>
                     </mat-form-field>
                 </jp-grid-element>
 
-                <jp-grid-element [colXs]="12" [colMd]="1">
-                    <button matFab (click)="AjouterRepartition()">
-                        <mat-icon>{{ idAmodifier() > 0 ? 'edit' : 'add' }}</mat-icon>
-                    </button>
-                </jp-grid-element>
+                @if(!modalModeModifier())
+                {
+                    <jp-grid-element [colXs]="12" [colMd]="1">
+                        <button matFab (click)="AjouterRepartition()">
+                            <mat-icon>{{ idAmodifier() > 0 ? 'edit' : 'add' }}</mat-icon>
+                        </button>
+                    </jp-grid-element>
+                }
             </jp-grid-container>
         }
         @else 
@@ -51,28 +54,31 @@
         }
     </form>
 
-    <mat-list role="list">
-        @for (element of listeValider(); track $index) 
-        {
-            <mat-list-item role="listitem">
+    @if(!modalModeModifier())
+    {
+        <mat-list role="list">
+            @for (element of listeValider(); track $index) 
+            {
+                <mat-list-item role="listitem">
 
-                <div style="display: flex; gap: 5px; align-items: center;">
-                    <button matIconButton (click)="ModifierRepartition(element)">
-                        <mat-icon>edit</mat-icon>
-                    </button>
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <button matIconButton (click)="ModifierRepartition(element)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
 
-                    <button matIconButton (click)="SupprimerRepartition(element.id)">
-                        <mat-icon>delete</mat-icon>
-                    </button>
+                        <button matIconButton (click)="SupprimerRepartition(element.id)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
 
-                    <span>{{ element.vaisseau.nomVaisseau }} - x{{ element.quantite }} (volume: {{ element.volume }})</span>
-                </div>
-            </mat-list-item>
-        }
-    </mat-list>
+                        <span>{{ element.vaisseau.nomVaisseau }} - x{{ element.quantite }} (volume: {{ element.volume }})</span>
+                    </div>
+                </mat-list-item>
+            }
+        </mat-list>
+    }
+
 </mat-dialog-content>
 <mat-dialog-actions>
-
     <button matButton="filled" (click)="Valider()">
         <mat-icon>add_shopping_cart</mat-icon> 
         {{ btnLabel() }}

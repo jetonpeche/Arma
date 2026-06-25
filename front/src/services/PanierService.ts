@@ -1,9 +1,7 @@
 import { inject } from "@angular/core";
-import { ETypeObjetProposer } from "@enums/ETypeObjetProposer";
-import { Logistique } from "@models/Logistique";
-import { Materiel } from "@models/Materiel";
 import { Panier } from "@models/Panier";
 import { SnackBarService } from "./SnackBarService";
+import { ETypeObjetProposer } from "@enums/ETypeObjetProposer";
 
 export class PanierService
 {
@@ -28,7 +26,7 @@ export class PanierService
         {
             liste = JSON.parse(localStorage.getItem(this.CLE_LOCAL_STORAGE)) as Panier[];
 
-            for (const element of liste) 
+            for (const element of _liste) 
             {
                 const INDEX = liste.findIndex(x => 
                     x.idType == element.idType && 
@@ -40,7 +38,15 @@ export class PanierService
                 if(INDEX != -1)
                 {
                     liste[INDEX].quantite = element.quantite;
-                    this.snackBarServ.Ok(`La quantité de ${NOM} a été modifiée`);
+                    
+                    if(element.type == ETypeObjetProposer.Logistique)
+                    {
+                        liste[INDEX].idStockage = element.idStockage;
+                        liste[INDEX].vaisseau.id = element.vaisseau.id;
+                        liste[INDEX].vaisseau.nom = element.vaisseau.nom;
+                    }
+
+                    this.snackBarServ.Ok(`${NOM} a été modifiée`);
                 }
                 else
                 {
@@ -58,17 +64,24 @@ export class PanierService
         localStorage.setItem(this.CLE_LOCAL_STORAGE, JSON.stringify(liste));
     }
 
-    Modifier(_objet: Panier, _quantite: number): void
+    Modifier(_objet: Panier): void
     {
         if(!localStorage.getItem(this.CLE_LOCAL_STORAGE))
             return;
 
         let liste = JSON.parse(localStorage.getItem(this.CLE_LOCAL_STORAGE)) as Panier[];
 
-        let element = liste.find(x => x.idType == _objet.idType && x.type == _objet.type);
+        let element = liste.find(x => x.id == _objet.id);
+        
+        if(!element)
+            return;
 
-        if(element)
-            element.quantite = _quantite;
+        element.quantite = _objet.quantite;
+        element.idStockage = _objet.idStockage,
+        element.vaisseau = _objet.vaisseau != null ? {
+            id: _objet.vaisseau.id,
+            nom: _objet.vaisseau.nom
+        } : null
         
         localStorage.setItem(this.CLE_LOCAL_STORAGE, JSON.stringify(liste));
 
@@ -82,7 +95,7 @@ export class PanierService
 
         let liste = JSON.parse(localStorage.getItem(this.CLE_LOCAL_STORAGE)) as Panier[];
 
-        liste = liste.filter(x => !(x.idType == _objet.idType && x.type == _objet.type));
+        liste = liste.filter(x => !(x.idType == _objet.idType && x.type == _objet.type && x.vaisseau?.id == _objet.vaisseau?.id && x.idStockage == _objet.idStockage));
 
         if(liste.length == 0)
             localStorage.removeItem(this.CLE_LOCAL_STORAGE);
