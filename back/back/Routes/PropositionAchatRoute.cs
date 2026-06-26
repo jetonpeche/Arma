@@ -54,9 +54,12 @@ public static class PropositionAchatRoute
                     Liste = x.Liste.Select(y => new ObjetProposer
                     {
                          IdType = y.IdType,
-                         Nom  = y.Nom,
-                         PrixUnitaire = y.PrixUnitaire,
-                         Quantite = y.Quantite,
+                         Nom = y.Nom,
+                         IdStockage = y.IdStockage,
+                         IdVaisseau = y.IdVaisseau,
+                        PrixUnitaire = y.PrixUnitaire,
+                        NomVaisseau = y.NomVaisseau,
+                        Quantite = y.Quantite,
                          Type = y.Type
                     }).ToArray()
                }).ToArray();
@@ -118,10 +121,54 @@ public static class PropositionAchatRoute
                          break;
 
                     case ETypeObjetProposer.Logistique:
+
                          if (dictPrixLogistique.TryGetValue(element.IdType, out var infoLogisitique))
                          {
                               element.PrixUnitaire = infoLogisitique.Prix;
                               element.Nom = infoLogisitique.Nom;
+                         
+                              // recuperer le stockage choisi
+                              var stockageVaisseau = db.GetCollection<VaisseauPosseder>()
+                                   .Query()
+                                   .Include(x => x.Vaisseau)
+                                   .Include(x => x.Vaisseau.ListeStockage)
+                                   .Where(x =>
+                                        x.Vaisseau.Id == element.IdVaisseau
+                                        && x.Vaisseau.ListeStockage.Select(y => y.Id).Any(y => y == element.IdStockage!.Value)
+                                   )
+                                   .FirstOrDefault()?
+                                   .Vaisseau.ListeStockage
+                                   .FirstOrDefault(x => x.Id == element.IdStockage!.Value && x.TypeStockage.Id == infoLogisitique.IdTypeStockage);
+
+                              if (stockageVaisseau is null)
+                                   return Results.NotFound("Le stockage ou le vaisseau n'existe pas");
+
+                              var stockageVaisseauPosseder = db.GetCollection<StockageVaisseauPosseder>()
+                                   .Include(x => x.VaisseauPosseder)
+                                   .Query()
+                                   .ToList()
+                                   .Where(x => x.Stockage.Id == element.IdStockage!.Value)
+                                   .Select(x => new
+                                   {
+                                        x.Id,
+                                        x.VaisseauPosseder.NomVaisseau,
+                                        IdLogistique = x.Logistique.Id,
+                                        x.Quantite
+                                   })
+                                   .ToList();
+
+                              var tailleMax = stockageVaisseau.Taille;
+                              var tailleTotalOccuper = stockageVaisseauPosseder.Sum(x => x.Quantite);
+                              var placeRestante = tailleMax - tailleTotalOccuper;
+
+                              if (stockageVaisseauPosseder.Count > 0)
+                              {
+                                   element.IdStockagePosseder = stockageVaisseauPosseder[0].Id;
+                                   element.NomVaisseau =  stockageVaisseauPosseder[0].NomVaisseau;
+                              }
+
+                              if (element.Quantite * infoLogisitique.TailleUnitaireInventaire > placeRestante)
+                                   return Results.BadRequest($"{element.Nom}, place dispo: {placeRestante}, place demandée: {element.Quantite * infoLogisitique.TailleUnitaireInventaire}");
                          }
                          else
                               return Results.NotFound("L'objet n'existe pas");
@@ -138,10 +185,13 @@ public static class PropositionAchatRoute
                Liste = _requete.ConvertAll(x => new ObjetProposer
                {
                     IdType = x.IdType,
-                    Type = x.Type,
-                    Nom = x.Nom,
-                    Quantite = x.Quantite,
-                    PrixUnitaire = x.PrixUnitaire
+                    IdStockage = x.IdStockage,
+                   IdVaisseau = x.IdVaisseau,
+                   Type = x.Type,
+                   Nom = x.Nom,
+                   NomVaisseau = x.Type is ETypeObjetProposer.Logistique ? x.NomVaisseau : null,
+                   Quantite = x.Quantite,
+                   PrixUnitaire = x.PrixUnitaire
               })
           };
 

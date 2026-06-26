@@ -18,5 +18,8 @@ public sealed class ObjetProposerRequete
     public string Nom { get; set; } = null!;
 
     [JsonIgnore]
+    public string? NomVaisseau { get; set; }
+
+    [JsonIgnore]
     public int IdStockagePosseder { get; set; }
 }

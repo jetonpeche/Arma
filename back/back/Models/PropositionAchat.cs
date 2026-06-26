@@ -1,4 +1,5 @@
-﻿using back.Enums;
+﻿using System.Text.Json.Serialization;
+using back.Enums;
 using LiteDB;
 
 namespace back.Models;
@@ -15,9 +16,14 @@ public sealed class PropositionAchat
 
 public sealed class ObjetProposer
 {
-     public int IdType { get; set; }
-     public ETypeObjetProposer Type { get; set; }
-     public string Nom { get; set; } = null!;
-     public int PrixUnitaire { get; set; }
+    public int IdType { get; set; }
+    public int? IdVaisseau { get; set; }
+    public int? IdStockage { get; set; }
+    public ETypeObjetProposer Type { get; set; }
+    public string Nom { get; set; } = null!;
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? NomVaisseau { get; set; }
+    public int PrixUnitaire { get; set; }
      public int Quantite { get; set; }
 }
