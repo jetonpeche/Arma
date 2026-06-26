@@ -651,11 +651,22 @@ public static class VaisseauRoute
           if (_idVaisseau <= 0)
                return Results.NotFound("Le vaisseau n'existe pas");
 
-          using var db = new LiteDatabase(Constant.BDD_NOM);
+        using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var colVaisseau = db.GetCollection<Vaisseau>();
+        var nb = db.GetCollection<VaisseauPosseder>()
+          .Query()
+          .Where(x => x.Vaisseau.Id == _idVaisseau)
+          .Count();
 
-          var nomFichier = colVaisseau.Query()
+        var colVaisseau = db.GetCollection<Vaisseau>();
+
+          if (nb > 0)
+          {
+               colVaisseau.UpdateMany(_ => new Vaisseau { EstSupprimer = true }, x => x.Id == _idVaisseau);
+               return Results.NoContent();
+          }
+
+        var nomFichier = colVaisseau.Query()
                .Where(x => x.Id == _idVaisseau)
                .Select(x => x.NomFichier)
                .FirstOrDefault();
