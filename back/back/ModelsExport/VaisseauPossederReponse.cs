@@ -39,5 +39,6 @@ public sealed class StockageVaisseauPossederReponse
     public int Disponible => Taille - Occuper;
 }
 
-[JsonSerializable(typeof(VaisseauPossederReponse[]))]
+[JsonSerializable(typeof(List<VaisseauPossederReponse>))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 public partial class VaisseauPossederReponseContext: JsonSerializerContext;

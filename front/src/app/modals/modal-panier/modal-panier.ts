@@ -77,7 +77,7 @@ export class ModalPanier implements OnInit, AfterViewInit
         this.panierServ.Supprimer(_objet);
         this.dataSource.update(x => 
         {
-            x.data = x.data.filter(y => !(y.idType == _objet.idType && y.type == _objet.type && y.idStockage == _objet.idStockage && y.vaisseau?.id == y.vaisseau?.id));    
+            x.data = x.data.filter(y => y.id != _objet.id);    
             return x;
         });
     }
@@ -85,7 +85,7 @@ export class ModalPanier implements OnInit, AfterViewInit
     protected OuvrirModalQuantite(_objet: Panier): void
     {
         const DIALOG_REF = this.dialog.open(ModalInputQuantite, {
-            width: "60%", 
+            width: _objet.type == ETypeObjetProposer.Logistique ? "60%" : "0%", 
             maxWidth: "100vw",
             data: _objet
         });
@@ -142,7 +142,9 @@ export class ModalPanier implements OnInit, AfterViewInit
             .map(x => ({ 
                 type: x.type, 
                 idType: x.idType, 
-                quantite: x.quantite
+                quantite: x.quantite,
+                idStockage: x.idStockage,
+                idVaisseau: x.vaisseau?.id ?? null
             })
         );
 
@@ -175,9 +177,11 @@ export class ModalPanier implements OnInit, AfterViewInit
             .map(x => ({ 
                 type: x.type, 
                 idType: x.idType, 
-                quantite: x.quantite  
+                quantite: x.quantite,
+                idStockage: x.idStockage,
+                idVaisseau: x.vaisseau?.id
             })
-        );
+        );   
 
         this.propositionAchatServ.Ajouter(liste).subscribe({
             next: () =>

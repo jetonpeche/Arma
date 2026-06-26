@@ -23,7 +23,7 @@
             <ng-container matColumnDef="vaisseau">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Vaisseau </th>
                 <td mat-cell *matCellDef="let element"> 
-                    {{ element.vaisseau?.nom ?? "NA" }} 
+                    {{ element?.vaisseau?.nom ?? "NA" }} 
                 </td>
             </ng-container>
 

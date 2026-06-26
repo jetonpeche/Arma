@@ -5,7 +5,7 @@ using back.ModelsExport;
 using back.ModelsImport;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
-using InfoPropositionAchat = (int Prix, string Nom);
+using InfoPropositionAchat = (int Prix, string Nom, int TailleUnitaireInventaire, int IdTypeStockage);
 
 namespace back.Routes;
 
@@ -86,13 +86,13 @@ public static class PropositionAchatRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          IReadOnlyDictionary<int, InfoPropositionAchat> dictPrixMateriel = listeIdTypeMateriel.Length > 0 ? db.GetCollection<Materiel>()
+          Dictionary<int, InfoPropositionAchat> dictPrixMateriel = listeIdTypeMateriel.Length > 0 ? db.GetCollection<Materiel>()
                .Find(Query.In("_id", listeIdTypeMateriel))
-               .ToDictionary(x =>  x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom)) : [] ;
+               .ToDictionary(x =>  x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom, 0, 0)) : [] ;
 
-          IReadOnlyDictionary<int, InfoPropositionAchat> dictPrixLogistique = listeIdTypeLogistique.Length > 0 ? db.GetCollection<Logistique>()
+          Dictionary<int, InfoPropositionAchat> dictPrixLogistique = listeIdTypeLogistique.Length > 0 ? db.GetCollection<Logistique>()
                .Find(Query.In("_id", listeIdTypeLogistique))
-               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom)) : [];
+               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom, x.TailleUnitaireInventaire, x.TypeStockage.Id)) : [];
 
           for (int i = 0; i < _requete.Count; i++)
           {
@@ -135,20 +135,17 @@ public static class PropositionAchatRoute
           var propositionAchat = new PropositionAchat
           {
                Personnage = new Personnage { Id = idPersonnage },
-               Liste = _requete.Select(x =>
+               Liste = _requete.ConvertAll(x => new ObjetProposer
                {
-                    return new ObjetProposer
-                    {
-                         IdType = x.IdType,
-                         Type = x.Type,
-                         Nom = x.Nom,
-                         Quantite = x.Quantite,
-                         PrixUnitaire = x.PrixUnitaire
-                    };
-               }).ToList()
+                    IdType = x.IdType,
+                    Type = x.Type,
+                    Nom = x.Nom,
+                    Quantite = x.Quantite,
+                    PrixUnitaire = x.PrixUnitaire
+              })
           };
 
-          int id = db.GetCollection<PropositionAchat>().Insert(propositionAchat);
+        int id = db.GetCollection<PropositionAchat>().Insert(propositionAchat);
 
           return Results.Created("", id);
      }
@@ -173,13 +170,13 @@ public static class PropositionAchatRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          IReadOnlyDictionary<int, InfoPropositionAchat> dictPrixMateriel = listeIdTypeMateriel.Length > 0 ? db.GetCollection<Materiel>()
+          Dictionary<int, InfoPropositionAchat> dictPrixMateriel = listeIdTypeMateriel.Length > 0 ? db.GetCollection<Materiel>()
                .Find(Query.In("_id", listeIdTypeMateriel))
-               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom)) : [];
+               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom, 0, 0)) : [];
 
-          IReadOnlyDictionary<int, InfoPropositionAchat> dictPrixLogistique = listeIdTypeLogistique.Length > 0 ? db.GetCollection<Logistique>()
+          Dictionary<int, InfoPropositionAchat> dictPrixLogistique = listeIdTypeLogistique.Length > 0 ? db.GetCollection<Logistique>()
                .Find(Query.In("_id", listeIdTypeLogistique))
-               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom)) : [];
+               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom, x.TailleUnitaireInventaire, x.TypeStockage.Id)) : [];
 
           var banque = db.GetCollection<Banque>().Query().First();
 
@@ -207,10 +204,49 @@ public static class PropositionAchatRoute
                          break;
 
                     case ETypeObjetProposer.Logistique:
+
                          if (dictPrixLogistique.TryGetValue(element.IdType, out var infoLogisitique))
                          {
                               element.PrixUnitaire = infoLogisitique.Prix;
                               element.Nom = infoLogisitique.Nom;
+                         
+                              // recuperer le stockage choisi
+                              var stockageVaisseau = db.GetCollection<VaisseauPosseder>()
+                                   .Query()
+                                   .Include(x => x.Vaisseau)
+                                   .Include(x => x.Vaisseau.ListeStockage)
+                                   .Where(x =>
+                                        x.Vaisseau.Id == element.IdVaisseau
+                                        && x.Vaisseau.ListeStockage.Select(y => y.Id).Any(y => y == element.IdStockage!.Value)
+                                   )
+                                   .FirstOrDefault()?
+                                   .Vaisseau.ListeStockage
+                                   .FirstOrDefault(x => x.Id == element.IdStockage!.Value && x.TypeStockage.Id == infoLogisitique.IdTypeStockage);
+
+                              if (stockageVaisseau is null)
+                                   return Results.NotFound("Le stockage ou le vaisseau n'existe pas");
+
+                              var stockageVaisseauPosseder = db.GetCollection<StockageVaisseauPosseder>()
+                                   .Query()
+                                   .ToList()
+                                   .Where(x => x.Stockage.Id == element.IdStockage!.Value)
+                                   .Select(x => new
+                                   {
+                                       x.Id,
+                                       IdLogistique = x.Logistique.Id,
+                                        x.Quantite
+                                   })
+                                   .ToList();
+
+                              var tailleMax = stockageVaisseau.Taille;
+                              var tailleTotalOccuper = stockageVaisseauPosseder.Sum(x => x.Quantite);
+                              var placeRestante = tailleMax - tailleTotalOccuper;
+
+                         if (stockageVaisseauPosseder.Count > 0)
+                              element.IdStockagePosseder = stockageVaisseauPosseder[0].Id;
+
+                        if (element.Quantite * infoLogisitique.TailleUnitaireInventaire > placeRestante)
+                              return Results.BadRequest($"{element.Nom}, place dispo: {placeRestante}, place demandée: {element.Quantite * infoLogisitique.TailleUnitaireInventaire}");
                          }
                          else
                               return Results.NotFound("L'objet n'existe pas");
@@ -254,6 +290,32 @@ public static class PropositionAchatRoute
                          element.Quantite,
                          element.IdType
                     );
+
+                    if (element.IdStockagePosseder is 0)
+                    {
+                         int id = db.GetCollection<StockageVaisseauPosseder>().Insert(new StockageVaisseauPosseder
+                         {
+                             Logistique = new Logistique { Id = element.IdType },
+                             Quantite = element.Quantite,
+                             VaisseauPosseder = new VaisseauPosseder { Id = element.IdVaisseau!.Value },
+                             Stockage = new StockageVaisseau { Id = element.IdStockage!.Value }
+                         }).AsInt32;
+
+                         var vaisseauPosseder = db.GetCollection<VaisseauPosseder>().Query()
+                              .Where(x => x.Id == element.IdVaisseau)
+                              .First();
+
+                         vaisseauPosseder.ListeStockage.Add(new StockageVaisseauPosseder { Id = id });
+                         db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
+                    }
+                    else
+                    {
+                         db.GetCollection<StockageVaisseauPosseder>().UpdateMany(x => new StockageVaisseauPosseder
+                         {
+                              Quantite = x.Quantite + element.Quantite
+                         },
+                         x => x.Id == element.IdStockagePosseder); 
+                    }
                }
 
                historiqueAchatCol.Insert(new Historique
@@ -358,8 +420,7 @@ public static class PropositionAchatRoute
                     return Results.BadRequest("Le type de ressource n'existe pas");
 
                var element = propositionAchat.Liste
-                    .Where(x => x.IdType == _requete.IdType!.Value && x.Type == _requete.Type.Value)
-                    .FirstOrDefault();
+                    .FirstOrDefault(x => x.IdType == _requete.IdType!.Value && x.Type == _requete.Type.Value);
 
                if (element is null)
                     return Results.NotFound("L'objet n'existe pas");

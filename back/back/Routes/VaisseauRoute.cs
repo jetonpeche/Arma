@@ -138,6 +138,7 @@ public static class VaisseauRoute
                .Include(v => v.Vaisseau)
                .Include(v => v.Vaisseau.ListeStockage)
                .Include(x => x.ListeStockage)
+               .Include(x => x.ListeStockage.Select(y => y.Stockage))
                .Query()
                .ToList()
                .ConvertAll(x => new VaisseauPossederReponse
@@ -194,7 +195,7 @@ public static class VaisseauRoute
                .Include(x => x.ListeStockage)
                .Query()
                .ToList()
-               .ConvertAll(x => new StockageCompatibleVaisseauPossederReponse
+               .Select(x => new StockageCompatibleVaisseauPossederReponse
                {
                     Id = x.Id,
                     NomVaisseauAlias = x.NomVaisseau,
@@ -207,10 +208,10 @@ public static class VaisseauRoute
                          Nom = y.Nom,
                          Taille = y.Taille,
                          Occuper = x.ListeStockage
-                              .Where(z => z.Stockage != null && z.Stockage.Id == y.Id)
+                              .Where(z => x.ListeStockage != null && z.Stockage.Id == y.Id)
                               .Sum(z => z.Quantite)
                     })
-                    .Where(y => y.Occuper < y.Taille && y.IdTypeStockage == _idTypeStockage)]
+                    .Where(y => y.IdTypeStockage == _idTypeStockage)]
                });
 
         return Results.Extensions.Ok(liste, StockageCompatibleVaisseauPossederReponseContext.Default);
@@ -566,7 +567,7 @@ public static class VaisseauRoute
           var dictArmement = vaisseau.ListeArmement
               .ToDictionary(x => x.Id);
 
-          vaisseau.ListeArmement = _requete.ListeArmement.Select(x =>
+          vaisseau.ListeArmement = [.. _requete.ListeArmement.Select(x =>
           {
                if(dictArmement.TryGetValue(x.Id, out var armementRef))
                {
@@ -594,7 +595,7 @@ public static class VaisseauRoute
                     MunitionInfini = x.MunitionInfini,
                     Munition = x.MunitionInfini ? 0 : x.Munition
                };
-          }).ToList();
+          })];
 
           // supprime les stockages existants qui ne sont pas dans la requete
           if (_requete.ListeStockage.Count(x => x.Id.HasValue) < vaisseau.ListeStockage.Count)

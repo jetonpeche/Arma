@@ -1,17 +1,22 @@
-﻿using back.Enums;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using back.Enums;
 
 namespace back.ModelsImport;
 
 public sealed class ObjetProposerRequete
 {
-     public int IdType { get; set; }
-     public ETypeObjetProposer Type { get; set; }
+    public int IdType { get; set; }
+    public int? IdVaisseau { get; set; }
+    public int? IdStockage { get; set; }
+    public ETypeObjetProposer Type { get; set; }
      public int Quantite { get; set; }
 
      [JsonIgnore]
      public int PrixUnitaire { get; set; }
 
      [JsonIgnore]
-     public string Nom { get; set; } = null!;
+    public string Nom { get; set; } = null!;
+
+    [JsonIgnore]
+    public int IdStockagePosseder { get; set; }
 }

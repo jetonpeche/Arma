@@ -54,7 +54,7 @@
         }
     </form>
 
-    @if(!modalModeModifier())
+    @if(!modalModeModifier()  && matDialogData.kind == "Logistique")
     {
         <mat-list role="list">
             @for (element of listeValider(); track $index) 

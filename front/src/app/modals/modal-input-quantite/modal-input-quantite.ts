@@ -62,18 +62,16 @@ export class ModalInputQuantite implements OnInit
     private snackBarServ = inject(SnackBarService);
 
     ngOnInit(): void 
-    {
-        console.log(this.matDialogData);
-        
+    {   
         this.form = new FormGroup({
             quantite: new FormControl<number>(this.matDialogData?.quantite ?? 1, [Validators.min(1)]),
         });
 
-        if(this.matDialogData?.kind == "Logistique" || this.matDialogData?.quantite)
-        {
-            if(this.matDialogData?.quantite)
-                this.modalModeModifier.set(true);
+        if(this.matDialogData?.quantite)
+            this.modalModeModifier.set(true);
 
+        if(this.matDialogData?.kind == "Logistique" || this.matDialogData?.type == ETypeObjetProposer.Logistique)
+        {
             this.form.addControl("idVaisseau", new FormControl<number>(null, [Validators.required]));
             this.form.addControl("idStockage", new FormControl<number>(null, [Validators.required]));
 
@@ -94,9 +92,23 @@ export class ModalInputQuantite implements OnInit
     }
 
     protected AjouterRepartition(): void
-    {
+    {   
         if(this.form.invalid)
             return;
+
+        if(this.matDialogData.kind == "Materiel" || this.matDialogData?.type == ETypeObjetProposer.Materiel)
+        {
+            this.listeValider.set([{
+                id: this.modalModeModifier() ? this.matDialogData.id : Math.floor(Math.random() * 10_000) + 1,
+                quantite: this.form.value.quantite,
+                idStockage: null,
+                volume : 0,
+                vaisseau: null
+            }]);
+
+            this.idAmodifier.set(0);
+            return;
+        }
         
         let ajouter = false;
 
@@ -236,13 +248,13 @@ export class ModalInputQuantite implements OnInit
 
     protected Valider(): void
     {
-        if (this.modalModeModifier())
+        if (this.modalModeModifier() || this.matDialogData?.kind == "Materiel")
             this.AjouterRepartition();
 
         if(this.listeValider().length == 0)
             return;
-
-        const TYPE = this.matDialogData?.kind == "Logistique" || this.matDialogData?.idType == 1 ? ETypeObjetProposer.Logistique : ETypeObjetProposer.Materiel;
+        
+        const TYPE = this.matDialogData?.kind == "Logistique" || this.matDialogData?.type == 1 ? ETypeObjetProposer.Logistique : ETypeObjetProposer.Materiel;
 
         let listePanier: Panier[] = this.listeValider().map(x =>
         {
@@ -263,7 +275,7 @@ export class ModalInputQuantite implements OnInit
                         id: x.vaisseau.id,  
                         nom: VAISSEAU.nomVaisseauAlias ?? VAISSEAU.nomVaisseau
                     } : null,
-                    type: this.matDialogData.type,
+                    type: TYPE,
                     idType: this.matDialogData.idType
                 }
             }
@@ -274,7 +286,7 @@ export class ModalInputQuantite implements OnInit
                     nom: this.matDialogData.nom,
                     quantite: x.quantite,
                     volume: x.volume,
-                    idTypeStockage: this.matDialogData.typeStockage.id,
+                    idTypeStockage: this.matDialogData?.typeStockage?.id ?? null,
                     prixUnitaire: this.matDialogData.prix,
                     idStockage: x.idStockage,
                     tailleUnitaireInventaire: this.matDialogData.tailleUnitaireInventaire,
@@ -287,6 +299,9 @@ export class ModalInputQuantite implements OnInit
                 }
             }
         });
+
+        console.log(listePanier);
+        
 
         if(this.matDialogData?.quantite)
             this.panierServ.Modifier(listePanier[0]);

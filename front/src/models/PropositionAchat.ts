@@ -19,7 +19,9 @@ export type ObjetProposerRequete =
 {
     type: ETypeObjetProposer,
     idType: number,
-    quantite: number
+    quantite: number,
+    idVaisseau: number | null,
+    idStockage: number | null
 }
 
 export type ObjetProposer =
