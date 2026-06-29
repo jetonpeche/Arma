@@ -94,11 +94,11 @@ public sealed class PropositionAchatService
                               var tailleTotalOccuper = stockageVaisseauPosseder.Sum(x => x.Quantite);
                               var placeRestante = tailleMax - tailleTotalOccuper;
 
-                         if (stockageVaisseauPosseder.Count > 0)
-                              element.IdStockagePosseder = stockageVaisseauPosseder[0].Id;
+                              if (stockageVaisseauPosseder.Count > 0)
+                                   element.IdStockagePosseder = stockageVaisseauPosseder[0].Id;
 
-                        if (element.Quantite * infoLogisitique.TailleUnitaireInventaire > placeRestante)
-                              return $"{element.Nom}, place dispo: {placeRestante}, place demandée: {element.Quantite * infoLogisitique.TailleUnitaireInventaire}";
+                              if (element.Quantite * infoLogisitique.TailleUnitaireInventaire > placeRestante)
+                                   return $"{element.Nom}, place dispo: {placeRestante}, place demandée: {element.Quantite * infoLogisitique.TailleUnitaireInventaire}";
                          }
                          else
                               return "L'objet n'existe pas";
