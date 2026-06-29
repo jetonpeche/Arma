@@ -195,7 +195,7 @@ public static class VaisseauRoute
                .Include(x => x.ListeStockage)
                .Query()
                .ToList()
-               .Select(x => new StockageCompatibleVaisseauPossederReponse
+               .ConvertAll(x => new StockageCompatibleVaisseauPossederReponse
                {
                     Id = x.Id,
                     NomVaisseauAlias = x.NomVaisseau,
@@ -216,7 +216,6 @@ public static class VaisseauRoute
 
         return Results.Extensions.Ok(liste, StockageCompatibleVaisseauPossederReponseContext.Default);
     }
-
 
     static async Task<IResult> AjouterAsync(
           [FromBody] VaisseauRequete _requete

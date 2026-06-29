@@ -3,6 +3,7 @@ using back.Extensions;
 using back.Models;
 using back.ModelsExport;
 using back.ModelsImport;
+using back.Services;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
 using InfoPropositionAchat = (int Prix, string Nom, int TailleUnitaireInventaire, int IdTypeStockage);
@@ -202,184 +203,23 @@ public static class PropositionAchatRoute
 
      async static Task<IResult> AcheterAsync(
           HttpContext _httpContext,
+          [FromServices] PropositionAchatService _propositionServ,
           [FromBody] List<ObjetProposerRequete> _requete
      )
      {
           if (_requete.Count == 0)
                return Results.BadRequest("Liste vide");
 
-          var listeIdTypeMateriel = _requete
-               .Where(x => x.Type == ETypeObjetProposer.Materiel)
-               .Select(x => new BsonValue(x.IdType))
-               .ToArray();
+        int idPersonnage = _httpContext.RecupererIdPersonnage();
 
-          var listeIdTypeLogistique = _requete
-               .Where(x => x.Type == ETypeObjetProposer.Logistique)
-               .Select(x => new BsonValue(x.IdType))
-               .ToArray();
+        var message = await _propositionServ.AcheterAsync(idPersonnage, _requete);
 
-          using var db = new LiteDatabase(Constant.BDD_NOM);
-
-          Dictionary<int, InfoPropositionAchat> dictPrixMateriel = listeIdTypeMateriel.Length > 0 ? db.GetCollection<Materiel>()
-               .Find(Query.In("_id", listeIdTypeMateriel))
-               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom, 0, 0)) : [];
-
-          Dictionary<int, InfoPropositionAchat> dictPrixLogistique = listeIdTypeLogistique.Length > 0 ? db.GetCollection<Logistique>()
-               .Find(Query.In("_id", listeIdTypeLogistique))
-               .ToDictionary(x => x.Id, x => new InfoPropositionAchat(x.Prix, x.Nom, x.TailleUnitaireInventaire, x.TypeStockage.Id)) : [];
-
-          var banque = db.GetCollection<Banque>().Query().First();
-
-          for (int i = 0; i < _requete.Count; i++)
-          {
-               var element = _requete[i];
-
-               if (element.Quantite <= 0)
-                    return Results.BadRequest($"La quantité de l'objet n°{i + 1} doit être supérieur à zéro");
-
-               if (element.IdType <= 0)
-                    return Results.BadRequest("L'objet n'existe pas");
-
-               switch (element.Type)
-               {
-                    case ETypeObjetProposer.Materiel:
-
-                         if (dictPrixMateriel.TryGetValue(element.IdType, out var infoMateriel))
-                         {
-                              element.PrixUnitaire = infoMateriel.Prix;
-                              element.Nom = infoMateriel.Nom;
-                         }
-                         else
-                              return Results.NotFound("L'objet n'existe pas");
-                         break;
-
-                    case ETypeObjetProposer.Logistique:
-
-                         if (dictPrixLogistique.TryGetValue(element.IdType, out var infoLogisitique))
-                         {
-                              element.PrixUnitaire = infoLogisitique.Prix;
-                              element.Nom = infoLogisitique.Nom;
-                         
-                              // recuperer le stockage choisi
-                              var stockageVaisseau = db.GetCollection<VaisseauPosseder>()
-                                   .Query()
-                                   .Include(x => x.Vaisseau)
-                                   .Include(x => x.Vaisseau.ListeStockage)
-                                   .Where(x =>
-                                        x.Vaisseau.Id == element.IdVaisseau
-                                        && x.Vaisseau.ListeStockage.Select(y => y.Id).Any(y => y == element.IdStockage!.Value)
-                                   )
-                                   .FirstOrDefault()?
-                                   .Vaisseau.ListeStockage
-                                   .FirstOrDefault(x => x.Id == element.IdStockage!.Value && x.TypeStockage.Id == infoLogisitique.IdTypeStockage);
-
-                              if (stockageVaisseau is null)
-                                   return Results.NotFound("Le stockage ou le vaisseau n'existe pas");
-
-                              var stockageVaisseauPosseder = db.GetCollection<StockageVaisseauPosseder>()
-                                   .Query()
-                                   .ToList()
-                                   .Where(x => x.Stockage.Id == element.IdStockage!.Value)
-                                   .Select(x => new
-                                   {
-                                       x.Id,
-                                       IdLogistique = x.Logistique.Id,
-                                        x.Quantite
-                                   })
-                                   .ToList();
-
-                              var tailleMax = stockageVaisseau.Taille;
-                              var tailleTotalOccuper = stockageVaisseauPosseder.Sum(x => x.Quantite);
-                              var placeRestante = tailleMax - tailleTotalOccuper;
-
-                         if (stockageVaisseauPosseder.Count > 0)
-                              element.IdStockagePosseder = stockageVaisseauPosseder[0].Id;
-
-                        if (element.Quantite * infoLogisitique.TailleUnitaireInventaire > placeRestante)
-                              return Results.BadRequest($"{element.Nom}, place dispo: {placeRestante}, place demandée: {element.Quantite * infoLogisitique.TailleUnitaireInventaire}");
-                         }
-                         else
-                              return Results.NotFound("L'objet n'existe pas");
-                         break;
-
-                    default:
-                         return Results.NotFound("L'objet n'existe pas");
-               }
-          }
-
-          int prixTotal = _requete.Sum(x => x.PrixUnitaire * x.Quantite);
-
-          if (banque.Argent < prixTotal)
-               return Results.BadRequest("Vousn'avez pas assez d'argent en banque");
-
-          banque.Argent -= prixTotal;
-          db.GetCollection<Banque>().Update(banque);
-
-          var historiqueAchatCol = db.GetCollection<Historique>();
-
-          var nomPersonnage = db.GetCollection<Personnage>()
-               .Query()
-               .Where(x => x.Id == _httpContext.RecupererIdPersonnage())
-               .Select(x => x.Nom)
-               .First();
-
-          foreach (var element in _requete)
-          {
-               if (element.Type == ETypeObjetProposer.Materiel)
-               {
-                    db.Execute(
-                         $"UPDATE {nameof(Materiel)} SET Stock = Stock + @0 WHERE _id = @1",
-                         element.Quantite,
-                         element.IdType
-                    );
-               }
-               else
-               {
-                    db.Execute(
-                         $"UPDATE {nameof(Logistique)} SET Stock = Stock + @0 WHERE _id = @1",
-                         element.Quantite,
-                         element.IdType
-                    );
-
-                    if (element.IdStockagePosseder is 0)
-                    {
-                         int id = db.GetCollection<StockageVaisseauPosseder>().Insert(new StockageVaisseauPosseder
-                         {
-                             Logistique = new Logistique { Id = element.IdType },
-                             Quantite = element.Quantite,
-                             VaisseauPosseder = new VaisseauPosseder { Id = element.IdVaisseau!.Value },
-                             Stockage = new StockageVaisseau { Id = element.IdStockage!.Value }
-                         }).AsInt32;
-
-                         var vaisseauPosseder = db.GetCollection<VaisseauPosseder>().Query()
-                              .Where(x => x.Id == element.IdVaisseau)
-                              .First();
-
-                         vaisseauPosseder.ListeStockage.Add(new StockageVaisseauPosseder { Id = id });
-                         db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
-                    }
-                    else
-                    {
-                         db.GetCollection<StockageVaisseauPosseder>().UpdateMany(x => new StockageVaisseauPosseder
-                         {
-                              Quantite = x.Quantite + element.Quantite
-                         },
-                         x => x.Id == element.IdStockagePosseder); 
-                    }
-               }
-
-               historiqueAchatCol.Insert(new Historique
-               {
-                    Information = $"{nomPersonnage} a acheté {element.Nom} pour un prix de {element.PrixUnitaire * element.Quantite}",
-                    Date = DateTime.UtcNow
-               });
-          }
-
-          return Results.NoContent();
-     }
+        return message == "OK" ? Results.NoContent() : Results.BadRequest(message);
+    }
 
      async static Task<IResult> DecisionAchat(
           HttpContext _httpContext,
+          [FromServices] PropositionAchatService _propositionServ,
           [FromBody] DecisionAchatRequete _requete
      )
      {
@@ -422,92 +262,67 @@ public static class PropositionAchatRoute
                }
                else
                {
-                    int prixTotal = propositionAchat.Liste.Sum(x => x.PrixUnitaire * x.Quantite);
-
-                    if (prixTotal > banque.Argent)
-                         return Results.BadRequest("Vous n'avez pas assez d'argent en banque");
-
-                    banque.Argent -= prixTotal;
-                    var ok = db.GetCollection<Banque>().Update(banque);
-
-                    if (!ok)
-                         return Results.BadRequest("Erreur mise à jour de la banque");
-
-                    foreach (var element in propositionAchat.Liste)
+                    var liste = propositionAchat.Liste.ConvertAll(x => new ObjetProposerRequete           
                     {
-                         if (element.Type == ETypeObjetProposer.Materiel)
-                         {
-                              db.Execute(
-                                   $"UPDATE {nameof(Materiel)} SET Stock = Stock + @0 WHERE _id = @1",
-                                   element.Quantite,
-                                   element.IdType
-                              );
-                         }
-                         else
-                         {
-                              db.Execute(
-                                   $"UPDATE {nameof(Logistique)} SET Stock = Stock + @0 WHERE _id = @1",
-                                   element.Quantite,
-                                   element.IdType
-                              );
-                         }
+                         IdStockage = x.IdStockage,
+                         IdType = x.IdType,
+                         Type = x.Type,
+                         Quantite = x.Quantite,
+                         PrixUnitaire = x.PrixUnitaire,
+                         NomVaisseau = x.NomVaisseau,
+                         IdVaisseau = x.IdVaisseau,
+                         Nom = x.Nom
+                    });
 
-                         historiqueAchatCol.Insert(new Historique
-                         {
-                              Information = $"{nomPersonnage} a validé l'achat de {element.Nom} pour un prix de {prixTotal}",
-                              Date = DateTime.UtcNow
-                         });
-                    }
+                    var retour = await _propositionServ.AcheterAsync(_httpContext.RecupererIdPersonnage(), liste);
+
+                    var nomPersonnageAuteurProposition = db.GetCollection<PropositionAchat>()
+                         .Include(x => x.Personnage)
+                         .FindById(_requete.IdPropositionAchat)
+                         .Personnage.Nom;
+
+                    db.GetCollection<PropositionAchat>().Delete(propositionAchat.Id);
+
+                    historiqueAchatCol.Insert(new Historique
+                    {
+                         Information = $"{nomPersonnage} a validé la proposition de {nomPersonnageAuteurProposition}",
+                         Date = DateTime.UtcNow
+                    });
                }
-
-               db.GetCollection<PropositionAchat>().Delete(propositionAchat.Id);
           }
 
-          // valide un objet de la proposition
-          else
+        // valide un objet de la proposition
+        else
           {
                if (!_requete.Type.HasValue || !Enum.IsDefined(_requete.Type.Value))
                     return Results.BadRequest("Le type de ressource n'existe pas");
 
+               
                var element = propositionAchat.Liste
                     .FirstOrDefault(x => x.IdType == _requete.IdType!.Value && x.Type == _requete.Type.Value);
 
                if (element is null)
                     return Results.NotFound("L'objet n'existe pas");
 
-               int prixTotal = element.PrixUnitaire * element.Quantite;
+               var objet = new ObjetProposerRequete           
+               {
+                    IdStockage = element.IdStockage,
+                    IdType = element.IdType,
+                    Type = element.Type,
+                    Quantite = element.Quantite,
+                    PrixUnitaire = element.PrixUnitaire,
+                    NomVaisseau = element.NomVaisseau,
+                    IdVaisseau = element.IdVaisseau,
+                    Nom = element.Nom
+               };
 
                if(_requete.AchatEstValider)
                {
-                    if (prixTotal > banque.Argent)
-                         return Results.BadRequest("Vous n'avez pas assez d'argent en banque");
-
-                    banque.Argent -= prixTotal;
-                    var ok = db.GetCollection<Banque>().Update(banque);
-
-                    if (!ok)
-                         return Results.BadRequest("Erreur mise à jour de la banque");
-
-                    if (element.Type == ETypeObjetProposer.Materiel)
-                    {
-                         db.Execute(
-                              $"UPDATE {nameof(Materiel)} SET Stock = Stock + @0 WHERE _id = @1",
-                              element.Quantite,
-                              element.IdType
-                         );
-                    }
-                    else
-                    {
-                         db.Execute(
-                              $"UPDATE {nameof(Logistique)} SET Stock = Stock + @0 WHERE _id = @1",
-                              element.Quantite,
-                              element.IdType
-                         );
-                    }
+                    var retour = await _propositionServ.AcheterAsync(_httpContext.RecupererIdPersonnage(), [objet]);
 
                     historiqueAchatCol.Insert(new Historique
                     {
-                         Information = $"{nomPersonnage} a validé l'achat de {element.Nom} pour un prix de {prixTotal}",
+                         Information = $"{nomPersonnage} a validé l'achat de {element.Nom} pour un prix de {objet.PrixUnitaire * objet.Quantite}",
                          Date = DateTime.UtcNow
                     });
                }
@@ -515,7 +330,7 @@ public static class PropositionAchatRoute
                {
                     historiqueAchatCol.Insert(new Historique
                     {
-                         Information = $"{nomPersonnage} a refusé l'achat de {element.Nom} pour un prix de {prixTotal}",
+                         Information = $"{nomPersonnage} a refusé l'achat de {element.Nom} pour un prix de {objet.PrixUnitaire * objet.Quantite}",
                          Date = DateTime.UtcNow
                     });
                }

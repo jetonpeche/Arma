@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Reflection;
+using System.Security.Cryptography;
+using back.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Services.Jwts;
 using Services.Mdp;
-using System.Reflection;
-using System.Security.Cryptography;
 
 namespace back.Extensions
 {
@@ -16,7 +17,8 @@ namespace back.Extensions
         {
             _service
                 .AddSingleton<IJwtService>(new JwtService(_rsa, ""))
-                .AddSingleton<IMdpService, MdpService>();
+                .AddSingleton<IMdpService, MdpService>()
+                .AddScoped<PropositionAchatService>();
 
             // donne acces a httpContext dans les validators
             _service.AddHttpContextAccessor();
