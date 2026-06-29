@@ -13,8 +13,9 @@ public sealed class PersonnageReponse
      public string? UrlPhotoIdentite { get; set; }
      public required int NbOperation { get; set; }
      public required int NbBootcamp { get; set; }
-     public required int NbPointBoutique { get; set; }
-     public required bool EstFormateur { get; set; }
+    public required int NbPointBoutique { get; set; }
+    public required int NbOperationGradeBloquer { get; set; }
+    public required bool EstFormateur { get; set; }
      public required bool EstFormateurSpecialite { get; set; }
      public required bool FormationFaite { get; set; }
      public required bool EstValider { get; set; }

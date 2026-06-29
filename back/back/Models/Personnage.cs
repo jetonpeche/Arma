@@ -14,9 +14,6 @@ public sealed class Personnage
      public PlaneteOrigine? PlaneteOrigine { get; set; }
 
      [BsonRef]
-     public Status Status { get; set; } = null!;
-
-     [BsonRef]
      public PersonnageSecondaire? PersonnageSecondaire { get; set; }
 
      [BsonRef]
@@ -43,9 +40,11 @@ public sealed class Personnage
      public int NbOperation { get; set; }
      public int NbBootcamp { get; set; }
      public int NbPointBoutique { get; set; }
-     public int NbVote { get; set; }
+    public int NbVote { get; set; }
 
-     public bool EstFormateur { get; set; }
+    public int NbOperationGradeBloquer { get; set; }
+
+    public bool EstFormateur { get; set; }
      public bool EstFormateurSpecialite { get; set; }
      public bool FormationFaite { get; set; }
      public bool Valider { get; set; }

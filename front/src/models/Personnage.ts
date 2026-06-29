@@ -18,6 +18,7 @@ export type Personnage =
     estFormateurSpecialite: boolean,
     formationFaite: boolean,
     grade: GradeLeger,
+    nbOperationGradeBloquer: number,
     nbPointBoutique: number,
     specialite: SpecialiteLeger | null,
     planeteOrigine: PlaneteOrigine | null,

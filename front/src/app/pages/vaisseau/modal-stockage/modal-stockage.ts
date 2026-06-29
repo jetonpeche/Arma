@@ -21,7 +21,7 @@ export class ModalStockage implements OnInit
 {
     protected dialogData: Vaisseau = inject(MAT_DIALOG_DATA);
 	protected dataSource = new MatTreeNestedDataSource<NoeudStockage>();
-	
+
 	protected hasChild = (_: number, node: NoeudStockage) => !!node.enfants && node.enfants.length > 0;
 	protected childrenAccessor = (node: NoeudStockage) => node.enfants ?? [];
 
@@ -42,7 +42,7 @@ export class ModalStockage implements OnInit
 		const donneesArbre: NoeudStockage[] = Object.entries(regroupement).map(([nomCategorie, listeVaisseaux]) => 
 		{
 			return {
-				nom: nomCategorie + " (" + listeVaisseaux.length + ")",
+				nom: nomCategorie +  + " (" + listeVaisseaux.length + ")",
 				enfants: listeVaisseaux
 			};
 		});

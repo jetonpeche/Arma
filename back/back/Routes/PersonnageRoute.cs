@@ -64,30 +64,31 @@ public static class PersonnageRoute
                     NbBootcamp = x.NbBootcamp,
                     NbOperation = x.NbOperation,
                     Nom = x.Nom,
+                    NbOperationGradeBloquer = x.NbOperationGradeBloquer,
                     NbPointBoutique = x.NbPointBoutique,
                     NomDiscord = x.NomDiscord,
                     EtatService = x.EtatService,
                     DateNaissance = x.DateNaissance,
+                   
                     DateCreation = x.DateCreation.ToString("yyyy-MM-dd"),
                     DateDerniereParticipation = x.DateDerniereParticipation.HasValue ? x.DateDerniereParticipation.Value.ToString("yyyy-MM-dd") : null,
                     Grade = x.Grade != null ? new GradeLegerReponse
                     {
-                    Id = x.Grade.Id,
-                    Nom = x.Grade.Nom,
-                    NomRaccourci = x.Grade.NomRaccourci
+                         Id = x.Grade.Id,
+                         Nom = x.Grade.Nom,
+                         NomRaccourci = x.Grade.NomRaccourci
                     } : null,
                     PlaneteOrigine = x.PlaneteOrigine != null ? new PlaneteOrigineLegerReponse
                     { 
-                    Id = x.PlaneteOrigine.Id,
-                    Nom = x.PlaneteOrigine.Nom
+                         Id = x.PlaneteOrigine.Id,
+                         Nom = x.PlaneteOrigine.Nom
                     } : null,
                     Specialite = x.Specialite != null ? new SpecialiteLegerReponse
                     {
-                    Id = x.Specialite.Id,
-                    Nom = x.Specialite.Nom
+                         Id = x.Specialite.Id,
+                         Nom = x.Specialite.Nom
                     } : null,
                     UrlPhotoIdentite = x.NomFichierPhotoIdentite != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PERSONNAGE + x.NomFichierPhotoIdentite : "",
-
                })
                .ToArray();
 
@@ -142,7 +143,7 @@ public static class PersonnageRoute
           if(_requete.FormationFaite)
           {
                personnage.FormationFaite = true;
-               personnage.NbBootcamp += 1;
+               personnage.NbBootcamp++;
                personnage.DateDerniereParticipation = DateTime.Now;
           }
 
@@ -238,8 +239,6 @@ public static class PersonnageRoute
                .OrderBy(x => x.Ordre)
                .ToList();
 
-          var gradeMaxPoint = listeGrade.MaxBy(x => x.NbOperationRequis);
-
           var listePersonnage = personnageCol.Query()
                .Include(x => x.Grade)
                .Where(predicatBuilder)
@@ -254,12 +253,20 @@ public static class PersonnageRoute
                {
                     element.NbPointBoutique += element.Grade.NbPointBoutiqueGagnerParOperation;
 
+                    if (element.NbOperationGradeBloquer > 0)
+                    {
+                         element.NbOperationGradeBloquer--;
+                         continue; 
+                    }
+
                     var prochainGrade = listeGrade.FirstOrDefault(x => x.NbOperationRequis >= element.NbOperation && x.Conserne == element.Grade.Conserne);
 
                     if(prochainGrade is not null && prochainGrade.Id != element.Grade.Id)
                          element.Grade = prochainGrade;
                }
-          }
+               else
+                    element.NbPointBoutique++;
+        }
 
           personnageCol.Update(listePersonnage);
 

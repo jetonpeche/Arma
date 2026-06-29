@@ -84,6 +84,29 @@ export class PersonnagePage implements OnInit
         });
     }
 
+    protected OuvrirModalDeclarerMort(_personnage: Personnage): void
+    {
+        const DIALOG_REF = this.dialog.open(AjouterModifierPersonnage, { 
+            width: "50%", 
+            maxWidth: "100vw",
+            data: {
+                estValider: true,
+                estFormateur: _personnage.estFormateur,
+                nomDiscord: _personnage.nomDiscord,
+                nbOperation: _personnage.nbOperation,
+                nbPointBoutique: _personnage.nbPointBoutique
+            } as Personnage
+        });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (estTrue: boolean) =>
+            {
+                if(estTrue)
+                    this.Lister();
+            }
+        });
+    }
+
     protected OuvrirModalPersonnageParticiper(): void
     {
         const DIALOG_REF = this.dialog.open(ModalPersonnageParticiperOperation, {
