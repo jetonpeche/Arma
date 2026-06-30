@@ -281,7 +281,8 @@ public static class PersonnageRoute
         personnage.EstFormateurSpecialite = _requete.EstFormateurSpecialite;
         personnage.GroupeSanguin = _requete.GroupeSanguin.XSS();
         personnage.EtatService = string.IsNullOrWhiteSpace(personnage.EtatService) ? null : personnage.EtatService.XSS();
-
+        personnage.IdGradeAvantMort = personnage.Grade?.Id;
+        
         var planeteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
 
         if (planeteOrigine is null)
@@ -302,7 +303,7 @@ public static class PersonnageRoute
              return Results.BadRequest("Aucun grade trouvé");
         }
 
-            personnage.Grade = new() { Id = gradePrecedent[^1].Id };
+          personnage.Grade = new() { Id = gradePrecedent[^1].Id };
           personnage.NbOperationGradeBloquer = personnage.Specialite?.Id != _requete.IdSpecialite ? 5 : 1;
 
           db.GetCollection<Personnage>().Update(personnage);
@@ -342,15 +343,19 @@ public static class PersonnageRoute
                element.DateDerniereParticipation = DateTime.UtcNow;
                element.NbOperation++;
 
+               if (element.NbOperationGradeBloquer > 0)
+               {
+                    element.NbOperationGradeBloquer--;
+               
+                    if (element.NbOperationGradeBloquer is 0 && element.IdGradeAvantMort.HasValue)
+                         element.Grade = new() { Id = element.IdGradeAvantMort.Value };
+
+                    continue;
+               }
+
                if(element.Grade is not null)
                {
                     element.NbPointBoutique += element.Grade.NbPointBoutiqueGagnerParOperation;
-
-                    if (element.NbOperationGradeBloquer > 0)
-                    {
-                         element.NbOperationGradeBloquer--;
-                         continue; 
-                    }
 
                     var prochainGrade = listeGrade.FirstOrDefault(x => x.NbOperationRequis >= element.NbOperation && x.Conserne == element.Grade.Conserne);
 

@@ -28,9 +28,10 @@ public sealed class Personnage
      public List<MedaillePersonnage> ListeMedaille { get; set; } = [];
 
      public string? Login { get; set; }
-     public string? Mdp { get; set; }
+    public string? Mdp { get; set; }
+    public int? IdGradeAvantMort { get; set; }
 
-     public string NomDiscord { get; set; } = null!;
+    public string NomDiscord { get; set; } = null!;
      public string Nom { get; set; } = null!;
      public string Matricule { get; set; } = null!;
      public string GroupeSanguin { get; set; } = null!;

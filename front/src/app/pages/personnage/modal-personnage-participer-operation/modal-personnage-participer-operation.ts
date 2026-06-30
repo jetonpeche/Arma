@@ -7,17 +7,18 @@ import { Grade } from '@models/Grade';
 import { GradeService } from '@services/GradeService';
 import { SnackBarService } from '@services/SnackBarService';
 import { PersonnageService } from '@services/PersonnageService';
+import { MatIcon, MatIconModule } from "@angular/material/icon";
 
 @Component({
   selector: 'app-modal-personnage-participer-operation',
-  imports: [MatDialogModule, ButtonLoader, MatListModule],
+  imports: [MatIconModule, MatDialogModule, ButtonLoader, MatListModule, MatIcon],
   templateUrl: './modal-personnage-participer-operation.html',
   styleUrl: './modal-personnage-participer-operation.scss',
 })
 export class ModalPersonnageParticiperOperation implements OnInit
 {
     protected listeGrade = signal<Grade[]>([]);
-    protected liste = signal<{ id: number, nom: string, nomGrade: string, nbPoint: number }[]>([]);
+    protected liste = signal<{ id: number, nom: string, nomGrade: string, nbPoint: number, estBloquer: boolean }[]>([]);
     protected btnClick = signal(false);
 
     private listePersonnage = inject<Personnage[]>(MAT_DIALOG_DATA);
@@ -64,6 +65,7 @@ export class ModalPersonnageParticiperOperation implements OnInit
                 this.liste.set(this.listePersonnage.map(x => ({
                         id: x.id,
                         nom: x.nom,
+                        estBloquer: x.nbOperationGradeBloquer > 0,
                         nomGrade: x.grade?.nom ?? "XXX",
                         nbPoint: GRADE_MAP.get(x.grade?.id) ?? 1
                     })

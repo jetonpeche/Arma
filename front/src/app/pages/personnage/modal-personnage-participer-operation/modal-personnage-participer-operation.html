@@ -9,7 +9,14 @@
         @for (element of liste(); track element.id)
         {
             <mat-list-option [value]="element.id">
-                    {{ element.nomGrade }} {{ element.nom }} ({{ element.nbPoint }} Pts)
+                <div class="test">
+                    @if(element.estBloquer)
+                    {
+                        <mat-icon>lock</mat-icon>
+                    }
+
+                    <span> {{ element.nomGrade }} {{ element.nom }} ({{ element.nbPoint }} Pts)</span>
+                </div>
             </mat-list-option>
         }
     </mat-selection-list>
