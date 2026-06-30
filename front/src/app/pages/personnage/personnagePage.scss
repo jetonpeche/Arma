@@ -8,6 +8,58 @@
   justify-content: center;
 }
 
+.divLogoDroite 
+{
+  width: 180px;
+  display: inline-block;
+
+  img 
+  {
+    width: 100%;
+    display: block;
+    transition: opacity 0.3s ease;
+  }
+}
+
+/* --- MODE SOMBRE --- */
+:host-context(html:not(.light-mode)) 
+{
+  .divLogoDroite 
+  {
+    background-color: var(--mat-sys-on-surface); 
+    
+    -webkit-mask-image: url('/logoDroite.png');
+    mask-image: url('/logoDroite.png');
+    -webkit-mask-size: 100% auto;
+    mask-size: 100% auto;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: top left;
+    mask-position: top left;
+
+    img 
+    {
+      opacity: 0; 
+    }
+  }
+}
+
+/* --- MODE CLAIR --- */
+:host-context(html.light-mode) 
+{
+  .divLogoDroite 
+  {
+    background-color: transparent;
+    -webkit-mask-image: none;
+    mask-image: none;
+
+    img 
+    {
+      opacity: 1; 
+    }
+  }
+}
+
 .info-container 
 {
   display: grid;
