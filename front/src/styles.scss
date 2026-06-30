@@ -61,12 +61,47 @@ html {
 
 body {
   color-scheme: dark;
-
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
   margin: 0;
+
+  /* Préparation pour le filigrane */
+  position: relative;
+  z-index: 0;
+
+  /* --- LE FILIGRANE DYNAMIQUE UNSC --- */
+  &::before {
+    content: "";
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+
+    -webkit-mask-image: url('/unsc-logo.png'); 
+    mask-image: url('/unsc-logo.png');
+    
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    
+    -webkit-mask-position: center center;
+    mask-position: center center;
+    
+    -webkit-mask-size: 50svh;
+    mask-size: 50svh;
+    background-color: var(--mat-sys-on-surface); 
+    
+    opacity: 0.04; 
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+  }
+}
+
+html.light-mode body::before {
+  background-color: var(--mat-sys-primary);
+  opacity: 0.08; 
 }
 
 html, body { height: 100%; }
@@ -100,4 +135,21 @@ mat-dialog-content {
 {
     background-color: var(--mat-sys-surface-variant);
     color: var(--mat-sys-on-surface);
+}
+
+.page-header
+{
+  padding: 0 16px;
+  margin-bottom: 20px;
+  text-align: center;
+
+  h1 {
+    font-size: clamp(1.5rem, 5vw, 2.3rem); 
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    margin-top: 0;
+    color: var(--mat-sys-primary);
+  }
 }

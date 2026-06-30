@@ -17,12 +17,22 @@ public static class PersonnageRoute
                .WithDescription("Lister les personnages")
                .Produces<PersonnageReponse[]>();
 
-          builder.MapPost("ajouter", AjouterAsync)
+          builder.MapGet("lister-mort", (Delegate)ListerMortAsync)
+               .WithDescription("Lister les personnages morts")
+               .Produces<PersonnageMortReponse[]>();
+
+        builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter un nouveau personnage")
                .ProducesBadRequest()
                .ProducesCreated<int>();
 
-          builder.MapPut("modifier/{idPersonnage:int}", ModifierAsync)
+        builder.MapPut("declarer-mort/{idPersonnage:int}", MortAsync)
+               .WithDescription("Déclarer mort un personnage")
+               .ProducesNotFound()
+               .ProducesBadRequest()
+               .ProducesNoContent();
+
+        builder.MapPut("modifier/{idPersonnage:int}", ModifierAsync)
                .WithDescription("Modifier un personnage")
                .ProducesNotFound()
                .ProducesBadRequest()
@@ -95,6 +105,25 @@ public static class PersonnageRoute
         return Results.Extensions.Ok(liste, PersonnageReponseContext.Default);
     }
 
+    static async Task<IResult> ListerMortAsync()
+    {
+        using var db = new LiteDatabase(Constant.BDD_NOM);
+
+        var liste = db.GetCollection<PersonnageMort>().Query()
+          .Select(x => new PersonnageMortReponse
+          {
+              DateMort = x.DateMort,
+              DateNaissance = x.DateNaissance,
+              ElogeFunebre = x.ElogeFunebre,
+              NbOperation = x.NbOperation,
+              Nom = x.Nom,
+              NomGrade = x.NomGrade,
+              NomSpecialite = x.NomSpecialite
+          }).ToArray();
+
+        return Results.Extensions.Ok(liste, PersonnageMortReponseContext.Default);
+    }
+
     static async Task<IResult> AjouterAsync(
          [FromServices] IMemoryCache _cache,
          [FromServices] IMdpService _mdpServ,
@@ -160,10 +189,10 @@ public static class PersonnageRoute
           return Results.Created("", id);
     }
 
-    static async Task<IResult> ModifierAsync(
-        [FromServices] IMemoryCache _cache,
-        [FromRoute(Name = "idPersonnage")] int _idPersonnage,
-        [FromBody] PersonnageModifierRequete _requete
+     static async Task<IResult> ModifierAsync(
+          [FromServices] IMemoryCache _cache,
+          [FromRoute(Name = "idPersonnage")] int _idPersonnage,
+          [FromBody] PersonnageModifierRequete _requete
     )
     {
           if (_requete.NbPointBoutique < 0)
@@ -217,7 +246,71 @@ public static class PersonnageRoute
           return ok ? Results.NoContent() : Results.NotFound();
     }
 
-     static async Task<IResult> ModifierPointAsync(
+    static async Task<IResult> MortAsync(
+          [FromRoute(Name = "idPersonnage")] int _idPersonnage,
+          [FromBody] PersonnageMortRequete _requete
+    )
+    {
+          if (_idPersonnage <= 0)
+               return Results.NotFound("Le personnage n'existe pas");
+
+        using var db = new LiteDatabase(Constant.BDD_NOM);
+
+        var personnage = db.GetCollection<Personnage>()
+          .Include(x => x.Grade)
+          .Include(x => x.Specialite)
+          .FindById(_idPersonnage);
+
+        if (personnage is null)
+            return Results.NotFound("Le personnage n'existe pas");
+
+          var idPersonnageMort = db.GetCollection<PersonnageMort>().Insert(new PersonnageMort
+          {
+              Nom = personnage.Nom,
+              NomSpecialite = personnage.Specialite?.Nom,
+              NomGrade = personnage.Grade?.Nom,
+              DateNaissance = personnage.DateNaissance,
+              DateMort = _requete.DateMort.XSS(),
+              NbOperation = personnage.NbOperation,
+              ElogeFunebre = string.IsNullOrWhiteSpace(_requete.ElogeFunebre) ? null : _requete.ElogeFunebre.XSS()
+          }).AsInt32;
+
+        personnage.DateNaissance = _requete.DateNaissance.XSS();
+        personnage.Nom = _requete.Nom.XSS();
+        personnage.EstFormateur = _requete.EstFormateur;
+        personnage.EstFormateurSpecialite = _requete.EstFormateurSpecialite;
+        personnage.GroupeSanguin = _requete.GroupeSanguin.XSS();
+        personnage.EtatService = string.IsNullOrWhiteSpace(personnage.EtatService) ? null : personnage.EtatService.XSS();
+
+        var planeteOrigine = db.GetCollection<PlaneteOrigine>().FindById(_requete.IdPlaneteOrigine);
+
+        if (planeteOrigine is null)
+          return Results.NotFound("La planete n'existe pas");
+
+        personnage.PlaneteOrigine = new() { Id = _requete.IdPlaneteOrigine };
+
+        var ordre = personnage.Grade?.Ordre ?? 1;
+        var gradePrecedent = db.GetCollection<Grade>().Query()
+          .Where(x => x.Ordre <= ordre)
+          .OrderByDescending(x => x.Ordre)
+          .Limit(2)
+          .ToList();
+
+        if (gradePrecedent is null || gradePrecedent.Count is 0)
+        {
+             db.GetCollection<PersonnageMort>().Delete(idPersonnageMort);
+             return Results.BadRequest("Aucun grade trouvé");
+        }
+
+            personnage.Grade = new() { Id = gradePrecedent[^1].Id };
+          personnage.NbOperationGradeBloquer = personnage.Specialite?.Id != _requete.IdSpecialite ? 5 : 1;
+
+          db.GetCollection<Personnage>().Update(personnage);
+          
+        return Results.NoContent();
+    }
+
+    static async Task<IResult> ModifierPointAsync(
           [FromServices] IMemoryCache _cache,
           [FromBody] int[] _listeIdPersonnage
      )

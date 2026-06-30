@@ -20,6 +20,7 @@ import { SnackBarService } from '@services/SnackBarService';
 export class AjouterModifierPersonnage implements OnInit
 {
     protected form: FormGroup;
+    protected modeMort: boolean = false;
     protected labelBtn = signal<string>("Ajouter");
     protected btnClick = signal<boolean>(false);
 
@@ -37,10 +38,14 @@ export class AjouterModifierPersonnage implements OnInit
 
   ngOnInit(): void 
   {
-    this.ListerGrade();
+    this.modeMort = (this.matDialogData as any)?.modeMort ?? false;
+
+    if(!this.modeMort)
+      this.ListerGrade();
+
     this.ListerPlanete();
     this.ListerSpecialite();
-    
+
     this.form = new FormGroup({
         nom: new FormControl<string>(
             this.matDialogData?.nom ?? "", 
@@ -86,8 +91,40 @@ export class AjouterModifierPersonnage implements OnInit
       estFormateurSpecialite: new FormControl<boolean>(this.matDialogData?.estFormateurSpecialite ?? false)
     });
 
-    if(this.matDialogData)
+    if(this.modeMort)
+    {
+      this.form.removeControl("nbOperation");
+      this.form.removeControl("nbBootcamp");
+      this.form.removeControl("nomDiscord");
+      this.form.removeControl("idGrade");
+      this.form.removeControl("nbPointBoutique");
+      this.form.addControl("elogeFunebre", new FormControl(null, [Validators.maxLength(1500)]));
+      this.form.addControl("dateMort", new FormControl(null, [Validators.required]));
+    }
+
+    if(this.modeMort)
+      this.labelBtn.set("Déclarer mort");
+
+    else if(this.matDialogData)
       this.labelBtn.set("Modifier");
+  }
+
+  protected ValiderFormMort(): void
+  {
+    if(this.form.invalid)
+      return;
+
+      this.btnClick.set(true);
+
+      this.personnageServ.DeclarerMort(this.matDialogData.id, this.form.value).subscribe({
+        next: () =>
+        {
+          this.btnClick.set(false);
+          this.snackBarServ.Ok("Le personnage a été declaré mort, paix a son âme");
+          this.dialogRef.close(true);
+        },
+        error: () => this.btnClick.set(false)
+      });
   }
 
   protected ValiderForm(): void

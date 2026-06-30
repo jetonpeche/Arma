@@ -90,12 +90,18 @@ export class PersonnagePage implements OnInit
             width: "50%", 
             maxWidth: "100vw",
             data: {
+                modeMort: true,
                 estValider: true,
                 estFormateur: _personnage.estFormateur,
                 nomDiscord: _personnage.nomDiscord,
                 nbOperation: _personnage.nbOperation,
-                nbPointBoutique: _personnage.nbPointBoutique
-            } as Personnage
+                nbPointBoutique: _personnage.nbPointBoutique,
+                id: _personnage.id,
+                groupeSanguin: _personnage.groupeSanguin,
+                specialite: {
+                    id: _personnage.specialite.id
+                }
+            } //as Personnage
         });
 
         DIALOG_REF.afterClosed().subscribe({

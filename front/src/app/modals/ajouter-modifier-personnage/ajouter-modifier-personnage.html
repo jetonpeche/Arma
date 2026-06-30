@@ -2,13 +2,16 @@
 <mat-dialog-content>
     <form [formGroup]="form">
         <jp-grid-container [gap]="15">
-            <jp-grid-element [colXs]="12" [colMd]="6">
+            <jp-grid-element [colXs]="12" [colMd]="modeMort ? 12 : 6">
                 <jp-input-text label="Nom RP" formControlName="nom" />
             </jp-grid-element>
 
-            <jp-grid-element [colXs]="12" [colMd]="6">
-                <jp-input-text label="Nom discord" formControlName="nomDiscord" />
-            </jp-grid-element>
+            @if(!modeMort)
+            {
+                <jp-grid-element [colXs]="12" [colMd]="6">
+                    <jp-input-text label="Nom discord" formControlName="nomDiscord" />
+                </jp-grid-element>
+            }
 
             <jp-grid-element [colXs]="12" [colSm]="4">
                 <jp-input-text label="Matricule" formControlName="matricule" />
@@ -22,38 +25,44 @@
                 <jp-input-text label="Groupe sanguin" formControlName="groupeSanguin" />
             </jp-grid-element>
 
-            <jp-grid-element [colXs]="6" [colMd]="4">
-                <jp-autocomplete requireSelection
-                                 label="Grade"
-                                 formControlName="idGrade" 
-                                 [dataSource]="dataSourceGrade()" />
-            </jp-grid-element>
+            @if(!modeMort)
+            {
+                <jp-grid-element [colXs]="6" [colMd]="4">
+                    <jp-autocomplete requireSelection
+                                    label="Grade"
+                                    formControlName="idGrade" 
+                                    [dataSource]="dataSourceGrade()" />
+                </jp-grid-element>
+            }
 
-            <jp-grid-element [colXs]="6" [colMd]="4">
+            <jp-grid-element [colXs]="6" [colMd]="modeMort ? 6 : 4">
                 <jp-autocomplete requireSelection
                                  label="Planete d'origine"
                                  formControlName="idPlaneteOrigine" 
                                  [dataSource]="dataSourcePlanete()" />
             </jp-grid-element>
 
-            <jp-grid-element [colXs]="12" [colMd]="4">
+            <jp-grid-element [colXs]="12" [colMd]="modeMort ? 6 : 4">
                 <jp-autocomplete requireSelection
                                  label="Spécialité"
                                  formControlName="idSpecialite" 
                                  [dataSource]="dataSourceSpecialite()" />
             </jp-grid-element>
 
-            <jp-grid-element [colXs]="6" [colMd]="4">
-                <jp-input-number label="Point boutique" formControlName="nbPointBoutique" />
-            </jp-grid-element>
+            @if(!modeMort)
+            {
+                <jp-grid-element [colXs]="6" [colMd]="4">
+                    <jp-input-number label="Point boutique" formControlName="nbPointBoutique" />
+                </jp-grid-element>
 
-            <jp-grid-element [colXs]="6" [colMd]="4">
-                <jp-input-number label="Nombre d'opération" formControlName="nbOperation" />
-            </jp-grid-element>
+                <jp-grid-element [colXs]="6" [colMd]="4">
+                    <jp-input-number label="Nombre d'opération" formControlName="nbOperation" />
+                </jp-grid-element>
 
-            <jp-grid-element [colXs]="12" [colSm]="4">
-                <jp-input-number label="Nombre de bootcamp" formControlName="nbBootcamp" />
-            </jp-grid-element>
+                <jp-grid-element [colXs]="12" [colSm]="4">
+                    <jp-input-number label="Nombre de bootcamp" formControlName="nbBootcamp" />
+                </jp-grid-element>
+            }
 
             <jp-grid-element [colXs]="6" [colMd]="4">
                 <mat-checkbox labelPosition="before" formControlName="estFormateur">formateur ?</mat-checkbox>
@@ -70,10 +79,21 @@
             <jp-grid-element [colDefault]="12">
                 <jp-textarea label="Etat de service" formControlName="etatService" showMaxLength />
             </jp-grid-element>
+
+            @if(modeMort)
+            {
+                <jp-grid-element [colDefault]="12">
+                    <jp-input-text label="Date du décès" formControlName="dateMort" />
+                </jp-grid-element>
+
+                <jp-grid-element [colDefault]="12">
+                    <jp-textarea label="Eloge funèbre" formControlName="elogeFunebre" showMaxLength />
+                </jp-grid-element>
+            }
         </jp-grid-container>
     </form>
 </mat-dialog-content>
 <mat-dialog-actions>
     <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
-    <jp-button-loader [loading]="btnClick()" (clicked)="ValiderForm()" [label]="labelBtn()" />
+    <jp-button-loader [loading]="btnClick()" (clicked)="modeMort ? ValiderFormMort() : ValiderForm()" [label]="labelBtn()" />
 </mat-dialog-actions>

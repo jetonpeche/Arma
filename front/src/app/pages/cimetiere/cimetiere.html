@@ -1,0 +1,62 @@
+<div class="halo-container">
+  <header class="page-header">
+    <h1>Mémorial du Corps des Marines de l'UNSC</h1>
+    <p>« Pour l'Humanité, jusqu'au dernier homme. Semper Fi ! »</p>
+  </header>
+
+  <div class="characters-grid">
+    @for (perso of liste(); track perso.nom) 
+    {
+      <mat-card class="halo-card">
+        <mat-card-header>
+          <div mat-card-avatar class="unsc-avatar">
+            <mat-icon>shield</mat-icon>
+          </div>
+          <mat-card-title class="char-name">{{ perso.nom }}</mat-card-title>
+          <mat-card-subtitle class="char-subtitle">
+            @if (perso.nomGrade) 
+            {
+              Grade : {{ perso.nomGrade }}
+            } 
+            @else 
+            {
+              Deuxième Classe (Recrue)
+            }
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content class="char-details">
+          <p><strong>Date de naissance :</strong> {{ perso.dateNaissance }}</p>
+          <p><strong>Mort au combat le :</strong> <span class="death-date">{{ perso.dateMort }}</span></p>
+          
+          <div class="ops-counter">
+            <mat-icon class="icon-medal">military_tech</mat-icon>
+            <span><strong>{{ perso.nbOperation }}</strong> {{ perso.nbOperation > 1 ? 'opérations menées' : 'opération menée' }}</span>
+          </div>
+
+          @if (perso.nomSpecialite) 
+          {
+            <div class="tags-container">
+              <span class="tag tag-specialist">{{ perso.nomSpecialite }}</span>
+            </div>
+          }
+
+          @if (perso.elogeFunebre) 
+          {
+            <mat-divider></mat-divider>
+            <div class="eulogy-section">
+              <h3>Éloge Funèbre / Rapport de campagne</h3>
+              <p class="eulogy-text">" {{ perso.elogeFunebre }} "</p>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    } 
+    @empty 
+    {
+      <div class="no-data">
+        <p>Aucun rapport de pertes de l'infanterie enregistré dans la base de données.</p>
+      </div>
+    }
+  </div>
+</div>

@@ -1,4 +1,4 @@
-<div style="text-align: center; margin-bottom: 20px;">
+<div class="page-header">
     <h1>Spécialité</h1>
 
     @if(droit?.peutLire)
@@ -10,9 +10,9 @@
     }
 </div>
 
-@for (element of listeSpecialite(); track element.id) 
+@for (element of listeSpecialite(); track element.id)
 {
-    <mat-card style="margin-bottom: 10px;">
+    <mat-card appearance="outlined" style="margin-bottom: 10px;">
         <mat-card-header>
             <mat-card-title>{{ element.nom }}</mat-card-title>
         </mat-card-header>

@@ -1,3 +1,14 @@
+mat-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--mat-sys-outline-variant);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px var(--mat-sys-primary-container) !important;
+    border-color: var(--mat-sys-primary);
+  }
+}
+
 mat-card-content {
     display: flex;
     justify-content: space-between;

@@ -1,0 +1,116 @@
+.halo-container {
+  padding: 24px;
+}
+
+.page-header {
+  p {
+    font-style: italic;
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.characters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
+  gap: 24px;
+}
+
+.halo-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid var(--mat-sys-outline-variant);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px var(--mat-sys-primary-container) !important;
+    border-color: var(--mat-sys-primary);
+  }
+}
+
+.unsc-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-primary);
+}
+
+.char-name {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.char-details {
+  margin-top: 16px;
+  color: var(--mat-sys-on-surface);
+  
+  p {
+    margin: 8px 0;
+    font-size: 0.95rem;
+  }
+}
+
+.death-date {
+  color: var(--mat-sys-error);
+  font-weight: bold;
+}
+
+.ops-counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0;
+  font-size: 0.95rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  .icon-medal {
+    color: var(--mat-sys-tertiary);
+  }
+}
+
+/* Badge Spécialité */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 16px 0;
+}
+
+.tag-specialist {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+.eulogy-section {
+  margin-top: 16px;
+  
+  h3 {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--mat-sys-secondary);
+  }
+
+  .eulogy-text {
+    font-style: italic;
+    line-height: 1.4;
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.no-data {
+  text-align: center;
+  grid-column: 1 / -1;
+  padding: 40px;
+  color: var(--mat-sys-on-surface-variant);
+}

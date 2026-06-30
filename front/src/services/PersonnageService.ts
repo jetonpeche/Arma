@@ -4,6 +4,7 @@ import { map, Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Personnage, PersonnageModifierRequete, PersonnageRequete } from "@models/Personnage";
+import { PersonnageMort, PersonnageMortRequete } from "@models/PersonnageMort";
 
 export class PersonnageService
 {
@@ -31,6 +32,11 @@ export class PersonnageService
         );
     }
 
+    ListerMort(): Observable<PersonnageMort[]>
+    {
+        return this.http.get<PersonnageMort[]>(`${this.BASE_API}/lister-mort`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
     Ajouter(_personnage: PersonnageRequete): Observable<number>
     {
         if(_personnage.etatService?.trim().length == 0)
@@ -50,6 +56,11 @@ export class PersonnageService
     ModifierPoint(_listeIdPersonnage: number[]): Observable<void>
     {
        return this.http.patch<void>(`${this.BASE_API}/modifier-point`, _listeIdPersonnage).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    DeclarerMort(_idPersonnage: number, _personnageMort: PersonnageMortRequete): Observable<void>
+    {
+        return this.http.put<void>(`${this.BASE_API}/declarer-mort/${_idPersonnage}`, _personnageMort).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Supprimer(_idPersonnage: number): Observable<void>
