@@ -42,7 +42,7 @@ export class ModalStockage implements OnInit
 		const donneesArbre: NoeudStockage[] = Object.entries(regroupement).map(([nomCategorie, listeVaisseaux]) => 
 		{
 			return {
-				nom: nomCategorie +  + " (" + listeVaisseaux.length + ")",
+				nom: nomCategorie + " (" + listeVaisseaux.length + ")",
 				enfants: listeVaisseaux
 			};
 		});
