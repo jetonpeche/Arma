@@ -25,6 +25,12 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
+        path: "flotte",
+        loadComponent: () => import("./pages/flotte/flotte").then(x => x.Flotte),
+        title: "Flotte de combat",
+        canActivate: [connecterGuard]
+    },
+    { 
         path: "gestion-grade",
         loadComponent: () => import("./pages/gestion-grade/gestion-grade-page").then(x => x.GestionGradePage),
         title: "Gestion grade",

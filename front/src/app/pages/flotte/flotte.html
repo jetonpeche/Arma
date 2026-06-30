@@ -1,1 +1,101 @@
-<p>flotte works!</p>
+<div class="fleetcom-header">
+  <h1>FLEETCOM - État de la flotte</h1>
+  <button mat-flat-button color="primary">
+    <mat-icon>hourglass_bottom</mat-icon>
+    Passer le tour (Reload)
+  </button>
+</div>
+
+<div class="fleet-grid">
+  @for (vaisseau of listeVaisseau(); track vaisseau.id) 
+  {
+    <mat-card class="ship-card">
+      
+      <mat-card-header>
+        <div mat-card-avatar class="ship-avatar">
+          <mat-icon>rocket</mat-icon>
+        </div>
+        <mat-card-title>{{ vaisseau.nomVaisseau }}</mat-card-title>
+        <mat-card-subtitle>
+          @if (vaisseau.nomVaisseauAlias) { " {{ vaisseau.nomVaisseauAlias }} " - }
+          CMDT: {{ vaisseau.nomCommandant || 'IA de bord' }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (vaisseau.information) 
+        {
+          <div class="ship-status-box">
+            <mat-icon class="warning-icon">report_problem</mat-icon>
+            <p>{{ vaisseau.information }}</p>
+          </div>
+        }
+
+        <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+          
+          <mat-tab label="Armement">
+            <div class="tab-content">
+              @for (arme of vaisseau.listeArmement; track arme.id) 
+              {
+                <div class="weapon-item">
+                  <div class="weapon-header">
+                    <span class="weapon-name"><strong>{{ arme.nom }}</strong> ({{ arme.nombreDisponible }}/{{ arme.nombreMax }})</span>
+                    @if (arme.nbTourReload > 0) {
+                      <span class="reload-badge">Recharge: {{ arme.nbTourReload }} tr(s)</span>
+                    }
+                  </div>
+                  
+                  @if (!arme.munitionInfini) {
+                    <div class="progress-section">
+                      <div class="progress-labels">
+                        <small>Munitions</small>
+                        <small>{{ arme.munitionDisponible }} / {{ arme.munitionMax }}</small>
+                      </div>
+                      <mat-progress-bar 
+                        mode="determinate" 
+                        [value]="(arme.munitionDisponible / arme.munitionMax) * 100"
+                        [color]="arme.munitionDisponible < (arme.munitionMax * 0.2) ? 'warn' : 'primary'">
+                      </mat-progress-bar>
+                    </div>
+                  } @else {
+                    <small class="infinite-ammo">Munitions illimitées</small>
+                  }
+                  
+                  @if (arme.information) {
+                    <p class="weapon-info">Note: {{ arme.information }}</p>
+                  }
+                  <mat-divider></mat-divider>
+                </div>
+              }
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Hangar & Stockage">
+            <div class="tab-content">
+              @for (stock of vaisseau.listeStockage; track stock.id) {
+                <div class="storage-item">
+                  <div class="progress-labels">
+                    <strong>{{ stock.nom }}</strong>
+                    <small>Libre: {{ stock.disponible }} / {{ stock.taille }}</small>
+                  </div>
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="(stock.occuper / stock.taille) * 100"
+                    color="accent">
+                  </mat-progress-bar>
+                </div>
+              }
+            </div>
+          </mat-tab>
+
+        </mat-tab-group>
+      </mat-card-content>
+      
+      <mat-card-actions align="end">
+        <button mat-button>Modifier</button>
+        <button mat-button color="warn">Rapport de tir</button>
+      </mat-card-actions>
+    </mat-card>
+  }
+</div>
+

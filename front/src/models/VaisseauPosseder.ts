@@ -1,13 +1,26 @@
-import { VaisseauArmement } from "./Vaisseau"
-
 export type VaisseauPosseder =
 {
     id: number,
     nomVaisseau: string,
-    nomCommandant: string,
-    nomVaisseauAlias: string,
-    listeArmement: VaisseauArmement[],
+    nomCommandant: string | null,
+    nomVaisseauAlias: string | null,
+    information: string | null,
+    listeArmement: VaisseauPossederArmement[],
     listeStockage: VaisseauPossederStockage[]
+}
+
+export type VaisseauPossederArmement = 
+{
+    id: string,
+    nom: string,
+    information: string | null,
+    nombreMax: number,
+    nombreDisponible: number,
+    munitionMax: number,
+    munitionDisponible: number,
+    nbTourReload: number
+    munitionInfini: boolean,
+    estUsageUnique: boolean,
 }
 
 export type VaisseauPossederStockage = 

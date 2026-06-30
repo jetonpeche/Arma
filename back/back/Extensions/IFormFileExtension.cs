@@ -24,7 +24,7 @@ public static class IFormFileExtension
     public static EReponseVerifFichier Verifier(this IFormFile _fichier, int _poidsMax, string[] _listeExtension)
     {
         // https://en.wikipedia.org/wiki/List_of_file_signatures
-        IReadOnlyDictionary<string, byte?[]> signatureFichier = new Dictionary<string, byte?[]>
+        Dictionary<string, byte?[]> signatureFichier = new()
         {
             [".jpeg"] = [0xFF, 0xD8, 0xFF],
             [".jpg"] = [0xFF, 0xD8, 0xFF],
@@ -47,56 +47,56 @@ public static class IFormFileExtension
         {
             try
             {
-                using (var stream = _fichier.OpenReadStream())
+                using var stream = _fichier.OpenReadStream();
+                
+                var parametre = new XmlReaderSettings
                 {
-                    var parametre = new XmlReaderSettings
-                    {
-                        DtdProcessing = DtdProcessing.Prohibit, // Bloque les attaques XXE
-                        IgnoreWhitespace = true
-                    };
+                    DtdProcessing = DtdProcessing.Prohibit, // Bloque les attaques XXE
+                    IgnoreWhitespace = true
+                };
 
-                    using var reader = XmlReader.Create(stream, parametre);
-                    
-                    while (reader.Read())
-                    {
-                        // pas une balise
-                        if (reader.NodeType is not XmlNodeType.Element)
-                            continue;
+                using var reader = XmlReader.Create(stream, parametre);
 
-                        if (reader.Name.Equals("script", StringComparison.OrdinalIgnoreCase))
+                while (reader.Read())
+                {
+                    // pas une balise
+                    if (reader.NodeType is not XmlNodeType.Element)
+                        continue;
+
+                    if (reader.Name.Equals("script", StringComparison.OrdinalIgnoreCase))
+                        return EReponseVerifFichier.SvgDangereux;
+
+                    if (!reader.HasAttributes)
+                        continue;
+
+                    for (int i = 0; i < reader.AttributeCount; i++)
+                    {
+                        reader.MoveToAttribute(i);
+
+                        // Evénements js
+                        if (reader.Name.StartsWith("on", StringComparison.OrdinalIgnoreCase))
                             return EReponseVerifFichier.SvgDangereux;
 
-                        if (!reader.HasAttributes)
+                        // Liens js href et xlink:href
+                        if (!reader.Name.Contains("href", StringComparison.OrdinalIgnoreCase))
                             continue;
-                        
-                        for (int i = 0; i < reader.AttributeCount; i++)
+
+                        // href contient un des trucs
+                        string valeur = reader.Value.Replace(" ", "").Trim();
+
+                        if (
+                            valeur.StartsWith("javascript:", StringComparison.OrdinalIgnoreCase) ||
+                            valeur.StartsWith("vbscript:", StringComparison.OrdinalIgnoreCase) ||
+                            valeur.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
+                        )
                         {
-                            reader.MoveToAttribute(i);
-
-                            // Evénements js
-                            if (reader.Name.StartsWith("on", StringComparison.OrdinalIgnoreCase))
-                                return EReponseVerifFichier.SvgDangereux;
-
-                            // Liens js href et xlink:href
-                            if (!reader.Name.Contains("href", StringComparison.OrdinalIgnoreCase))
-                                continue;
-                                
-                            // href contient un des trucs
-                            string valeur = reader.Value.Replace(" ", "").Trim();
-
-                            if (
-                                valeur.StartsWith("javascript:", StringComparison.OrdinalIgnoreCase) ||
-                                valeur.StartsWith("vbscript:", StringComparison.OrdinalIgnoreCase) ||
-                                valeur.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
-                            )
-                            {
-                                return EReponseVerifFichier.SvgDangereux;
-                            }
+                            return EReponseVerifFichier.SvgDangereux;
                         }
-
-                        // Revenir à l'élément après avoir lu les attributs
-                        reader.MoveToElement();            
                     }
+
+                    // Revenir à l'élément après avoir lu les attributs
+                    reader.MoveToElement();
+
                 }
             }
             catch

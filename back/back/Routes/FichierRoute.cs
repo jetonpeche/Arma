@@ -167,7 +167,7 @@ public static class FichierRoute
           if (!Directory.Exists(baseUrl))
                Directory.CreateDirectory(baseUrl);
 
-          using (MemoryStream memoryStream = new())
+          await using (MemoryStream memoryStream = new())
           {
                // recupere le fichier dans memoryStream
                await _fichier.CopyToAsync(memoryStream);
