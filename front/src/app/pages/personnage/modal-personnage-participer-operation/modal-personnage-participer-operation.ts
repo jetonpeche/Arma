@@ -66,7 +66,7 @@ export class ModalPersonnageParticiperOperation implements OnInit
                         id: x.id,
                         nom: x.nom,
                         estBloquer: x.nbOperationGradeBloquer > 0,
-                        nomGrade: x.grade?.nom ?? "XXX",
+                        nomGrade: x.grade?.nomRaccourci ?? "XXX",
                         nbPoint: GRADE_MAP.get(x.grade?.id) ?? 1
                     })
                 ));
