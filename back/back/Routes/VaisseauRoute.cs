@@ -59,6 +59,7 @@ public static class VaisseauRoute
                .Include(x => x.ListeStockage)
                .Include(x => x.ListeVaisseauEnPlus)
                .Include(x => x.ListeStockage.Select(y => y.TypeStockage))
+               .Where(x => !x.EstSupprimer)
                .ToList()
                .Select(x => new VaisseauReponse
                {
@@ -120,6 +121,7 @@ public static class VaisseauRoute
 
           var liste = db.GetCollection<Vaisseau>()
                .Query()
+               .Where(x => !x.EstSupprimer)
                .OrderBy(x => x.Nom)
                .Select(x => new VaisseauLegerReponse
                {
