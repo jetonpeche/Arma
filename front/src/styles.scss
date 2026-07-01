@@ -144,19 +144,38 @@ mat-dialog-content {
     color: var(--mat-sys-on-surface);
 }
 
-.page-header
-{
-  padding: 0 16px;
-  margin-bottom: 20px;
-  text-align: center;
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 0 16px 24px 16px;
+  margin-bottom: 24px;
+  text-align: left;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  .header-titles {
+    display: flex;
+    flex-direction: column;
+  }
 
   h1 {
     font-size: clamp(1.5rem, 5vw, 2.3rem); 
     line-height: 1.2;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
+    letter-spacing: 2px;
+    font-weight: 900;
+    margin-bottom: 4px;
     margin-top: 0;
     color: var(--mat-sys-primary);
+  }
+
+  .unsc-subtitle {
+    color: var(--mat-sys-tertiary);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+    letter-spacing: 1px;
+    text-transform: uppercase;
   }
 }

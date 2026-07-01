@@ -1,6 +1,30 @@
-.grades-wrapper
-{
-    padding: 24px 0;
+/* --- EN-TÊTE DE LA PAGE --- */
+.unsc-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 0 16px 24px 16px;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    margin-bottom: 24px;
+    text-align: left;
+
+    h1 {
+        margin-bottom: 4px;
+    }
+
+    .unsc-subtitle {
+        color: var(--mat-sys-tertiary);
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+}
+
+/* --- GRILLE ET CONTENEUR --- */
+.grades-wrapper {
+    padding: 32px 0;
     margin: 0;
     display: flex;
     justify-content: center;
@@ -9,68 +33,170 @@
 .grades-grid {
     display: flex;
     flex-wrap: wrap; 
-    gap: 16px; 
+    gap: 24px; /* Un peu plus d'espace pour respirer */
     justify-content: center;
-    
-    // 7 cards max
-    max-width: calc((250px * 7) + (16px * 6));
+    max-width: calc((260px * 7) + (24px * 6));
 }
 
-.grade-card {
-    width: 250px;
+/* --- CARTE TACTIQUE (GRADE) --- */
+.grade-card.tactical-panel {
+    width: 260px;
+    background-color: var(--mat-sys-surface-container-high);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 8px; /* Look un peu plus dur/industriel */
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    
+    /* Petit liseré supérieur style Halo */
+    border-top: 3px solid var(--mat-sys-primary);
+
+    &:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 15px var(--mat-sys-primary-container);
+        border-color: var(--mat-sys-primary);
+        z-index: 2;
+
+        .icon-backdrop {
+            opacity: 0.15;
+            transform: scale(1.1);
+        }
+    }
+}
+
+/* --- EN-TÊTE DE LA CARTE --- */
+.card-header {
+    padding: 16px;
+    text-align: center;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    align-items: center;
+    background: linear-gradient(180deg, var(--mat-sys-surface-container-highest) 0%, transparent 100%);
+  
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: var(--mat-sys-primary);
+        letter-spacing: 1px;
+        margin: 0;
+    }
 
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid var(--mat-sys-outline-variant);
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px var(--mat-sys-primary-container) !important;
-    border-color: var(--mat-sys-primary);
-  }
+    .card-subtitle {
+        font-family: 'Courier New', Courier, monospace;
+        color: var(--mat-sys-on-surface-variant);
+        font-weight: bold;
+        margin-top: 4px;
+    }
 }
 
-.card-header {
-    padding: 12px 16px;
+/* --- ZONE DE L'ICÔNE --- */
+.card-icon-container {
     display: flex;
     justify-content: center;
-    text-align: center;
-    background: var(--mat-sys-primary-container);
-    color: var(--mat-sys-primary);
-  
-  .card-title {
-    font-size: 0.95rem;
+    align-items: center;
+    height: 120px;
+    padding: 16px;
+    position: relative;
+
+    .icon-backdrop {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--mat-sys-primary) 0%, transparent 70%);
+        opacity: 0.05;
+        transition: all 0.3s ease;
+        z-index: 0;
+    }
+
+    .grade-icon {
+        max-width: 90px;
+        max-height: 90px;
+        object-fit: contain;
+        z-index: 1;
+        filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.5));
+    }
+
+    .placeholder-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: var(--mat-sys-outline);
+        z-index: 1;
+    }
+}
+
+.card-details-tactical {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
+    background-color: var(--mat-sys-surface-container);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+.badges-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.tactical-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
     font-weight: bold;
-    margin: 0;
-  }
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+    }
 }
 
-.card-icon-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100px;
-  padding: 16px;
-
-  .grade-icon {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  }
+.badge-warning {
+    background-color: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+    border: 1px solid color-mix(in srgb, var(--mat-sys-secondary) 50%, transparent);
 }
 
-.card-details {
-  display: flex;
-  flex-direction: column;
-  margin-top: auto;
+.badge-info {
+    background-color: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+    border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 50%, transparent);
 }
 
-.detail-row {
-  text-align: center;
-  padding: 8px;
-  font-size: 0.85rem;
-  opacity: 0.8;
-  font-weight: 500;
+.badge-honor {
+    background-color: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+    border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+}
+
+.fonction-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    background-color: var(--mat-sys-surface-container-highest);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--mat-sys-on-surface);
+    text-align: center;
+    font-style: italic;
+
+    .fonction-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: var(--mat-sys-primary);
+    }
 }

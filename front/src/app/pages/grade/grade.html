@@ -1,75 +1,93 @@
 <div class="page-header">
-    <h1>Grades</h1>
+    <div class="header-titles">
+        <h1>Registre des Grades</h1>
+        <div class="unsc-subtitle">// RÉSEAU DE L'UNSC - CORPS DES MARINES</div>
+    </div>
 
     @if(droit?.peutLire)
     {
         <button (click)="GestionGrade()" matButton="filled">
-            Gestion grade
+            <mat-icon>admin_panel_settings</mat-icon>
+            Gestion
         </button>
     }
 </div>
 
-<mat-tab-group (selectedTabChange)="Filtrer($event)" dynamicHeight>
-    <mat-tab label="Marines">
-            <div class="grades-wrapper">
-                <div class="grades-grid">
-                    @for (grade of listeGrade(); track grade.id) 
-                    {
-                        <ng-container *ngTemplateOutlet="gradeCard; context: { $implicit: grade }"></ng-container>
-                    }
-                </div>
+<mat-tab-group (selectedTabChange)="Filtrer($event)" dynamicHeight color="primary">
+    <mat-tab label="Corps des Marines">
+        <div class="grades-wrapper">
+            <div class="grades-grid">
+                @for (grade of listeGrade(); track grade.id) 
+                {
+                    <ng-container *ngTemplateOutlet="gradeCard; context: { $implicit: grade }"></ng-container>
+                }
             </div>
+        </div>
     </mat-tab>
 
-    <mat-tab label="Navy">
-            <div class="grades-wrapper">
-                <div class="grades-grid">
-                    @for (grade of listeGrade(); track grade.id) 
-                    {
-                        <ng-container *ngTemplateOutlet="gradeCard; context: { $implicit: grade }"></ng-container>
-                    }
-                </div>
+    <mat-tab label="Flotte (Navy)">
+        <div class="grades-wrapper">
+            <div class="grades-grid">
+                @for (grade of listeGrade(); track grade.id) 
+                {
+                    <ng-container *ngTemplateOutlet="gradeCard; context: { $implicit: grade }"></ng-container>
+                }
             </div>
+        </div>
     </mat-tab>
 </mat-tab-group>
 
 <ng-template #gradeCard let-grade>
-    <mat-card appearance="outlined" class="grade-card">
+    <mat-card appearance="outlined" class="grade-card tactical-panel">
     
         <mat-card-header class="card-header">
-            <mat-card-title class="card-title">{{ grade.nom }} ({{ grade.nomRaccourci }})</mat-card-title>
+            <mat-card-title class="card-title">{{ grade.nom }}</mat-card-title>
+            <mat-card-subtitle class="card-subtitle">[{{ grade.nomRaccourci }}]</mat-card-subtitle>
         </mat-card-header>
 
-        <mat-divider></mat-divider>
-
-        <mat-card-content class="card-icon-container">
+        <div class="card-icon-container">
+            <div class="icon-backdrop"></div>
             @if (grade.urlFichierIcone) 
             {
                 <img [src]="grade.urlFichierIcone" [alt]="grade.nom" class="grade-icon"/>
             }
-        </mat-card-content>
-
-        <div class="card-details">
-            @if (grade.candidatureRequise) 
+            @else 
             {
-                <mat-divider></mat-divider>
-                <div class="detail-row">Candidature</div>
-            }
-            @if (grade.nbOperationRequis > 0) 
-            {
-                <mat-divider></mat-divider>
-                <div class="detail-row">{{ grade.nbOperationRequis }} Ops</div>
-            }
-            @if (grade.fonction) 
-            {
-                <mat-divider></mat-divider>
-                <div class="detail-row">{{ grade.fonction }}</div>
-            }
-            @if (grade.estHonorifique) 
-            {
-                <mat-divider></mat-divider>
-                <div class="detail-row">Honorifique</div>
+                <mat-icon class="placeholder-icon">military_tech</mat-icon>
             }
         </div>
+
+        <mat-card-content class="card-details-tactical">
+            <div class="badges-container">
+                @if (grade.candidatureRequise) 
+                {
+                    <span class="tactical-badge badge-warning" matTooltip="Candidature requise par l'État-Major">
+                        <mat-icon>assignment_ind</mat-icon> Candidature
+                    </span>
+                }
+                
+                @if (grade.nbOperationRequis > 0) 
+                {
+                    <span class="tactical-badge badge-info">
+                        <mat-icon>track_changes</mat-icon> {{ grade.nbOperationRequis }} Ops
+                    </span>
+                }
+                
+                @if (grade.estHonorifique) 
+                {
+                    <span class="tactical-badge badge-honor">
+                        <mat-icon>star</mat-icon> Honorifique
+                    </span>
+                }
+            </div>
+
+            @if (grade.fonction) 
+            {
+                <div class="fonction-panel">
+                    <mat-icon class="fonction-icon">work</mat-icon>
+                    <span>{{ grade.fonction }}</span>
+                </div>
+            }
+        </mat-card-content>
     </mat-card>
 </ng-template>
