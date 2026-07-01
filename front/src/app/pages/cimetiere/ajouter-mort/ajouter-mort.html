@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>Ajouter un personnage mort</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colDefault]="12">
+                <jp-input-text label="Nom" formControlName="nom" showMaxLength />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Date naissance" formControlName="dateNaissance" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Date de mort" formControlName="dateMort" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-autocomplete label="Grade" [dataSource]="listeGrade()" formControlName="idGrade" requireSelection />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-autocomplete label="Spécialité" [dataSource]="listeSpecialite()" formControlName="idSpecialite" requireSelection />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-input-number label="Nombre opération" formControlName="nbOperation" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Eloge funebre" formControlName="elogeFunebre" showMaxLength />
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" matDialogClose>Fermer</button>&nbsp;
+    <jp-button-loader label="Ajouter" [loading]="btnClick()" (clicked)="ValiderForm()" />
+</mat-dialog-actions>

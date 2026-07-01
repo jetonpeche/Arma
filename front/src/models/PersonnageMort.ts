@@ -15,8 +15,20 @@ export type PersonnageMortRequete =
     elogeFunebre: string | null
 }
 
+export type PersonnageMort2Requete = 
+{
+    nom: string,
+    dateNaissance: string,
+    dateMort: string,
+    elogeFunebre: string | null,
+    nbOperation: number,
+    idSpecialite: number,
+    idGrade: number
+}
+
 export type PersonnageMort =
 {
+    id: number,
     nom: string,
     dateNaissance: string,
     dateMort: string,

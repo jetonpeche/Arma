@@ -4,6 +4,7 @@ namespace back.ModelsExport;
 
 public sealed class PersonnageMortReponse
 {
+    public required int Id { get; set; }
     public required string Nom { get; set; }
     public required string DateNaissance { get; set; }
     public required string DateMort { get; set; }

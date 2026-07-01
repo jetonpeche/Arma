@@ -15,3 +15,14 @@ public sealed class PersonnageMortRequete
     public bool FormationFaite { get; set; }
     public string? ElogeFunebre { get; set; }
 }
+
+public sealed class PersonnageMort2Requete
+{
+    public required int IdGrade { get; set; }
+    public required int IdSpecialite { get; set; }
+    public required string Nom { get; set; }
+    public required int NbOperation { get; set; }
+    public required string DateNaissance { get; set; }
+    public required string DateMort { get; set; }
+    public string? ElogeFunebre { get; set; }
+}

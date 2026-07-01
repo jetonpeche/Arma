@@ -26,6 +26,11 @@ public static class PersonnageRoute
                .ProducesBadRequest()
                .ProducesCreated<int>();
 
+          builder.MapPost("ajouter-mort", AjouterMortAsync)
+               .WithDescription("Ajouter un nouveau personnage mort")
+               .ProducesNotFound()
+               .ProducesCreated();
+
         builder.MapPut("declarer-mort/{idPersonnage:int}", MortAsync)
                .WithDescription("Déclarer mort un personnage")
                .ProducesNotFound()
@@ -49,7 +54,12 @@ public static class PersonnageRoute
                .ProducesNotFound()
                .ProducesNoContent();
 
-          return builder;
+          builder.MapDelete("supprimer-mort/{idPersonnageMort:int}", SupprimerMortAsync)
+               .WithDescription("Supprimer un personnage")
+               .ProducesNotFound()
+               .ProducesNoContent();
+
+        return builder;
     }
 
     static async Task<IResult> ListerAsync(
@@ -112,13 +122,14 @@ public static class PersonnageRoute
         var liste = db.GetCollection<PersonnageMort>().Query()
           .Select(x => new PersonnageMortReponse
           {
-              DateMort = x.DateMort,
-              DateNaissance = x.DateNaissance,
-              ElogeFunebre = x.ElogeFunebre,
-              NbOperation = x.NbOperation,
-              Nom = x.Nom,
-              NomGrade = x.NomGrade,
-              NomSpecialite = x.NomSpecialite
+               Id = x.Id,
+               DateMort = x.DateMort,
+               DateNaissance = x.DateNaissance,
+               ElogeFunebre = x.ElogeFunebre,
+               NbOperation = x.NbOperation,
+               Nom = x.Nom,
+               NomGrade = x.NomGrade,
+               NomSpecialite = x.NomSpecialite
           }).ToArray();
 
         return Results.Extensions.Ok(liste, PersonnageMortReponseContext.Default);
@@ -189,7 +200,35 @@ public static class PersonnageRoute
           return Results.Created("", id);
     }
 
-     static async Task<IResult> ModifierAsync(
+    static async Task<IResult> AjouterMortAsync([FromBody] PersonnageMort2Requete _requete)
+    {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var nomGrade = db.GetCollection<Grade>().Query().Where(x => x.Id == _requete.IdGrade).FirstOrDefault()?.Nom;
+
+          if (nomGrade is null)
+               return Results.NotFound("Le grade n'existe pas");
+
+          var nomSpecialite = db.GetCollection<Specialite>().Query().Where(x => x.Id == _requete.IdSpecialite).FirstOrDefault()?.Nom;
+
+          if (nomSpecialite is null)
+               return Results.NotFound("La spécialité n'existe pas");
+
+          db.GetCollection<PersonnageMort>().Insert(new PersonnageMort
+          {
+               DateMort = _requete.DateMort.XSS(),
+               DateNaissance = _requete.DateNaissance.XSS(),
+               ElogeFunebre = string.IsNullOrWhiteSpace(_requete.ElogeFunebre) ? null : _requete.ElogeFunebre.XSS(),
+               NbOperation = _requete.NbOperation,
+               Nom = _requete.Nom.XSS(),
+               NomGrade = nomGrade,
+               NomSpecialite = nomSpecialite
+          });
+
+          return Results.Created();
+    }
+
+    static async Task<IResult> ModifierAsync(
           [FromServices] IMemoryCache _cache,
           [FromRoute(Name = "idPersonnage")] int _idPersonnage,
           [FromBody] PersonnageModifierRequete _requete
@@ -417,4 +456,19 @@ public static class PersonnageRoute
 
           return Results.NoContent();
     }
+
+    static async Task<IResult> SupprimerMortAsync(
+     [FromRoute(Name = "idPersonnageMort")] int _idPersonnageMort
+    )
+    {
+        if (_idPersonnageMort <= 0)
+            return Results.NotFound("La tombe n'existe pas");
+
+        using var db = new LiteDatabase(Constant.BDD_NOM);
+
+        var ok = db.GetCollection<PersonnageMort>().Delete(_idPersonnageMort);
+
+        return ok ? Results.NoContent() : Results.NotFound("La tombe n'existe pas");
+    }
+
 }

@@ -1,6 +1,6 @@
 <div class="fleetcom-header">
   <h1>FLEETCOM - État de la flotte</h1>
-  <button mat-flat-button color="primary">
+  <button matButton="filled">
     <mat-icon>hourglass_bottom</mat-icon>
     Passer le tour (Reload)
   </button>
@@ -17,7 +17,10 @@
         </div>
         <mat-card-title>{{ vaisseau.nomVaisseau }}</mat-card-title>
         <mat-card-subtitle>
-          @if (vaisseau.nomVaisseauAlias) { " {{ vaisseau.nomVaisseauAlias }} " - }
+          @if (vaisseau.nomVaisseauAlias) 
+          { 
+            {{ vaisseau.nomVaisseauAlias }} - 
+          }
           CMDT: {{ vaisseau.nomCommandant || 'IA de bord' }}
         </mat-card-subtitle>
       </mat-card-header>
@@ -72,7 +75,8 @@
 
           <mat-tab label="Hangar & Stockage">
             <div class="tab-content">
-              @for (stock of vaisseau.listeStockage; track stock.id) {
+              @for (stock of vaisseau.listeStockage; track stock.id) 
+              {
                 <div class="storage-item">
                   <div class="progress-labels">
                     <strong>{{ stock.nom }}</strong>
@@ -92,8 +96,8 @@
       </mat-card-content>
       
       <mat-card-actions align="end">
-        <button mat-button>Modifier</button>
-        <button mat-button color="warn">Rapport de tir</button>
+        <button matButton="text">Modifier</button>
+        <button matButton="text">Rapport de tir</button>
       </mat-card-actions>
     </mat-card>
   }

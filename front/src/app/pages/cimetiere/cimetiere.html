@@ -2,6 +2,14 @@
   <header class="page-header">
     <h1>Mémorial du Corps des Marines de l'UNSC</h1>
     <p>« Pour l'Humanité, jusqu'au dernier homme. Semper Fi ! »</p>
+
+    @if(droit.peutEcrire)
+    {
+      <button style="margin-top: 10px;" matButton="filled" (click)="OuvrirModalAjouterMort()">
+        <mat-icon>add</mat-icon>
+        Ajouter
+      </button>
+    }
   </header>
 
   <div class="characters-grid">
@@ -46,10 +54,13 @@
             <mat-divider></mat-divider>
             <div class="eulogy-section">
               <h3>Éloge Funèbre / Rapport de campagne</h3>
-              <p class="eulogy-text">" {{ perso.elogeFunebre }} "</p>
+              <p class="eulogy-text">{{ perso.elogeFunebre }}</p>
             </div>
           }
         </mat-card-content>
+        <mat-card-actions align="end">
+          <jp-button-loader matIconButton [loading]="btnClick()" icon="delete" (clicked)="OuvrirModalConfirmationSupprimer(perso)" />
+        </mat-card-actions>
       </mat-card>
     } 
     @empty 

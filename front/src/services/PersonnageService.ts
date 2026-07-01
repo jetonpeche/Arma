@@ -4,7 +4,7 @@ import { map, Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Personnage, PersonnageModifierRequete, PersonnageRequete } from "@models/Personnage";
-import { PersonnageMort, PersonnageMortRequete } from "@models/PersonnageMort";
+import { PersonnageMort, PersonnageMort2Requete, PersonnageMortRequete } from "@models/PersonnageMort";
 
 export class PersonnageService
 {
@@ -37,6 +37,11 @@ export class PersonnageService
         return this.http.get<PersonnageMort[]>(`${this.BASE_API}/lister-mort`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
+    AjouterMort(_personnage: PersonnageMort2Requete): Observable<void>
+    {
+        return this.http.post<void>(`${this.BASE_API}/ajouter-mort`, _personnage).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
     Ajouter(_personnage: PersonnageRequete): Observable<number>
     {
         if(_personnage.etatService?.trim().length == 0)
@@ -66,5 +71,10 @@ export class PersonnageService
     Supprimer(_idPersonnage: number): Observable<void>
     {
         return this.http.delete<void>(`${this.BASE_API}/supprimer/${_idPersonnage}`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    SupprimerMort(_idPersonnageMort: number): Observable<void>
+    {
+        return this.http.delete<void>(`${this.BASE_API}/supprimer-mort/${_idPersonnageMort}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 }
