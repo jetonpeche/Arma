@@ -111,7 +111,7 @@ html.light-mode body::before {
   opacity: 0.08; 
 }
 
-html, body { height: 100%; }
+html, body { height: 100%; overflow: hidden; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 table, .mat-mdc-form-field
