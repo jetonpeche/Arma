@@ -1,59 +1,109 @@
-
 <div class="page-header">
-    @if(idPersonnage() == 0)
-    {
-        <h1>Boutique</h1>
-
-        @if(droit.peutLire)
+    <div class="header-titles">
+        @if(idPersonnage() == 0)
         {
-            <button (click)="GestionBoutique()" matButton="filled">
-                Gestion boutique
-            </button>
+            <h1>Bureau des Réquisitions</h1>
+            <div class="unsc-subtitle">// QUARTIER-MAÎTRE DE L'UNSC - LOGISTIQUE</div>
         }
+        @else 
+        {
+            <h1>Inventaire Personnel</h1>
+            <div class="unsc-subtitle">// ÉQUIPEMENT DÉPLOYÉ</div>
+        }
+    </div>
 
-        <p>
-            Venez dépenser vos points durement acquis sur le champ de bataille ou en votant ici.<br>
-            Nous proposons un large éventail d'objet en tout genre pour vous garantir <br>
-            une meilleur chance de survie dans le monde fantasmagorique du 24e siècle !
-            <br>
-            <b>Vos points: {{ pointPersonnage() }}</b>
-        </p>
-    }
-    @else 
+    @if(idPersonnage() == 0 && droit?.peutLire)
     {
-        <h1>Objets achetés</h1>
+        <button (click)="GestionBoutique()" matButton="filled" class="btn-tactical">
+            <mat-icon>inventory</mat-icon>
+            Gestion des stocks
+        </button>
     }
 </div>
 
-<mat-form-field style="margin-bottom: 10px;">
-    <mat-label>Recherche</mat-label>
-    <input #inputRecherche matInput type="search">
-</mat-form-field>
+@if(idPersonnage() == 0)
+{
+    <!-- Briefing immersif du Quartier-Maître -->
+    <mat-card class="quartermaster-brief" appearance="outlined">
+        <mat-icon class="brief-icon">support_agent</mat-icon>
+        <div class="brief-content">
+            <p>
+                « Ouvrez grand vos putains d'oreilles, tas de bleus. L'armurerie, c'est pas une foutue galerie marchande pour aller faire du lèche-vitrine. Vos crédits, vous les avez gagnés en bouffant de la boue et en pissant le sang. Alors claquez-les sans faire les cons si vous voulez avoir une infime chance de ramener votre cul en un seul morceau au prochain largage. Est-ce que c'est bien clair ?! »            
+            </p>
+            <div class="solde-display">
+                <mat-icon>account_balance_wallet</mat-icon>
+                <span>FONDS DISPONIBLES : <span class="points">{{ pointPersonnage() }} CR</span></span>
+            </div>
+        </div>
+    </mat-card>
+}
 
-<jp-grid-container style="margin-bottom: 5px;">
+<!-- Terminal de recherche -->
+<div class="search-terminal">
+    <mat-form-field appearance="outline" class="tactical-search">
+        <mat-label>Rechercher un équipement dans la base de données...</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input #inputRecherche matInput type="search" (keyup)="0">
+    </mat-form-field>
+</div>
+
+<jp-grid-container [gap]="10">
     @for (element of Rechercher(inputRecherche.value); track element.id) 
     {
-        <jp-grid-element [colXs]="12" [colMd]="6" [colLg]="6" [colXl]="3">
+        <jp-grid-element [colXs]="12" [colMd]="6" [colLg]="4" [colXl]="3">
 
-            <mat-card style="padding: 10px;">
-                <p style="font-size: 1.3em; margin: 0;"><b>{{ element.nom }}</b></p>
-                <p style="margin: 0;"><b>{{ element.prix }} point(s)</b> {{ element.estPosseder ? ' possédé(s)' : ''}}</p>
+            <mat-card class="requisition-card" [class.owned]="element.estPosseder" appearance="outlined">
+                
+                <!-- Zone de l'image et du prix -->
+                <div class="card-image-wrapper">
+                    <div class="price-tag" [class.owned-tag]="element.estPosseder">
+                        @if(element.estPosseder) 
+                        {
+                            <mat-icon>verified</mat-icon> ACQUIS
+                        }
+                        @else 
+                        {
+                            <span>{{ element.prix }} CR</span>
+                        }
+                    </div>
 
-                <div style="display: flex; justify-content: space-between;">
-                    <p>{{ element.description }}</p>
-                    <img mat-card-md-image [src]="element.urlImageObjet" [alt]="'Photo de' + element.nom ">
+                    @if (element.urlImageObjet) 
+                    {
+                        <img [src]="element.urlImageObjet" [alt]="'Photo de ' + element.nom " class="item-image">
+                    }
+                    @else 
+                    {
+                        <mat-icon class="placeholder-icon">military_tech</mat-icon>
+                    }
                 </div>
 
-                @if(!element.estPosseder)
-                {
-                    <div style="text-align: end;">
-                        <jp-button-loader matMiniFab 
-                                                    icon="done" 
-                                                    matTooltip="Acheter cet objet"
-                                                    (clicked)="OuvrirModalConfirmationPayer(element)" />
-                    </div>
-                }
+                <!-- Zone de texte -->
+                <mat-card-content class="card-info">
+                    <h3 class="item-name">{{ element.nom }}</h3>
+                    <mat-divider></mat-divider>
+                    <p class="item-description">{{ element.description }}</p>
+                </mat-card-content>
+
+                <!-- Zone d'action -->
+                <mat-card-actions class="card-actions">
+                    @if(!element.estPosseder)
+                    {
+                        <jp-button-loader class="btn-requisition"
+                                        label="RÉQUISITIONNER"
+                                        icon="shopping_cart_checkout" 
+                                        matTooltip="Dépenser vos points"
+                                        (clicked)="OuvrirModalConfirmationPayer(element)" />
+                    }
+                    @else
+                    {
+                        <button mat-button disabled class="btn-owned">
+                            <mat-icon>check</mat-icon> DANS L'INVENTAIRE
+                        </button>
+                    }
+                </mat-card-actions>
+
             </mat-card>
+
         </jp-grid-element>
     }
 </jp-grid-container>

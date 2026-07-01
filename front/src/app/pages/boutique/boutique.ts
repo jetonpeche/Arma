@@ -14,10 +14,13 @@ import { Droit } from '@models/DroitGroupe';
 import { EUrl } from '@enums/EUrl';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-boutique',
-  imports: [MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, GridContainer, ButtonLoader, GridElement],
+  imports: [MatCardModule, MatDividerModule, MatIconModule, MatTooltipModule, MatFormFieldModule, MatInputModule, MatButtonModule, GridContainer, ButtonLoader, GridElement],
   templateUrl: './boutique.html',
   styleUrl: './boutique.scss',
 })
