@@ -62,6 +62,13 @@ html {
 body {
   color-scheme: dark;
   background-color: var(--mat-sys-surface);
+
+  background-image: 
+    linear-gradient(color-mix(in srgb, var(--mat-sys-primary) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-primary) 5%, transparent) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: center center;
+  
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
   margin: 0;

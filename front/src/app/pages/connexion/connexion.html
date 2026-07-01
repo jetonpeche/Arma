@@ -1,25 +1,28 @@
-<mat-card appearance="outlined">
-    <mat-card-header>
-        <mat-card-title>Connexion</mat-card-title>
+<mat-card class="unsc-datapad" appearance="outlined">
+    <!-- Barre décorative supérieure (ajoutée via CSS) -->
+    <div class="datapad-header-accent"></div>
+
+    <mat-card-header class="unsc-header">
+        <mat-card-title class="unsc-title">Terminal UNSC</mat-card-title>
+        <mat-card-subtitle class="unsc-subtitle">Identification requise // Réseau sécurisé</mat-card-subtitle>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content class="unsc-content">
         <form [formGroup]="form">
             <jp-grid-container [gap]="15">
                 <jp-grid-element [colDefault]="12">
-                    <jp-input-text label="Login" formControlName="login" />
+                    <jp-input-text label="Identifiant Marine" formControlName="login" />
                 </jp-grid-element>
 
                 <jp-grid-element [colDefault]="12">
-                    <jp-input-password label="Mot de passe" formControlName="mdp" />
+                    <jp-input-password label="Code d'accès" formControlName="mdp" />
                 </jp-grid-element>
             </jp-grid-container>
-            
         </form>
     </mat-card-content>
 
-    <mat-card-actions align="end">
-        <jp-button-loader label="Inscription" (clicked)="OuvrirModalInscription()" />&nbsp;
-        <jp-button-loader label="Connexion" [loading]="btnClick()" (clicked)="Valider()" />
+    <mat-card-actions align="end" class="unsc-actions">
+        <jp-button-loader label="Enrôlement" (clicked)="OuvrirModalInscription()" class="btn-secondary" />&nbsp;
+        <jp-button-loader label="Authentification" [loading]="btnClick()" (clicked)="Valider()" class="btn-primary" />
     </mat-card-actions>
 </mat-card>

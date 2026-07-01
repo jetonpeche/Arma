@@ -2,22 +2,76 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 100vh; 
 }
 
-mat-card {
+.unsc-datapad {
     width: 80%;
+    background-color: var(--mat-sys-surface-container-high); 
+    
+    border: 2px solid var(--mat-sys-outline); 
+    border-radius: 4px;
+    
+    box-shadow: 0 8px 32px var(--mat-sys-shadow);
+    position: relative;
+    overflow: hidden;
 }
 
-@media screen and (max-width: 425px) 
-{
-    mat-card {
+.datapad-header-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: var(--mat-sys-tertiary); 
+}
+
+.unsc-header {
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    padding: 20px 20px 10px 20px;
+    margin-bottom: 20px;
+    background-color: var(--mat-sys-surface-container-highest);
+}
+
+.unsc-title {
+    color: var(--mat-sys-primary);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 1.5rem;
+}
+
+.unsc-subtitle {
+    color: var(--mat-sys-tertiary);
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+.unsc-content {
+    padding: 0 20px;
+    color: var(--mat-sys-on-surface);
+}
+
+.unsc-actions {
+    padding: 20px;
+    background-color: var(--mat-sys-surface-container);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+@media screen and (max-width: 425px) {
+    .unsc-datapad {
         width: 100%;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
     }
 }
 
-@media screen and (min-width: 769px) 
-{
-    mat-card {
-        width: 40%;
+@media screen and (min-width: 769px) {
+    .unsc-datapad {
+        width: 40%; 
+        max-width: 500px;
     }
 }
