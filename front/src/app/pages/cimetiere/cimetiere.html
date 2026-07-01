@@ -1,73 +1,104 @@
-<div class="halo-container">
-  <header class="page-header">
-    <h1>Mémorial du Corps des Marines de l'UNSC</h1>
-    <p>« Pour l'Humanité, jusqu'au dernier homme. Semper Fi ! »</p>
+<!-- EN-TÊTE GLOBAL UNSC -->
+<div class="page-header">
+  <div class="header-titles">
+      <h1>Mémorial des Héros</h1>
+      <div class="unsc-subtitle">// REGISTRE DES PERTES - CORPS DES MARINES</div>
+  </div>
 
-    @if(droit.peutEcrire)
-    {
-      <button style="margin-top: 10px;" matButton="filled" (click)="OuvrirModalAjouterMort()">
-        <mat-icon>add</mat-icon>
-        Ajouter
-      </button>
-    }
-  </header>
+  <div class="header-actions">
+      @if(droit.peutEcrire)
+      {
+        <button matButton="filled" class="btn-tactical" (click)="OuvrirModalAjouterMort()">
+          <mat-icon>add</mat-icon>
+          Déclarer un décès (KIA)
+        </button>
+      }
+  </div>
+</div>
 
-  <div class="characters-grid">
-    @for (perso of liste(); track perso.nom) 
-    {
-      <mat-card class="halo-card">
-        <mat-card-header>
-          <div mat-card-avatar class="unsc-avatar">
-            <mat-icon>shield</mat-icon>
-          </div>
+<!-- CITATION COMMÉMORATIVE -->
+<div class="memorial-quote">
+  <mat-icon class="quote-icon">format_quote</mat-icon>
+  <p>« Pour l'Humanité, jusqu'au dernier homme. Semper Fi ! »</p>
+</div>
+
+<div class="characters-grid">
+  @for (perso of liste(); track perso.nom) 
+  {
+    <mat-card class="kia-dossier-card" appearance="outlined">
+      
+      <!-- Filigrane K.I.A en arrière-plan -->
+      <div class="kia-watermark">K.I.A</div>
+
+      <mat-card-header class="dossier-header">
+        <div mat-card-avatar class="unsc-avatar">
+          <mat-icon>local_police</mat-icon>
+        </div>
+        <div class="title-wrapper">
           <mat-card-title class="char-name">{{ perso.nom }}</mat-card-title>
           <mat-card-subtitle class="char-subtitle">
-            @if (perso.nomGrade) 
-            {
-              Grade : {{ perso.nomGrade }}
-            } 
-            @else 
-            {
-              Deuxième Classe (Recrue)
-            }
+            {{ perso.nomGrade ? perso.nomGrade : 'Deuxième Classe (Recrue)' }}
           </mat-card-subtitle>
-        </mat-card-header>
+        </div>
+      </mat-card-header>
 
-        <mat-card-content class="char-details">
-          <p><strong>Date de naissance :</strong> {{ perso.dateNaissance }}</p>
-          <p><strong>Mort au combat le :</strong> <span class="death-date">{{ perso.dateMort }}</span></p>
-          
-          <div class="ops-counter">
-            <mat-icon class="icon-medal">military_tech</mat-icon>
-            <span><strong>{{ perso.nbOperation }}</strong> {{ perso.nbOperation > 1 ? 'opérations menées' : 'opération menée' }}</span>
+      <mat-card-content class="dossier-content">
+        <div class="military-stats">
+          <div class="stat-row">
+            <span class="stat-label">DATE DE NAISSANCE //</span>
+            <span class="stat-value">{{ perso.dateNaissance }}</span>
           </div>
+          <div class="stat-row death-row">
+            <span class="stat-label">TOMBÉ AU COMBAT LE //</span>
+            <span class="stat-value death-date">{{ perso.dateMort }}</span>
+          </div>
+        </div>
+        
+        <div class="ops-counter">
+          <mat-icon class="icon-medal">military_tech</mat-icon>
+          <span><strong>{{ perso.nbOperation }}</strong> DÉPLOIEMENTS EN ZONE HOSTILE</span>
+        </div>
 
-          @if (perso.nomSpecialite) 
-          {
-            <div class="tags-container">
-              <span class="tag tag-specialist">{{ perso.nomSpecialite }}</span>
-            </div>
-          }
+        @if (perso.nomSpecialite) 
+        {
+          <div class="tags-container">
+            <span class="tag-specialist">
+              <mat-icon>psychology</mat-icon>
+              {{ perso.nomSpecialite }}
+            </span>
+          </div>
+        }
 
-          @if (perso.elogeFunebre) 
-          {
-            <mat-divider></mat-divider>
-            <div class="eulogy-section">
-              <h3>Éloge Funèbre / Rapport de campagne</h3>
-              <p class="eulogy-text">{{ perso.elogeFunebre }}</p>
+        @if (perso.elogeFunebre) 
+        {
+          <div class="eulogy-section">
+            <div class="eulogy-header">
+              <mat-icon>assignment</mat-icon>
+              <h3>RAPPORT DE CAMPAGNE / ÉLOGE</h3>
             </div>
-          }
-        </mat-card-content>
-        <mat-card-actions align="end">
-          <jp-button-loader matIconButton [loading]="btnClick()" icon="delete" (clicked)="OuvrirModalConfirmationSupprimer(perso)" />
+            <p class="eulogy-text">"{{ perso.elogeFunebre }}"</p>
+          </div>
+        }
+      </mat-card-content>
+
+      @if(droit.peutEcrire)
+      {
+        <mat-card-actions class="dossier-actions" align="end">
+          <jp-button-loader matIconButton
+                            matTooltip="Purger ce dossier des archives"
+                            [loading]="btnClick()" 
+                            icon="delete_forever" 
+                            (clicked)="OuvrirModalConfirmationSupprimer(perso)" />
         </mat-card-actions>
-      </mat-card>
-    } 
-    @empty 
-    {
-      <div class="no-data">
-        <p>Aucun rapport de pertes de l'infanterie enregistré dans la base de données.</p>
-      </div>
-    }
-  </div>
+      }
+    </mat-card>
+  } 
+  @empty 
+  {
+    <div class="no-data">
+      <mat-icon class="no-data-icon">shield</mat-icon>
+      <p>AUCUN RAPPORT DE PERTES ENREGISTRÉ DANS LA BASE DE DONNÉES.</p>
+      <p class="sub-text">Toutes les unités sont opérationnelles.</p>
+    </div>
+  }
 </div>
