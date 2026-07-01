@@ -1,11 +1,13 @@
 <div class="page-header">
-    <h1>Médaille</h1>
-
-    @if (droit.peutEcrire)
+    <div class="header-titles">
+        <h1>Décorations et Médailles</h1>
+        <div class="unsc-subtitle">// ORDRES ET DISTINCTIONS DU CORPS DES MARINES</div>
+    </div>
+    
+    @if(droit.peutEcrire) 
     {
-        <button matButton="filled" (click)="OuvriModalAjouterModifierMedaille()">
-            <mat-icon>add</mat-icon>
-            Ajouter une médaille
+        <button matButton="filled" class="btn-tactical" (click)="OuvriModalAjouterModifierMedaille()">
+            <mat-icon>add_task</mat-icon> Créer distinction
         </button>
     }
 </div>

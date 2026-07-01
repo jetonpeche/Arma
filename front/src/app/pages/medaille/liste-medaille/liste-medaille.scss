@@ -1,32 +1,81 @@
-mat-card {
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid var(--mat-sys-outline-variant);
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px var(--mat-sys-primary-container) !important;
-    border-color: var(--mat-sys-primary);
-  }
-}
-
-mat-card-content {
+.medal-card {
+    height: 100%;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    background-color: var(--mat-sys-surface-container);
+    border-radius: 12px;
+    
+    border: 1px solid var(--mat-sys-outline-variant);
+    
+    border-left: 4px solid var(--mat-sys-primary);
+    border-top: 4px solid var(--mat-sys-primary);
+    
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        border-color: var(--mat-sys-primary);
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, var(--mat-sys-surface-container));
+    }
 }
 
-@media screen and (max-width: 1024px) 
+.ribbon-container {
+    padding: 20px;
+    background-color: var(--mat-sys-surface-container-highest);
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    position: relative;
+    
+    .ribbon-image {
+        max-width: 220px;
+        height: 80px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+    }
+}
+
+.medal-title {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--mat-sys-primary);
+}
+
+.medal-points {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    color: var(--mat-sys-tertiary);
+}
+
+.medal-content {
+    flex-grow: 1;
+    padding: 16px;
+    padding-top: 5px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+.medal-actions {
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    justify-content: flex-end;
+    padding: 8px;
+    gap: 8px;
+}
+
+/* --- RESPONSIVE OPTIMISÉ --- */
+@media screen and (max-width: 600px) 
 {
-    mat-card {
-        height: 100%;
+    .ribbon-container {
+        padding: 16px;
     }
-
-    mat-card-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    mat-card-content {
-        flex: 1 1 auto; /* Prend tout l'espace disponible */
+    
+    .ribbon-image {
+        max-width: 160px;
+        height: 60px;
     }
 }

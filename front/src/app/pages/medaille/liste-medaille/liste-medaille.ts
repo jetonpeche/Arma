@@ -7,10 +7,11 @@ import { Medaille } from '@models/Medaille';
 import { ModalAttribuerMedaille } from '../modal-attribuer-medaille/modal-attribuer-medaille';
 import { Droit } from '@models/DroitGroupe';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-liste-medaille',
-  imports: [GridContainer, GridElement, MatCardModule, MatButtonModule],
+  imports: [GridContainer, MatIconModule, GridElement, MatCardModule, MatButtonModule],
   templateUrl: './liste-medaille.html',
   styleUrl: './liste-medaille.scss',
 })
