@@ -1,153 +1,346 @@
-.flexContainer
-{
-  margin-top: 10px;
-  margin-bottom: 5px;
-  display: flex; 
-  gap: 10px; 
-  flex-flow: wrap; 
-  justify-content: center;
+/* --- BARRE D'OUTILS --- */
+.tactical-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: var(--mat-sys-surface-container);
+    border-radius: 8px;
+    border-left: 4px solid var(--mat-sys-tertiary);
+
+    .search-input {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .tactical-checkbox {
+        color: var(--mat-sys-primary);
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+    }
 }
 
-.divLogoDroite 
-{
-  width: 180px;
-  display: inline-block;
-
-  img 
-  {
-    width: 100%;
-    display: block;
-    transition: opacity 0.3s ease;
-  }
+/* --- CONTENEUR DES CARTES --- */
+.flexContainer {
+    display: flex; 
+    gap: 24px; 
+    flex-flow: wrap; 
+    justify-content: center;
+    margin-bottom: 40px;
 }
 
-/* --- MODE SOMBRE --- */
-:host-context(html:not(.light-mode)) 
-{
-  .divLogoDroite 
-  {
-    background-color: var(--mat-sys-on-surface); 
+/* --- CARTE D'IDENTITÉ UNSC --- */
+.unsc-id-card {
+    width: 650px;
+    background: linear-gradient(135deg, var(--mat-sys-surface-container-highest) 0%, var(--mat-sys-surface-container) 100%);
+    border: 2px solid var(--mat-sys-outline-variant);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+        border-color: var(--mat-sys-primary);
+
+        .enfant {
+            opacity: 1;
+            pointer-events: all;
+        }
+    }
+}
+
+/* --- EN-TÊTE DE LA CARTE --- */
+.id-header {
+    background-color: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+    padding: 12px 24px;
+    text-align: center;
+    border-bottom: 4px solid var(--mat-sys-tertiary);
+
+    .id-title {
+        font-size: 1.2rem;
+        font-weight: 900;
+        letter-spacing: 3px;
+        margin-bottom: 2px;
+    }
+
+    .id-subtitle {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        opacity: 0.9;
+    }
+}
+
+.id-content {
+    padding: 20px 24px !important;
+}
+
+/* --- SECTION PRINCIPALE (HAUT) --- */
+.main-section {
+    display: flex; 
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* Photo et Matricule */
+.divPhoto {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 130px;
+
+    .photo-frame {
+        width: 100%;
+        height: 160px;
+        border: 2px solid var(--mat-sys-outline);
+        background-color: #000;
+        position: relative;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: contrast(1.1);
+        }
+
+        /* Effet de balayage holographique */
+        .scanline {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 10px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent);
+            opacity: 0.5;
+            animation: scan 4s linear infinite;
+        }
+    }
+
+    .matricule-text {
+        margin-top: 8px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: var(--mat-sys-on-surface-variant);
+        text-align: center;
+    }
+}
+
+@keyframes scan {
+    0% { transform: translateY(-20px); }
+    100% { transform: translateY(180px); }
+}
+
+/* Informations Texte */
+.info-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: max-content 1fr; 
+    column-gap: 12px;
+    row-gap: 6px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+
+    .info-label {
+        font-weight: bold;
+        color: var(--mat-sys-primary);
+    }
+
+    .info-value {
+        color: var(--mat-sys-on-surface);
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .primary-text { color: var(--mat-sys-primary); font-size: 1rem; }
+    .warning-text { color: var(--mat-sys-error); }
+    .mt-2 { margin-top: 8px; }
+}
+
+/* Bloc d'affectation */
+.assignment-block {
+    background-color: var(--mat-sys-surface-container-highest);
+    padding: 10px;
+    border-left: 3px solid var(--mat-sys-tertiary);
+    border-radius: 0 4px 4px 0;
+
+    .assignment-title {
+        font-weight: 900;
+        font-size: 0.95rem;
+        color: var(--mat-sys-on-surface);
+    }
     
-    -webkit-mask-image: url('/logoDroite.png');
-    mask-image: url('/logoDroite.png');
-    -webkit-mask-size: 100% auto;
-    mask-size: 100% auto;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: top left;
-    mask-position: top left;
-
-    img 
-    {
-      opacity: 0; 
+    .assignment-unit {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.85rem;
+        color: var(--mat-sys-on-surface-variant);
+        
+        .unit-sub { font-size: 0.75rem; }
     }
-  }
 }
 
-/* --- MODE CLAIR --- */
-:host-context(html.light-mode) 
-{
-  .divLogoDroite 
-  {
-    background-color: transparent;
-    -webkit-mask-image: none;
-    mask-image: none;
-
-    img 
-    {
-      opacity: 1; 
+/* Logo Dynamique */
+.divLogoDroite {
+    width: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    img {
+        width: 100%;
+        transition: opacity 0.3s ease;
     }
-  }
 }
 
-.info-container 
-{
-  display: grid;
-
-  /* La 1ère colonne s'adapte au contenu, la 2ème prend le reste */
-  grid-template-columns: max-content 1fr; 
-  max-width: 300px;
-  column-gap: 5px;
-}
-
-mat-card {
-  width: 630px;
-
-  .enfant {
-    display: none;
-  }
-
-  &:hover
-  {
-    background-color: var(--mat-sys-surface-dim);
-    color: var(--mat-sys-on-surface);
-
-    .enfant
-    {
-      display: block; 
+/* --- LOGIQUE CLAIR/SOMBRE DU LOGO --- */
+:host-context(html:not(.light-mode)) {
+    .divLogoDroite {
+        background-color: var(--mat-sys-outline-variant); 
+        -webkit-mask-image: url('/logoDroite.png');
+        mask-image: url('/logoDroite.png');
+        -webkit-mask-size: 100% auto;
+        mask-size: 100% auto;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        img { opacity: 0; }
     }
-  }
 }
 
-mat-card-header {
-  margin-bottom: 10px;
-}
-
-section 
-{
-  display: flex; 
-  justify-content: space-between;
-}
-
-.divPhoto
-{
-  max-width: 125px;
-
-  img
-  {
-    max-width: 100%;
-    scale: 1;
-    height: 10.4rem;
-    object-fit: cover;
-  }
-
-  p 
-  {
-    margin: 0;
-  }
-}
-
-.divCodeBar
-{
-  width: 220px; 
-  font-size: 11px; 
-  display: flex; 
-  align-items: center; 
-  justify-content: space-between;
-}
-
-@media screen and (max-width: 600px)
-{
-  .divLogoDroite
-  {
-    display: none;
-  }
-
-  .divPhoto img
-  {
-    width: 80px;
-  }
-}
-
-@media screen and (max-width: 493px)
-{
-  .divCodeBar
-  {
-    justify-content: end;
-
-    p
-    {
-      display: none;
+:host-context(html.light-mode) {
+    .divLogoDroite {
+        background-color: transparent;
+        -webkit-mask-image: none;
+        mask-image: none;
+        img { opacity: 1; filter: grayscale(100%) opacity(0.5); }
     }
-  }
+}
+
+.id-divider {
+    margin: 16px 0;
+    border-color: var(--mat-sys-outline-variant);
+}
+
+/* --- SECTION LÉGALE (BAS) --- */
+.footer-section {
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+}
+
+.legal-text {
+    font-family: 'Arial', sans-serif;
+    font-size: 0.65rem;
+    color: var(--mat-sys-on-surface-variant);
+    max-width: 280px;
+    line-height: 1.3;
+
+    p { margin: 0; }
+    .mt-1 { margin-top: 8px; }
+}
+
+.divCodeBar {
+    display: flex; 
+    align-items: center; 
+    gap: 16px;
+    
+    .barcode-text {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.65rem;
+        text-align: right;
+        color: var(--mat-sys-on-surface-variant);
+        
+        .barcode-value {
+            font-weight: bold;
+            color: var(--mat-sys-on-surface);
+            font-size: 0.75rem;
+        }
+
+        .mt-1 { margin-top: 6px; }
+    }
+
+    .barcode-img {
+        width: 140px;
+        height: 45px;
+        background-color: white;
+        padding: 4px;
+        border-radius: 2px;
+    }
+}
+
+/* --- OVERLAY TACTIQUE (ACTIONS) --- */
+.tactical-overlay {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-color: rgba(11, 31, 7, 0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+    border: 2px solid var(--mat-sys-primary);
+    border-radius: 12px;
+
+    .overlay-title {
+        color: var(--mat-sys-primary);
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin-bottom: 24px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* Couleurs personnalisées pour les boutons d'action */
+    .bg-info { background-color: var(--mat-sys-tertiary-container); color: var(--mat-sys-on-tertiary-container); }
+    .bg-edit { background-color: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); }
+    .bg-kia { background-color: #ff9800; color: #fff; }
+    .bg-danger { background-color: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); }
+}
+
+@media screen and (max-width: 680px) 
+{
+    .unsc-id-card { width: 100%; }
+    .divLogoDroite { display: none; }
+    .main-section { flex-direction: column; align-items: center; }
+    .divPhoto { width: 100%; max-width: 200px; }
+    .info-section { width: 100%; }
+    .footer-section { flex-direction: column; gap: 16px; text-align: center; }
+    .divCodeBar { 
+        flex-direction: column; 
+        align-items: center; 
+        gap: 12px;
+
+        .barcode-text { 
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            text-align: center; 
+            
+            .mt-1 { 
+                margin-top: 0;
+            } 
+        } 
+    }
 }

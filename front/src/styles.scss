@@ -178,4 +178,23 @@ mat-dialog-content {
     letter-spacing: 1px;
     text-transform: uppercase;
   }
+
+  .header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+
+    @media screen and (max-width: 680px) 
+    {
+      width: 100%;
+
+      button, a 
+      {
+        flex: 1 1 100%; 
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
 }

@@ -20,10 +20,12 @@ import { AuthentificationService } from '@services/AuthentificationService';
 import { EUrl } from '@enums/EUrl';
 import { ModalPersonnageParticiperOperation } from './modal-personnage-participer-operation/modal-personnage-participer-operation';
 import { MatCheckboxChange, MatCheckboxModule } from "@angular/material/checkbox";
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-personnage',
-  imports: [MatCheckboxModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon, MatFormField, MatLabel, InputFile],
+  imports: [MatCheckboxModule, MatTooltipModule, MatCardModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon, MatFormField, MatLabel, InputFile],
   templateUrl: './personnagePage.html',
   styleUrl: './personnagePage.scss',
 })

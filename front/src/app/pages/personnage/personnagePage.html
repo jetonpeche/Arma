@@ -1,140 +1,175 @@
+<!-- EN-TÊTE GLOBAL UNSC -->
 <div class="page-header">
-    <h1>Personnage</h1>
+    <div class="header-titles">
+        <h1>Dossiers du Personnel</h1>
+        <div class="unsc-subtitle">// BASE DE DONNÉES DE L'ÉTAT-MAJOR - CONFIDENTIEL</div>
+    </div>
 
-    @if (droit.peutEcrire) 
+    <div class="header-actions">
+        @if (droit.peutEcrire)
+        {
+            <button matButton="filled" (click)="OuvrirModalAjouterPersonne()">
+                <mat-icon>person_add</mat-icon>
+                Nouvelle recrue
+            </button>
+
+            <button matButton="filled" (click)="OuvrirModalPersonnageParticiper()">
+                <mat-icon>military_tech</mat-icon>
+                Rapport d'opération
+            </button>
+        }
+    </div>
+</div>
+
+<!-- BARRE D'OUTILS TACTIQUE -->
+<div class="tactical-toolbar">
+    <mat-form-field appearance="outline" class="search-input" subscriptSizing="dynamic">
+        <mat-label>Rechercher par matricule, nom ou discord</mat-label>
+        <mat-icon matPrefix>badge</mat-icon>
+        <input #inputRecherche matInput type="search" (keyup)="0">
+    </mat-form-field>
+
+    @if(droit.peutEcrire)
     {
-        <button matButton="filled" (click)="OuvrirModalAjouterPersonne()">
-            <mat-icon>add</mat-icon>
-            Nouvelle recrue
-        </button>&nbsp;
-
-        <button matButton="filled" (click)="OuvrirModalPersonnageParticiper()">
-            Opération terminé
-        </button>
+        <mat-checkbox class="tactical-checkbox" (change)="FiltrerPasValider($event)">
+            En attente de validation ({{ nbPasValider() }})
+        </mat-checkbox>
     }
 </div>
 
-<mat-form-field appearance="outline">
-    <mat-label>Recherche par nom ou discord</mat-label>
-    <input #inputRecherche matInput type="search">
-</mat-form-field>
-
-@if(droit.peutEcrire)
-{
-    <mat-checkbox (change)="FiltrerPasValider($event)">
-        Pas validé ({{ nbPasValider() }})
-    </mat-checkbox>
-}
-
+<!-- GRILLE DES CARTES D'IDENTITÉ -->
 <div class="flexContainer">
 
     @for (element of Rechercher(inputRecherche.value); track element.id) 
     {
-        <mat-card>
-            <mat-card-header>
-                <mat-card-title><b>UNITED NATION SPACE COMMAND</b></mat-card-title>
-                <mat-card-subtitle>Identification and privilege card</mat-card-subtitle>
-            </mat-card-header>
+        <mat-card class="unsc-id-card" appearance="outlined">
+            
+            <!-- EN-TÊTE DE LA CARTE -->
+            <div class="id-header">
+                <div class="id-title">UNITED NATIONS SPACE COMMAND</div>
+                <div class="id-subtitle">IDENTIFICATION AND PRIVILEGE CARD</div>
+            </div>
 
-            <mat-card-content>
-                <section>
+            <!-- CONTENU PRINCIPAL -->
+            <mat-card-content class="id-content">
+                <section class="main-section">
+                    
+                    <!-- Colonne Photo -->
                     <div class="divPhoto">
-                        <img [src]="element.urlPhotoIdentite" alt="Photo identité personnage">
-                        <p>N° {{ element.matricule }}</p>
+                        <div class="photo-frame">
+                            <img [src]="element.urlPhotoIdentite" alt="Photo identité personnage">
+                            <div class="scanline"></div>
+                        </div>
+                        <p class="matricule-text">MATRICULE // {{ element.matricule }}</p>
                     </div>
-                    <div>
-                        <div class="info-container">
-                            <span><b>Nom:</b></span>
-                            <span>{{ element.grade?.nomRaccourci }} {{ element.nom }}</span>
 
-                            <span><b>Discord:</b></span>
-                            <span>{{ element.nomDiscord }}</span>
+                    <!-- Colonne Infos -->
+                    <div class="info-section">
+                        <div class="info-grid">
+                            <span class="info-label">NOM:</span>
+                            <span class="info-value primary-text">{{ element.grade?.nomRaccourci }} {{ element.nom }}</span>
+
+                            <span class="info-label">DISCORD:</span>
+                            <span class="info-value">{{ element.nomDiscord }}</span>
                             
-                            <span><b>Né le:</b></span>
-                            <span>{{ element.dateNaissance }}</span>
+                            <span class="info-label">NÉ LE:</span>
+                            <span class="info-value">{{ element.dateNaissance }}</span>
                             
-                            <span><b>Origine:</b></span>
-                            <span>{{ element.planeteOrigine?.nom ?? "NA" }}</span>
+                            <span class="info-label">ORIGINE:</span>
+                            <span class="info-value">{{ element.planeteOrigine?.nom ?? "N/A" }}</span>
 
-                            <span><b>Groupe sanguin:</b></span>
-                            <span>{{ element.groupeSanguin }}</span>
+                            <span class="info-label">SANG:</span>
+                            <span class="info-value warning-text">{{ element.groupeSanguin }}</span>
 
-                            <span style="margin-top: 5px;"><b>Opérations:</b></span>
-                            <span style="margin-top: 5px;">{{ element.nbOperation }}</span>
+                            <span class="info-label mt-2">OPÉRATIONS:</span>
+                            <span class="info-value mt-2">{{ element.nbOperation }}</span>
 
-                            <span><b>Bootcamps:</b></span>
-                            <span>{{ element.nbBootcamp }}</span>
+                            <span class="info-label">BOOTCAMPS:</span>
+                            <span class="info-value">{{ element.nbBootcamp }}</span>
                         </div>
 
-                        <p style="margin-top: 5px;">
-                            <b>
-                                Sector 1 command <br>
-                                Element UNSCMC 
-                                <span style="font-size: smaller;">88th MEU 21st compagny</span>
-                            </b>
-                        </p>
+                        <div class="assignment-block">
+                            <div class="assignment-title">SECTOR 1 COMMAND</div>
+                            <div class="assignment-unit">
+                                ELEMENT UNSCMC <br>
+                                <span class="unit-sub">88th MEU 21st Company</span>
+                            </div>
+                        </div>
                     </div>
 
+                    <!-- Logo Dynamique -->
                     <div class="divLogoDroite">
-                        <img src="logoDroite.png" alt="">
+                        <img src="logoDroite.png" alt="Logo Section">
                     </div>
                 </section>
 
-                <section>
-                    <div style="font-size: 11px; max-width: 220px;">
-                        <p style="line-height: 11px;">
-                            Attempted use by non-authorized individual is a violation of
+                <mat-divider class="id-divider"></mat-divider>
+
+                <!-- SECTION LÉGALE ET CODE BARRE -->
+                <section class="footer-section">
+                    <div class="legal-text">
+                        <p>
+                            Attempted use by non-authorized individual is a violation of<br>
                             Unified Earth Government Law Chapter 9, Section 31
-                            <br><br>
-                            If lost or damaged proceed imediately to a authorized personnel
-                            for reissuance
+                        </p>
+                        <p class="mt-1">
+                            If lost or damaged proceed immediately to authorized personnel<br>
+                            for reissuance.
                         </p>
                     </div>
 
                     <div class="divCodeBar">
-                        <p style="line-height: 11px;">
-                            Expire date <br> 1 Janvier 2580 
-                            <br><br>
-                            Serial number <br>
-                            4501-52-46887-68
-                        </p>
-                        <img src="codeBar.webp" width="120" height="60" alt="logo UNSC code barre">
+                        <div class="barcode-text">
+                            <div>EXPIRE DATE <br> <span class="barcode-value">1 JAN 2580</span></div>
+                            <div class="mt-1">SERIAL NUMBER <br> <span class="barcode-value">4501-52-46887-68</span></div>
+                        </div>
+                        <img src="codeBar.webp" class="barcode-img" alt="logo UNSC code barre">
                     </div>
                 </section>
             </mat-card-content>
 
-            <div class="enfant" style="position: absolute; right: 10px; top: 10px;">
+            <!-- OVERLAY D'ACTIONS TACTIQUES (Au survol) -->
+            <div class="tactical-overlay enfant">
+                
+                <div class="overlay-title">// PANNEAU DE CONTRÔLE //</div>
+                
+                <div class="action-buttons">
+                    @if (droitFichier.peutEcrire) 
+                    {
+                        <div class="action-item" matTooltip="Mettre à jour la photo">
+                            <jp-input-file-btn matFab
+                                                    icon="photo_camera" 
+                                                    (fileChange)="UploadFichier(element.id, $any($event))"
+                                                    accept=".png, .jpg, .webp, .jpeg" />
+                        </div>
+                    }
 
-                @if (droitFichier.peutEcrire) 
-                {
-                    <jp-input-file-btn matMiniFab 
-                                                icon="photo" 
-                                                (fileChange)="UploadFichier(element.id, $any($event))"
-                                                accept=".png, .jpg, .webp, .jpeg" />&nbsp;
-                }
-
-                <button matMiniFab (click)="OuvrirModalObjetBoutiquePosseder(element)">
-                    <mat-icon>shopping_basket</mat-icon>
-                </button>&nbsp;
-
-                @if (droit.peutEcrire) 
-                {
-                    <button matMiniFab (click)="OuvrirModalAjouterPersonne(element)">
-                        <mat-icon>edit</mat-icon>
-                    </button>&nbsp;
-
-                    <button matMiniFab (click)="OuvrirModalDeclarerMort(element)">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M240-80v-170q-39-17-68.5-45.5t-50-64.5q-20.5-36-31-77T80-520q0-158 112-259t288-101q176 0 288 101t112 259q0 42-10.5 83t-31 77q-20.5 36-50 64.5T720-250v170H240Zm80-80h40v-80h80v80h80v-80h80v80h40v-142q38-9 67.5-30t50-50q20.5-29 31.5-64t11-74q0-125-88.5-202.5T480-800q-143 0-231.5 77.5T160-520q0 39 11 74t31.5 64q20.5 29 50.5 50t67 30v142Zm100-200h120l-60-120-60 120Zm-80-80q33 0 56.5-23.5T420-520q0-33-23.5-56.5T340-600q-33 0-56.5 23.5T260-520q0 33 23.5 56.5T340-440Zm280 0q33 0 56.5-23.5T700-520q0-33-23.5-56.5T620-600q-33 0-56.5 23.5T540-520q0 33 23.5 56.5T620-440ZM480-160Z"/></svg>
-                    </button>&nbsp;
-                }
-
-                @if (droit.peutSupprimer) 
-                {
-                    <button matMiniFab (click)="OuvrirModalSupprimer(element)">
-                        <mat-icon>delete</mat-icon>
+                    <button matFab class="action-btn bg-info" matTooltip="Inventaire & Équipement" (click)="OuvrirModalObjetBoutiquePosseder(element)">
+                        <mat-icon>inventory_2</mat-icon>
                     </button>
-                }
+
+                    @if (droit.peutEcrire) 
+                    {
+                        <button matFab class="action-btn bg-edit" matTooltip="Modifier le dossier" (click)="OuvrirModalAjouterPersonne(element)">
+                            <mat-icon>edit_document</mat-icon>
+                        </button>
+
+                        <button matFab class="action-btn bg-kia" matTooltip="Déclarer KIA (Mort au combat)" (click)="OuvrirModalDeclarerMort(element)">
+                            <mat-icon>
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M240-80v-170q-39-17-68.5-45.5t-50-64.5q-20.5-36-31-77T80-520q0-158 112-259t288-101q176 0 288 101t112 259q0 42-10.5 83t-31 77q-20.5 36-50 64.5T720-250v170H240Zm80-80h40v-80h80v80h80v-80h80v80h40v-142q38-9 67.5-30t50-50q20.5-29 31.5-64t11-74q0-125-88.5-202.5T480-800q-143 0-231.5 77.5T160-520q0 39 11 74t31.5 64q20.5 29 50.5 50t67 30v142Zm100-200h120l-60-120-60 120Zm-80-80q33 0 56.5-23.5T420-520q0-33-23.5-56.5T340-600q-33 0-56.5 23.5T260-520q0 33 23.5 56.5T340-440Zm280 0q33 0 56.5-23.5T700-520q0-33-23.5-56.5T620-600q-33 0-56.5 23.5T540-520q0 33 23.5 56.5T620-440ZM480-160Z"/></svg>
+                            </mat-icon>
+                        </button>
+                    }
+
+                    @if (droit.peutSupprimer) 
+                    {
+                        <button mat-fab class="action-btn bg-danger" matTooltip="Suppression définitive" (click)="OuvrirModalSupprimer(element)">
+                            <mat-icon>delete_forever</mat-icon>
+                        </button>
+                    }
+                </div>
             </div>
+
         </mat-card>
     }
 </div>
