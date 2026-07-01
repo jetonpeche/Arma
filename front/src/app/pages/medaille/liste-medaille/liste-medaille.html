@@ -5,14 +5,14 @@
             <mat-card class="medal-card" appearance="outlined">
                 <!-- Ruban mis en avant -->
                 <div class="ribbon-container">
+                    <div class="price-tag">
+                        {{ element.nbPoint }} CR
+                    </div>
                     <img [src]="element.nomFichier" [alt]="element.nom" class="ribbon-image">
                 </div>
 
                 <mat-card-header>
                     <mat-card-title class="medal-title">{{ element.nom }}</mat-card-title>
-                    <mat-card-subtitle class="medal-points">
-                        VALEUR : {{ element.nbPoint }} CR
-                    </mat-card-subtitle>
                 </mat-card-header>
 
                 <mat-card-content class="medal-content">

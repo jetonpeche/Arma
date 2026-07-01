@@ -43,6 +43,8 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--mat-sys-primary);
+    margin-top: 16px !important;
+    margin-bottom: 0 !important;
 }
 
 .medal-points {
@@ -65,6 +67,22 @@
     justify-content: flex-end;
     padding: 8px;
     gap: 8px;
+}
+
+.price-tag {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    font-size: 0.85rem;
+    border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 50%, transparent);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    z-index: 2;
 }
 
 /* --- RESPONSIVE OPTIMISÉ --- */
