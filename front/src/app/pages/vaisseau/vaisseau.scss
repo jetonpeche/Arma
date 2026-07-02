@@ -1,17 +1,240 @@
-.parent-td {
-    position: relative;
+/* =========================================================
+   GRILLE DU CHANTIER NAVAL
+   ========================================================= */
+.shipyard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 450px), 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.tactical-filters {
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 50%, transparent);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 2px;
+
+    padding: 24px; 
+    margin-bottom: 24px;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
     
-    img {
-        display: block;
-    } 
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        display: none !important;
+    }
 }
 
-.enfant {
-    display: none;
-    position: absolute;
-    top: 5px;
+
+/* =========================================================
+   STYLE DE LA CARTE TACTIQUE
+   ========================================================= */
+.unsc-ship-card {
+    background-color: var(--mat-sys-surface-container);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 2px !important; /* Coins carrés militaires */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+        transform: translateY(-4px);
+        border-color: var(--mat-sys-primary);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5), 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent) !important;
+        
+        .card-image-wrapper img {
+            transform: scale(1.05); /* Léger zoom de l'image au survol */
+        }
+    }
 }
 
-.parent-td:hover .enfant {
-    display: block; 
+/* --- ZONE IMAGE --- */
+.card-image-wrapper {
+    position: relative;
+    height: 180px; /* Grande zone pour admirer le vaisseau */
+    background: radial-gradient(circle, var(--mat-sys-surface-container-highest) 0%, var(--mat-sys-surface-container) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    overflow: hidden;
+
+    .ship-image {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.8));
+        transition: transform 0.4s ease;
+    }
+
+    .price-tag {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, var(--mat-sys-surface));
+        color: var(--mat-sys-tertiary);
+        border: 1px solid var(--mat-sys-tertiary);
+        padding: 4px 12px;
+        border-radius: 2px;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        z-index: 2;
+    }
+
+    /* Le scanner d'upload caché */
+    .upload-overlay {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(0, 15, 0, 0.7);
+        backdrop-filter: blur(3px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 3;
+    }
+
+    &:hover .upload-overlay {
+        opacity: 1;
+    }
+}
+
+/* --- EN-TÊTE & TEXTES --- */
+mat-card-header {
+    padding: 16px 16px 0 16px !important;
+
+    mat-card-title {
+        color: var(--mat-sys-primary);
+        font-family: 'Courier New', Courier, monospace !important;
+        font-weight: 900 !important;
+        letter-spacing: 1.5px;
+        font-size: 1.3rem !important;
+    }
+
+    .role-subtitle {
+        color: var(--mat-sys-on-surface-variant);
+        font-size: 0.9rem;
+        margin-top: 4px;
+        
+        .special-capacity {
+            color: var(--mat-sys-error);
+            font-weight: bold;
+        }
+    }
+}
+
+/* --- SPÉCIFICATIONS TECHNIQUES (Grille interne) --- */
+mat-card-content {
+    padding: 16px !important;
+    flex-grow: 1; /* Pousse les boutons tout en bas si la carte est plus grande */
+}
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes pour les petites infos */
+    gap: 12px;
+    background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    padding: 12px;
+    border-radius: 2px;
+
+    .spec-item {
+        display: flex;
+        flex-direction: column;
+        
+        &.full-width {
+            grid-column: 1 / -1; /* Prend toute la largeur */
+            border-top: 1px dashed var(--mat-sys-outline-variant);
+            padding-top: 12px;
+        }
+    }
+
+    .spec-label {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.75rem;
+        color: var(--mat-sys-outline);
+        margin-bottom: 4px;
+        letter-spacing: 1px;
+    }
+
+.spec-value {
+        font-size: 0.9rem;
+        color: var(--mat-sys-on-surface);
+        font-weight: bold;
+
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+
+        mat-icon {
+            font-size: 18px; 
+            width: 18px;
+            height: 18px;
+            color: var(--mat-sys-primary);
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .stock-value {
+        color: var(--mat-sys-secondary);
+    }
+    
+    .badge-list-box {
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .unsc-badge {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+        }
+        
+        /* Style pour les mentions "NON ARMÉ" ou "AUCUN VAISSEAU" */
+        .empty-value {
+            color: var(--mat-sys-outline);
+            font-size: 0.85rem;
+            font-weight: normal;
+            font-style: italic;
+        }
+    }
+}
+
+/* --- ACTIONS --- */
+.card-actions {
+    padding: 16px !important;
+    background-color: var(--mat-sys-surface-container-highest);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    display: flex;
+    gap: 8px;
+
+    .spacer {
+        flex: 1 1 auto;
+    }
+}
+
+@media screen and (max-width: 600px) 
+{
+    .specs-grid {
+        grid-template-columns: repeat(2, 1fr); 
+    }
+
+    mat-card-header mat-card-title {
+        font-size: 1.1rem !important;
+    }
+
+    .card-actions {
+        flex-wrap: wrap;
+        
+        .spacer {
+            display: none;
+        }
+    }
 }

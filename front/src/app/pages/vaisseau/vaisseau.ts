@@ -1,11 +1,10 @@
-import { AfterViewInit, Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
 import { Vaisseau, VaisseauArmement, VaisseauLeger } from '@models/Vaisseau';
 import { VaisseauService } from '@services/VaisseauService';
 import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
@@ -21,23 +20,18 @@ import { environment } from '../../../environements/environement';
 import { ModalInitInfo } from './modal-init-info/modal-init-info';
 import { ETypeRessource } from '@enums/ETypeRessource';
 import { FichierService } from '@services/FichierService';
+import { MatCardModule } from '@angular/material/card';
+import { DecimalPipe, UpperCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-vaisseau',
-  imports: [MatIcon, MatTableModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSortModule, MatPaginatorModule, ButtonLoader, InputFile],
+  imports: [DecimalPipe, MatIcon, MatCardModule, UpperCasePipe, MatButtonModule, MatFormFieldModule, MatInputModule, MatSortModule, MatPaginatorModule, ButtonLoader, InputFile],
   templateUrl: './vaisseau.html',
   styleUrl: './vaisseau.scss',
 })
-export class VaisseauPage implements OnInit, AfterViewInit
+export class VaisseauPage implements OnInit
 {
-    protected matSort = viewChild.required(MatSort);
-    protected matPaginator = viewChild.required(MatPaginator);
-
-    protected displayedColumns: string[] = [
-        "image", "nom", "prix", "stock", "role",  "equipage", 
-        "armement", "vitesse", "blindage", "action"
-    ];
-    protected dataSource = signal<MatTableDataSource<Vaisseau>>(new MatTableDataSource());
+    protected listeVaisseau = signal<Vaisseau[]>([]);
     protected btnClick = signal<boolean>(false);
     protected droit: Droit;
     protected peutAcheterVaisseau: boolean;
@@ -48,6 +42,7 @@ export class VaisseauPage implements OnInit, AfterViewInit
     private dialogConfirmationServ = inject(DialogConfirmationService);
     private authServ = inject(AuthentificationService);
     private dialog = inject(MatDialog);
+    protected listeVaisseauClone = signal<Vaisseau[]>([]);
 
     ngOnInit(): void
     {
@@ -57,30 +52,20 @@ export class VaisseauPage implements OnInit, AfterViewInit
         this.peutAcheterVaisseau = environment.utilisateur.droit.peutAcheterVaisseau;
     }
 
-    ngAfterViewInit(): void
+    protected Rechercher(_valeur: string): void
     {
-        this.matPaginator()._intl.itemsPerPageLabel = "Vaisseau par page";
-
-        this.dataSource.update(x => {
-            x.sort = this.matSort();
-            x.paginator = this.matPaginator();
-            return x;
-        });
+        const VALEUR = _valeur.toLowerCase().trim();
+        this.listeVaisseau.set(this.listeVaisseauClone().filter(x => x.nom.toLowerCase().includes(VALEUR)))
     }
 
-    protected Recherche(_event: Event): void
+    protected FormaterArmement(_listeArmement: VaisseauArmement[]): string[] 
     {
-        const VALEUR = (_event.target as HTMLInputElement).value;
-
-        this.dataSource.update(x => {
-            x.filter = VALEUR.trim().toLowerCase()
-            return x;
-        });
+        return _listeArmement.map(x => `${x.nombre} x ${x.nom}`);
     }
 
-    protected ListerArmementString(_listeArmement: VaisseauArmement[], _listeVaisseauEnfant: VaisseauLeger[]): string
+    protected FormaterVaisseauxEmbarques(_listeVaisseauEnfant: VaisseauLeger[]): string[] 
     {
-        return  _listeArmement.map(x => `${x.nombre} ${x.nom}`).join(" / ") + ( _listeVaisseauEnfant.length > 0 ? " / " : "") + _listeVaisseauEnfant.map(x => x.nom).join(" / ");
+        return _listeVaisseauEnfant.map(x => x.nom);
     }
 
     protected UploadFichier(_idVaisseau: number, _fichier: File): void
@@ -89,17 +74,15 @@ export class VaisseauPage implements OnInit, AfterViewInit
             next: (url: string) => 
             {
                 this.snackBarServ.Ok("Le fichier a été uploadé");
-                this.dataSource.update(x => 
+                this.listeVaisseau.update(x => 
                 {
-                    x.data = x.data.map(y => 
+                    return x.map(y => 
                     {
                         if (y.id == _idVaisseau)
                             return { ...y, urlImageObjet: `${url}?t=${new Date().getTime()}` }
                         
                         return y;
                     });
-
-                    return x;
                 });
             }
         });
@@ -163,11 +146,7 @@ export class VaisseauPage implements OnInit, AfterViewInit
                 this.btnClick.set(false);
                 this.snackBarServ.Ok("Le vaisseau a été supprimé");
 
-                this.dataSource.update(x => {
-                    x.data = x.data.filter(x => x.id != _idVaisseau);
-
-                    return x;
-                });
+                this.listeVaisseau.update(x => x.filter(x => x.id != _idVaisseau));
             },
             error: () => this.btnClick.set(false)
         })
@@ -194,8 +173,8 @@ export class VaisseauPage implements OnInit, AfterViewInit
                         this.snackBarServ.Ok("Le vaisseau a été acheté");
                         this.authServ.ModifierPointBanque(_prix);
 
-                        this.dataSource.update(x => {
-                            x.data.find(x => x.id == _idVaisseau).stock += 1;
+                        this.listeVaisseau.update(x => {
+                            x.find(x => x.id == _idVaisseau).stock += 1;
 
                             return x;
                         });
@@ -211,11 +190,7 @@ export class VaisseauPage implements OnInit, AfterViewInit
         this.vaisseauServ.Lister().subscribe({
             next: (retour) =>
             {
-                this.dataSource.update(x => {
-                    x.data = retour
-
-                    return x;
-                });
+                this.listeVaisseau.set(retour);
             }
         });
     }
