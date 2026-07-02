@@ -73,13 +73,19 @@ body,
 .mat-mdc-checkbox,
 .mat-mdc-card-title,
 .mat-mdc-card-subtitle,
-.mat-mdc-form-field-hint {
+.mat-mdc-form-field-hint,
+.mat-mdc-header-row {
   font-family: 'Courier New', Courier, monospace !important;
 }
 
 body {
   color-scheme: dark;
   background-color: var(--mat-sys-surface);
+
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  margin: 0;
 
   background-image: 
     linear-gradient(color-mix(in srgb, var(--mat-sys-primary) 5%, transparent) 1px, transparent 1px),
@@ -128,9 +134,6 @@ html.light-mode body::before {
   background-color: var(--mat-sys-primary);
   opacity: 0.08; 
 }
-
-html, body { height: 100%; overflow: hidden; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 table, .mat-mdc-form-field
 {
@@ -236,6 +239,123 @@ mat-dialog-content {
     font-weight: 900 !important;
     text-transform: uppercase !important;
   }
+}
+
+/* =========================================================
+   SURCHARGE GLOBALE DES TABLEAUX
+   ========================================================= */
+.unsc-table-container {
+    background-color: var(--mat-sys-surface-container);
+    border: 1px solid var(--mat-sys-primary);
+    border-radius: 2px;
+    overflow: auto; 
+    max-height: calc(100vh - 320px); 
+}
+
+/* Le Tableau Natif */
+.mat-mdc-table {
+    background: transparent !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    width: 100%;
+
+    .mat-mdc-header-row {
+      text-transform: uppercase;
+      font-weight: 900;
+      font-size: 1.1rem;
+
+      .mat-sort-header-content, .mat-mdc-header-cell
+      {
+        letter-spacing: 2px;
+      }
+    }
+
+    /* En-têtes (Colonnes) */
+    .mat-mdc-header-cell {
+        color: var(--mat-sys-primary) !important;
+        font-weight: 900 !important;
+        letter-spacing: 1px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: var(--mat-sys-surface-container-highest) !important;
+        border-bottom: none !important;
+        box-shadow: inset 0 -2px 0 var(--mat-sys-primary);
+        padding: 16px !important;
+    }
+
+    /* Cellules de données */
+    .mat-mdc-cell {
+        color: var(--mat-sys-on-surface) !important;
+        border-bottom: 1px solid var(--mat-sys-outline-variant) !important;
+        padding: 12px 16px !important;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    /* Message si tableau vide */
+    .empty-row td {
+        text-align: center;
+        padding: 32px !important;
+        color: var(--mat-sys-error) !important;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+}
+
+/* Effet Scanner au survol des lignes natives */
+.mat-mdc-row {
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent) !important;
+        
+        .mat-mdc-cell {
+            color: var(--mat-sys-primary) !important;
+            border-bottom-color: var(--mat-sys-primary) !important;
+        }
+    }
+}
+
+/* Sécurisation des boutons d'actions en bout de ligne */
+.action-buttons-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+
+    button, jp-button-loader button, jp-button-loader {
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+        min-width: 40px !important;
+        width: 40px !important;
+        height: 40px !important;
+    }
+}
+
+/* Paginateur Natif Material */
+.mat-mdc-paginator {
+    background-color: var(--mat-sys-surface-container-highest) !important;
+    color: var(--mat-sys-primary) !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-weight: bold;
+
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+
+    border-top: none !important;
+    box-shadow: inset 0 2px 0 var(--mat-sys-primary);
+
+    .mat-mdc-select-value,
+    .mat-mdc-icon-button {
+        color: var(--mat-sys-primary) !important;
+    }
+
+    .mat-mdc-paginator-page-size-label {
+      text-transform: uppercase;
+      font-weight: 800;
+    }
 }
 
 /* =========================================================
@@ -375,14 +495,14 @@ mat-dialog-content {
 /* =========================================================
    MODALES TACTIQUES
    ========================================================= */
+.mat-mdc-dialog-container,
 .mat-mdc-dialog-container.mdc-dialog .mdc-dialog__container .mdc-dialog__surface {
-  border-radius: 0px !important;
+  --mdc-dialog-container-shape: 0px !important;
+  border-radius: 0px !important; 
 }
 
 .mat-mdc-dialog-container 
 {
-  --mdc-dialog-container-shape: 0px !important;
-  border-radius: 0px !important; 
   background-color: var(--mat-sys-surface-container) !important;
   border: 1px solid var(--mat-sys-primary) !important;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;

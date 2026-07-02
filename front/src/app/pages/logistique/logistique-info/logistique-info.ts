@@ -18,10 +18,11 @@ import { SnackBarService } from '@services/SnackBarService';
 import { ModalInputQuantite } from '@modals/modal-input-quantite/modal-input-quantite';
 import { Droit } from '@models/DroitGroupe';
 import { environment } from '../../../../environements/environement';
+import { UpperCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-logistique-info',
-  imports: [MatFormFieldModule, MatInputModule, MatSortModule, MatPaginatorModule, MatButtonModule, MatTableModule, MatIcon, GridContainer, GridElement, MatSelectModule, ButtonLoader],
+  imports: [UpperCasePipe, MatFormFieldModule, MatInputModule, MatSortModule, MatPaginatorModule, MatButtonModule, MatTableModule, MatIcon, GridContainer, GridElement, MatSelectModule, ButtonLoader],
   templateUrl: './logistique-info.html',
   styleUrl: './logistique-info.scss',
 })

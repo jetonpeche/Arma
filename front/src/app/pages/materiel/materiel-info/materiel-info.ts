@@ -23,7 +23,8 @@ import { environment } from '../../../../environements/environement';
 @Component({
   selector: 'app-materiel-info',
   imports: [MatTableModule, MatButtonModule, MatSelectModule, MatInputModule, MatFormFieldModule, MatSortModule, MatPaginatorModule, MatIcon, ButtonLoader, GridContainer, GridElement],
-  templateUrl: './materiel-info.html'
+  templateUrl: './materiel-info.html',
+  styleUrl: './materiel-info.scss'
 })
 export class MaterielInfoPage implements OnInit, AfterViewInit
 {

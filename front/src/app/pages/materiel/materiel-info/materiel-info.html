@@ -1,61 +1,78 @@
-<div  style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
+<div class="page-header">
+    <div class="header-titles">
+        <h1>Inventaire Matériel</h1>
+        <div class="unsc-subtitle">// DÉPÔT MATERIEL AVANCÉ - PROTOCOLE D'APPROVISIONNEMENT</div>
+    </div>
+
     @if (droit().peutEcrire) 
     {
         <button matButton="filled" (click)="OuvrirModalAjouterModifierMateriel()">
             <mat-icon>add</mat-icon>
-            Nouvelle objet
+            NOUVEL OBJET
         </button>
     }
 </div>
 
-<jp-grid-container>
-    <jp-grid-element [colXs]="12" [colMd]="6">
-        <mat-form-field>
-            <mat-label>Recherche</mat-label>
-            <input matInput (keyup)="Recherche($event)" #input>
-        </mat-form-field>
-    </jp-grid-element>
+<div class="tactical-filters">
+    <jp-grid-container>
+        <jp-grid-element [colXs]="12" [colMd]="6">
+            <mat-form-field>
+                <mat-label>Recherche</mat-label>
+                <input matInput (keyup)="Recherche($event)" #input>
+            </mat-form-field>
+        </jp-grid-element>
 
-    <jp-grid-element [colXs]="12" [colMd]="6">
-        <mat-form-field>
-            <mat-label>Type</mat-label>
-            <mat-select (selectionChange)="FiltrerMaterielType($event)" [value]="null" canSelectNullableOptions>
-                <mat-option [value]="null">Tous</mat-option>
-                @for (element of listeType(); track element.id) 
-                {
-                    <mat-option [value]="element.id">{{ element.nom }}</mat-option>
-                }
-            </mat-select>
-        </mat-form-field>
-    </jp-grid-element>
-</jp-grid-container>
+        <jp-grid-element [colXs]="12" [colMd]="6">
+            <mat-form-field>
+                <mat-label>Type</mat-label>
+                <mat-select (selectionChange)="FiltrerMaterielType($event)" [value]="null" canSelectNullableOptions>
+                    <mat-option [value]="null">Tous</mat-option>
+                    @for (element of listeType(); track element.id) 
+                    {
+                        <mat-option [value]="element.id">{{ element.nom }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </jp-grid-element>
+    </jp-grid-container>
+</div>
 
-<div class="mat-elevation-z8">
+<div class="mat-elevation-z8 unsc-table-container">
     <table mat-table [dataSource]="dataSource()" matSort>
 
         <ng-container matColumnDef="nom">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
-            <td mat-cell *matCellDef="let element"> {{ element.nom }} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> IDENTIFIANT </th>
+            <td mat-cell *matCellDef="let element">
+                <span class="unsc-badge badge-primary">{{ element.nom }}</span> 
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="prix">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Prix </th>
-            <td mat-cell *matCellDef="let element">{{ element.prix }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> CRÉDITS </th>
+            <td mat-cell *matCellDef="let element">
+                <span class="unsc-badge badge-tertiary">{{ element.prix }} CR</span>
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="stock">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Stock </th>
-            <td mat-cell *matCellDef="let element">{{ element.stock }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> UNITÉS DISPO </th>
+            <td mat-cell *matCellDef="let element">
+                <span class="unsc-badge badge-secondary">{{ element.stock }}</span>
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="nbPlacer">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Placé </th>
-            <td mat-cell *matCellDef="let element">{{ element.nbPlacer }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Sur terrain </th>
+            <td mat-cell *matCellDef="let element">
+                <span class="unsc-badge badge-neutral">{{ element.nbPlacer }}</span>
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="nbDetruit">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Détruit </th>
-            <td mat-cell *matCellDef="let element">{{ element.nbDetruit }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Pertes </th>
+            <td mat-cell *matCellDef="let element">
+                <span class="unsc-badge badge-error">{{ element.nbDetruit }}</span>
+            <td>
         </ng-container>
 
         <ng-container matColumnDef="action">
@@ -91,7 +108,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let element; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let element; columns: displayedColumns;" class="tactical-row"></tr>
 
         <!-- Row shown when there is no matching data. -->
         <tr class="mat-row" *matNoDataRow>
