@@ -238,7 +238,7 @@ mat-dialog-content {
 }
 
 /* =========================================================
-   CHAMPS DE SAISIE TACTIQUES (Inputs Outline)
+   CHAMPS DE SAISIE TACTIQUES
    ========================================================= */
 .mat-mdc-form-field
 {
@@ -340,6 +340,38 @@ mat-dialog-content {
 }
 
 /* =========================================================
+   RÉINITIALISATION TACTIQUE DES CHAMPS (Select & Autocomplete)
+   ========================================================= */
+
+/* On cible la valeur choisie quand le champ n'est PAS en cours d'édition */
+.mat-mdc-form-field:not(.mat-focused) 
+{
+  .mat-mdc-select-value,
+  .mat-mdc-select-value-text,
+  .mat-mdc-input-element {
+    color: var(--mat-sys-on-surface) !important;
+    transition: color 0.3s ease !important;
+  }
+
+  /* La bordure redevient également "neutre" (couleur de base) au lieu de rester verte */
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--mat-sys-outline) !important;
+    transition: border-color 0.3s ease !important;
+  }
+}
+
+/* À l'inverse, dès qu'on clique dessus (Focus), le vert UNSC revient */
+.mat-mdc-form-field.mat-focused {
+  .mat-mdc-select-value,
+  .mat-mdc-select-value-text,
+  .mat-mdc-input-element {
+    color: var(--mat-sys-primary) !important;
+  }
+}
+
+/* =========================================================
    MODALES TACTIQUES
    ========================================================= */
 .mat-mdc-dialog-container.mdc-dialog .mdc-dialog__container .mdc-dialog__surface {
@@ -384,7 +416,7 @@ mat-dialog-content {
 
 /* Overlay (le fond grisé derrière la modale) */
 .cdk-overlay-dark-backdrop {
-  background: rgba(0, 10, 0, 0.7) !important; /* Vert sombre pour une immersion totale */
+  background: rgba(0, 10, 0, 0.7) !important;
 }
 
 /* =========================================================

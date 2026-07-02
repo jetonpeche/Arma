@@ -1,6 +1,10 @@
 <div class="page-header">
-    <h1>Gestion des groupes de droits</h1>
+    <div class="header-titles">
+        <h1>Habilitations</h1>
+        <div class="unsc-subtitle">// PROTOCOLE D'HABILITATION DE SÉCURITÉ - NETCOM SECURE</div>
+    </div>
 
+    <div class="header-actions">
     @if(droit.peutEcrire)
     {
         <button matButton="filled" (click)="OuvrirModalAjouterModifierDroitGroupe()">
@@ -13,6 +17,7 @@
             Droit groupe personnage
         </button>
     }
+    </div>
 </div>
 
 <mat-list role="list">
