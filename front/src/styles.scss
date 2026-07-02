@@ -59,6 +59,20 @@ html {
   }
 }
 
+/* =========================================================
+   TYPOGRAPHIE GLOBALE UNSC
+   ========================================================= */
+body,
+.mat-typography,
+.mat-mdc-typography,
+.mat-mdc-input-element,
+.mat-mdc-text-area-element,
+.mdc-floating-label,
+.mat-mdc-list-item,
+.mat-mdc-tooltip {
+  font-family: 'Courier New', Courier, monospace !important;
+}
+
 body {
   color-scheme: dark;
   background-color: var(--mat-sys-surface);
@@ -196,5 +210,395 @@ mat-dialog-content {
         justify-content: center;
       }
     }
+  }
+}
+
+/* =========================================================
+   CHAMPS DE SAISIE TACTIQUES (Inputs Outline)
+   ========================================================= */
+.mat-mdc-form-field {
+  
+  /* 1. Remplacement des variables natives Material */
+  --mdc-outlined-text-field-container-shape: 2px; /* Adieu les bords ronds, place aux angles durs */
+  --mdc-outlined-text-field-outline-color: var(--mat-sys-outline); /* Couleur au repos */
+  --mdc-outlined-text-field-hover-outline-color: color-mix(in srgb, var(--mat-sys-primary) 70%, transparent); /* Au survol */
+  --mdc-outlined-text-field-focus-outline-color: var(--mat-sys-primary); /* Verrouillé en vert */
+  --mdc-outlined-text-field-caret-color: var(--mat-sys-primary); /* Le curseur clignotant passe en vert */
+  --mdc-outlined-text-field-focus-label-text-color: var(--mat-sys-primary);
+
+  /* 2. Le texte saisi par l'utilisateur */
+  .mat-mdc-input-element, 
+  .mat-mdc-text-area-element {
+    color: var(--mat-sys-primary) !important; /* Données en vert brillant */
+    font-weight: 900 !important;
+    letter-spacing: 1px;
+  }
+
+  /* 3. Le label (nom du champ de donnée) */
+  .mdc-floating-label {
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase; /* Toujours en majuscule pour un effet rapport militaire */
+  }
+
+  /* 4. Le fond du champ de saisie (façon "écran radar") */
+  .mdc-notched-outline {
+    /* Fond légèrement gris/vert transparent pour bien délimiter la zone */
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 40%, transparent);
+    transition: background-color 0.3s ease;
+  }
+
+  /* 5. L'effet de focus (Saisie en cours) */
+  &.mat-focused {
+    .mdc-notched-outline {
+      /* Le fond s'illumine légèrement quand on tape au clavier */
+      background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+    }
+    
+    .mdc-floating-label {
+      /* Le label devient luminescent */
+      text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+    }
+  }
+}
+
+/* On s'assure que les champs en erreur utilisent bien la couleur rouge (error) du thème */
+.mat-mdc-form-field.mat-form-field-invalid {
+  --mdc-outlined-text-field-focus-outline-color: var(--mat-sys-error);
+  --mdc-outlined-text-field-caret-color: var(--mat-sys-error);
+  --mdc-outlined-text-field-focus-label-text-color: var(--mat-sys-error);
+  
+  .mat-mdc-input-element {
+    color: var(--mat-sys-error) !important;
+  }
+  
+  &.mat-focused .mdc-floating-label {
+    text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-error) 60%, transparent);
+  }
+}
+
+/* =========================================================
+   Surcharge Globale UNSC - Boutons Tactiques
+   ========================================================= */
+
+/* 1. Boutons classiques et remplis (mat-button, mat-button="filled" / mat-flat-button) */
+.mat-mdc-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button 
+{
+  border-radius: 2px !important; 
+  font-family: 'Courier New', Courier, monospace !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  
+  transition: all 0.2s ease-in-out !important;
+
+  /* Effet radar/holographique au survol */
+  &:hover {
+    box-shadow: 0 0 12px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent) !important;
+    transform: translateY(-1px);
+    
+    /* Si le bouton n'est pas déjà rempli, on lui donne un léger fond au survol */
+    &:not(.mat-mdc-unelevated-button):not(.mat-mdc-raised-button) {
+      background-color: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent) !important;
+    }
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+/* --- BOUTONS D'ACTION PRINCIPAUX (Filled / Raised) --- */
+.mat-mdc-unelevated-button, 
+.mat-mdc-raised-button {
+  border: 1px solid var(--mat-sys-primary) !important;
+  
+  /* Fond par défaut légèrement teinté pour contraster avec le hover */
+  background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
+  color: var(--mat-sys-primary) !important;
+  
+  position: relative;
+  overflow: hidden !important; 
+
+  /* On s'assure que le texte reste toujours au premier plan */
+  ::ng-deep .mdc-button__label {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* --- LE FAISCEAU DE LUMIÈRE (Masqué à gauche par défaut) --- */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 50%;
+    height: 100%;
+    
+    /* Dégradé lumineux avec une touche de blanc/cyan au centre */
+    background: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--mat-sys-primary) 60%, white),
+      transparent
+    );
+    
+    /* Inclinaison tactique à 45 degrés */
+    transform: skewX(-45deg);
+    z-index: 1;
+    transition: none !important; 
+  }
+
+  /* --- L'EFFET AU SURVOL --- */
+  &:hover {
+    /* Le bouton s'active complètement (fond plein) */
+    background-color: var(--mat-sys-primary) !important;
+    color: var(--mat-sys-on-primary) !important;
+    box-shadow: 0 0 20px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent) !important;
+
+    /* Le faisceau traverse le bouton à toute vitesse */
+    &::before {
+      left: 200%;
+      transition: left 1s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+/* 2. Boutons d'icône (mat-icon-button) */
+.mat-mdc-icon-button {
+  border-radius: 4px !important; /* Légèrement carré pour un look "panneau de contrôle" */
+  transition: all 0.2s ease !important;
+  
+  .mat-mdc-button-ripple, 
+  .mat-mdc-button-persistent-ripple,
+  .mat-mdc-button-touch-target,
+  &::before,
+  &::after {
+    border-radius: 4px !important; 
+  }
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
+    color: var(--mat-sys-primary) !important;
+    box-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent) !important;
+  }
+}
+
+/* 3. Boutons d'action flottants (mat-fab, mat-mini-fab) */
+.mat-mdc-fab, .mat-mdc-mini-fab 
+{
+  border-radius: 8px !important; 
+  border: 1px solid var(--mat-sys-outline) !important;
+  transition: all 0.2s ease !important;
+
+  &:disabled, 
+  &.mat-mdc-button-disabled 
+  {
+    background-color: var(--mat-sys-surface-container-low) !important;
+    color: var(--mat-sys-on-surface-disabled) !important;
+    border: 1px solid var(--mat-sys-outline-variant) !important;
+    box-shadow: none !important; /* Pas de lueur pour un système éteint */
+    cursor: not-allowed;
+    transform: none !important; /* Aucun mouvement mécanique possible */
+
+    &::before 
+    {
+      display: none !important;
+    }
+
+    mat-icon {
+      color: var(--mat-sys-on-surface-disabled) !important;
+      opacity: 0.4;
+    }
+
+    &:hover {
+      background-color: var(--mat-sys-surface-container-low) !important;
+      color: var(--mat-sys-on-surface-disabled) !important;
+      border-color: var(--mat-sys-outline-variant) !important;
+      box-shadow: none !important;
+    }
+  }
+
+  /* Alignement parfait de l'icône à l'intérieur */
+  .mat-mdc-button-touch-target {
+    border-radius: 8px !important;
+  }
+
+  &:hover {
+    box-shadow: 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 60%, transparent) !important;
+    border-color: var(--mat-sys-primary) !important;
+    transform: scale(1.05); /* Léger grossissement pour confirmer le verrouillage de la cible */
+  }
+}
+
+/* =========================================================
+   Surcharge UNSC Spécifique - Textes et FABs
+   ========================================================= */
+
+/* --- 1. BOUTONS TEXTE (mat-button sans fond) --- */
+.mat-mdc-button:not(.mat-mdc-unelevated-button):not(.mat-mdc-raised-button):not(.mat-mdc-outlined-button) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  position: relative;
+  overflow: visible !important;
+  
+  /* Typographie terminale */
+  font-family: 'Courier New', Courier, monospace !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  color: var(--mat-sys-primary) !important;
+
+  /* Préparation des "crochets" de ciblage (invisibles par défaut) */
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 40%;
+    border: 2px solid transparent;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+  }
+
+  /* Crochet gauche */
+  &::before {
+    left: 4px;
+    border-right: none;
+  }
+
+  /* Crochet droit */
+  &::after {
+    right: 4px;
+    border-left: none;
+  }
+
+  /* Au survol : les crochets apparaissent et s'écartent */
+  &:hover {
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) !important;
+    transform: none !important; /* Pas de mouvement vertical pour le texte brut */
+    text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+
+    &::before {
+      opacity: 1;
+      left: -2px;
+      border-color: var(--mat-sys-primary);
+    }
+    
+    &::after {
+      opacity: 1;
+      right: -2px;
+      border-color: var(--mat-sys-primary);
+    }
+  }
+}
+
+/* --- 2. BOUTONS FLOTTANTS (Ciblage 4 Coins & Rotation) --- */
+.mat-mdc-fab, .mat-mdc-mini-fab {
+  border-radius: 4px !important; 
+  background-color: var(--mat-sys-surface-container-highest) !important;
+  color: var(--mat-sys-primary) !important;
+  border: 1px solid var(--mat-sys-outline) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+  position: relative;
+  overflow: visible !important;
+  transition: all 0.3s ease-in-out !important;
+
+  .mat-mdc-button-touch-target {
+    border-radius: 4px !important;
+  }
+
+  /* --- LE RÉTICULE À 4 COINS --- */
+  &::before {
+    content: '';
+    position: absolute;
+    /* Écarté du bouton au repos (Mode recherche) */
+    top: -6px; left: -6px; right: -6px; bottom: -6px;
+    
+    /* Variables locales SCSS pour dessiner les angles */
+    $c: var(--mat-sys-primary); /* Couleur */
+    $t: 2px;  /* Épaisseur */
+    $l: 12px; /* Longueur des segments */
+
+    /* On utilise des fonds virtuels pour peindre chaque coin */
+    background:
+      /* Haut-Gauche */
+      linear-gradient($c, $c) top left / $l $t no-repeat,
+      linear-gradient($c, $c) top left / $t $l no-repeat,
+      /* Haut-Droite */
+      linear-gradient($c, $c) top right / $l $t no-repeat,
+      linear-gradient($c, $c) top right / $t $l no-repeat,
+      /* Bas-Gauche */
+      linear-gradient($c, $c) bottom left / $l $t no-repeat,
+      linear-gradient($c, $c) bottom left / $t $l no-repeat,
+      /* Bas-Droite */
+      linear-gradient($c, $c) bottom right / $l $t no-repeat,
+      linear-gradient($c, $c) bottom right / $t $l no-repeat;
+
+    /* Transition élastique pour l'effet mécanique */
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &:hover {
+    /* Le bouton passe en fond plein (Verrouillage confirmé) */
+    background-color: var(--mat-sys-primary) !important;
+    color: var(--mat-sys-on-primary) !important;
+    border-color: var(--mat-sys-primary) !important;
+    box-shadow: 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent) !important;
+
+    /* Animation du réticule */
+    &::before {
+      /* Rotation de 90 degrés */
+      transform: rotate(90deg);
+      
+      /* Les crochets se resserrent pour fusionner avec le bouton */
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      
+      /* Optionnel : on peut faire disparaître le réticule doucement 
+         puisqu'il est de la même couleur que le fond plein */
+      opacity: 0; 
+    }
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* --- 3. CORRECTION POUR LE FAB ÉTENDU (Rectangle) --- */
+.mat-mdc-extended-fab {
+  /* On garde le réticule, mais on adapte l'animation au survol */
+  &:hover {
+    &::before {
+      /* On annule la rotation qui casse le ratio du rectangle */
+      transform: none !important;
+      
+      /* Les 4 coins glissent droit vers l'intérieur pour verrouiller (effet étau) */
+      top: -2px; 
+      left: -2px; 
+      right: -2px; 
+      bottom: -2px;
+      
+      opacity: 0;
+    }
+  }
+
+  /* Ajustement de la zone de texte pour le style UNSC */
+  ::ng-deep .mdc-button__label {
+    font-family: 'Courier New', Courier, monospace !important;
+    font-weight: 900 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
   }
 }

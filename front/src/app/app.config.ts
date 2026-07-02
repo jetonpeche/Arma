@@ -1,10 +1,10 @@
-import { ApplicationConfig, importProvidersFrom, Injectable, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, Injectable, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideJpMatInput } from '@jetonpeche/angular-mat-input';
 import { PersonnageService } from '@services/PersonnageService';
-import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { HashLocationStrategy, LocationStrategy, registerLocaleData } from '@angular/common';
 import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldDefaultOptions } from '@angular/material/form-field';
 import { GradeService } from '@services/GradeService';
@@ -32,6 +32,10 @@ import { DroitGroupeService } from '@services/DroitGroupeService';
 import { BanqueService } from '@services/BanqueService';
 import { MedailleService } from '@services/MedailleService';
 import { HistoriqueCampagneService } from '@services/HistoriqueCampagneService';
+import localeFr from '@angular/common/locales/fr';
+
+// 2. Enregistrez la langue française dans le système
+registerLocaleData(localeFr);
 
 const matInput: MatFormFieldDefaultOptions = {
   appearance: 'outline',
@@ -70,7 +74,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([jwtInterceptor])),
     provideJpMatInput(),
     importProvidersFrom(MatNativeDateModule),
-
+    { provide: LOCALE_ID, useValue: 'fr-FR' },
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     { provide: PersonnageService, useClass: PersonnageService },
     { provide: GradeService, useClass: GradeService },

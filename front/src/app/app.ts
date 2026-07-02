@@ -13,12 +13,12 @@ import { ModalPanier } from '@modals/modal-panier/modal-panier';
 import { environment } from '../environements/environement';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { ModalPointBanque } from '@modals/modal-point-banque/modal-point-banque';
-import { Droit } from '@models/DroitGroupe';
 import { EUrl } from '@enums/EUrl';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatTooltipModule, MatListModule, MatSidenavModule, MatToolbarModule],
+  imports: [DecimalPipe, RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatTooltipModule, MatListModule, MatSidenavModule, MatToolbarModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

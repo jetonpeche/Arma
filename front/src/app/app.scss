@@ -1,33 +1,104 @@
 .spacer {
     flex: 1 1 auto;
-  }
+}
 
-#navbar
-{
+/* --- BARRE DE NAVIGATION (HUD) --- */
+#navbar {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 2;
-    background: var(--mat-sys-primary-container);
+    z-index: 100; /* Augmenté pour rester au-dessus des cartes avec effet de survol */
+    background: var(--mat-sys-surface-container-highest); /* Fond plus sombre et solide */
     color: var(--mat-sys-primary);
+    border-bottom: 2px solid var(--mat-sys-primary); /* Liseré tactique */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    padding: 0 16px;
 }
 
-.drawer {
-    border-right: 1px solid var(--mat-sys-outline-variant);
-    width: 240px;
-    padding: 16px 8px;
-    box-sizing: border-box;
+/* Marque UNSC textuelle */
+.unsc-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    letter-spacing: 2px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    
+    .brand-icon {
+        color: var(--mat-sys-tertiary);
+    }
+}
 
-    & mat-nav-list {
-        margin-top: 64px;
+/* --- BOUTON DE CRÉDITS --- */
+#btn-credits-nav {
+    margin-right: 16px;
+    height: 40px !important;
+    
+    background-color: var(--mat-sys-tertiary-container) !important;
+    color: var(--mat-sys-tertiary) !important;
+    border: 1px solid var(--mat-sys-tertiary) !important;
+    border-radius: 4px !important; 
+    
+    padding: 0 16px !important;
+    letter-spacing: 1px !important;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent) !important;
+    
+    /* On désactive les "crochets" de visée du style global */
+    &::before, &::after {
+        display: none !important;
+    }
 
-        .active {
-            background-color: var(--mat-sys-primary-container);
+    ::ng-deep .mdc-button__label {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        height: 100%;
+    }
+
+    mat-icon {
+        margin: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--mat-sys-tertiary) !important;
+    }
+
+    .credit-value {
+        font-size: 1.15rem;
+        font-weight: 900;
+        margin-top: 2px; /* Ajustement optique pour la police Courier */
+    }
+
+    &:hover {
+        /* Lueur et remplissage bleu au survol */
+        background-color: var(--mat-sys-tertiary) !important;
+        color: var(--mat-sys-on-tertiary) !important;
+        box-shadow: 0 0 15px var(--mat-sys-tertiary) !important;
+        text-shadow: none !important;
+        
+        mat-icon {
+            color: var(--mat-sys-on-tertiary) !important;
         }
     }
 }
 
+/* --- BOUTONS D'ACTION (Droite) --- */
+.action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-logout {
+    color: var(--mat-sys-error) !important; /* Rouge pour déconnexion */
+}
+
+/* --- MENU LATÉRAL (Terminal de données) --- */
 mat-drawer-container {
     background-color: transparent !important;
     height: 100vh;
@@ -35,20 +106,115 @@ mat-drawer-container {
     overflow: hidden;
 }
 
-.marginTopDrawer 
-{
-    padding-left: 10px; 
-    padding-right: 10px;
-    padding-bottom: 20px;
+.drawer {
+    width: 260px; /* Légèrement élargi pour les textes */
+    background: linear-gradient(90deg, var(--mat-sys-surface-container-lowest) 0%, var(--mat-sys-surface-container) 100%);
+    border-right: 2px solid var(--mat-sys-primary); /* Liseré droit */
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
     box-sizing: border-box;
 
-    &.open
-    {
-        margin-left: 260px !important;
-        margin-right: 10px !important;
+    /* Petit en-tête stylisé au dessus du menu */
+    .drawer-header {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--mat-sys-outline-variant);
+        position: relative;
+        overflow: hidden;
+
+        .sys-text {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--mat-sys-tertiary);
+            font-weight: bold;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+        }
+
+        .scanline {
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background-color: var(--mat-sys-tertiary);
+            opacity: 0.5;
+            animation: scan 2s linear infinite;
+        }
     }
-    
+
+    /* Style des liens de navigation */
+    .tactical-nav-list {
+        padding-top: 8px;
+
+        ::ng-deep .mdc-list-item__primary-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        a[mat-list-item] {
+            border-left: 4px solid transparent;
+            margin: 4px 8px;
+            border-radius: 0 4px 4px 0;
+            transition: all 0.2s ease;
+            color: var(--mat-sys-on-surface-variant);
+
+            &:hover {
+                background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+                border-left-color: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+                color: var(--mat-sys-primary);
+            }
+        }
+
+        /* Lien actif façon "Cible verrouillée" */
+        .active {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
+            border-left-color: var(--mat-sys-primary) !important;
+            
+            ::ng-deep .mdc-list-item__primary-text {
+                color: var(--mat-sys-primary) !important;
+                font-weight: 900;
+            }
+        }
+    }
+}
+
+/* Animation du scanner dans le menu */
+@keyframes scan {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(64px); }
+}
+
+.marginTopDrawer {
+    padding-left: 24px; /* Un peu plus d'air */
+    padding-right: 24px;
+    padding-bottom: 24px;
+    box-sizing: border-box;
     height: 100vh;
     overflow-y: auto;
-    padding-top: 80px;
+    padding-top: 88px; /* Évite que la navbar ne cache le haut de la page */
+
+    &.open {
+        margin-left: 260px !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* --- RESPONSIVE --- */
+@media screen and (max-width: 600px) {
+    .unsc-brand span {
+        display: none; /* Cache le texte du logo sur petit écran */
+    }
+    
+    .btn-credits {
+        padding: 0 8px !important;
+        span:not(.credit-value) {
+            display: none; /* Ne garde que le chiffre sur mobile */
+        }
+    }
+    
+    .marginTopDrawer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
 }
