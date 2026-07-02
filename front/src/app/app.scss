@@ -152,9 +152,9 @@ mat-drawer-container {
             text-transform: uppercase;
         }
 
-        a[mat-list-item] {
+        a[mat-list-item] 
+        {
             border-left: 4px solid transparent;
-            margin: 4px 8px;
             border-radius: 0 4px 4px 0;
             transition: all 0.2s ease;
             color: var(--mat-sys-on-surface-variant);
