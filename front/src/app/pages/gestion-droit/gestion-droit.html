@@ -1,54 +1,52 @@
 <div class="page-header">
     <div class="header-titles">
         <h1>Habilitations</h1>
-        <div class="unsc-subtitle">// PROTOCOLE D'HABILITATION DE SÉCURITÉ - NETCOM SECURE</div>
+        <span class="unsc-subtitle">// PROTOCOLE D'HABILITATION DE SÉCURITÉ - NETCOM SECURE</span>
     </div>
 
     <div class="header-actions">
     @if(droit.peutEcrire)
     {
-        <button matButton="filled" (click)="OuvrirModalAjouterModifierDroitGroupe()">
+        <button mat-flat-button (click)="OuvrirModalAjouterModifierDroitGroupe()">
             <mat-icon>add</mat-icon>
-            Nouveau groupe de droit
+            NOUVEAU GROUPE
         </button>
 
-        <button matButton="filled" (click)="OuvrirModalDroitGroupePersonnage()">
+        <button mat-flat-button (click)="OuvrirModalDroitGroupePersonnage()">
             <mat-icon>edit</mat-icon>
-            Droit groupe personnage
+            GESTION ACCÈS
         </button>
     }
     </div>
 </div>
 
-<mat-list role="list">
-    @for (element of listeDroitGroupe(); track element.id; let last = $last) 
-    {
-        <mat-list-item  role="listitem">
-            <div>
-                {{ element.nom }}
-
-                <div>
-                    @if (droit.peutEcrire)
-                    {
-                        <button matMiniFab (click)="OuvrirModalAjouterModifierDroitGroupe(element)">
-                            <mat-icon>edit</mat-icon>
-                        </button>&nbsp;
-                    }
-
-                    @if (droit.peutSupprimer) 
-                    {
-                        <jp-button-loader matMiniFab 
-                                                    [loading]="btnClick()"
-                                                    icon="delete"
-                                                    (clicked)="OurvrirModalConfirmationSupprimer(element)" />
-                    }
-                </div>
-            </div>
-        </mat-list-item>
-
-        @if (!last)
+<div class="tactical-list-container">
+    <mat-list role="list">
+        @for (element of listeDroitGroupe(); track element.id; let last = $last) 
         {
-            <mat-divider role="separator"></mat-divider>
+            <mat-list-item role="listitem" class="tactical-list-item">
+                <div class="item-content">
+                    <span class="group-name">{{ element.nom }}</span>
+
+                    <div class="item-actions">
+                        @if (droit.peutEcrire)
+                        {
+                            <button mat-mini-fab color="primary" (click)="OuvrirModalAjouterModifierDroitGroupe(element)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                        }
+
+                        @if (droit.peutSupprimer) 
+                        {
+                            <jp-button-loader matMiniFab
+                                            [loading]="btnClick()"
+                                            icon="delete"
+                                            (clicked)="OurvrirModalConfirmationSupprimer(element)" />
+                        }
+                    </div>
+                </div>
+            </mat-list-item>
+            @if (!last) { <mat-divider></mat-divider> }
         }
-    }
-</mat-list>
+    </mat-list>
+</div>

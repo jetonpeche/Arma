@@ -1,10 +1,36 @@
-mat-list-item div:first-child
-{
-    display: flex; 
-    justify-content: space-between;
+.tactical-list-container {
+    background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 2px;
+    padding: 8px 0;
+}
 
-    button, ::ng-deep jp-button-loader button
-    {
-        box-shadow: none;
+.tactical-list-item 
+{
+    height: 64px !important;
+
+    .item-content {
+        display: flex; 
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+
+        .group-name {
+            font-family: 'Courier New', Courier, monospace;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: var(--mat-sys-on-surface);
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 12px;
+        }
     }
+}
+
+/* Effet de survol sur la ligne entière */
+.tactical-list-item:hover {
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
 }
