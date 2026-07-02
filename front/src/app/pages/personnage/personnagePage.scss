@@ -311,12 +311,6 @@
         flex-wrap: wrap;
         justify-content: center;
     }
-
-    /* Couleurs personnalisées pour les boutons d'action */
-    .bg-info { background-color: var(--mat-sys-tertiary-container); color: var(--mat-sys-on-tertiary-container); }
-    .bg-edit { background-color: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); }
-    .bg-kia { background-color: #ff9800; color: #fff; }
-    .bg-danger { background-color: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); }
 }
 
 @media screen and (max-width: 680px) 

@@ -69,7 +69,10 @@ body,
 .mat-mdc-text-area-element,
 .mdc-floating-label,
 .mat-mdc-list-item,
-.mat-mdc-tooltip {
+.mat-mdc-tooltip,
+.mat-mdc-checkbox,
+.mat-mdc-card-title,
+.mat-mdc-card-subtitle {
   font-family: 'Courier New', Courier, monospace !important;
 }
 
@@ -213,23 +216,43 @@ mat-dialog-content {
   }
 }
 
+/* --- STYLE TACTIQUE CHECKBOX --- */
+.mat-mdc-checkbox
+{
+  --mdc-checkbox-selected-checkmark-color: var(--mat-sys-on-primary);
+  --mdc-checkbox-selected-focus-state-layer-color: var(--mat-sys-primary);
+  --mdc-checkbox-selected-hover-state-layer-color: var(--mat-sys-primary);
+  --mdc-checkbox-selected-pressed-state-layer-color: var(--mat-sys-primary);
+  --mdc-checkbox-selected-state-layer-color: var(--mat-sys-primary);
+  --mdc-checkbox-selected-focus-state-layer-opacity: 0.2;
+
+  .mdc-checkbox__background {
+    border-radius: 2px !important;
+  }
+
+  .mdc-form-field {
+    font-family: 'Courier New', Courier, monospace !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+  }
+}
+
 /* =========================================================
    CHAMPS DE SAISIE TACTIQUES (Inputs Outline)
    ========================================================= */
-.mat-mdc-form-field {
-  
-  /* 1. Remplacement des variables natives Material */
-  --mdc-outlined-text-field-container-shape: 2px; /* Adieu les bords ronds, place aux angles durs */
-  --mdc-outlined-text-field-outline-color: var(--mat-sys-outline); /* Couleur au repos */
-  --mdc-outlined-text-field-hover-outline-color: color-mix(in srgb, var(--mat-sys-primary) 70%, transparent); /* Au survol */
-  --mdc-outlined-text-field-focus-outline-color: var(--mat-sys-primary); /* Verrouillé en vert */
-  --mdc-outlined-text-field-caret-color: var(--mat-sys-primary); /* Le curseur clignotant passe en vert */
+.mat-mdc-form-field
+{
+  --mdc-outlined-text-field-container-shape: 2px;
+  --mdc-outlined-text-field-outline-color: var(--mat-sys-outline);
+  --mdc-outlined-text-field-hover-outline-color: color-mix(in srgb, var(--mat-sys-primary) 70%, transparent);
+  --mdc-outlined-text-field-focus-outline-color: var(--mat-sys-primary);
+  --mdc-outlined-text-field-caret-color: var(--mat-sys-primary);
   --mdc-outlined-text-field-focus-label-text-color: var(--mat-sys-primary);
 
   /* 2. Le texte saisi par l'utilisateur */
   .mat-mdc-input-element, 
   .mat-mdc-text-area-element {
-    color: var(--mat-sys-primary) !important; /* Données en vert brillant */
+    color: var(--mat-sys-primary) !important;
     font-weight: 900 !important;
     letter-spacing: 1px;
   }
@@ -238,7 +261,7 @@ mat-dialog-content {
   .mdc-floating-label {
     font-weight: bold;
     letter-spacing: 1px;
-    text-transform: uppercase; /* Toujours en majuscule pour un effet rapport militaire */
+    text-transform: uppercase;
   }
 
   /* 4. Le fond du champ de saisie (façon "écran radar") */
@@ -278,7 +301,46 @@ mat-dialog-content {
 }
 
 /* =========================================================
-   MODALES TACTIQUES (UNSC DESIGN)
+   STYLE DES MESSAGES D'ERREUR
+   ========================================================= */
+.mat-mdc-form-field-error, 
+.mat-mdc-form-field-subscript-wrapper 
+{
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+/* =========================================================
+   TYPOGRAPHIE TACTIQUE : SELECTS, AUTOCOMPLETES & OPTIONS
+   ========================================================= */
+.mat-mdc-select-panel,
+.mat-mdc-option,
+.mat-mdc-autocomplete-panel,
+.mat-mdc-select-value-text {
+  font-family: 'Courier New', Courier, monospace !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+}
+
+.mat-mdc-select-value {
+  color: var(--mat-sys-primary) !important;
+}
+
+.mat-mdc-option {
+  &.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
+  }
+  
+  &:hover:not(.mdc-list-item--disabled) {
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) !important;
+  }
+}
+
+/* =========================================================
+   MODALES TACTIQUES
    ========================================================= */
 .mat-mdc-dialog-container.mdc-dialog .mdc-dialog__container .mdc-dialog__surface {
   border-radius: 0px !important;
@@ -328,8 +390,6 @@ mat-dialog-content {
 /* =========================================================
    Surcharge Globale UNSC - Boutons Tactiques
    ========================================================= */
-
-/* 1. Boutons classiques et remplis (mat-button, mat-button="filled" / mat-flat-button) */
 .mat-mdc-button,
 .mat-mdc-unelevated-button,
 .mat-mdc-raised-button,
