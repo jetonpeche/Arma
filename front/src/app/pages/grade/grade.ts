@@ -11,10 +11,11 @@ import { AuthentificationService } from '@services/AuthentificationService';
 import { GradeService } from '@services/GradeService';
 import { NgTemplateOutlet } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-grade',
-  imports: [MatTabsModule, MatIconModule, MatButtonModule, MatCardModule, MatDividerModule, NgTemplateOutlet],
+  imports: [MatTabsModule, MatIconModule, MatTooltipModule, MatButtonModule, MatCardModule, MatDividerModule, NgTemplateOutlet],
   templateUrl: './grade.html',
   styleUrl: './grade.scss',
 })

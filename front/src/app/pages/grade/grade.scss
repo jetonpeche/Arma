@@ -1,202 +1,487 @@
-/* --- EN-TÊTE DE LA PAGE --- */
-.unsc-header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    padding: 0 16px 24px 16px;
-    border-bottom: 1px solid var(--mat-sys-outline-variant);
-    margin-bottom: 24px;
-    text-align: left;
-
-    h1 {
-        margin-bottom: 4px;
-    }
-
-    .unsc-subtitle {
-        color: var(--mat-sys-tertiary);
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 0.9rem;
-        letter-spacing: 1px;
-    }
-}
-
-/* --- GRILLE ET CONTENEUR --- */
 .grades-wrapper {
-    padding: 32px 0;
-    margin: 0;
+    padding: 32px 16px;
     display: flex;
     justify-content: center;
 }
 
 .grades-grid {
-    display: flex;
-    flex-wrap: wrap; 
-    gap: 24px; /* Un peu plus d'espace pour respirer */
-    justify-content: center;
-    max-width: calc((260px * 7) + (24px * 6));
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 32px; 
+    width: 100%;
+    max-width: 1400px;
 }
 
-/* --- CARTE TACTIQUE (GRADE) --- */
-.grade-card.tactical-panel {
-    width: 260px;
-    background-color: var(--mat-sys-surface-container-high);
+/* =========================================================
+   PLAQUE DE GRADE (BASE UNIFIÉE)
+   ========================================================= */
+.unsc-rank-plaque {
+    width: 100%; 
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    background-color: transparent !important;
     border: 1px solid var(--mat-sys-outline-variant);
-    border-radius: 8px; /* Look un peu plus dur/industriel */
-    overflow: hidden;
+    border-radius: 2px !important; 
     position: relative;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: visible;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     
-    /* Petit liseré supérieur style Halo */
-    border-top: 3px solid var(--mat-sys-primary);
+    border-top: 4px solid var(--mat-sys-primary);
 
+    /* --- UN SEUL HOVER POUR LA BASE (VERT) --- */
     &:hover {
-        transform: translateY(-6px) scale(1.02);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 15px var(--mat-sys-primary-container);
-        border-color: var(--mat-sys-primary);
+        transform: translateY(-8px);
         z-index: 2;
+        border-color: var(--mat-sys-primary);
+        animation: unsc-energy-shield 2s infinite ease-in-out;
 
-        .icon-backdrop {
-            opacity: 0.15;
-            transform: scale(1.1);
+        &::before {
+            opacity: 1;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            filter: drop-shadow(0 0 5px var(--mat-sys-primary));
         }
+
+        .holographic-pedestal .holo-beam {
+            opacity: 0.8;
+            transform: scaleY(1.1);
+        }
+
+        .rank-insignia {
+            transform: scale(1.15) translateY(-5px);
+            filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.8));
+        }
+    }
+
+    /* --- CADRE HUD (Mode Veille) --- */
+    &::before {
+        content: '';
+        position: absolute;
+        top: -4px; left: -4px; right: -4px; bottom: -4px;
+        pointer-events: none;
+        z-index: 10;
+        
+        $c: var(--mat-sys-primary);
+        $t: 2px;
+        $l: 32px;
+        
+        background:
+            linear-gradient($c, $c) top left / $l $t no-repeat,
+            linear-gradient($c, $c) top left / $t $l no-repeat,
+            linear-gradient($c, $c) top right / $l $t no-repeat,
+            linear-gradient($c, $c) top right / $t $l no-repeat,
+            linear-gradient($c, $c) bottom left / $l $t no-repeat,
+            linear-gradient($c, $c) bottom left / $t $l no-repeat,
+            linear-gradient($c, $c) bottom right / $l $t no-repeat,
+            linear-gradient($c, $c) bottom right / $t $l no-repeat;
+            
+        opacity: 0.3;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 }
 
-/* --- EN-TÊTE DE LA CARTE --- */
-.card-header {
-    padding: 16px;
+/* =========================================================
+   VARIANTE 1 : FLOTTE (NAVY) STANDARD -> Cyan pur
+   ========================================================= */
+/* =========================================================
+   VARIANTE 1 : FLOTTE (NAVY) STANDARD -> Cyan pur
+   ========================================================= */
+.unsc-rank-plaque.rank-navy {
+    border-top-color: var(--mat-sys-tertiary);
+
+    .rank-title {
+        color: var(--mat-sys-on-surface) !important;
+        text-shadow: none;
+    }
+
+    .ops-badge mat-icon { color: var(--mat-sys-tertiary); }
+    .plaque-header .rank-acronym { color: var(--mat-sys-tertiary); }
+    
+    .reward-badge {
+        border-color: color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent);
+        color: var(--mat-sys-tertiary);
+        mat-icon { color: var(--mat-sys-tertiary); }
+    }
+
+    /* --- UN SEUL HOVER POUR LA NAVY (CYAN) --- */
+    &:hover {
+        border-color: var(--mat-sys-tertiary);
+        animation: navy-energy-shield 2s infinite ease-in-out;
+        
+        &::before { 
+            filter: drop-shadow(0 0 5px var(--mat-sys-tertiary)); 
+        }
+    }
+
+    &::before {
+        $c: var(--mat-sys-tertiary);
+        $t: 2px;         
+        $l: 32px;
+        background:
+            linear-gradient($c, $c) top left / $l $t no-repeat, linear-gradient($c, $c) top left / $t $l no-repeat,
+            linear-gradient($c, $c) top right / $l $t no-repeat, linear-gradient($c, $c) top right / $t $l no-repeat,
+            linear-gradient($c, $c) bottom left / $l $t no-repeat, linear-gradient($c, $c) bottom left / $t $l no-repeat,
+            linear-gradient($c, $c) bottom right / $l $t no-repeat, linear-gradient($c, $c) bottom right / $t $l no-repeat;
+    }
+
+    .holographic-pedestal .holo-base {
+        border-color: var(--mat-sys-tertiary);
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 5%, transparent);
+        box-shadow: 0 0 15px color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent);
+    }
+
+    .holographic-pedestal .holo-beam {
+        background: linear-gradient(to top, color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent), transparent);
+    }
+}
+
+/* =========================================================
+   VARIANTE 2 : HONORIFIQUE -> Or-Vert (Spartan Visor)
+   ========================================================= */
+.unsc-rank-plaque.rank-honorific {
+    /* L'astuce magique : Base Or-Vert mélangée à la couleur du texte (on-surface) */
+    --unsc-honor-color: color-mix(in srgb, #c2b936 75%, var(--mat-sys-on-surface) 25%);
+
+    border-top-color: var(--unsc-honor-color);
+
+    .rank-title {
+        color: var(--unsc-honor-color) !important;
+        text-shadow: 0 0 10px color-mix(in srgb, var(--unsc-honor-color) 40%, transparent);
+    }
+
+    .ops-badge mat-icon { color: var(--unsc-honor-color); }
+    .plaque-header .rank-acronym { color: var(--unsc-honor-color); }
+
+    &:hover {
+        animation: honor-energy-shield-olive 2s infinite ease-in-out;
+        border-color: var(--unsc-honor-color);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6), inset 0 0 20px color-mix(in srgb, var(--unsc-honor-color) 10%, transparent);
+        &::before { filter: drop-shadow(0 0 5px var(--unsc-honor-color)); }
+    }
+
+    &::before {
+        $c: var(--unsc-honor-color);
+        $t: 2px;         
+        $l: 32px;
+        background:
+            linear-gradient($c, $c) top left / $l $t no-repeat, linear-gradient($c, $c) top left / $t $l no-repeat,
+            linear-gradient($c, $c) top right / $l $t no-repeat, linear-gradient($c, $c) top right / $t $l no-repeat,
+            linear-gradient($c, $c) bottom left / $l $t no-repeat, linear-gradient($c, $c) bottom left / $t $l no-repeat,
+            linear-gradient($c, $c) bottom right / $l $t no-repeat, linear-gradient($c, $c) bottom right / $t $l no-repeat;
+    }
+
+    .holographic-pedestal .holo-base {
+        border-color: var(--unsc-honor-color);
+        background-color: color-mix(in srgb, var(--unsc-honor-color) 5%, transparent);
+        box-shadow: 0 0 15px color-mix(in srgb, var(--unsc-honor-color) 30%, transparent);
+    }
+
+    .holographic-pedestal .holo-beam {
+        background: linear-gradient(to top, color-mix(in srgb, var(--unsc-honor-color) 15%, transparent), transparent);
+    }
+}
+
+/* =========================================================
+   VARIANTE 3 : NAVY HONORIFIQUE -> Or avec reflet Cyan
+   ========================================================= */
+.unsc-rank-plaque.rank-navy.rank-honorific {
+    /* Double mix : (80% Or + 20% Tertiary) mélangé à 25% avec la couleur du texte */
+    --unsc-navy-honor-color: color-mix(in srgb, color-mix(in srgb, #c2b936 80%, var(--mat-sys-tertiary) 20%) 75%, var(--mat-sys-on-surface) 25%);
+
+    border-top-color: var(--unsc-navy-honor-color);
+
+    .rank-title {
+        color: var(--unsc-navy-honor-color) !important;
+        text-shadow: 0 0 10px color-mix(in srgb, var(--unsc-navy-honor-color) 40%, transparent);
+    }
+
+    .ops-badge mat-icon { color: var(--unsc-navy-honor-color); }
+    .plaque-header .rank-acronym { color: var(--unsc-navy-honor-color); }
+    
+    .honor-badge {
+        border-color: color-mix(in srgb, var(--unsc-navy-honor-color) 30%, transparent);
+        color: var(--unsc-navy-honor-color);
+        background-color: color-mix(in srgb, var(--unsc-navy-honor-color) 10%, transparent);
+        mat-icon { color: var(--unsc-navy-honor-color); }
+    }
+
+    &:hover {
+        animation: navy-honor-energy-shield 2s infinite ease-in-out;
+        border-color: var(--unsc-navy-honor-color);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6), inset 0 0 20px color-mix(in srgb, var(--unsc-navy-honor-color) 10%, transparent);
+        &::before { filter: drop-shadow(0 0 5px var(--unsc-navy-honor-color)); }
+    }
+
+    &::before {
+        $c: var(--unsc-navy-honor-color);
+        $t: 2px;         
+        $l: 32px;
+        background:
+            linear-gradient($c, $c) top left / $l $t no-repeat, linear-gradient($c, $c) top left / $t $l no-repeat,
+            linear-gradient($c, $c) top right / $l $t no-repeat, linear-gradient($c, $c) top right / $t $l no-repeat,
+            linear-gradient($c, $c) bottom left / $l $t no-repeat, linear-gradient($c, $c) bottom left / $t $l no-repeat,
+            linear-gradient($c, $c) bottom right / $l $t no-repeat, linear-gradient($c, $c) bottom right / $t $l no-repeat;
+    }
+
+    .holographic-pedestal .holo-base {
+        border-color: var(--unsc-navy-honor-color);
+        background-color: color-mix(in srgb, var(--unsc-navy-honor-color) 5%, transparent);
+        box-shadow: 0 0 15px color-mix(in srgb, var(--unsc-navy-honor-color) 30%, transparent);
+    }
+
+    .holographic-pedestal .holo-beam {
+        background: linear-gradient(to top, color-mix(in srgb, var(--unsc-navy-honor-color) 15%, transparent), transparent);
+    }
+}
+
+
+/* --- EN-TÊTE DE LA PLAQUE --- */
+.plaque-header {
+    padding: 16px !important;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(180deg, var(--mat-sys-surface-container-highest) 0%, transparent 100%);
+    border-bottom: 1px solid var(--mat-sys-surface-container-highest);
+    background-color: var(--mat-sys-surface-container);
   
-    .card-title {
-        font-size: 1.1rem;
-        font-weight: 900;
+    .rank-title {
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 1.15rem !important;
+        line-height: 1.3;
+        font-weight: 900 !important;
         text-transform: uppercase;
-        color: var(--mat-sys-primary);
-        letter-spacing: 1px;
+        color: var(--mat-sys-on-surface);
+        letter-spacing: 2px;
         margin: 0;
     }
 
-    .card-subtitle {
+    .rank-acronym {
         font-family: 'Courier New', Courier, monospace;
-        color: var(--mat-sys-on-surface-variant);
+        color: var(--mat-sys-primary); /* Remplacé dynamiquement par la Navy/Honneur */
         font-weight: bold;
+        font-size: 0.95rem;
         margin-top: 4px;
+        letter-spacing: 1px;
     }
 }
 
-/* --- ZONE DE L'ICÔNE --- */
-.card-icon-container {
+/* --- PIÉDESTAL HOLOGRAPHIQUE --- */
+.holographic-pedestal {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 120px;
-    padding: 16px;
+    height: 140px;
     position: relative;
+    background-color: transparent;
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+    overflow: hidden;
 
-    .icon-backdrop {
+    /* --- CONTENEUR DES STATISTIQUES (Haut Droite) --- */
+    .stats-container {
         position: absolute;
-        width: 100px;
-        height: 100px;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+        z-index: 15;
+    }
+
+    /* Colonne Gauche (État) */
+    .status-container {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        z-index: 15;
+    }
+
+    /* --- STYLE UNIFIÉ DES BADGES --- */
+    .ops-badge, .stat-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 80%, transparent);
+        color: var(--mat-sys-on-surface);
+        padding: 4px 8px;
+        border-radius: 2px;
+        border: 1px solid var(--mat-sys-outline-variant);
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        
+        mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: var(--mat-sys-primary); 
+        }
+    }
+
+    .reward-badge {
+        border-color: color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent);
+        color: var(--mat-sys-tertiary);
+        
+        mat-icon { color: var(--mat-sys-tertiary); }
+    }
+
+        /* Badge spécial pour le dossier à gauche */
+    .warning-badge {
+        border-color: color-mix(in srgb, var(--mat-sys-error) 30%, transparent);
+        color: var(--mat-sys-error);
+        
+        mat-icon { color: var(--mat-sys-error); }
+    }
+
+    /* Le badge honneur à gauche est aussi en style doré/secondary */
+    .honor-badge {
+        border-color: color-mix(in srgb, var(--unsc-honor-color) 30%, transparent);
+        color: var(--unsc-honor-color);
+        background-color: color-mix(in srgb, var(--unsc-honor-color) 10%, transparent);
+        
+        mat-icon { color: var(--unsc-honor-color); }
+    }
+
+    .holo-base {
+        position: absolute;
+        bottom: 10px;
+        width: 120px;
+        height: 30px;
         border-radius: 50%;
-        background: radial-gradient(circle, var(--mat-sys-primary) 0%, transparent 70%);
-        opacity: 0.05;
-        transition: all 0.3s ease;
-        z-index: 0;
+        border: 1px solid var(--mat-sys-primary);
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+        box-shadow: 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+        transform: rotateX(60deg); 
     }
 
-    .grade-icon {
-        max-width: 90px;
-        max-height: 90px;
+    .holo-beam {
+        position: absolute;
+        bottom: 25px;
+        width: 90px;
+        height: 100px;
+        background: linear-gradient(to top, color-mix(in srgb, var(--mat-sys-primary) 15%, transparent), transparent);
+        opacity: 0.4;
+        transition: all 0.4s ease;
+        clip-path: polygon(10% 100%, 90% 100%, 100% 0, 0 0); 
+    }
+
+    .rank-insignia {
+        max-width: 100px;
+        max-height: 100px;
         object-fit: contain;
-        z-index: 1;
-        filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.5));
-    }
-
-    .placeholder-icon {
-        font-size: 64px;
-        width: 64px;
-        height: 64px;
-        color: var(--mat-sys-outline);
-        z-index: 1;
+        z-index: 2;
+        filter: drop-shadow(0px 6px 8px rgba(0,0,0,0.6));
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 }
 
-.card-details-tactical {
-    padding: 16px;
+/* --- DÉTAILS ET RUBANS --- */
+.plaque-details {
+    background-color: var(--mat-sys-surface-container);
+    padding: 16px !important;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin-top: auto;
-    background-color: var(--mat-sys-surface-container);
-    border-top: 1px solid var(--mat-sys-outline-variant);
+    flex: 1;
 }
 
-.badges-container {
+.service-ribbons {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column; 
     gap: 8px;
 }
 
-.tactical-badge {
-    display: inline-flex;
+.ribbon {
+    display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: bold;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 12px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8rem;
+    font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 1.5px;
+    border-left: 4px solid; 
+    background-color: var(--mat-sys-surface-container-highest);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    border-right: 1px solid var(--mat-sys-outline-variant);
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
     
-    mat-icon {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
-    }
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
 }
 
-.badge-warning {
-    background-color: var(--mat-sys-secondary-container);
-    color: var(--mat-sys-on-secondary-container);
-    border: 1px solid color-mix(in srgb, var(--mat-sys-secondary) 50%, transparent);
+.ribbon-warning {
+    border-left-color: var(--mat-sys-secondary);
+    color: var(--mat-sys-secondary);
 }
 
-.badge-info {
-    background-color: var(--mat-sys-tertiary-container);
-    color: var(--mat-sys-on-tertiary-container);
-    border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 50%, transparent);
+.ribbon-honor {
+    border-left-color: var(--mat-sys-secondary);
+    color: var(--mat-sys-secondary);
+    background-color: color-mix(in srgb, var(--mat-sys-secondary) 10%, var(--mat-sys-surface-container-highest));
 }
 
-.badge-honor {
-    background-color: var(--mat-sys-primary-container);
-    color: var(--mat-sys-on-primary-container);
-    border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
-}
-
-.fonction-panel {
+/* --- AFFECTATION (FONCTION) --- */
+.role-designation {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 8px;
-    background-color: var(--mat-sys-surface-container-highest);
-    border-radius: 4px;
-    font-size: 0.85rem;
-    color: var(--mat-sys-on-surface);
-    text-align: center;
-    font-style: italic;
+    gap: 4px;
+    padding: 12px;
+    background-color: color-mix(in srgb, var(--mat-sys-on-surface) 5%, transparent);
+    border: 1px dashed var(--mat-sys-outline);
+    border-radius: 2px;
+    margin-top: auto;
 
-    .fonction-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-        color: var(--mat-sys-primary);
+    .role-label {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.75rem;
+        color: var(--mat-sys-outline);
+        letter-spacing: 2px;
+    }
+
+    .role-value {
+        font-size: 0.95rem;
+        font-weight: bold;
+        color: var(--mat-sys-on-surface);
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 }
+
+/* =========================================================
+   ANIMATIONS : BOUCLIERS ÉNERGÉTIQUES AU SURVOL
+   ========================================================= */
+@keyframes unsc-energy-shield {
+    0% { border-color: var(--mat-sys-primary); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 4px var(--mat-sys-primary); }
+    50% { border-color: color-mix(in srgb, var(--mat-sys-primary) 50%, white); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 20px var(--mat-sys-primary), inset 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent); }
+    100% { border-color: var(--mat-sys-primary); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 4px var(--mat-sys-primary); }
+}
+
+@keyframes navy-energy-shield {
+    0% { border-color: var(--mat-sys-tertiary); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 4px var(--mat-sys-tertiary); }
+    50% { border-color: color-mix(in srgb, var(--mat-sys-tertiary) 50%, white); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 20px var(--mat-sys-tertiary), inset 0 0 15px color-mix(in srgb, var(--mat-sys-tertiary) 20%, transparent); }
+    100% { border-color: var(--mat-sys-tertiary); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 4px var(--mat-sys-tertiary); }
+}
+
+@keyframes navy-honor-energy-shield {
+    0% { border-color: var(--unsc-navy-honor-color); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 4px var(--unsc-navy-honor-color); }
+    50% { border-color: color-mix(in srgb, var(--unsc-navy-honor-color) 50%, white); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 20px var(--unsc-navy-honor-color), inset 0 0 15px color-mix(in srgb, var(--unsc-navy-honor-color) 20%, transparent); }
+    100% { border-color: var(--unsc-navy-honor-color); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 4px var(--unsc-navy-honor-color); }
+}
+
+@keyframes honor-energy-shield-olive {
+    0% { border-color: var(--unsc-honor-color); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 4px var(--unsc-honor-color); }
+    50% { border-color: color-mix(in srgb, var(--unsc-honor-color) 50%, white); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 20px var(--unsc-honor-color), inset 0 0 15px color-mix(in srgb, var(--unsc-honor-color) 20%, transparent); }
+    100% { border-color: var(--unsc-honor-color); box-shadow: 0 16px 32px rgba(0,0,0,0.6), 0 0 4px var(--unsc-honor-color); }
+}
+
