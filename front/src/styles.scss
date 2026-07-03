@@ -74,7 +74,8 @@ body,
 .mat-mdc-card-title,
 .mat-mdc-card-subtitle,
 .mat-mdc-form-field-hint,
-.mat-mdc-header-row {
+.mat-mdc-header-row,
+.mat-mdc-tab {
   font-family: 'Courier New', Courier, monospace !important;
 }
 
@@ -238,6 +239,90 @@ mat-dialog-content {
     font-family: 'Courier New', Courier, monospace !important;
     font-weight: 900 !important;
     text-transform: uppercase !important;
+  }
+}
+
+/* =========================================================
+   ONGLETS TACTIQUES (TABS - STYLE UNSC HUD)
+   ========================================================= */
+
+/* Le conteneur global des onglets */
+.mat-mdc-tab-group {
+  /* On garde la bordure mais on rend le fond totalement transparent */
+  border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+  border-radius: 2px;
+  background-color: transparent !important; 
+  box-sizing: border-box;
+}
+
+/* La barre d'en-tête (où se trouvent les labels) */
+.mat-mdc-tab-header {
+  background-color: transparent !important; /* Laisse transparaître le fond global */
+  border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent) !important;
+}
+
+/* Typographie et structure d'un onglet non-sélectionné */
+.mdc-tab__text-label {
+  font-family: 'Courier New', Courier, monospace !important;
+  font-weight: 900 !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase;
+  color: var(--mat-sys-on-surface-variant) !important;
+  transition: all 0.3s ease;
+}
+
+/* Espacement interne de l'onglet */
+.mat-mdc-tab {
+  padding: 0 32px !important;
+  
+  /* Lignes de séparation entre les onglets */
+  border-right: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+
+  &:hover .mdc-tab__text-label {
+    color: var(--mat-sys-primary) !important;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+  }
+}
+
+/* Style de l'onglet ACTIF (Sélectionné) */
+.mat-mdc-tab.mdc-tab--active {
+  /* Un fond extrêmement léger pour marquer la sélection sans cacher la grille */
+  background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+  
+  .mdc-tab__text-label {
+    color: var(--mat-sys-primary) !important;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--mat-sys-primary) 80%, transparent);
+  }
+}
+
+/* L'indicateur (la ligne qui souligne l'onglet actif) */
+.mdc-tab-indicator__content--underline {
+  border-color: var(--mat-sys-primary) !important;
+  border-width: 3px !important; 
+  box-shadow: 0 -4px 10px color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+}
+
+/* Animation d'impact lors du changement d'onglet (HUD switch) */
+.mat-mdc-tab-body-active {
+  animation: unsc-tab-switch 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* La zone de contenu de l'onglet */
+.mat-mdc-tab-body-content {
+  padding: 0 !important; 
+  overflow-x: hidden !important;
+}
+
+@keyframes unsc-tab-switch {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px) drop-shadow(0 0 10px var(--mat-sys-primary));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0) drop-shadow(0 0 0 transparent);
   }
 }
 
