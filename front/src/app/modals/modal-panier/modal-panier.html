@@ -1,11 +1,14 @@
 <h2 mat-dialog-title>Panier</h2>
 <mat-dialog-content>
+
+<div class="tactical-filters">
     <mat-form-field>
         <mat-label>Recherche</mat-label>
         <input matInput (keyup)="Recherche($event)" #input>
     </mat-form-field>
+</div>
 
-    <div class="mat-elevation-z8">
+    <div class="mat-elevation-z8 unsc-table-container">
         <table mat-table [dataSource]="dataSource()" matSort>
 
             <ng-container matColumnDef="nom">
@@ -58,7 +61,7 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="tactical-row"></tr>
 
             <tr class="mat-row" *matNoDataRow>
                 <td class="mat-cell" colspan="5">Aucun resultat "{{input.value}}"</td>

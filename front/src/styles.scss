@@ -578,51 +578,218 @@ mat-dialog-content {
 }
 
 /* =========================================================
-   MODALES TACTIQUES
+   MODALES TACTIQUES (TERMINAL HOLOGRAPHIQUE UNSC)
    ========================================================= */
+
+/* Réinitialisation de la forme de base */
 .mat-mdc-dialog-container,
 .mat-mdc-dialog-container.mdc-dialog .mdc-dialog__container .mdc-dialog__surface {
   --mdc-dialog-container-shape: 0px !important;
-  border-radius: 0px !important; 
+  border-radius: 0px !important;
+  background: transparent !important; 
+  box-shadow: none !important;
 }
 
-.mat-mdc-dialog-container 
-{
+/* La surface visible de la modale */
+.mat-mdc-dialog-container .mdc-dialog__surface {
   background-color: var(--mat-sys-surface-container) !important;
-  border: 1px solid var(--mat-sys-primary) !important;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 40%, transparent) !important;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 15, 0, 0.3) !important;
+  position: relative;
+  overflow: visible !important;
 
-  animation: modal-fade-in 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  /* Animation d'ouverture : Démarrage du terminal */
+  animation: unsc-modal-boot 0.4s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
 
-  /* En-tête de la modale */
-  .mat-mdc-dialog-title {
-    background-color: var(--mat-sys-surface-container-highest);
-    padding: 16px 24px !important;
-    border-bottom: 2px solid var(--mat-sys-primary);
-    color: var(--mat-sys-primary);
-    font-family: 'Courier New', Courier, monospace !important;
-    font-weight: 900 !important;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+/* --- CADRE HUD (Les 4 angles) --- */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -4px; 
+    left: -4px; 
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 10;
+    
+    $c: var(--mat-sys-primary);
+    $t: 3px;
+    $l: 24px;
+    
+    background:
+        linear-gradient($c, $c) top left / $l $t no-repeat,
+        linear-gradient($c, $c) top left / $t $l no-repeat,
+        linear-gradient($c, $c) top right / $l $t no-repeat,
+        linear-gradient($c, $c) top right / $t $l no-repeat,
+        linear-gradient($c, $c) bottom left / $l $t no-repeat,
+        linear-gradient($c, $c) bottom left / $t $l no-repeat,
+        linear-gradient($c, $c) bottom right / $l $t no-repeat,
+        linear-gradient($c, $c) bottom right / $t $l no-repeat;
+        
+    /* Animation Yo-Yo */
+    animation: unsc-hud-yoyo 1.2s ease-in-out 0.1s forwards;
   }
-
-  /* Contenu de la modale */
-  .mat-mdc-dialog-content {
-    padding: 24px !important;
-    color: var(--mat-sys-on-surface);
+  
+  /* --- EFFET SCANLINE (Lignes de balayage) --- */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 2px,
+        rgba(0, 0, 0, 0.1) 4px
+    );
+    pointer-events: none; /* Ne bloque pas les clics */
+    z-index: 1;
   }
+}
 
-  /* Pied de page (Actions) */
-  .mat-mdc-dialog-actions {
-    padding: 16px 24px !important;
-    border-top: 1px solid var(--mat-sys-outline-variant);
-    background-color: var(--mat-sys-surface-container-highest);
+/* En-tête de la modale */
+.mat-mdc-dialog-title {
+  background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, var(--mat-sys-surface-container-highest));
+  padding: 20px 24px !important;
+  border-bottom: 2px solid var(--mat-sys-primary);
+  color: var(--mat-sys-primary);
+  font-family: 'Courier New', Courier, monospace !important;
+  font-weight: 900 !important;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 2; /* Reste au-dessus des scanlines */
+  text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+
+  /* Indicateur d'enregistrement (Caméra embarquée) */
+  &::before {
+    content: 'REC';
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    font-size: 0.75rem;
+    color: var(--mat-sys-error);
+    letter-spacing: 1px;
+    animation: unsc-blink 1.5s infinite;
   }
+  &::after {
+    content: '';
+    position: absolute;
+    right: 60px;
+    top: 27px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--mat-sys-error);
+    border-radius: 50%;
+    animation: unsc-blink 1.5s infinite;
+    box-shadow: 0 0 8px var(--mat-sys-error);
+  }
+}
+
+/* Contenu de la modale */
+.mat-mdc-dialog-content {
+  padding: 24px !important;
+  color: var(--mat-sys-on-surface);
+  position: relative;
+  z-index: 2;
+}
+
+/* Pied de page (Actions) */
+.mat-mdc-dialog-actions {
+  padding: 16px 24px !important;
+  border-top: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+  background-color: var(--mat-sys-surface-container-highest);
+  position: relative;
+  z-index: 2;
+}
+
+/* --- ANIMATION DE FERMETURE (Détectée par Angular) --- */
+.mdc-dialog--closing .mdc-dialog__surface {
+  animation: unsc-modal-shutdown 0.3s cubic-bezier(0.4, 0, 1, 1) forwards !important;
 }
 
 /* Overlay (le fond grisé derrière la modale) */
 .cdk-overlay-dark-backdrop {
-  background: rgba(0, 10, 0, 0.7) !important;
+  background: rgba(0, 10, 0, 0.75) !important;
+  backdrop-filter: blur(2px); /* Léger flou sur le reste de l'application */
+}
+
+/* =========================================================
+   KEYFRAMES DES ANIMATIONS HOLOGRAPHIQUES
+   ========================================================= */
+
+/* Séquence d'allumage : Trait lumineux horizontal, puis expansion verticale */
+@keyframes unsc-modal-boot {
+  0% { 
+    opacity: 0; 
+    transform: scaleY(0.005) scaleX(0.2); 
+    filter: brightness(3) drop-shadow(0 0 20px var(--mat-sys-primary)); 
+  }
+  40% { 
+    opacity: 1; 
+    transform: scaleY(0.005) scaleX(1); 
+    filter: brightness(2); 
+  }
+  100% { 
+    transform: scaleY(1) scaleX(1); 
+    filter: brightness(1); 
+  }
+}
+
+/* Séquence d'extinction : Écrasement vertical puis disparition du trait */
+@keyframes unsc-modal-shutdown {
+  0% { 
+    transform: scaleY(1) scaleX(1); 
+    opacity: 1; 
+  }
+  40% { 
+    transform: scaleY(0.005) scaleX(1); 
+    filter: brightness(2); 
+    opacity: 1;
+  }
+  100% { 
+    transform: scaleY(0.005) scaleX(0); 
+    filter: brightness(3); 
+    opacity: 0; 
+  }
+}
+
+/* Clignotement de l'indicateur REC */
+@keyframes unsc-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.3; }
+}
+
+/* Effet Scanner / Yo-Yo fluide du HUD à l'ouverture (Touché-Retour) */
+@keyframes unsc-hud-yoyo {
+  0% {
+    /* Départ de la position de veille */
+    background-size: 
+        24px 3px, 3px 24px, 
+        24px 3px, 3px 24px, 
+        24px 3px, 3px 24px, 
+        24px 3px, 3px 24px;
+  }
+  
+  /* Point de contact unique (Impact instantané sans pause) */
+  50% {
+    background-size: 
+        51% 3px, 3px 51%,
+        51% 3px, 3px 51%,
+        51% 3px, 3px 51%,
+        51% 3px, 3px 51%;
+    filter: drop-shadow(0 0 12px color-mix(in srgb, var(--mat-sys-primary) 80%, transparent));
+  }
+  
+  100% {
+    /* Retour immédiat à la position de base */
+    background-size: 
+        24px 3px, 3px 24px,
+        24px 3px, 3px 24px,
+        24px 3px, 3px 24px,
+        24px 3px, 3px 24px;
+  }
 }
 
 /* =========================================================
@@ -946,16 +1113,5 @@ mat-dialog-content {
     font-weight: 900 !important;
     letter-spacing: 1px !important;
     text-transform: uppercase !important;
-  }
-}
-
-@keyframes modal-fade-in {
-  0% { 
-    opacity: 0; 
-    transform: translateY(-20px) scale(0.98); 
-  }
-  100% { 
-    opacity: 1; 
-    transform: translateY(0) scale(1); 
   }
 }
