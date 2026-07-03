@@ -1115,3 +1115,30 @@ mat-dialog-content {
     text-transform: uppercase !important;
   }
 }
+
+/* =========================================================
+   SÉCURITÉ D'AFFICHAGE : MODALES EN LIGHT MODE
+   ========================================================= */
+html.light-mode 
+{
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    background-color: var(--mat-sys-surface-container) !important;
+    border-color: var(--mat-sys-outline-variant) !important;
+  }
+
+  .mat-mdc-dialog-title {
+    color: var(--mat-sys-primary) !important;
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, var(--mat-sys-surface));
+  }
+
+  .mat-mdc-dialog-content 
+  {
+    background-color: #1a1c1862 !important; 
+    color: #ffffff !important; 
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.4);
+  }
+
+  .mat-mdc-dialog-actions {
+    background-color: var(--mat-sys-surface-container-highest) !important;
+  }
+}

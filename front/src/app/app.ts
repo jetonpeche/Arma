@@ -133,7 +133,7 @@ export class App implements OnInit
     protected OuvrirModalPanier(): void
     { 
         this.dialog.open(ModalPanier, {
-            width: "50%", 
+            width: "60%", 
             maxWidth: "100vw",
         });
     }

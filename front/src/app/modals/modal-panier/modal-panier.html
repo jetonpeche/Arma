@@ -13,42 +13,41 @@
 
             <ng-container matColumnDef="nom">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
-                <td mat-cell *matCellDef="let element"> {{ element.nom }} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="type">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
-                <td mat-cell *matCellDef="let element"> 
-                    {{ element.type == eTypeObjetProposer.Materiel ? "Mat" : "Logi" }} 
+                <td mat-cell *matCellDef="let element">
+                    <span class="unsc-badge badge-primary">{{ element.nom }}</span>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="vaisseau">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Vaisseau </th>
                 <td mat-cell *matCellDef="let element"> 
-                    {{ element?.vaisseau?.nom ?? "NA" }} 
+                    <span class="unsc-badge badge-neutral">{{ element?.vaisseau?.nom ?? "NA" }}</span>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="quantite">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Quantité </th>
-                <td mat-cell *matCellDef="let element"> {{ element.quantite }} </td>
+                <td mat-cell *matCellDef="let element"> 
+                    <span class="unsc-badge badge-secondary">{{ element.quantite }}</span>
+                </td>
             </ng-container>
 
             <ng-container matColumnDef="prixUnitaire">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Prix unitaire </th>
-                <td mat-cell *matCellDef="let element"> {{ element.prixUnitaire }} </td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> crédits </th>
+                <td mat-cell *matCellDef="let element"> 
+                    <span class="unsc-badge badge-tertiary">{{ element.prixUnitaire }} CR</span>
+                </td>
             </ng-container>
 
             <ng-container matColumnDef="prixTotal">
                 <th mat-header-cell *matHeaderCellDef> Total </th>
                 <td mat-cell *matCellDef="let element"> 
-                    {{ element.prixUnitaire * element.quantite }} 
+                    <span class="unsc-badge badge-tertiary">{{ element.prixUnitaire * element.quantite }} CR</span>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="action">
-                <th mat-header-cell *matHeaderCellDef> Action </th>
+                <th mat-header-cell *matHeaderCellDef> Commandes </th>
                 <td mat-cell *matCellDef="let element"> 
                     <jp-button-loader matMiniFab
                                                 icon="delete" 

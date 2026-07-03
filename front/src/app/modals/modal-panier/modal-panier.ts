@@ -29,7 +29,7 @@ export class ModalPanier implements OnInit, AfterViewInit
     protected matSort = viewChild.required(MatSort);
     protected matPaginator = viewChild.required(MatPaginator);
 
-    protected displayedColumns = ["nom", "type", "vaisseau", "quantite", "prixUnitaire", "prixTotal", "action"];
+    protected displayedColumns = ["nom",  "vaisseau", "quantite", "prixUnitaire", "prixTotal", "action"];
     protected dataSource = signal(new MatTableDataSource<Panier>());
     protected btnClick = signal<boolean>(false);
     protected eTypeObjetProposer = ETypeObjetProposer;
