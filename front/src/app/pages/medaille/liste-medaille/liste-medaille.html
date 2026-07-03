@@ -2,45 +2,52 @@
     @for (element of listeMedaille(); track element.id) 
     {
         <jp-grid-element [colXs]="12" [colSm]="6" [colXl]="4">
-            <mat-card class="medal-card" appearance="outlined">
-                <!-- Ruban mis en avant -->
-                <div class="ribbon-container">
-                    <div class="price-tag">
+            <mat-card class="unsc-medal-vault" appearance="outlined">
+                
+                <!-- En-tête : Plaque d'identification -->
+                <div class="vault-header">
+                    <div class="title-container">
+                        <mat-icon class="header-icon">military_tech</mat-icon>
+                        <span class="vault-title">{{ element.nom }}</span>
+                    </div>
+                    <div class="price-plate" matTooltip="Coût de la décoration">
                         {{ element.nbPoint }} CR
                     </div>
+                </div>
+
+                <!-- Vitrine d'exposition (Zone enfoncée) -->
+                <div class="vault-display">
                     <img [src]="element.nomFichier" [alt]="element.nom" class="ribbon-image">
                 </div>
 
-                <mat-card-header>
-                    <mat-card-title class="medal-title">{{ element.nom }}</mat-card-title>
-                </mat-card-header>
-
-                <mat-card-content class="medal-content">
+                <!-- Dossier / Description -->
+                <div class="vault-content">
+                    <div class="desc-label">// ARCHIVE :</div>
                     <p>{{ element.description }}</p>
-                </mat-card-content>
+                </div>
 
+                <!-- Actions de Commandement -->
                 @if (droit().peutEcrire || droit().peutSupprimer)
                 {
-                    <mat-card-actions class="medal-actions">
-
+                    <div class="vault-actions">
                         @if(droit().peutEcrire)
                         {
-                            <button matIconButton color="primary" (click)="OuvrirModalAttribuerMedaille(element)">
-                                <mat-icon>military_tech</mat-icon>
+                            <button matIconButton matTooltip="Attribuer au personnel" (click)="OuvrirModalAttribuerMedaille(element)">
+                                <mat-icon>add_box</mat-icon>
                             </button>
 
-                            <button matIconButton (click)="OnClick(element)">
-                                <mat-icon>edit</mat-icon>
+                            <button matIconButton matTooltip="Modifier la médaille" (click)="OnClick(element)">
+                                <mat-icon>edit_square</mat-icon>
                             </button>
                         }
-
+                        
                         @if (droit().peutSupprimer) 
                         {
-                            <button matIconButton (click)="OuvrirSupprimerMedaille(element)">
-                                <mat-icon>delete</mat-icon>
+                            <button matIconButton matTooltip="Supprimer des registres" (click)="OuvrirSupprimerMedaille(element)">
+                                <mat-icon>delete_forever</mat-icon>
                             </button>
                         }
-                    </mat-card-actions>
+                    </div>
                 }
             </mat-card>
         </jp-grid-element>

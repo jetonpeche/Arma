@@ -1,99 +1,218 @@
-.medal-card {
+/* =========================================================
+   DESIGN : VITRINE / COFFRE-FORT (VAULT) UNSC
+   ========================================================= */
+
+.unsc-medal-vault {
     height: 100%;
     display: flex;
     flex-direction: column;
-    background-color: var(--mat-sys-surface-container);
-    border-radius: 12px;
     
+    background-color: var(--mat-sys-surface-container) !important;
+    border-radius: 4px !important; 
     border: 1px solid var(--mat-sys-outline-variant);
-    
     border-left: 4px solid var(--mat-sys-primary);
-    border-top: 4px solid var(--mat-sys-primary);
     
-    overflow: hidden;
+    /* Indispensable pour le réticule */
     position: relative;
-    transition: all 0.3s ease;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
 
+    /* --- LE RÉTICULE DE CIBLAGE (Masqué par défaut) --- */
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10;
+        
+        $c: var(--mat-sys-primary);
+        $t: 2px;
+        /* Taille initiale à 0 pour créer l'effet d'étirement */
+        background:
+            linear-gradient($c, $c) top left / 0 $t no-repeat,
+            linear-gradient($c, $c) top left / $t 0 no-repeat,
+            linear-gradient($c, $c) top right / 0 $t no-repeat,
+            linear-gradient($c, $c) top right / $t 0 no-repeat,
+            linear-gradient($c, $c) bottom left / 0 $t no-repeat,
+            linear-gradient($c, $c) bottom left / $t 0 no-repeat,
+            linear-gradient($c, $c) bottom right / 0 $t no-repeat,
+            linear-gradient($c, $c) bottom right / $t 0 no-repeat;
+            
+        opacity: 0;
+        /* Transition élastique pour un effet mécanique franc */
+        transition: background-size 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    }
+
+    /* --- ANIMATION AU SURVOL (Verrouillage & Scan) --- */
     &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
         border-color: var(--mat-sys-primary);
-        background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, var(--mat-sys-surface-container));
+        /* Onde de choc lumineuse sur le contour */
+        animation: vault-radar-pulse 1.5s infinite;
+        
+        /* Déploiement du réticule dans les 4 coins */
+        &::before {
+            opacity: 1;
+            $t: 2px;
+            $l: 24px; /* Le réticule s'étend jusqu'à 24px */
+            background-size:
+                $l $t, $t $l,
+                $l $t, $t $l,
+                $l $t, $t $l,
+                $l $t, $t $l;
+        }
+        
+        /* Assombrissement de la vitrine (votre effet actuel gardé) */
+        .vault-display {
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.4) 2px,
+                    rgba(0, 0, 0, 0.4) 4px
+                ),
+                radial-gradient(
+                    circle at center, 
+                    color-mix(in srgb, var(--mat-sys-primary) 5%, #252822) 0%, 
+                    #000000 100%
+                );
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.9);
+        }
+        
+        .ribbon-image {
+            transform: scale(1.05);
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.9));
+        }
     }
 }
 
-.ribbon-container {
-    padding: 20px;
-    background-color: var(--mat-sys-surface-container-highest);
+/* --- L'ONDE RADAR DU CONTOUR --- */
+@keyframes vault-radar-pulse {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
+    70% { box-shadow: 0 0 0 12px color-mix(in srgb, var(--mat-sys-primary) 0%, transparent); }
+    100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--mat-sys-primary) 0%, transparent); }
+}
+
+/* --- EN-TÊTE : PLAQUE D'IDENTIFICATION --- */
+.vault-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent);
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+    .title-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .header-icon {
+        color: var(--mat-sys-primary);
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .vault-title {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.1rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: var(--mat-sys-on-surface);
+        letter-spacing: 1.5px;
+        margin: 0;
+    }
+}
+
+/* --- PUCE DE CRÉDITS (GRAVURE METALLIQUE) --- */
+.price-plate {
+    background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+    color: var(--mat-sys-tertiary);
+    padding: 4px 10px;
+    border-radius: 2px;
+    border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 40%, transparent);
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* --- VITRINE D'EXPOSITION (ZONE ENFONCÉE) --- */
+.vault-display {
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.25) 2px,
+            rgba(0, 0, 0, 0.25) 4px
+        ),
+        radial-gradient(
+            circle at center, 
+            color-mix(in srgb, var(--mat-sys-primary) 10%, #353832) 0%, 
+            #050505 100%
+        );
+    
+    box-shadow: inset 0 4px 15px rgba(0,0,0,0.8);
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 140px;
     border-bottom: 1px solid var(--mat-sys-outline-variant);
-    position: relative;
-    
+    transition: all 0.4s ease;
+    position: relative; /* Sécurité pour le positionnement */
+
+    /* CONTRAINTE DIMENSIONNELLE STRICTE RESPECTÉE ICI */
     .ribbon-image {
-        max-width: 220px;
+        width: 220px;
         height: 80px;
         object-fit: contain;
-        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8));
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+}
+/* --- CONTENU --- */
+.vault-content {
+    flex: 1;
+    padding: 16px;
+    background-color: var(--mat-sys-surface-container);
+    
+    .desc-label {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.75rem;
+        color: var(--mat-sys-outline);
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+    }
+
+    p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--mat-sys-on-surface-variant);
+        margin: 0;
     }
 }
 
-.medal-title {
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--mat-sys-primary);
-    margin-top: 16px !important;
-    margin-bottom: 0 !important;
-}
-
-.medal-points {
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
-    color: var(--mat-sys-tertiary);
-}
-
-.medal-content {
-    flex-grow: 1;
-    padding: 16px;
-    padding-top: 5px;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: var(--mat-sys-on-surface-variant);
-}
-
-.medal-actions {
+/* --- BARRE D'ACTIONS TACTIQUES --- */
+.vault-actions {
+    display: flex;
+    justify-content: end;
+    padding: 8px 16px;
+    background-color: var(--mat-sys-surface-container-highest);
     border-top: 1px solid var(--mat-sys-outline-variant);
-    justify-content: flex-end;
-    padding: 8px;
     gap: 8px;
 }
 
-.price-tag {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background-color: var(--mat-sys-tertiary-container);
-    color: var(--mat-sys-on-tertiary-container);
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: 900;
-    font-size: 0.85rem;
-    border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 50%, transparent);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    z-index: 2;
-}
-
-/* --- RESPONSIVE OPTIMISÉ --- */
-@media screen and (max-width: 600px) 
-{
-    .ribbon-container {
-        padding: 16px;
-    }
-    
-    .ribbon-image {
-        max-width: 160px;
-        height: 60px;
+/* --- RESPONSIVE --- */
+@media screen and (max-width: 600px) {
+    .vault-display {
+        height: 110px;
+        
+        .ribbon-image {
+            width: 180px;
+            height: 65px;
+        }
     }
 }
