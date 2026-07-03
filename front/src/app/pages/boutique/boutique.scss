@@ -70,57 +70,127 @@
     }
 }
 
-/* --- CARTES DE RÉQUISITION --- */
+/* =========================================================
+   CARTES DE RÉQUISITION (TERMINAL HUD UNSC)
+   ========================================================= */
 .requisition-card {
     height: 100%;
     display: flex;
     flex-direction: column;
-    background-color: var(--mat-sys-surface-container-high);
+    background-color: var(--mat-sys-surface-container);
     border: 1px solid var(--mat-sys-outline-variant);
-    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease, border-color 0.3s ease; /* Remplace le style précédent[cite: 12] */
-    overflow: hidden;
+    border-radius: 2px !important; 
+    position: relative;
+    overflow: visible;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
-    &:hover {
-        transform: translateY(-5px); /* Hérité du code original[cite: 12] */
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5), 0 0 15px var(--mat-sys-primary-container) !important; /*[cite: 12] */
-        border-color: var(--mat-sys-primary); /*[cite: 12] */
+    /* --- LE RÉTICULE DE CIBLAGE (4 COINS) --- */
+    &::before {
+        content: '';
+        position: absolute;
+        top: -2px; left: -2px; right: -2px; bottom: -2px;
+        pointer-events: none;
+        z-index: 10;
+        
+        $c: var(--mat-sys-primary);
+        $t: 2px;  /* Épaisseur */
+        $l: 25px; /* Taille des angles au repos */
+        
+        background:
+            linear-gradient($c, $c) top left / $l $t no-repeat,
+            linear-gradient($c, $c) top left / $t $l no-repeat,
+            linear-gradient($c, $c) top right / $l $t no-repeat,
+            linear-gradient($c, $c) top right / $t $l no-repeat,
+            linear-gradient($c, $c) bottom left / $l $t no-repeat,
+            linear-gradient($c, $c) bottom left / $t $l no-repeat,
+            linear-gradient($c, $c) bottom right / $l $t no-repeat,
+            linear-gradient($c, $c) bottom right / $t $l no-repeat;
+            
+        opacity: 0.7; /* Discret au repos */
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* --- EFFET AU SURVOL (VERROUILLAGE CIBLE) --- */
+    &:hover:not(.owned) {
+        transform: translateY(-4px);
+        border-color: transparent; 
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5), 
+                    inset 0 0 20px color-mix(in srgb, var(--mat-sys-primary) 5%, transparent) !important;
         z-index: 2;
 
-        &:not(.owned) .card-image-wrapper .item-image {
-            transform: scale(1.1); /* Zoom de l'image au survol */
+        /* Le HUD se resserre et s'illumine */
+        &::before {
+            opacity: 1;
+            $t: 2px;
+            $l: 30%; /* Les lignes s'allongent vers le centre */
+            background-size: 
+                $l $t, $t $l,
+                $l $t, $t $l,
+                $l $t, $t $l,
+                $l $t, $t $l;
+            filter: drop-shadow(0 0 8px color-mix(in srgb, var(--mat-sys-primary) 80%, transparent));
+        }
+
+        .card-image-wrapper .item-image {
+            transform: scale(1.1); /* Zoom de l'équipement */
+        }
+        
+        .price-tag {
+            background-color: var(--mat-sys-tertiary);
+            color: var(--mat-sys-on-tertiary);
+            box-shadow: 0 0 15px color-mix(in srgb, var(--mat-sys-tertiary) 60%, transparent);
+            text-shadow: none;
         }
     }
 
-    /* Style grisé si l'objet est déjà possédé */
+    /* --- OBJET DÉJÀ ACQUIS (VERROUILLÉ) --- */
     &.owned {
         opacity: 0.65;
         border-color: var(--mat-sys-outline);
-        filter: grayscale(40%);
+        filter: grayscale(80%);
+        background-color: var(--mat-sys-surface-container-low);
         
-        &:hover {
-            transform: none; /* Désactive le bond si déjà acheté */
-            box-shadow: none !important;
-            border-color: var(--mat-sys-outline);
+        &::before {
+            display: none; /* Désactive le HUD pour les objets possédés */
         }
     }
 }
 
+/* --- ZONE IMAGE ET HOLOGRAPHIE --- */
 .card-image-wrapper {
     position: relative;
-    height: 180px; /* Grande zone dédiée à l'image */
-    background: radial-gradient(circle, var(--mat-sys-surface-container-highest) 0%, var(--mat-sys-surface-container) 100%);
+    height: 180px; 
+    background: radial-gradient(circle, var(--mat-sys-surface-container-highest) 0%, var(--mat-sys-surface-container-lowest) 100%);
     display: flex;
     justify-content: center;
     align-items: center;
     border-bottom: 1px solid var(--mat-sys-outline-variant);
     overflow: hidden;
 
+    /* Effet Scanline (Lignes de balayage tactique) */
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.15) 2px,
+            rgba(0, 0, 0, 0.15) 4px
+        );
+        pointer-events: none; /* Laisse passer les clics */
+        z-index: 1;
+    }
+
     .item-image {
         max-width: 85%;
         max-height: 85%;
         object-fit: contain;
-        filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.8)); /* Effet 3D sur l'image */
+        filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.8)); 
         transition: transform 0.4s ease;
+        position: relative;
+        z-index: 2; /* Reste au dessus des scanlines */
     }
 
     .placeholder-icon {
@@ -128,31 +198,36 @@
         width: 72px;
         height: 72px;
         color: var(--mat-sys-outline);
+        position: relative;
+        z-index: 2;
     }
 
-    /* Le badge de prix en haut à droite */
+    /* Badge de Prix (Puce de Crédits) */
     .price-tag {
         position: absolute;
         top: 12px;
         right: 12px;
-        background-color: var(--mat-sys-tertiary-container);
-        color: var(--mat-sys-on-tertiary-container);
-        padding: 4px 12px;
-        border-radius: 4px;
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, var(--mat-sys-surface));
+        color: var(--mat-sys-tertiary);
+        border: 1px solid var(--mat-sys-tertiary);
+        padding: 4px 10px;
+        border-radius: 2px;
         font-family: 'Courier New', Courier, monospace;
         font-weight: 900;
         font-size: 1rem;
-        border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 50%, transparent);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        letter-spacing: 1px;
+        box-shadow: inset 0 0 8px color-mix(in srgb, var(--mat-sys-tertiary) 20%, transparent);
         display: flex;
         align-items: center;
-        gap: 4px;
-        z-index: 2;
+        gap: 6px;
+        z-index: 3;
+        transition: all 0.3s ease;
 
         &.owned-tag {
-            background-color: var(--mat-sys-primary-container);
-            color: var(--mat-sys-on-primary-container);
-            border-color: var(--mat-sys-primary);
+            background-color: color-mix(in srgb, var(--mat-sys-outline) 15%, var(--mat-sys-surface));
+            color: var(--mat-sys-outline);
+            border-color: var(--mat-sys-outline);
+            box-shadow: none;
             
             mat-icon {
                 font-size: 18px;
@@ -163,19 +238,29 @@
     }
 }
 
+/* --- TEXTES ET DESCRIPTIONS --- */
 .card-info {
     padding: 16px;
     flex: 1;
     display: flex;
     flex-direction: column;
+    position: relative;
+    z-index: 2;
 
     .item-name {
+        font-family: 'Courier New', Courier, monospace;
         font-size: 1.15rem;
         font-weight: 900;
         color: var(--mat-sys-primary);
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         margin: 0 0 12px 0;
+        border-left: 4px solid var(--mat-sys-primary);
+        padding-left: 8px;
+    }
+
+    mat-divider {
+        border-top-color: var(--mat-sys-outline-variant);
     }
 
     .item-description {
@@ -183,22 +268,25 @@
         line-height: 1.5;
         color: var(--mat-sys-on-surface-variant);
         margin-top: 12px;
-        flex: 1; /* Pousse le contenu vers le bas */
+        flex: 1; 
     }
 }
 
+/* --- ZONE D'ACTIONS --- */
 .card-actions {
-    padding: 16px;
-    background-color: var(--mat-sys-surface-container);
-    border-top: 1px solid var(--mat-sys-outline-variant);
+    padding: 12px 16px;
+    background-color: var(--mat-sys-surface-container-highest);
+    border-top: 1px dashed var(--mat-sys-outline-variant); /* Ligne de séparation tactique */
     display: flex;
     justify-content: center;
+    position: relative;
+    z-index: 2;
 
     .btn-requisition {
         width: 100%;
         
         ::ng-deep button {
-            width: 100%; /* S'assure que votre composant jp-button prend toute la largeur */
+            width: 100%; 
         }
     }
 
@@ -207,10 +295,14 @@
         color: var(--mat-sys-outline);
         font-family: 'Courier New', Courier, monospace;
         font-weight: bold;
+        letter-spacing: 1px;
+        border: 1px dashed var(--mat-sys-outline);
+        background: transparent;
+        pointer-events: none; /* Désactive complètement l'interaction */
     }
 }
 
-/* --- RESPONSIVE --- */
+/* --- SÉCURITÉ RESPONSIVE (MOBILES) --- */
 @media screen and (max-width: 768px) {
     .quartermaster-brief {
         flex-direction: column;
