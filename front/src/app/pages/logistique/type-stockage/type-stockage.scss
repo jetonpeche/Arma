@@ -1,0 +1,43 @@
+.unsc-logistics-dashboard {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    margin-top: 10px;
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+.logistics-info-card 
+{
+    background-color: var(--mat-sys-surface-container-highest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    padding: 16px;
+    border-left: 4px solid var(--mat-sys-tertiary);
+    
+    .info-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--mat-sys-tertiary);
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+    }
+    
+    p {
+        margin: 0;
+        color: var(--mat-sys-on-surface);
+        font-size: 1rem;
+        line-height: 1.4;
+        letter-spacing: 1px;
+    }
+}
+
+/* Ajustement pour les petits écrans */
+@media screen and (max-width: 800px) {
+    .unsc-logistics-dashboard {
+        grid-template-columns: 1fr;
+    }
+}

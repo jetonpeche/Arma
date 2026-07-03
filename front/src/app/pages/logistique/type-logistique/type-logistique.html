@@ -1,28 +1,51 @@
-<div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
-    @if (droit().peutEcrire) 
-    {
-        <button matButton="filled" (click)="OuvrirModalAjouterModifierTypeLogistique()">
-            <mat-icon>add</mat-icon>
-            Nouveau type
-        </button>
-    }
+<div class="unsc-logistics-dashboard">
+    <!-- Encart Info Tactique -->
+    <div class="logistics-info-card">
+        <div class="info-header">
+            <mat-icon>terminal</mat-icon>
+            <span>PROTOCOLE D'INDEXATION DE L'ARSENAL</span>
+        </div>
+        <div class="info-body">
+            <p>
+                <strong>PROTOCOLE :</strong> Les types logistiques permettent de catégoriser l'ensemble du matériel 
+                de dotation. Cette indexation rigoureuse optimise le tri des actifs, facilite la recherche rapide lors des 
+                processus d'acquisition et garantit une efficacité opérationnelle maximale lors des phases de réquisition.
+            </p>
+        </div>
+    </div>
+
+    <!-- Action Principale -->
+    <div class="actions-zone">
+        @if (droit().peutEcrire) 
+        {
+            <button matButton="filled" (click)="OuvrirModalAjouterModifierTypeLogistique()">
+                <mat-icon>add_box</mat-icon>
+                NOUVEAU TYPE LOGISTIQUE
+            </button>
+        }
+    </div>
 </div>
 
-<mat-form-field>
-    <mat-label>Recherche</mat-label>
-    <input matInput (keyup)="Recherche($event)" #input>
-</mat-form-field>
+<div class="tactical-filters">
+    <mat-form-field>
+        <mat-label>Recherche</mat-label>
+        <input matInput (keyup)="Recherche($event)" #input>
+    </mat-form-field>
+</div>
 
-<div class="mat-elevation-z8">
+
+<div class="mat-elevation-z8 unsc-table-container">
     <table mat-table [dataSource]="dataSource()" matSort>
 
         <ng-container matColumnDef="nom">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
-            <td mat-cell *matCellDef="let element"> {{ element.nom }} </td>
+            <td mat-cell *matCellDef="let element"> 
+                <span class="unsc-badge badge-primary">{{ element.nom }}</span>
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef> Action</th>
+            <th mat-header-cell *matHeaderCellDef> Commande</th>
             <td mat-cell *matCellDef="let element">
 
                 @if (droit().peutEcrire) 
@@ -35,7 +58,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="tactical-row"></tr>
 
         <!-- Row shown when there is no matching data. -->
         <tr class="mat-row" *matNoDataRow>
