@@ -1,21 +1,27 @@
 <div class="page-header">
-    <h1>Historique de campagne</h1>
+    <div class="header-titles">
+        <h1>Historique de campagne</h1>
+        <div class="unsc-subtitle">// ARCHIVES DE COMPAGNIE - RAPPORTS POST-OPÉRATIONNELS (AAR)</div>
+    </div>
 
     @if (droit?.peutEcrire)
     {
         <button matButton="filled" (click)="OuvriModalAjouterModifierHistoriqueCampagne()">
             <mat-icon>add</mat-icon>
-            Ajouter une campagne
+            AJOUTER UNE CAMPAGNE
         </button>
     }
 </div>
 
 @for (element of listeHistoriqueCampagne(); track $index) 
 {
-    <mat-card>
-        <mat-card-title style="text-align: center;">{{ element.titre }}</mat-card-title>
+    <mat-card class="unsc-campaign-card">
+        <mat-card-header>
+            <mat-card-title>{{ element.titre }}</mat-card-title>
+        </mat-card-header>
+        
         <mat-card-content>
-            <p>{{ element.texte }}</p>
+            <p class="campaign-report-text">{{ element.texte }}</p>
 
             <jp-grid-container>     
                 @for (urlImg of element.listeUrlImage; track $index) 
@@ -23,13 +29,13 @@
                     <jp-grid-element [colXs]="12" [colSm]="6" [colLg]="4">
                         <div [class]="droitFichier?.peutEcrire ? 'parent' : 'parentPasDroitFichier'">
 
-                            <img [src]="urlImg" alt="photo de campagne">
+                            <img [src]="urlImg" alt="Fichier reconnaissance de campagne">
 
                             @if(droitFichier?.peutEcrire)
                             {
                                 <div class="enfant">
                                     <jp-input-file-btn matMiniFab
-                                            icon="photo"    
+                                            icon="photo"
                                             (fileChange)="UploadFichier(element.id, urlImg, $any($event))"            
                                             accept=".png, .jpg, .webp, .jpeg" />
 
@@ -39,38 +45,38 @@
                                 </div>
                             }
                         </div>
-
                     </jp-grid-element>
                 }
             </jp-grid-container>
         </mat-card-content>
         
-        <mat-card-actions align="end">
+        <mat-card-actions class="card-actions">
+            <span class="spacer"></span>
             @if(droit?.peutEcrire)
             {
-                <button matButton="filled" (click)="OuvriModalAjouterModifierHistoriqueCampagne(element)">
+                <button mat-flat-button color="primary" (click)="OuvriModalAjouterModifierHistoriqueCampagne(element)">
                     <mat-icon>edit</mat-icon>
-                    Modifier
-                </button>&nbsp;
+                    MODIFIER
+                </button>
             }
 
             @if(droit?.peutSupprimer)
             {
-                <button matButton="filled" (click)="OuvrirModalConfirmerSupprimer(element)">
+                <button mat-flat-button color="warn" (click)="OuvrirModalConfirmerSupprimer(element)">
                     <mat-icon>delete</mat-icon>
-                    Supprimer
+                    SUPPRIMER
                 </button>
             }
         </mat-card-actions>
     </mat-card>
 }
 
-<mat-paginator
+<mat-paginator class="unsc-paginator"
                (page)="handlePageEvent($event)"
                [pageSize]="5"
                [length]="nbElement()"
                [pageIndex]="pageIndex()"
                showFirstLastButtons
                hidePageSize
-               aria-label="Select page">
+               aria-label="Sélectionner page">
 </mat-paginator>
