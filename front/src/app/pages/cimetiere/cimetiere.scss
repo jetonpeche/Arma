@@ -1,191 +1,83 @@
-/* --- CITATION COMMÉMORATIVE --- */
-.memorial-quote {
+/* =========================================================
+   MUR DES DISPARUS - CORPS DES MARINES UNSC
+   ========================================================= */
+
+/* --- PLAQUE COMMÉMORATIVE (ACIER BRUT) --- */
+.marine-memorial-plaque {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 40px;
-  padding: 16px;
-  background-color: var(--mat-sys-surface-container);
-  border-radius: 4px;
-  border-left: 4px solid var(--mat-sys-outline);
-
-  .quote-icon {
-    color: var(--mat-sys-outline);
-    font-size: 32px;
-    width: 32px;
-    height: 32px;
-  }
-
-  p {
-    font-style: italic;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin: 0;
-    color: var(--mat-sys-on-surface);
-  }
-}
-
-/* --- GRILLE DES DOSSIERS --- */
-.characters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 450px), 1fr));
-  gap: 24px;
-}
-
-/* --- DOSSIER K.I.A (Killed In Action) --- */
-.kia-dossier-card {
-  position: relative;
-  background: linear-gradient(180deg, var(--mat-sys-surface-container-highest) 0%, var(--mat-sys-surface-container) 100%);
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-top: 4px solid var(--mat-sys-error);
-  overflow: hidden;
-  isolation: isolate;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(186, 26, 26, 0.2);
-    border-color: var(--mat-sys-error);
-    
-    .kia-watermark {
-      opacity: 0.15;
-      transform: translate(-50%, -50%) rotate(-15deg) scale(1.05);
-    }
-  }
-}
-
-/* Tampon en filigrane (DÉCÉDÉ) */
-.kia-watermark {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-15deg);
-  font-size: 6rem;
-  font-weight: 900;
-  color: var(--mat-sys-error);
-  opacity: 0.05;
-  pointer-events: none;
-  letter-spacing: 10px;
-  z-index: 0;
-  transition: all 0.3s ease;
-  font-family: 'Arial Black', sans-serif;
-}
-
-/* --- EN-TÊTE DU DOSSIER --- */
-.dossier-header {
-  padding: 16px 24px;
-  position: relative;
-  z-index: 1;
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
-
-  .unsc-avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--mat-sys-error-container);
-    color: var(--mat-sys-on-error-container);
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-  }
-
-  .title-wrapper {
-    margin-left: 16px;
-  }
-
-  .char-name {
-    font-weight: 900;
-    font-size: 1.3rem;
-    color: var(--mat-sys-on-surface);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-
-  .char-subtitle {
-    font-family: 'Courier New', Courier, monospace;
-    color: var(--mat-sys-on-surface-variant);
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-}
-
-/* --- CONTENU DU DOSSIER --- */
-.dossier-content {
-  padding: 24px !important;
-  position: relative;
-  z-index: 1;
-}
-
-.military-stats {
-  display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.9rem;
-
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px dashed var(--mat-sys-outline-variant);
-    padding-bottom: 4px;
-
-    .stat-label {
-      color: var(--mat-sys-on-surface-variant);
-      font-weight: bold;
-    }
-
-    .stat-value {
-      color: var(--mat-sys-on-surface);
-      font-weight: bold;
-    }
-  }
-
-  .death-row {
-    border-bottom-color: rgba(186, 26, 26, 0.3);
-
-    .stat-label, .death-date {
-      color: var(--mat-sys-error);
-    }
-  }
-}
-
-.ops-counter {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 20px 0;
-  padding: 8px 12px;
+  gap: 16px;
+  margin: 0 auto 48px auto;
+  padding: 32px;
+  max-width: 800px;
+  
   background-color: var(--mat-sys-surface-container-highest);
+  border: 2px solid var(--mat-sys-outline);
   border-radius: 4px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.3);
+  text-align: center;
+  position: relative;
 
-  .icon-medal {
-    color: var(--mat-sys-tertiary);
+  /* CORRECTION DES RIVETS : On crée deux barres invisibles en haut et en bas, avec un point à chaque extrémité */
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 8px;
+    pointer-events: none;
+    background: 
+      radial-gradient(circle at left center, var(--mat-sys-outline-variant) 4px, transparent 4px),
+      radial-gradient(circle at right center, var(--mat-sys-outline-variant) 4px, transparent 4px);
   }
-}
+  &::before { top: 12px; }
+  &::after { bottom: 12px; }
 
-.tags-container {
-  margin: 16px 0;
+  .eagle-icon {
+    color: var(--mat-sys-outline); 
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .plaque-text p {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--mat-sys-on-surface);
+    letter-spacing: 2px;
+    margin: 0 0 8px 0;
+  }
+
+  .plaque-sub {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    color: var(--mat-sys-primary);
+    font-weight: bold;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
 }
 
 .tag-specialist {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  padding: 6px 12px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  font-weight: bold;
+  gap: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+  font-weight: 900;
   letter-spacing: 1px;
-  background-color: var(--mat-sys-secondary-container);
-  color: var(--mat-sys-on-secondary-container);
-  border: 1px solid color-mix(in srgb, var(--mat-sys-secondary) 50%, transparent);
+  text-transform: uppercase;
+  
+  /* Style Badge UNSC */
+  padding: 4px 12px;
+  border-radius: 4px;
+  color: var(--mat-sys-tertiary);
+  border: 1px solid var(--mat-sys-tertiary);
+  background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, var(--mat-sys-surface));
+  box-shadow: inset 0 0 8px color-mix(in srgb, var(--mat-sys-tertiary) 20%, transparent);
 
   mat-icon {
     font-size: 16px;
@@ -194,81 +86,288 @@
   }
 }
 
-/* --- ÉLOGE FUNÈBRE --- */
-.eulogy-section {
-  margin-top: 24px;
-  padding: 16px;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-left: 3px solid var(--mat-sys-outline);
-  border-radius: 0 4px 4px 0;
+/* --- GRILLE DES RAPPORTS --- */
+.characters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 450px), 1fr));
+  gap: 24px;
+}
+
+/* --- CARTE DU MARINE (ROBUSTE) --- */
+.marine-kia-card {
+  background-color: var(--mat-sys-surface-container);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-left: 6px solid var(--mat-sys-error); /* Ligne rouge sang très marquée */
+  border-radius: 2px !important;
+  position: relative;
+  overflow: hidden;
   
-  .eulogy-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    color: var(--mat-sys-outline);
-
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+  /* Animation mécanique (Verrouillage du rapport) */
+  animation: marine-roster-load 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  
+  &:hover {
+    border-color: var(--mat-sys-error);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    
+    .kia-stamp {
+      transform: rotate(-15deg) scale(1.1);
+      opacity: 0.15;
     }
-
-    h3 {
-      font-size: 0.85rem;
-      margin: 0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: bold;
-    }
-  }
-
-  .eulogy-text {
-    font-style: italic;
-    line-height: 1.6;
-    margin: 0;
-    color: var(--mat-sys-on-surface-variant);
   }
 }
 
-/* --- ACTIONS (Bouton Purge) --- */
-.dossier-actions {
-  background-color: var(--mat-sys-surface-container);
-  border-top: 1px solid var(--mat-sys-outline-variant);
-  padding: 8px 16px;
+/* Animation en Cascade */
+@for $i from 1 through 20 {
+  .marine-kia-card:nth-child(#{$i}) {
+    animation-delay: #{$i * 0.05}s; /* Cascade rapide, boum boum boum */
+  }
+}
+
+/* Ruban d'avertissement (Hazard Stripe) */
+.hazard-stripe {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  height: 8px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--mat-sys-error),
+    var(--mat-sys-error) 10px,
+    #111 10px,
+    #111 20px
+  );
+  border-bottom-left-radius: 4px;
+  z-index: 10;
+}
+
+/* Tampon K.I.A Brutal */
+.kia-stamp {
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-size: 5rem;
+  color: var(--mat-sys-error);
+  opacity: 0.05;
+  pointer-events: none;
+  letter-spacing: 4px;
+  z-index: 0;
+  transform: rotate(-15deg);
+  transition: all 0.3s ease;
+}
+
+/* --- EN-TÊTE DU MARINE --- */
+.marine-card-header {
+  padding: 24px 24px 16px 24px !important;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid var(--mat-sys-surface-container-highest);
+
+  /* Dog Tag métallique */
+  .dog-tag-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: var(--mat-sys-surface-variant);
+    border: 2px solid var(--mat-sys-outline);
+    border-radius: 8px; /* Forme de plaque */
+
+    mat-icon {
+      color: var(--mat-sys-on-surface);
+      font-size: 30px;
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  .title-wrapper {
+    margin-left: 16px;
+  }
+
+  .char-name {
+    font-family: 'Courier New', Courier, monospace !important;
+    font-weight: 900 !important;
+    font-size: 1.5rem !important;
+    color: var(--mat-sys-on-surface);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .char-subtitle {
+    color: var(--mat-sys-primary); /* Vert Marine */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+}
+
+/* --- CONTENU --- */
+.marine-card-content {
+  padding: 24px !important;
   position: relative;
   z-index: 1;
 }
 
-/* --- ÉTAT VIDE (NO DATA) --- */
-.no-data {
+.combat-record {
+  background-color: var(--mat-sys-surface-container-lowest);
+  border: 1px solid var(--mat-sys-outline-variant);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+
+  .record-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    
+    &:last-child { margin-bottom: 0; }
+
+    .record-label {
+      color: var(--mat-sys-outline);
+      font-weight: bold;
+    }
+
+    .record-value {
+      color: var(--mat-sys-on-surface);
+      font-weight: bold;
+    }
+  }
+
+  .fatal-row {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid color-mix(in srgb, var(--mat-sys-error) 30%, transparent);
+    
+    .record-label, .record-value { color: var(--mat-sys-error); }
+  }
+}
+
+.ops-counter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+  padding: 8px 16px;
+  background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, var(--mat-sys-surface));
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+  border-radius: 4px;
+
+  .ops-highlight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mat-sys-primary);
+    
+    .ops-number {
+      font-size: 1.5rem;
+      font-weight: 900;
+      font-family: 'Courier New', Courier, monospace;
+    }
+  }
+
+  .ops-text {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--mat-sys-on-surface);
+    letter-spacing: 1px;
+  }
+}
+
+/* --- CITATION DE COMBAT --- */
+.combat-citation {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: var(--mat-sys-surface-container-highest);
+  border-left: 4px solid var(--mat-sys-outline);
+  
+  .citation-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: var(--mat-sys-outline);
+
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    
+    span {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+  }
+
+  .citation-text {
+    font-style: italic;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+/* --- ACTIONS DU DOSSIER --- */
+.marine-card-actions {
+  padding: 8px 16px !important;
+  background-color: var(--mat-sys-surface-container-highest);
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  display: flex;
+
+  .spacer { flex: 1 1 auto; }
+}
+
+/* --- ÉTAT VIDE (PAS DE PERTES) --- */
+.no-casualties {
   text-align: center;
   grid-column: 1 / -1;
   padding: 60px 20px;
-  background-color: var(--mat-sys-surface-container);
-  border: 1px dashed var(--mat-sys-outline-variant);
-  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, var(--mat-sys-surface-container));
+  border: 2px dashed var(--mat-sys-primary);
+  border-radius: 4px;
   
-  .no-data-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    color: var(--mat-sys-outline);
+  .ok-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--mat-sys-primary);
     margin-bottom: 16px;
   }
 
   p {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 1.1rem;
-    font-weight: bold;
+    font-size: 1.5rem;
+    font-weight: 900;
     color: var(--mat-sys-primary);
     margin: 0 0 8px 0;
   }
 
   .sub-text {
-    font-size: 0.9rem;
-    color: var(--mat-sys-on-surface-variant);
-    font-weight: normal;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    color: var(--mat-sys-on-surface);
+    font-weight: bold;
+  }
+}
+
+/* =========================================================
+   KEYFRAMES - CHARGEMENT TACTIQUE
+   ========================================================= */
+
+@keyframes marine-roster-load {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
