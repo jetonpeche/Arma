@@ -1,5 +1,8 @@
 <div class="page-header">
-    <h1>Planete origine</h1>
+    <div class="header-titles">
+        <h1>Planetes d'origines</h1>
+        <div class="unsc-subtitle">// REGISTRE DES COLONIES DE L'UEG - DÉPARTEMENT D'ASTROMÉTRIE</div>
+    </div>
 
     @if(droit.peutEcrire)
     {
@@ -10,23 +13,27 @@
     }
 </div>
 
-<mat-form-field>
-    <mat-label>Recherche</mat-label>
-    <input matInput (keyup)="Recherche($event)" #input>
-</mat-form-field>
+<div class="tactical-filters">
+    <mat-form-field>
+        <mat-label>Recherche</mat-label>
+        <input matInput (keyup)="Recherche($event)" #input>
+    </mat-form-field>
+</div>
 
-<div class="mat-elevation-z8">
+<div class="mat-elevation-z8 unsc-table-container">
     <table mat-table [dataSource]="dataSource()" matSort>
 
         <!-- nom -->
         <ng-container matColumnDef="nom">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
-            <td mat-cell *matCellDef="let element"> {{ element.nom }} </td>
+            <td mat-cell *matCellDef="let element">
+                <span class="unsc-badge badge-primary">{{ element.nom }}</span>
+            </td>
         </ng-container>
 
         <!-- action -->
         <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef> Action </th>
+            <th mat-header-cell *matHeaderCellDef> commandes </th>
             <td mat-cell *matCellDef="let element">
 
                 @if(droit.peutEcrire)
@@ -48,7 +55,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="tactical-row"></tr>
 
         <!-- Row shown when there is no matching data. -->
         <tr class="mat-row" *matNoDataRow>
