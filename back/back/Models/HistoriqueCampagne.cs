@@ -8,6 +8,7 @@ public sealed class HistoriqueCampagne
      public int Id { get; set; }
 
      public string Titre { get; set; }  = null!;
+     public string Date { get; set; } = null!;
      public string Texte { get; set; } = null!;
 
      public List<string> ListeNomFichier { get; set; } = [];

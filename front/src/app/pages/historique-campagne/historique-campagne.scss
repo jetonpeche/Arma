@@ -74,11 +74,52 @@ mat-card-header {
         letter-spacing: 1.5px;
         font-size: 1.4rem !important;
     }
+
+    mat-card-subtitle {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 0.85rem !important;
+        
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent);
+        padding: 6px 12px !important;
+        border-radius: 2px;
+        border-left: 3px solid var(--mat-sys-tertiary);
+        margin-top: 8px;
+        width: fit-content;
+
+        .date-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: var(--mat-sys-tertiary);
+            line-height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-label {
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: var(--mat-sys-on-surface-variant);
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            margin-top: 2px;
+        }
+
+        .date-value {
+            color: var(--mat-sys-on-surface);
+            font-weight: bold;
+        }
+    }
 }
 /* --- TEXTE DU DÉBRIEFING --- */
 mat-card-content {
-    padding: 24px !important;
-
+    padding: 0 24px 24px 24px !important;
+    
     .campaign-report-text {
         color: var(--mat-sys-on-surface);
         font-size: 1.05rem;

@@ -56,6 +56,7 @@ public static class HistoriqueCampagneRoute
                .Select(x => new HistoriqueCampagneReponse
                {
                     Id = x.Id,
+                    Date = x.Date,
                     Titre = x.Titre,
                     Texte = x.Texte,
                     ListeUrlImage = x.ListeNomFichier.Select(y => baseUrl + y)
@@ -88,6 +89,7 @@ public static class HistoriqueCampagneRoute
 
           var id = db.GetCollection<HistoriqueCampagne>().Insert(new HistoriqueCampagne()
           {
+               Date = _requete.Date.XSS(),
                Titre = _requete.Titre.XSS(),
                Texte = _requete.Texte.XSS()
           }).AsInt32;
@@ -119,6 +121,7 @@ public static class HistoriqueCampagneRoute
 
           var id = db.GetCollection<HistoriqueCampagne>().UpdateMany(x => new HistoriqueCampagne
           {
+               Date = _requete.Date.XSS(),
                Titre = _requete.Titre.XSS(),
                Texte = _requete.Texte.XSS()
           }, x => x.Id == _idHistoriqueCampagne);

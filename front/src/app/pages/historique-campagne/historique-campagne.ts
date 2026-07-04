@@ -84,7 +84,7 @@ export class HistoriqueCampagnePage implements OnInit
     protected OuvriModalAjouterModifierHistoriqueCampagne(_historiqueCampagne?: HistoriqueCampagne): void
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierHistoriqueCampagne, {
-            width: "60%", 
+            width: "80%", 
             maxWidth: "100vw",
             data: _historiqueCampagne
         });

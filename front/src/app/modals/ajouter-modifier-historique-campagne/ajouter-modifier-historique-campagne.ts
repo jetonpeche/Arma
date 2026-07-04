@@ -36,8 +36,9 @@ export class AjouterModifierHistoriqueCampagne implements OnInit
 
         this.form = new FormGroup({
             titre: new FormControl(this.matDialogData?.titre ?? "", [Validators.required, Validators.maxLength(120)]),
+            date: new FormControl(this.matDialogData?.date ?? "", [Validators.required]),
             texte: new FormControl(this.matDialogData?.texte ?? "", [Validators.required, Validators.maxLength(1_000)])
-        })
+        });
     }
 
     protected FichierChoisi(_listeFichier: FileList): void
@@ -59,7 +60,7 @@ export class AjouterModifierHistoriqueCampagne implements OnInit
                 {
                     this.btnClick.set(false);
 
-                    if(this.listeFichier.length == 0 || !this.listeFichier)
+                    if(!this.listeFichier || this.listeFichier.length == 0)
                     {
                         this.dialogRef.close(true);
                         return;
