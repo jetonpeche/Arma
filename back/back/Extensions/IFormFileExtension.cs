@@ -38,7 +38,7 @@ public static class IFormFileExtension
         if (_fichier.Length is 0)
             return EReponseVerifFichier.FichierVide;
 
-        string extension = Path.GetExtension(_fichier.FileName);
+        string extension = Path.GetExtension(_fichier.FileName).ToLower();
 
         if (_listeExtension.Length > 0 && !_listeExtension.Any(x => x == extension))
             return EReponseVerifFichier.FormatPasAccepter;
