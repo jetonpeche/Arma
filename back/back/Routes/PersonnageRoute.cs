@@ -43,6 +43,12 @@ public static class PersonnageRoute
                .ProducesBadRequest()
                .ProducesNoContent();
 
+          builder.MapPut("modifier-mort/{idPersonnageMort:int}", ModifierMortAsync)
+            .WithDescription("Modifier un personnage")
+            .ProducesNotFound()
+            .ProducesBadRequest()
+            .ProducesNoContent();
+
           builder.MapPatch("modifier-point", ModifierPointAsync)
                .WithDescription("Ajouter les points du grade aux personnages choisi")
                .ProducesNotFound()
@@ -349,6 +355,38 @@ public static class PersonnageRoute
           
         return Results.NoContent();
     }
+
+     static async Task<IResult> ModifierMortAsync(
+          [FromRoute(Name = "idPersonnageMort")] int _idPersonnageMort,
+          [FromBody] PersonnageMort2Requete _requete
+     )
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var nomGrade = db.GetCollection<Grade>().Query().Where(x => x.Id == _requete.IdGrade).FirstOrDefault()?.Nom;
+
+          if (nomGrade is null)
+               return Results.NotFound("Le grade n'existe pas");
+
+          var nomSpecialite = db.GetCollection<Specialite>().Query().Where(x => x.Id == _requete.IdSpecialite).FirstOrDefault()?.Nom;
+
+          if (nomSpecialite is null)
+               return Results.NotFound("La spécialité n'existe pas");
+
+          var ok = db.GetCollection<PersonnageMort>().Update(new PersonnageMort
+          {
+               Id = _idPersonnageMort,
+               DateMort = _requete.DateMort.XSS(),
+               DateNaissance = _requete.DateNaissance.XSS(),
+               ElogeFunebre = string.IsNullOrWhiteSpace(_requete.ElogeFunebre) ? null : _requete.ElogeFunebre.XSS(),
+               NbOperation = _requete.NbOperation,
+               Nom = _requete.Nom.XSS(),
+               NomGrade = nomGrade,
+               NomSpecialite = nomSpecialite
+          });
+
+          return ok ? Results.NoContent() : Results.NotFound("Le défund n'existe pas");
+     }
 
     static async Task<IResult> ModifierPointAsync(
           [FromServices] IMemoryCache _cache,

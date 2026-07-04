@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Ajouter un personnage mort</h2>
+<h2 mat-dialog-title>{{ labelBtn() }} un personnage mort</h2>
 <mat-dialog-content>
     <form [formGroup]="form">
         <jp-grid-container [gap]="15">
@@ -35,5 +35,5 @@
 </mat-dialog-content>
 <mat-dialog-actions>
     <button matButton="text" matDialogClose>Fermer</button>&nbsp;
-    <jp-button-loader label="Ajouter" [loading]="btnClick()" (clicked)="ValiderForm()" />
+    <jp-button-loader [label]="labelBtn()" [loading]="btnClick()" (clicked)="ValiderForm()" />
 </mat-dialog-actions>

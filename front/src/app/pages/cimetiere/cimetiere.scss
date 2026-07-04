@@ -320,8 +320,7 @@
   background-color: var(--mat-sys-surface-container-highest);
   border-top: 1px solid var(--mat-sys-outline-variant);
   display: flex;
-
-  .spacer { flex: 1 1 auto; }
+  justify-content: end;
 }
 
 /* --- ÉTAT VIDE (PAS DE PERTES) --- */

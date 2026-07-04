@@ -6,7 +6,7 @@ import { PersonnageMort } from '@models/PersonnageMort';
 import { PersonnageService } from '@services/PersonnageService';
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialog } from '@angular/material/dialog';
-import { AjouterMort } from './ajouter-mort/ajouter-mort';
+import { AjouterModifierMort } from './ajouter-modifier-mort/ajouter-modifier-mort';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { EUrl } from '@enums/EUrl';
 import { Droit } from '@models/DroitGroupe';
@@ -37,9 +37,9 @@ export class Cimetiere implements OnInit
     this.ListerPersonnageMort();
   }
 
-  protected OuvrirModalAjouterMort(): void
+  protected OuvrirModalAjouterModifierMort(_personnageMort?: PersonnageMort): void
   {
-    this.dialog.open(AjouterMort).afterClosed().subscribe({
+    this.dialog.open(AjouterModifierMort, { data: _personnageMort }).afterClosed().subscribe({
       next: (retour) => 
       {
         if(retour === true)

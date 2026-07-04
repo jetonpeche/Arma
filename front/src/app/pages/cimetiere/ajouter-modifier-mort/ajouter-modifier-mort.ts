@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AutocompleteDataSource, InputAutocomplete, InputNumber, InputText, InputTextarea, ButtonLoader } from '@jetonpeche/angular-mat-input';
 import { GridContainer, GridElement } from '@jetonpeche/angular-responsive';
@@ -7,38 +7,44 @@ import { GradeService } from '@services/GradeService';
 import { SpecialiteService } from '@services/SpecialiteService';
 import { PersonnageService } from '@services/PersonnageService';
 import { MatButtonModule } from '@angular/material/button';
+import { PersonnageMort } from '@models/PersonnageMort';
 
 @Component({
-  selector: 'app-ajouter-mort',
+  selector: 'app-ajouter-modifier-mort',
   imports: [InputText, InputNumber, InputAutocomplete, InputTextarea, GridContainer, GridElement, MatButtonModule, MatDialogModule, ReactiveFormsModule, ButtonLoader],
-  templateUrl: './ajouter-mort.html',
-  styleUrl: './ajouter-mort.scss',
+  templateUrl: './ajouter-modifier-mort.html',
+  styleUrl: './ajouter-modifier-mort.scss',
 })
-export class AjouterMort implements OnInit
+export class AjouterModifierMort implements OnInit
 { 
+    protected labelBtn = signal("Ajouter");
   protected form: FormGroup;
   protected btnClick = signal<boolean>(false);
   protected listeGrade = signal<AutocompleteDataSource[]>([]);
   protected listeSpecialite = signal<AutocompleteDataSource[]>([]);
 
-  private dialogRef = inject(MatDialogRef<AjouterMort>);
+  private dialogRef = inject(MatDialogRef<AjouterModifierMort>);
   private gradeServ = inject(GradeService);
   private personnageServ = inject(PersonnageService);
   private specialiteServ = inject(SpecialiteService);
+  private matDialogData = inject<PersonnageMort>(MAT_DIALOG_DATA);
 
   ngOnInit(): void 
   {
+    if(this.matDialogData)
+        this.labelBtn.set("Modifier");
+
     this.ListerGrade();
     this.ListerSpecialite();
 
     this.form = new FormGroup({
-      nom: new FormControl(null, [Validators.maxLength(50), Validators.required]),
-      dateNaissance: new FormControl(null, [Validators.required]),
-      dateMort: new FormControl(null, [Validators.required]),
-      nbOperation: new FormControl(1, [Validators.min(1), Validators.required]),
+      nom: new FormControl(this.matDialogData?.nom ?? null, [Validators.maxLength(50), Validators.required]),
+      dateNaissance: new FormControl(this.matDialogData?.dateNaissance ?? null, [Validators.required]),
+      dateMort: new FormControl(this.matDialogData?.dateMort ?? null, [Validators.required]),
+      nbOperation: new FormControl(this.matDialogData?.nbOperation ?? 1, [Validators.min(1), Validators.required]),
       idGrade: new FormControl(0, [Validators.required]),
       idSpecialite: new FormControl(0, [Validators.required]),
-      elogeFunebre: new FormControl(null, [Validators.maxLength(300)])
+      elogeFunebre: new FormControl(this.matDialogData?.elogeFunebre, [Validators.maxLength(300)])
     });
   }
 
@@ -49,14 +55,30 @@ export class AjouterMort implements OnInit
 
     this.btnClick.set(true);
 
-    this.personnageServ.AjouterMort(this.form.value).subscribe({
-      next: () =>
-      {
-        this.btnClick.set(false);
-        this.dialogRef.close(true);
-      },
-      error: () => this.btnClick.set(false)
-    });
+    if(this.matDialogData)
+    {
+        this.personnageServ.ModifierMort(this.matDialogData.id, this.form.value).subscribe({
+            next: () =>
+            {
+                this.btnClick.set(false);
+                this.dialogRef.close(true);
+            },
+            error: () => this.btnClick.set(false)
+            }
+        );
+    }
+    else
+    {
+        this.personnageServ.AjouterMort(this.form.value).subscribe({
+            next: () =>
+            {
+                this.btnClick.set(false);
+                this.dialogRef.close(true);
+            },
+            error: () => this.btnClick.set(false)
+            }
+        );
+    }
   }
 
   private ListerSpecialite(): void

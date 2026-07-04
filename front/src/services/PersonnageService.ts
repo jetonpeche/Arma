@@ -58,6 +58,14 @@ export class PersonnageService
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idPersonnage}`, _personnage).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
+    ModifierMort(_idPersonnageMort: number, _personnage: PersonnageModifierRequete): Observable<void>
+    {
+        if(_personnage.etatService?.trim().length == 0)
+            _personnage.etatService = null;
+        
+        return this.http.put<void>(`${this.BASE_API}/modifier-mort/${_idPersonnageMort}`, _personnage).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
     ModifierPoint(_listeIdPersonnage: number[]): Observable<void>
     {
        return this.http.patch<void>(`${this.BASE_API}/modifier-point`, _listeIdPersonnage).pipe(takeUntilDestroyed(this.destroyRef));

@@ -94,6 +94,7 @@ public static class FichierRoute
                          (x) => x.NomFichier,
                          (x, s) => x.NomFichier = s
                     );
+
                     return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_BOUTIQUE + nouveauNomFichierVaisseau));
 
                case ETypeRessource.Medaille:

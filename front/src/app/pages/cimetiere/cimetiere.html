@@ -8,7 +8,7 @@
   <div class="header-actions">
       @if(droit.peutEcrire)
       {
-        <button mat-flat-button color="warn" class="btn-tactical" (click)="OuvrirModalAjouterMort()">
+        <button mat-flat-button color="warn" class="btn-tactical" (click)="OuvrirModalAjouterModifierMort()">
           <mat-icon>add</mat-icon>
           DÉCLARER UN K.I.A.
         </button>
@@ -98,7 +98,13 @@
       @if(droit.peutEcrire)
       {
         <mat-card-actions class="marine-card-actions">
-          <span class="spacer"></span>
+
+            <button matIconButton 
+                         matTooltip="Modifier le rapport"
+                         (click)="OuvrirModalAjouterModifierMort(perso)">
+                <mat-icon>edit</mat-icon>
+            </button>
+
           <jp-button-loader matIconButton
                             matTooltip="Effacer le rapport"
                             [loading]="btnClick()" 
