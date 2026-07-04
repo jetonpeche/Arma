@@ -1,7 +1,15 @@
 <h2 mat-dialog-title>{{ labelBtn() }} une planète</h2>
 <mat-dialog-content>
     <form [formGroup]="form">
-        <jp-input-text label="Nom" formControlName="nom" />
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colDefault]="12">
+                <jp-input-text label="Nom" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Description" formControlName="description" [rows]="5" showMaxLength />
+            </jp-grid-element>
+        </jp-grid-container>
     </form>
 </mat-dialog-content>
 <mat-dialog-actions>

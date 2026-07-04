@@ -5,6 +5,7 @@ namespace back.ModelsImport;
 public sealed class PlaneteOrigineRequete
 {
     public required string Nom{ get; set; }
+     public required string Description { get; set; }
 }
 
 [JsonSerializable(typeof(PlaneteOrigineRequete))]

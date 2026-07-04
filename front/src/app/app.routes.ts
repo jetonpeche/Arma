@@ -37,9 +37,9 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
-        path: "planete-origine",
-        loadComponent: () => import("./pages/planete-origine/planete-origine").then(x => x.PlaneteOriginePage),
-        title: "Planète d'origine",
+        path: "gestion-planete-origine",
+        loadComponent: () => import("./pages/gestionPlaneteOrigine/gestion-planete-origine").then(x => x.GestionPlaneteOriginePage),
+        title: "Gestion planète d'origine",
         canActivate: [connecterGuard]
     },
     { 
@@ -57,6 +57,11 @@ export const routes: Routes = [
         path: "grade",
         loadComponent: () => import("./pages/grade/grade").then(x => x.GradePage),
         title: "Grade"
+    },
+    { 
+        path: "planete-origine",
+        loadComponent: () => import("./pages/planete-origine/planete-origine").then(x => x.PlaneteOriginePage),
+        title: "Planète d'origine"
     },
     { 
         path: "boutique",

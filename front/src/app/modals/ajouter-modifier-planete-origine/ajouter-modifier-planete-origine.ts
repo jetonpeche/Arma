@@ -1,14 +1,15 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { InputText, ButtonLoader } from "@jetonpeche/angular-mat-input";
+import { InputText, ButtonLoader, InputTextarea } from "@jetonpeche/angular-mat-input";
 import { PlaneteOrigine } from '@models/PlaneteOrigine';
 import { PlaneteService } from '@services/PlaneteService';
 import { SnackBarService } from '@services/SnackBarService';
+import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 
 @Component({
     selector: 'app-ajouter-modifier-planete-origine',
-    imports: [MatDialogModule, InputText, ButtonLoader, ReactiveFormsModule],
+    imports: [MatDialogModule, InputText, ButtonLoader, ReactiveFormsModule, InputTextarea, GridContainer, GridElement],
     templateUrl: './ajouter-modifier-planete-origine.html',
 })
 export class AjouterModifierPlaneteOrigine implements OnInit
@@ -28,7 +29,8 @@ export class AjouterModifierPlaneteOrigine implements OnInit
             this.labelBtn.set("Modifier");
 
         this.form = new FormGroup({
-            nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)])
+            nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
+            description: new FormControl(this.matDialogData?.description ?? "", [Validators.maxLength(400)]),
         });
     }
 

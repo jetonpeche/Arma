@@ -11,7 +11,8 @@ export const connecterGuard: CanActivateFn = (route, state) =>
     if(
         state.url == EUrl.Boutique || state.url == EUrl.Personnage || 
         state.url == EUrl.Specialite || state.url == EUrl.Medaille || 
-        state.url == EUrl.HistoriqueCampagne || EUrl.Grade
+        state.url == EUrl.HistoriqueCampagne || state.url == EUrl.Grade ||
+        state.url == EUrl.PlaneteOrigine
     )
         return true;
 
@@ -50,6 +51,9 @@ export const connecterGuard: CanActivateFn = (route, state) =>
 
     if(state.url == "/gestion-grade")
         url = EUrl.Grade;
+
+    if(state.url == "/gestion-planete-origine")
+        url = EUrl.PlaneteOrigine;
 
     let droit = utilisateurDroit
         .listeDroit

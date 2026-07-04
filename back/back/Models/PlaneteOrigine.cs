@@ -8,6 +8,8 @@ public sealed class PlaneteOrigine
     [BsonId]
     public int Id { get; set; }
     public string Nom { get; set; } = null!;
+     public string? Description { get; set; }
+     public string? NomFichier { get; set; }
 }
 
 [JsonSerializable(typeof(PlaneteOrigine[]))]

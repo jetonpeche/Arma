@@ -70,12 +70,7 @@
                 <a mat-list-item routerLink="personnage" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dossier Personnel</a>
                 <a mat-list-item routerLink="cimetiere" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mur des Disparus</a>
                 <a mat-list-item routerLink="grade" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Grades</a>
-
-                @if(droitPlanete())
-                {
-                    <a mat-list-item routerLink="planete-origine" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Planètes</a>
-                }
-
+                <a mat-list-item routerLink="planete-origine" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Planètes</a>
                 <a mat-list-item routerLink="specialite" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Spécialités</a>
                 <a mat-list-item routerLink="boutique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Armurerie</a>
 
@@ -103,6 +98,7 @@
                 <a mat-list-item routerLink="historique-campagne" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Historique de campagne</a>
                 <a mat-list-item routerLink="grade" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Grades</a>
                 <a mat-list-item routerLink="specialite" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Spécialités</a>
+                <a mat-list-item routerLink="planete-origine" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Planètes</a>
             }
         </mat-nav-list>
     </mat-drawer>

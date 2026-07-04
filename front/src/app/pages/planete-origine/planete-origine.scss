@@ -1,0 +1,232 @@
+/* =========================================================
+   GRILLE RESPONSIVE NATIVE
+   ========================================================= */
+
+.astro-grid-container {
+    display: grid;
+    gap: 24px;
+    margin-top: 20px;
+    grid-template-columns: 1fr;
+}
+
+@media screen and (min-width: 600px) {
+    .astro-grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .astro-grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* =========================================================
+   FICHES PLANÉTAIRES (ASTROMÉTRIE UEG)
+   ========================================================= */
+
+.unsc-astro-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--mat-sys-surface-container) !important;
+    border-radius: 2px !important; 
+    border: 1px solid var(--mat-sys-outline-variant);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+
+    /* ANIMATION SUPER-HOVER TACTIQUE */
+    &:hover {
+        border-color: var(--mat-sys-primary);
+        box-shadow: 0 12px 28px color-mix(in srgb, var(--mat-sys-primary) 25%, transparent),
+                    inset 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+        transform: translateY(-8px) scale(1.02);
+        z-index: 10;
+
+        .planet-img {
+            transform: scale(1.15);
+        }
+
+        /* L'effet TV s'intensifie légèrement au survol */
+        .scan-overlay {
+            opacity: 0.8;
+        }
+        
+        .status-dot {
+            background-color: var(--mat-sys-primary);
+            box-shadow: 0 0 10px var(--mat-sys-primary);
+        }
+
+        /* Déclenchement du balayage laser */
+        .astro-viewport::after {
+            opacity: 1;
+            animation: tactical-laser-scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        /* Verrouillage des brackets vers le centre */
+        .target-tl { transform: translate(12px, 12px); border-color: var(--mat-sys-primary); }
+        .target-tr { transform: translate(-12px, 12px); border-color: var(--mat-sys-primary); }
+        .target-bl { transform: translate(12px, -12px); border-color: var(--mat-sys-primary); }
+        .target-br { transform: translate(-12px, -12px); border-color: var(--mat-sys-primary); }
+    }
+}
+
+/* --- ÉCRAN DE VISUALISATION (VIEWPORT) --- */
+.astro-viewport {
+    position: relative;
+    height: 200px;
+    background-color: var(--mat-sys-surface-container-lowest); 
+    overflow: hidden;
+    border-bottom: 2px solid var(--mat-sys-primary);
+    
+    /* Le faisceau laser (invisible par défaut) */
+    &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 2px;
+        background-color: var(--mat-sys-primary);
+        box-shadow: 0 0 15px var(--mat-sys-primary), 0 0 30px var(--mat-sys-primary);
+        opacity: 0;
+        z-index: 4;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .planet-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.85; 
+        transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Calque effet TV (Actif par défaut) */
+    .scan-overlay {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            color-mix(in srgb, var(--mat-sys-on-surface) 15%, transparent) 2px,
+            color-mix(in srgb, var(--mat-sys-on-surface) 15%, transparent) 4px
+        );
+        opacity: 0.4; /* Opacité de base pour que la planète reste bien visible */
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 2;
+        /* L'animation tourne désormais en continu */
+        animation: scan-sweep 4s linear infinite; 
+    }
+
+    .astro-status {
+        position: absolute;
+        bottom: 8px;
+        right: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--mat-sys-on-surface);
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 85%, transparent);
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.7rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        z-index: 3;
+        padding: 2px 8px;
+        border-radius: 2px;
+        border: 1px solid var(--mat-sys-outline-variant);
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--mat-sys-outline);
+            transition: all 0.3s ease;
+        }
+    }
+
+    $target-size: 15px;
+    $target-border: 2px solid color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+
+    div[class^="target-"] {
+        position: absolute;
+        width: $target-size;
+        height: $target-size;
+        z-index: 3;
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    }
+    .target-tl { top: 8px; left: 8px; border-top: $target-border; border-left: $target-border; }
+    .target-tr { top: 8px; right: 8px; border-top: $target-border; border-right: $target-border; }
+    .target-bl { bottom: 8px; left: 8px; border-bottom: $target-border; border-left: $target-border; }
+    .target-br { bottom: 8px; right: 8px; border-bottom: $target-border; border-right: $target-border; }
+}
+
+/* --- RAPPORTS ET DONNÉES PLANÉTAIRES --- */
+.astro-data {
+    padding: 20px !important;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+
+    .planet-name {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.5rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: var(--mat-sys-on-surface);
+        margin: 0;
+        letter-spacing: 2px;
+    }
+
+    .data-divider {
+        height: 2px;
+        width: 40px;
+        background-color: var(--mat-sys-primary);
+        margin: 12px 0 16px 0;
+    }
+
+    .desc-container {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .desc-label {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.75rem;
+        color: var(--mat-sys-outline);
+        letter-spacing: 1px;
+    }
+
+    .planet-desc {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: var(--mat-sys-on-surface-variant);
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes scan-sweep {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+}
+
+@keyframes tactical-laser-scan {
+    0% { top: -10%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 110%; opacity: 0; }
+}

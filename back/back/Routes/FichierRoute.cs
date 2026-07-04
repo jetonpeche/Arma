@@ -127,6 +127,16 @@ public static class FichierRoute
 
                     return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_CAMPAGNE + nouveauNomFichierHistoCampagne));
 
+               case ETypeRessource.Planete:
+                    var nouveauNomFichierPlanete = await UploadAsync<PlaneteOrigine>(
+                         _requete.idRessource,
+                         _requete.Fichier,
+                         Constant.CHEMIN_IMG_PLANETE,
+                         (x) => x.NomFichier,
+                         (x, s) => x.NomFichier = s
+                    );
+
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_PLANETE + nouveauNomFichierPlanete));
           }
 
           return Results.BadRequest("Erreur type de ressource");

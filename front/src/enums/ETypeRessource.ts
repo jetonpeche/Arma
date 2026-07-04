@@ -6,5 +6,6 @@ export enum ETypeRessource
     Boutique,
     Vaisseau,
     Medaille,
-    HistoriqueCampagne
+    HistoriqueCampagne,
+    Planete
 }
