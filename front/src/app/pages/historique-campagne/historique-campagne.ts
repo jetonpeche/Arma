@@ -47,7 +47,7 @@ export class HistoriqueCampagnePage implements OnInit
 
     handlePageEvent(e: PageEvent): void
     {
-        this.Lister(e.pageIndex++);
+        this.Lister(e.pageIndex + 1);
     }
 
     protected UploadFichier(_idHistoriqueCompagne: number, _ancienUrlFichier: string, _fichier: File): void
@@ -84,6 +84,8 @@ export class HistoriqueCampagnePage implements OnInit
     protected OuvriModalAjouterModifierHistoriqueCampagne(_historiqueCampagne?: HistoriqueCampagne): void
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierHistoriqueCampagne, {
+            width: "60%", 
+            maxWidth: "100vw",
             data: _historiqueCampagne
         });
 
@@ -128,7 +130,7 @@ export class HistoriqueCampagnePage implements OnInit
             next: () => 
             {
                 this.btnClick.set(false);
-                this.Lister();
+                this.Lister(this.pageIndex() + 1); 
             },
             error: () => this.btnClick.set(false)
         });
@@ -142,7 +144,7 @@ export class HistoriqueCampagnePage implements OnInit
             next: () => 
             {
                 this.btnClick.set(false);
-                this.Lister();
+                this.Lister(this.pageIndex() + 1); 
             },
             error: () => this.btnClick.set(false)
         });

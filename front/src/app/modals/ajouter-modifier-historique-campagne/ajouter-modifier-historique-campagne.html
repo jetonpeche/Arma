@@ -3,7 +3,7 @@
     <form [formGroup]="form">
         <jp-input-text label="Titre" formControlName="titre" showMaxLength />
 
-        <jp-textarea label="Description" formControlName="texte" showMaxLength />
+        <jp-textarea label="Description" formControlName="texte" [rows]="5" showMaxLength />
 
         <jp-input-file-drop-zone accept=".png, .jpg, .jpeg, .webp"
                                               (selectedFiles)="FichierChoisi($event)" />
