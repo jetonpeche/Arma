@@ -95,7 +95,7 @@ public static class FichierRoute
                          (x, s) => x.NomFichier = s
                     );
 
-                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_BOUTIQUE + nouveauNomFichierVaisseau));
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_VAISSEAU + nouveauNomFichierVaisseau));
 
                case ETypeRessource.Medaille:
                     var nouveauNomFichierMedaille = await UploadAsync<Medaille>(
