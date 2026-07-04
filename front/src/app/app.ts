@@ -43,11 +43,6 @@ export class App implements OnInit
         return this.authServ.RecupererDroit(EUrl.DroitGroupe)?.peutLire ?? false;
     });
 
-    protected droitPlanete = computed(() => {
-        this.authServ.droitGroupe(); 
-        return this.authServ.RecupererDroit(EUrl.PlaneteOrigine)?.peutLire ?? false;
-    });
-
     protected droitPropositionAchat = computed(() => {
         this.authServ.droitGroupe();
         return this.authServ.RecupererDroit(EUrl.PropositionAchat)?.peutLire ?? false;
