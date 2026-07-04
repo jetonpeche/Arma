@@ -75,16 +75,13 @@ public static class PlaneteOrigineRoute
     {
         using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        var planete = new PlaneteOrigine
+        var ok = db.GetCollection<PlaneteOrigine>().UpdateMany(x => new()
         {
-            Id = _idPlanete,
-            Nom = _requete.Nom.XSS(),
+             Nom = _requete.Nom.XSS(),
              Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS()
-        };
+        }, x => x.Id == _idPlanete);
 
-        var ok = db.GetCollection<PlaneteOrigine>().Update(planete);
-
-        return ok ? Results.NoContent() : Results.NotFound("La planète n'existe pas");
+        return ok > 0 ? Results.NoContent() : Results.NotFound("La planète n'existe pas");
     }
 
     static async Task<IResult> SupprimerAsync(
