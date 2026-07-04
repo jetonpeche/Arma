@@ -44,6 +44,10 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) =>
                     snackBarServ.Erreur(erreur.error);
                     break;
 
+                case 413:
+                    snackBarServ.Erreur("Le fichier est trop gros (< 1Mo)");
+                    break;
+
                 case 429:
                     snackBarServ.Erreur("Spam détecté veuillez patienter");
                     break;
