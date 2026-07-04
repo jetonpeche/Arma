@@ -9,5 +9,6 @@ public enum ETypeRessource
     Vaisseau,
     Medaille,
      HistoriqueCampagne,
-     Planete
+     Planete,
+     Specialite
 }

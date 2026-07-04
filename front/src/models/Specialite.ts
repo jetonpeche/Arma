@@ -3,7 +3,8 @@ export type Specialite =
     id: number,
     nom: string,
     description: string,
-    estNavy: boolean
+    estNavy: boolean,
+    urlImage: string
 }
 
 export type SpecialiteLeger = Omit<Specialite, "description">;

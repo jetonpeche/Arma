@@ -1,27 +1,60 @@
 <div class="page-header">
     <div class="header-titles">
         <h1>REGISTRE DES SPÉCIALITÉS MILITAIRES</h1>
-        <div class="unsc-subtitle">// CLASSIFICATION DES PROFILS DE COMBAT (MOS) - CORPS DES MARINES UNSC</div>
+        <div class="unsc-subtitle">// CLASSIFICATION DES PROFILS DE COMBAT (MOS) - HAUT COMMANDEMENT</div>
     </div>
 
     @if(droit?.peutLire)
     {
         <button matButton="filled" (click)="GestionSpecialite()">
-            <mat-icon>edit</mat-icon>
-            Gestion spécialité
+            <mat-icon>admin_panel_settings</mat-icon>
+            GESTION DES SPÉCIALITÉS
         </button>
     }
 </div>
 
-@for (element of listeSpecialite(); track element.id)
-{
-    <mat-card appearance="outlined" style="margin-bottom: 10px;">
-        <mat-card-header>
-            <mat-card-title>{{ element.nom }}</mat-card-title>
-        </mat-card-header>
+<div class="tactical-filters">
+    <mat-form-field>
+        <mat-label>RECHERCHE DE PROFIL (MOS)</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput (keyup)="Recherche($event.target.value)" placeholder="Entrez un nom ou un mot-clé..." #input>
+    </mat-form-field>
+</div>
 
-        <mat-card-content>
-            <p>{{ element.description }}</p>
-        </mat-card-content>
-    </mat-card>
-}
+<div class="mos-grid-container">
+    @for (element of listeSpecialite(); track element.id)
+    {
+        <mat-card class="unsc-mos-card" appearance="outlined" [class.is-navy]="element.estNavy">
+            
+            <div class="mos-portrait-container">
+                <img [src]="element.urlImage" [alt]="element.nom" class="mos-portrait">
+                
+                <div class="portrait-overlay"></div>
+                <div class="scan-line"></div>
+                
+                <div class="bracket tl"></div>
+                <div class="bracket tr"></div>
+                <div class="bracket bl"></div>
+                <div class="bracket br"></div>
+            </div>
+
+            <div class="mos-info">
+                <div class="mos-header">
+                    <mat-card-title class="mos-title">{{ element.nom }}</mat-card-title>
+                    
+                    <span class="unsc-badge" [class]="element.estNavy ? 'badge-tertiary' : 'badge-primary'">
+                        {{ element.estNavy ? 'NAVY' : 'MARINES' }}
+                    </span>
+                </div>
+                
+                <div class="data-divider"></div>
+                
+                <mat-card-content class="mos-description">
+                    <span class="desc-label">// PROFIL OPÉRATIONNEL :</span>
+                    <p>{{ element.description }}</p>
+                </mat-card-content>
+            </div>
+
+        </mat-card>
+    }
+</div>

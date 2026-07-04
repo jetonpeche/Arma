@@ -1,10 +1,218 @@
-mat-card {
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid var(--mat-sys-outline-variant);
+/* =========================================================
+   GRILLE RESPONSIVE DES DOSSIERS (MOS)
+   ========================================================= */
+.mos-grid-container {
+    display: grid;
+    gap: 24px;
+    margin-top: 24px;
+    grid-template-columns: 1fr;
+    
+    /* Passage sur 2 colonnes pour les écrans larges */
+    @media screen and (min-width: 800px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px var(--mat-sys-primary-container) !important;
-    border-color: var(--mat-sys-primary);
-  }
+/* =========================================================
+   CARTE DE SPÉCIALITÉ (ID CARD TACTIQUE)
+   ========================================================= */
+.unsc-mos-card {
+    display: flex;
+    flex-direction: row;
+    background-color: var(--mat-sys-surface-container) !important;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 2px !important;
+    overflow: hidden;
+    height: 200px;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    
+    --mos-accent: var(--mat-sys-primary);
+    --mos-glow: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+
+    &.is-navy {
+        --mos-accent: var(--mat-sys-tertiary);
+        --mos-glow: color-mix(in srgb, var(--mat-sys-tertiary) 20%, transparent);
+    }
+
+    /* --- EFFET AU SURVOL --- */
+    &:hover {
+        transform: translateY(-6px);
+        border-color: var(--mos-accent);
+        box-shadow: 0 10px 24px var(--mos-glow);
+        z-index: 10;
+
+        /* La photo s'agrandit et retrouve ses couleurs */
+        .mos-portrait {
+            transform: scale(1.1);
+            filter: grayscale(0%);
+        }
+
+        /* Activation de l'animation de scan */
+        .scan-line {
+            opacity: 1;
+            animation: portrait-scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        /* Verrouillage des brackets biométriques */
+        .bracket.tl { transform: translate(6px, 6px); border-color: var(--mos-accent); }
+        .bracket.tr { transform: translate(-6px, 6px); border-color: var(--mos-accent); }
+        .bracket.bl { transform: translate(6px, -6px); border-color: var(--mos-accent); }
+        .bracket.br { transform: translate(-6px, -6px); border-color: var(--mos-accent); }
+        
+        /* Expansion du trait de séparation */
+        .data-divider {
+            width: 80px;
+        }
+    }
+}
+
+/* =========================================================
+   PORTRAIT ET EFFETS HOLOGRAPHIQUES
+   ========================================================= */
+.mos-portrait-container {
+    position: relative;
+    width: 150px;
+    min-width: 150px;
+    background-color: var(--mat-sys-surface-container-lowest);
+    border-right: 2px solid var(--mos-accent);
+    overflow: hidden;
+
+    .mos-portrait {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(40%); /* Aspect archive par défaut */
+        transition: all 0.5s ease;
+    }
+
+    /* Trame TV Cathodique */
+    .portrait-overlay {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent) 2px,
+            color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent) 4px
+        );
+        pointer-events: none;
+        z-index: 2;
+    }
+}
+
+/* --- LE SCANNER (Actif au Hover) --- */
+.scan-line {
+    position: absolute;
+    top: -10%;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: var(--mos-accent);
+    box-shadow: 0 0 10px var(--mos-accent), 0 0 20px var(--mos-accent);
+    opacity: 0; 
+    z-index: 3;
+    pointer-events: none;
+}
+
+@keyframes portrait-scan {
+    0% { top: -10%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 110%; opacity: 0; }
+}
+
+/* --- BRACKETS (Coins tactiques) --- */
+.bracket {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    z-index: 4;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.bracket.tl { top: 6px; left: 6px; border-top: 2px solid var(--mat-sys-outline); border-left: 2px solid var(--mat-sys-outline); }
+.bracket.tr { top: 6px; right: 6px; border-top: 2px solid var(--mat-sys-outline); border-right: 2px solid var(--mat-sys-outline); }
+.bracket.bl { bottom: 6px; left: 6px; border-bottom: 2px solid var(--mat-sys-outline); border-left: 2px solid var(--mat-sys-outline); }
+.bracket.br { bottom: 6px; right: 6px; border-bottom: 2px solid var(--mat-sys-outline); border-right: 2px solid var(--mat-sys-outline); }
+
+/* =========================================================
+   TEXTES ET DONNÉES DU DOSSIER
+   ========================================================= */
+.mos-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px;
+    overflow: hidden;
+}
+
+.mos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+
+    .mos-title {
+        font-family: 'Courier New', Courier, monospace !important;
+        font-weight: 900 !important;
+        font-size: 1.15rem !important;
+        letter-spacing: 1px;
+        color: var(--mat-sys-on-surface);
+        margin: 0;
+        line-height: 1.2;
+    }
+}
+
+.data-divider {
+    height: 2px;
+    width: 30px;
+    background-color: var(--mos-accent);
+    margin: 12px 0;
+    transition: width 0.4s ease;
+}
+
+.mos-description {
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+
+    .desc-label {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.75rem;
+        color: var(--mat-sys-outline);
+        letter-spacing: 1px;
+    }
+
+    p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--mat-sys-on-surface-variant);
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* =========================================================
+   MODE DATAPAD (Téléphone)
+   ========================================================= */
+@media screen and (max-width: 500px) 
+{
+    .unsc-mos-card {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .mos-portrait-container {
+        width: 100%;
+        height: 180px;
+        border-right: none;
+        border-bottom: 2px solid var(--mos-accent);
+    }
 }

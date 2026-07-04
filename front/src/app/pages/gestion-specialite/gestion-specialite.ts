@@ -9,33 +9,38 @@ import { Specialite } from '@models/Specialite';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { SnackBarService } from '@services/SnackBarService';
 import { SpecialiteService } from '@services/SpecialiteService';
-import { ButtonLoader } from "@jetonpeche/angular-mat-input";
+import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
 import { AjouterModifierSpecialite } from '@modals/ajouter-modifier-specialite/ajouter-modifier-specialite';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { Droit } from '@models/DroitGroupe';
 import { EUrl } from '@enums/EUrl';
+import { ETypeRessource } from '@enums/ETypeRessource';
+import { FichierService } from '@services/FichierService';
 
 @Component({
   selector: 'app-gestion-specialite',
-  imports: [MatTableModule, MatFormFieldModule, MatSortModule, MatInputModule, MatButtonModule, MatIconModule, ButtonLoader, MatPaginator],
-  templateUrl: './gestion-specialite.html'
+  imports: [MatTableModule, MatFormFieldModule, MatSortModule, MatInputModule, MatButtonModule, MatIconModule, ButtonLoader, MatPaginator, InputFile],
+  templateUrl: './gestion-specialite.html',
+    styleUrl: './gestion-specialite.scss'
 })
 export class GestionSpecialitePage implements OnInit, AfterViewInit
 {
     protected matSort = viewChild.required(MatSort);
     protected matPaginator = viewChild.required(MatPaginator);
 
-    protected displayedColumns: string[] = ["nom", "action"];
+    protected displayedColumns: string[] = ["image", "nom", "action"];
     protected dataSource = signal<MatTableDataSource<Specialite>>(new MatTableDataSource());
     protected btnClick = signal<boolean>(false);
     protected droit: Droit;
+    protected droitFichier: Droit;
 
     private dialogServ = inject(DialogConfirmationService); 
     private authServ = inject(AuthentificationService);
     private specialiteServ = inject(SpecialiteService);
     private snackBarServ = inject(SnackBarService);
+    private fichierServ = inject(FichierService);
     private dialog = inject(MatDialog);
 
     ngOnInit(): void 
@@ -43,6 +48,7 @@ export class GestionSpecialitePage implements OnInit, AfterViewInit
         this.Lister();
 
         this.droit = this.authServ.RecupererDroit(EUrl.Specialite);
+        this.droitFichier = this.authServ.RecupererDroit(EUrl.UploadFichier);
     }
 
     ngAfterViewInit(): void 
@@ -63,6 +69,28 @@ export class GestionSpecialitePage implements OnInit, AfterViewInit
         this.dataSource.update(x => {
             x.filter = VALEUR.trim().toLowerCase()
             return x;
+        });
+    }
+
+    protected UploadFichier(_idSpecialite: number, _fichier: File): void
+    {
+        this.fichierServ.Upload(_idSpecialite, ETypeRessource.Specialite, _fichier).subscribe({
+            next: (url: string) => 
+            {
+                this.snackBarServ.Ok("Le fichier a été uploadé");
+                this.dataSource.update(x => 
+                {
+                    x.data = x.data.map(p => 
+                    {
+                        if (p.id == _idSpecialite)
+                            return { ...p, nomFichier: `${url}?t=${new Date().getTime()}` }
+                        
+                        return p;
+                    });
+
+                    return x;
+                });
+            }
         });
     }
 

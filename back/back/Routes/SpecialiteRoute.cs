@@ -30,27 +30,41 @@ public static class SpecialiteRoute
              return builder;
     }
 
-    static async Task<IResult> ListerAsync([FromQuery(Name = "leger")] bool _modeLeger)
+    static async Task<IResult> ListerAsync(
+         HttpContext _httpContext,
+         [FromQuery(Name = "leger")] bool _modeLeger
+     )
     {
-        using var db = new LiteDatabase(Constant.BDD_NOM);
+          using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        var requete = db.GetCollection<Specialite>().Query()
-            .OrderBy(x => x.Nom);
+          var requete = db.GetCollection<Specialite>().Query()
+               .OrderBy(x => x.Nom);
 
-        if (_modeLeger)
-        {
-            return Results.Ok(
-                requete.Select(x => new
-                {
+          if (_modeLeger)
+          {
+               return Results.Ok(
+                    requete.Select(x => new
+                    {
                     x.Id,
                     x.Nom,
                     x.EstNavy
-                })
-                .ToArray()
-            );
-        }
-
-        return Results.Ok(requete.ToArray());
+                    })
+                    .ToArray()
+               );
+          }
+          else
+          {
+               return Results.Ok(
+                    requete.Select(x => new
+                    {
+                         x.Id,
+                         x.Nom,
+                         x.EstNavy,
+                         urlImage = x.NomImage != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_SPECIALITE + x.NomImage : ""
+                    })
+                    .ToArray()
+               );
+          }
     }
 
     static async Task<IResult> AjouterAsync(
@@ -104,6 +118,16 @@ public static class SpecialiteRoute
                return Results.NotFound("La spécialité n'existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var specialiteCol = db.GetCollection<Specialite>();
+
+          var nomFichier = specialiteCol.Query()
+               .Where(x => x.Id == _idSpecialite)
+               .Select(x => x.NomImage)
+               .FirstOrDefault();
+
+          if (nomFichier is not null)
+               File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_SPECIALITE + nomFichier));
 
           db.GetCollection<Specialite>().Delete(_idSpecialite);
           db.GetCollection<Personnage>().UpdateMany(

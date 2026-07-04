@@ -9,6 +9,7 @@ public static class Constant
 #endif
      public const string CHEMIN_IMG_BOUTIQUE = "/Photos/Boutique/";
      public const string CHEMIN_IMG_PERSONNAGE = "/Photos/Personnage/";
+     public const string CHEMIN_IMG_SPECIALITE = "/Photos/Specialite/";
      public const string CHEMIN_IMG_VAISSEAU = "/Photos/Vaisseau/";
      public const string CHEMIN_IMG_PLANETE = "/Photos/Planete/";
      public const string CHEMIN_IMG_GRADE = "/Photos/Grade/";

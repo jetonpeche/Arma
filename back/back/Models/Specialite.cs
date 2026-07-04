@@ -9,4 +9,5 @@ public sealed class Specialite
     public string Nom { get; set; } = null!;
     public string? Description { get; set; }
      public bool EstNavy { get; set; }
+     public string? NomImage { get; set; }
 }

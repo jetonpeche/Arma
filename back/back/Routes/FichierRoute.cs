@@ -138,6 +138,17 @@ public static class FichierRoute
                     );
 
                     return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_PLANETE + nouveauNomFichierPlanete));
+
+               case ETypeRessource.Specialite:
+                    var nouveauNomFichierSpecialite = await UploadAsync<Specialite>(
+                         _requete.idRessource,
+                         _requete.Fichier,
+                         Constant.CHEMIN_IMG_SPECIALITE,
+                         (x) => x.NomImage,
+                         (x, s) => x.NomImage = s
+                    );
+
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_SPECIALITE + nouveauNomFichierSpecialite));
           }
 
           return Results.BadRequest("Erreur type de ressource");
