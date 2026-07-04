@@ -68,7 +68,7 @@
         <ng-container matColumnDef="nom">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
             <td mat-cell *matCellDef="let element"> 
-                <span class="unsc-badge badge-primary">{{ element.nom }}</span>
+                <span class="unsc-badge badge-primary">({{ element.ordre }}) {{ element.nom }}</span>
             </td>
         </ng-container>
 
