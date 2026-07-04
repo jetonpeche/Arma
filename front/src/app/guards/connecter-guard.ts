@@ -12,7 +12,7 @@ export const connecterGuard: CanActivateFn = (route, state) =>
         state.url == EUrl.Boutique || state.url == EUrl.Personnage || 
         state.url == EUrl.Specialite || state.url == EUrl.Medaille || 
         state.url == EUrl.HistoriqueCampagne || state.url == EUrl.Grade ||
-        state.url == EUrl.PlaneteOrigine
+        state.url == EUrl.PlaneteOrigine || state.url == "/cimetiere"
     )
         return true;
 
