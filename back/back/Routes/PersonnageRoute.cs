@@ -17,7 +17,7 @@ public static class PersonnageRoute
                .WithDescription("Lister les personnages")
                .Produces<PersonnageReponse[]>();
 
-          builder.MapGet("lister-mort", (Delegate)ListerMortAsync)
+          builder.MapGet("lister-mort", ListerMortAsync)
                .WithDescription("Lister les personnages morts")
                .Produces<PersonnageMortReponse[]>();
 

@@ -6,6 +6,7 @@ public sealed class DroitGroupeRequete
 {
      public required string Nom { get; set; }
 
+     public required bool EstDefaut { get; set; }
      public required bool PeutAcheterVaisseau { get; set; }
      public required bool PeutModifierBanque { get; set; }
      public required bool PeutAcheterLogistiqueMateriel { get; set; }

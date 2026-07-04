@@ -30,6 +30,12 @@ public static class DroitGroupeRoute
                .ProducesBadRequest()
                .ProducesNoContent();
 
+          builder.MapPatch("modifier-defaut/{idDroitGroupe:int}", ModifierDefautAsync)
+               .WithDescription("Modifier le groupe de droit par defaut")
+               .ProducesNotFound()
+               .ProducesBadRequest()
+               .ProducesNoContent();
+
           builder.MapPut("modifier-droit-personnage", ModifierPersonnageAsync)
                .WithDescription("Modifier le groupe de droit de personnage(s)")
                .ProducesNotFound()
@@ -55,6 +61,7 @@ public static class DroitGroupeRoute
                {
                     Id = x.Id,
                     Nom = x.Nom,
+                    EstDefaut = x.EstDefaut,
                     PeutModifierBanque = x.PeutModifierBanque,
                     PeutAcheterVaisseau = x.PeutAcheterVaisseau,
                     PeutAcheterLogistiqueMateriel = x.PeutAcheterLogistiqueMateriel,
@@ -93,6 +100,7 @@ public static class DroitGroupeRoute
           var droitGroupe = new DroitGroupe
           {
                Nom = _requete.Nom.XSS(),
+               EstDefaut = _requete.EstDefaut,
                PeutModifierBanque = _requete.PeutModifierBanque,
                PeutAcheterLogistiqueMateriel = _requete.PeutAcheterLogistiqueMateriel,
                PeutProposerLogistiqueMateriel = _requete.PeutProposerLogistiqueMateriel,
@@ -104,6 +112,9 @@ public static class DroitGroupeRoute
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
           int id = db.GetCollection<DroitGroupe>().Insert(droitGroupe);
+
+          if(_requete.EstDefaut)
+               db.GetCollection<DroitGroupe>().UpdateMany(x => new() { EstDefaut = false }, x => x.Id != id);
 
           return Results.Created("", id);
      }
@@ -125,6 +136,7 @@ public static class DroitGroupeRoute
           {
                Id = _idDroitGroupe,
                Nom = _requete.Nom.XSS(),
+               EstDefaut = _requete.EstDefaut,
                PeutModifierBanque = _requete.PeutModifierBanque,
                PeutAcheterLogistiqueMateriel = _requete.PeutAcheterLogistiqueMateriel,
                PeutProposerLogistiqueMateriel = _requete.PeutProposerLogistiqueMateriel,
@@ -134,7 +146,32 @@ public static class DroitGroupeRoute
 
           var ok = db.GetCollection<DroitGroupe>().Update(droitGroupe);
 
+          if(_requete.EstDefaut)
+               db.GetCollection<DroitGroupe>().UpdateMany(x => new() { EstDefaut = false }, x => x.Id != _idDroitGroupe);
+
           return ok ? Results.NoContent() : Results.NotFound("Le groupe de droit n'existe pas");
+     }
+
+     async static Task<IResult> ModifierDefautAsync(
+          [FromRoute(Name = "idDroitGroupe")] int _idDroitGroupe
+     )
+     {
+          if (_idDroitGroupe <= 0)
+               return Results.NotFound("Le groupe de droit n'existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var droitGroupeCol = db.GetCollection<DroitGroupe>();
+
+          if (droitGroupeCol.Exists(x => x.Id == _idDroitGroupe))
+          {
+               droitGroupeCol.UpdateMany(x => new() { EstDefaut = false }, x => x.Id != _idDroitGroupe);
+               droitGroupeCol.UpdateMany(x => new() { EstDefaut = true }, x => x.Id == _idDroitGroupe);
+
+               return Results.NoContent();
+          }
+
+          return Results.NotFound("Le groupe de droit n'existe pas");
      }
 
      async static Task<IResult> ModifierPersonnageAsync(

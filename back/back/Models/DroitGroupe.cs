@@ -11,6 +11,7 @@ public sealed class DroitGroupe
      public int Id { get; set; }
 
      public string Nom { get; set; } = null!;
+     public bool EstDefaut { get; set; }
 
      public bool PeutAcheterVaisseau { get; set; }
      public bool PeutModifierBanque { get; set; }

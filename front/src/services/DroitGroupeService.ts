@@ -33,6 +33,11 @@ export class DroitGroupeService
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idDroitGroupe}`, _droitGroupe).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
+    ModifierDefaut(_idDroitGroupe: number): Observable<void>
+    {
+        return this.http.patch<void>(`${this.BASE_API}/modifier-defaut/${_idDroitGroupe}`, null).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
     ModifierPersonnage(_listeDroitGroupePersonnage: PersonnageDroitGroupeRequete[]): Observable<void>
     {
         return this.http.put<void>(`${this.BASE_API}/modifier-droit-personnage`, _listeDroitGroupePersonnage).pipe(takeUntilDestroyed(this.destroyRef));

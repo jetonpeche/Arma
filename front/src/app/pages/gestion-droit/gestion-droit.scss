@@ -23,8 +23,15 @@
             color: var(--mat-sys-on-surface);
         }
 
+        .group-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
         .item-actions {
             display: flex;
+            align-items: center;
             gap: 12px;
         }
     }

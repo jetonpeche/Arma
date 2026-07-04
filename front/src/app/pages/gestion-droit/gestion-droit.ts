@@ -13,10 +13,11 @@ import { ButtonLoader } from "@jetonpeche/angular-mat-input";
 import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierDroitGroupe } from '@modals/ajouter-modifier-droit-groupe/ajouter-modifier-droit-groupe';
 import { ModalGoupeDroitPersonnage } from '@modals/modal-goupe-droit-personnage/modal-goupe-droit-personnage';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-gestion-droit',
-  imports: [MatListModule, MatDividerModule, MatIcon, MatButtonModule, ButtonLoader],
+  imports: [MatListModule, MatTooltipModule, MatDividerModule, MatIcon, MatButtonModule, ButtonLoader],
   templateUrl: './gestion-droit.html',
   styleUrl: './gestion-droit.scss',
 })
@@ -36,6 +37,20 @@ export class GestionDroitPage implements OnInit
     {
         this.droit = this.authServ.RecupererDroit(EUrl.DroitGroupe);
         this.Lister();
+    }
+
+    protected DefinirCommeDefaut(_droit: DroitGroupe): void
+    {
+        this.btnClick.set(true);
+
+        this.droitGroupeServ.ModifierDefaut(_droit.id).subscribe({
+            next: () => {
+                this.btnClick.set(false);
+                this.Lister();
+                this.snackBarServ.Ok("Groupe de droit par defaut modifié");
+            },
+            error: () => this.btnClick.set(false)
+        });
     }
 
     protected OuvrirModalDroitGroupePersonnage(): void

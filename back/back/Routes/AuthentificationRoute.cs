@@ -71,6 +71,7 @@ public static class AuthentificationRoute
           { 
                Id = infoLogin.DroitGroupe!.Id,
                Nom = infoLogin.DroitGroupe.Nom,
+               EstDefaut = infoLogin.DroitGroupe.EstDefaut,
                PeutModifierBanque = infoLogin.DroitGroupe.PeutModifierBanque,
                PeutProposerLogistiqueMateriel = infoLogin.DroitGroupe.PeutProposerLogistiqueMateriel,
                PeutAcheterLogistiqueMateriel = infoLogin.DroitGroupe.PeutAcheterLogistiqueMateriel,
@@ -125,6 +126,11 @@ public static class AuthentificationRoute
                .Select(x => x.Id)
                .FirstOrDefault();
 
+          var idDroitGroupeDefaut = db.GetCollection<DroitGroupe>()
+               .Query()
+               .Where(x => x.EstDefaut)
+               .FirstOrDefault()?.Id;
+
           var personnage = new Personnage
           {
                DateNaissance = _requete.DateNaissance.XSS(),
@@ -139,6 +145,7 @@ public static class AuthentificationRoute
                Specialite = new Specialite { Id = specialite.Id },
                DateDerniereParticipation = null,
                DateCreation = DateTime.Now,
+               DroitGroupe = idDroitGroupeDefaut.HasValue ? new DroitGroupe { Id = idDroitGroupeDefaut.Value } : null,
                GroupeSanguin = _requete.GroupeSanguin.XSS()
           };
 

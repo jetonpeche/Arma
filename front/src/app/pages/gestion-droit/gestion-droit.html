@@ -26,12 +26,27 @@
         {
             <mat-list-item role="listitem" class="tactical-list-item">
                 <div class="item-content">
-                    <span class="group-name">{{ element.nom }}</span>
+                    
+                    <div class="group-info">
+                        <span class="group-name">{{ element.nom }}</span>
+                        
+                        @if (element.estDefaut)
+                         {
+                            <span class="unsc-badge badge-secondary" matTooltip="Niveau d'accréditation initial">STANDARD</span>
+                        }
+                    </div>
 
                     <div class="item-actions">
                         @if (droit.peutEcrire)
                         {
-                            <button mat-mini-fab color="primary" (click)="OuvrirModalAjouterModifierDroitGroupe(element)">
+                            @if (!element.estDefaut) 
+                            {
+                                <button matMiniFab matTooltip="Définir comme accréditation par défaut" (click)="DefinirCommeDefaut(element)">
+                                    <mat-icon>verified_user</mat-icon>
+                                </button>
+                            }
+
+                            <button matMiniFab (click)="OuvrirModalAjouterModifierDroitGroupe(element)">
                                 <mat-icon>edit</mat-icon>
                             </button>
                         }
