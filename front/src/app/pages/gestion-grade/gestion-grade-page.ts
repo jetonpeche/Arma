@@ -19,10 +19,11 @@ import { FichierService } from '@services/FichierService';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { EUrl } from '@enums/EUrl';
 import { Droit } from '@models/DroitGroupe';
-
+import { MatSelectModule } from '@angular/material/select';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 @Component({
   selector: 'app-gestion-grade-page',
-  imports: [MatTableModule, MatSortModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatIconModule, MatButtonModule, ButtonLoader, CdkTableModule, InputFile],
+  imports: [MatSelectModule, ReactiveFormsModule, MatTableModule, MatSortModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatIconModule, MatButtonModule, ButtonLoader, CdkTableModule, InputFile],
   templateUrl: './gestion-grade-page.html',
   styleUrl: './gestion-grade-page.scss',
 })
@@ -41,9 +42,18 @@ export class GestionGradePage implements OnInit, AfterViewInit
     private dialog = inject(MatDialog);
     private authServ = inject(AuthentificationService);
     private dialogServ = inject(DialogConfirmationService);
+    private labelsFiltre: { [key: string]: string } = {
+        'null': 'Tout',
+        '0': 'Marines',
+        '1': 'Navy',
+        '2': 'Honorifique',
+        '3': 'Candidature requise'
+    };
 
     protected droit: Droit;
     protected droitFichier: Droit;
+    protected filtreAffectation = new FormControl<number[]>([]);
+    protected texteRecherche: string = ''
 
     ngOnInit(): void 
     {
@@ -51,6 +61,10 @@ export class GestionGradePage implements OnInit, AfterViewInit
         
         this.droit = this.authServ.RecupererDroit(EUrl.Grade);
         this.droitFichier = this.authServ.RecupererDroit(EUrl.UploadFichier);
+
+        this.filtreAffectation.valueChanges.subscribe(() => {
+            this.AppliquerFiltres();
+        });
     }
 
     ngAfterViewInit(): void 
@@ -60,18 +74,21 @@ export class GestionGradePage implements OnInit, AfterViewInit
         this.dataSource.update(x => {
             x.sort = this.matSort();
             x.paginator = this.matPaginator();
+            x.filterPredicate = this.CustomFilterPredicate(); 
             return x;
         });
     }
 
+    protected getSelectionLabel(val: any): string 
+    {
+        if (val === null || val === undefined) return 'Tout';
+        return this.labelsFiltre[val.toString()] || '';
+    }
+
     protected Recherche(_event: Event): void
     {
-        const filterValue = (_event.target as HTMLInputElement).value;
-
-        this.dataSource.update(x => {
-            x.filter = filterValue.trim().toLowerCase()
-            return x;
-        });
+        this.texteRecherche = (_event.target as HTMLInputElement).value.trim().toLowerCase();
+        this.AppliquerFiltres();
     }
 
     protected UploadFichier(_idGrade: number, _fichier: File): void
@@ -123,6 +140,58 @@ export class GestionGradePage implements OnInit, AfterViewInit
                     this.Supprimer(_garde.id);
             }
         });
+    }
+
+    private AppliquerFiltres(): void
+    {
+        const requeteFiltre = {
+            texte: this.texteRecherche,
+            options: this.filtreAffectation.value || []
+        };
+
+        this.dataSource.update(x => {
+            x.filter = JSON.stringify(requeteFiltre);
+            return x;
+        });
+    }
+
+    private CustomFilterPredicate()
+    {
+        return (data: Grade, filter: string): boolean => {
+            const requete = JSON.parse(filter);
+
+            const matchTexte = !requete.texte || 
+                data.nom?.toLowerCase().includes(requete.texte) ||
+                data.nomRaccourci?.toLowerCase().includes(requete.texte) ||
+                data.fonction?.toLowerCase().includes(requete.texte);
+                
+            let matchSelect = true;
+            const options = requete.options;
+
+            if (options.length > 0 && !options.includes(null)) 
+            {
+                matchSelect = options.some((valeur: number) => {
+
+                     // Marines
+                    if (valeur == 0) 
+                        return data.conserne == 2;
+
+                    // Navy
+                    if (valeur == 1) 
+                        return data.conserne == 1; 
+
+                    if (valeur == 2) 
+                        return data.estHonorifique == true;
+
+                    if (valeur == 3) 
+                        return data.candidatureRequise == true;
+
+                    return false;
+                });
+            }
+            
+            return matchTexte && matchSelect;
+        };
     }
 
     private Supprimer(_idGrade: number): void

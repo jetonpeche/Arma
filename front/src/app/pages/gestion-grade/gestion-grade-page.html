@@ -18,6 +18,29 @@
         <mat-label>Recherche</mat-label>
         <input matInput (keyup)="Recherche($event)" #input>
     </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>FILTRE D'AFFECTATION</mat-label>
+        <mat-select [formControl]="filtreAffectation" multiple>
+            
+            <mat-select-trigger>
+                <span class="primary-selection">{{ getSelectionLabel(filtreAffectation.value?.[0]) }}</span>
+                
+                @if ((filtreAffectation.value?.length || 0) > 1) 
+                {
+                    <span class="unsc-additional-selection">
+                        (+{{ (filtreAffectation.value?.length || 0) - 1 }} {{ filtreAffectation.value?.length === 2 ? 'autre' : 'autres' }})
+                    </span>
+                }
+            </mat-select-trigger>
+
+            <mat-option [value]="0">Marines</mat-option>
+            <mat-option [value]="1">Navy</mat-option>
+            <mat-option [value]="2">Honorifique</mat-option>
+            <mat-option [value]="3">Candidature requise</mat-option>
+
+        </mat-select>
+    </mat-form-field>
 </div>
 
 <div class="mat-elevation-z8 unsc-table-container">
