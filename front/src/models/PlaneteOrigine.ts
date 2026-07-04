@@ -5,3 +5,9 @@ export type PlaneteOrigine =
     description: string | null,
     nomFichier: string
 }
+
+export type PlaneteOrigineRequete = 
+{
+    nom: string,
+    description: string | null,
+}

@@ -3,7 +3,7 @@ import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { PlaneteOrigine } from "@models/PlaneteOrigine";
+import { PlaneteOrigine, PlaneteOrigineRequete } from "@models/PlaneteOrigine";
 
 export class PlaneteService
 {
@@ -17,16 +17,14 @@ export class PlaneteService
         return this.http.get<PlaneteOrigine[]>(`${this.BASE_API}/lister`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    Ajouter(_nomPlanete: string): Observable<number>
+    Ajouter(_planete: PlaneteOrigineRequete): Observable<number>
     {
-        const INFO = { nom: _nomPlanete };
-        return this.http.post<number>(`${this.BASE_API}/ajouter`, INFO).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.post<number>(`${this.BASE_API}/ajouter`, _planete).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    Modifier(_idPlanete: number, _nomPlanete: string): Observable<void>
+    Modifier(_idPlanete: number, _planete: PlaneteOrigineRequete): Observable<void>
     {
-        const INFO = { nom: _nomPlanete };
-        return this.http.put<void>(`${this.BASE_API}/modifier/${_idPlanete}`, INFO).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.put<void>(`${this.BASE_API}/modifier/${_idPlanete}`, _planete).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Supprimer(_idPlanete: number): Observable<void>

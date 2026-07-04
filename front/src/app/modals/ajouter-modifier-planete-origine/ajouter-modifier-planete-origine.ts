@@ -43,7 +43,7 @@ export class AjouterModifierPlaneteOrigine implements OnInit
 
         if(this.matDialogData)
         {
-            this.planeteServ.Modifier(this.matDialogData.id, this.form.value.nom).subscribe({
+            this.planeteServ.Modifier(this.matDialogData.id, this.form.value).subscribe({
                 next: () =>
                 {
                     this.snackBarServ.Ok("La planète a été modifiée");
@@ -54,7 +54,7 @@ export class AjouterModifierPlaneteOrigine implements OnInit
         }
         else
         {
-            this.planeteServ.Ajouter(this.form.value.nom).subscribe({
+            this.planeteServ.Ajouter(this.form.value).subscribe({
                 next: () =>
                 {
                     this.snackBarServ.Ok("La planète a été ajoutée");
