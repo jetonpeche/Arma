@@ -191,6 +191,7 @@ export class VaisseauPage implements OnInit
             next: (retour) =>
             {
                 this.listeVaisseau.set(retour);
+                this.listeVaisseauClone.set(retour);
             }
         });
     }
