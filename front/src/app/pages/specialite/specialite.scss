@@ -14,6 +14,61 @@
 }
 
 /* =========================================================
+   ALERTE RECRUES (MESSAGE DU SERGENT)
+   ========================================================= */
+.rookie-warning {
+    display: flex;
+    gap: 16px;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--mat-sys-error) 15%, transparent), transparent);
+    border-left: 4px solid var(--mat-sys-error);
+    padding: 16px 20px;
+    margin-top: 16px;
+    margin-bottom: 10px;
+    border-radius: 2px;
+    align-items: flex-start;
+    border-top: 1px solid color-mix(in srgb, var(--mat-sys-error) 30%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-error) 30%, transparent);
+
+    .warning-icon {
+        color: var(--mat-sys-error);
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        /* Petite animation pour simuler un haut-parleur qui hurle */
+        animation: pulse-warning 2s infinite;
+    }
+
+    .warning-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .warning-title {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        color: var(--mat-sys-error);
+        letter-spacing: 1.5px;
+        font-size: 0.95rem;
+    }
+
+    p {
+        margin: 0;
+        color: var(--mat-sys-on-surface);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        font-style: italic; /* L'italique donne un aspect de citation/dialogue */
+    }
+}
+
+@keyframes pulse-warning {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* =========================================================
    CARTE DE SPÉCIALITÉ (ID CARD TACTIQUE)
    ========================================================= */
 .unsc-mos-card {
