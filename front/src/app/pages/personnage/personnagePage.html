@@ -147,6 +147,13 @@
                         <mat-icon>inventory_2</mat-icon>
                     </button>
 
+                    @if(element.etatService)
+                    {
+                        <button matFab matTooltip="Etat de service" (click)="OuvrirModalInformation(element)">
+                            <mat-icon>info</mat-icon>
+                        </button>
+                    }
+
                     @if (droit.peutEcrire) 
                     {
                         <button matFab matTooltip="Modifier le dossier" (click)="OuvrirModalAjouterPersonne(element)">

@@ -22,6 +22,7 @@ import { ModalPersonnageParticiperOperation } from './modal-personnage-participe
 import { MatCheckboxChange, MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { ModalInformation } from '@modals/modal-information/modal-information';
 
 @Component({
   selector: 'app-personnage',
@@ -111,6 +112,18 @@ export class PersonnagePage implements OnInit
             {
                 if(estTrue)
                     this.Lister();
+            }
+        });
+    }
+
+    protected OuvrirModalInformation(_personnage: Personnage): void
+    {
+        this.dialog.open(ModalInformation, {
+            width: "50%", 
+            maxWidth: "100vw",
+            data: {
+                titre: `Etat de service de ${_personnage.nom}`,
+                message: _personnage.etatService
             }
         });
     }
