@@ -14,6 +14,13 @@
     }
 </div>
 
+<div class="tactical-filters">
+    <mat-form-field>
+        <mat-label>Rechercher une planète</mat-label>
+        <input matInput (keyup)="Recherche($event.target.value)">
+    </mat-form-field>
+</div>
+
 <!-- Grille CSS Native -->
 <div class="astro-grid-container">
     @for (element of listePlanete(); track element.id) 
