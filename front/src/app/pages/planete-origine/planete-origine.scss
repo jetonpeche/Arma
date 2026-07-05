@@ -44,6 +44,10 @@
         transform: translateY(-8px) scale(1.02);
         z-index: 10;
 
+        .edit-image-overlay {
+            opacity: 1;
+        }
+
         .planet-img {
             transform: scale(1.15);
         }
@@ -93,6 +97,18 @@
         opacity: 0;
         z-index: 4;
         pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .edit-image-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent);
+        opacity: 0;
+        z-index: 5;
         transition: opacity 0.3s ease;
     }
 
@@ -210,6 +226,14 @@
         color: var(--mat-sys-on-surface-variant);
         margin: 0;
     }
+}
+
+/* --- ACTIONS DE GESTION --- */
+.astro-actions {
+    display: flex;
+    justify-content: flex-end; /* Aligne les boutons à droite */
+    gap: 12px;
+    padding: 0 20px 20px 20px !important;
 }
 
 /* =========================================================

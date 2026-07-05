@@ -6,6 +6,12 @@ export type PlaneteOrigine =
     nomFichier: string
 }
 
+export type PlaneteOrigineLeger =
+{
+    id: number,
+    nom: string
+}
+
 export type PlaneteOrigineRequete = 
 {
     nom: string,

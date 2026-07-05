@@ -80,7 +80,7 @@ export class Inscription implements OnInit
 
     private ListerPlanete(): void
     {
-        this.planeteServ.Lister().subscribe({
+        this.planeteServ.ListerLeger().subscribe({
             next: (x) => 
             {
                 this.dataSourcePlanete.set(x.map(y => ({ value: y.id, display: y.nom })));

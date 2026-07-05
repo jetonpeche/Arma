@@ -52,9 +52,6 @@ export const connecterGuard: CanActivateFn = (route, state) =>
     if(state.url == "/gestion-grade")
         url = EUrl.Grade;
 
-    if(state.url == "/gestion-planete-origine")
-        url = EUrl.PlaneteOrigine;
-
     let droit = utilisateurDroit
         .listeDroit
         .find(x => url.startsWith(x.routeGroupe, 1));

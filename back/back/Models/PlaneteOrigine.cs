@@ -5,13 +5,9 @@ namespace back.Models;
 
 public sealed class PlaneteOrigine
 {
-    [BsonId]
-    public int Id { get; set; }
-    public string Nom { get; set; } = null!;
+     [BsonId]
+     public int Id { get; set; }
+     public string Nom { get; set; } = null!;
      public string? Description { get; set; }
      public string? NomFichier { get; set; }
 }
-
-[JsonSerializable(typeof(PlaneteOrigine[]))]
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-public partial class PlaneteOrigineContext: JsonSerializerContext { }

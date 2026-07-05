@@ -4,24 +4,15 @@
         <h1>Cartographie Planétaire</h1>
         <div class="unsc-subtitle">// ARCHIVES COLONIALES - DÉPARTEMENT D'ASTROMÉTRIE</div>
     </div>
-
-    @if(droit?.peutLire)
-    {
-        <button matButton="filled" (click)="GestionPlanete()">
-            <mat-icon>admin_panel_settings</mat-icon>
-            GESTION DES PLANÈTES
-        </button>
-    }
 </div>
 
 <div class="tactical-filters">
     <mat-form-field>
         <mat-label>Rechercher une planète</mat-label>
-        <input matInput (keyup)="Recherche($event.target.value)">
+        <input matInput (keyup.debounce)="Recherche($event.target.value)">
     </mat-form-field>
 </div>
 
-<!-- Grille CSS Native -->
 <div class="astro-grid-container">
     @for (element of listePlanete(); track element.id) 
     {
@@ -29,6 +20,7 @@
             
             <!-- Écran de visualisation orbitale -->
             <div class="astro-viewport">
+
                 <!-- Brackets de ciblage (Décoratif) -->
                 <div class="target-tl"></div>
                 <div class="target-tr"></div>
@@ -38,6 +30,13 @@
                 <img [src]="element.nomFichier" [alt]="element.nom" class="planet-img">
                 
                 <div class="scan-overlay"></div>
+
+                @if(droitFichier?.peutEcrire) 
+                {
+                    <div class="edit-image-overlay">
+                        <jp-input-file-btn matIconButton icon="photo_camera" (fileChange)="UploadFichier(element.id, $any($event))" />
+                    </div>
+                }
                 
                 <div class="astro-status">
                     <span class="status-dot"></span>
@@ -56,6 +55,35 @@
                 </div>
             </mat-card-content>
 
+            @if(droit?.peutSupprimer || droit?.peutEcrire) 
+            {
+                <mat-card-actions class="astro-actions">
+
+                    @if(droit.peutEcrire)
+                    {
+                        <button matMiniFab (click)="OuvrirModalAjouterModifierPlanete(element)" matTooltip="Modifier les données">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    }
+
+                    @if(droit.peutSupprimer)
+                    {
+                        <button matMiniFab (click)="OuvrirModalConfirmation(element)" matTooltip="Supprimer des archives">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    }
+                </mat-card-actions>
+            }
         </mat-card>
     }
 </div>
+
+<mat-paginator
+               (page)="handlePageEvent($event)"
+               [pageSize]="12"
+               [length]="nbElement()"
+               [pageIndex]="pageIndex()"
+               showFirstLastButtons
+               hidePageSize
+               aria-label="Sélectionner page">
+</mat-paginator>

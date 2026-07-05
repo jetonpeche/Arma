@@ -37,12 +37,6 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
-        path: "gestion-planete-origine",
-        loadComponent: () => import("./pages/gestionPlaneteOrigine/gestion-planete-origine").then(x => x.GestionPlaneteOriginePage),
-        title: "Gestion planète d'origine",
-        canActivate: [connecterGuard]
-    },
-    { 
         path: "gestion-specialite",
         loadComponent: () => import("./pages/gestion-specialite/gestion-specialite").then(x => x.GestionSpecialitePage),
         title: "Specialité",

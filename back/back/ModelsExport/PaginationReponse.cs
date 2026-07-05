@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using back.Models;
+using System.Text.Json.Serialization;
 
 namespace back.ModelsExport;
 
@@ -11,5 +12,6 @@ public sealed class PaginationReponse<T>
 }
 
 [JsonSerializable(typeof(PaginationReponse<HistoriqueCampagneReponse>))]
+[JsonSerializable(typeof(PaginationReponse<PlaneteOrigine>))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 public partial class PaginationReponseContext : JsonSerializerContext;

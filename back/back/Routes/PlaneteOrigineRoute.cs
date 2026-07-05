@@ -1,8 +1,10 @@
 ﻿using back.Extensions;
 using back.Models;
+using back.ModelsExport;
 using back.ModelsImport;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace back.Routes;
 
@@ -10,9 +12,13 @@ public static class PlaneteOrigineRoute
 {
     public static RouteGroupBuilder AjouterRoutePlaneteOrigine(this RouteGroupBuilder builder)
     {
-        builder.MapGet("lister", (Delegate)ListerAsync)
-            .WithDescription("Lister les planetes")
-            .Produces<PlaneteOrigine[]>();
+          builder.MapGet("lister", ListerAsync)
+              .WithDescription("Lister les planetes")
+              .Produces<PaginationReponse<PlaneteOrigine>>();
+
+          builder.MapGet("lister-leger", ListerLegerAsync)
+            .WithDescription("Lister les planetes aleger")
+            .Produces<PlaneteOrigineLegerReponse[]>();
 
         builder.MapPost("ajouter", AjouterAsync)
             .WithDescription("Ajouter une nouvelle planete")
@@ -31,23 +37,59 @@ public static class PlaneteOrigineRoute
     }
 
     static async Task<IResult> ListerAsync(
-         HttpContext _httpContext
-     )
+         HttpContext _httpContext,
+         [FromQuery(Name = "thermeRecherche")] string _recherche = "",
+         [FromQuery(Name = "page")] int _page = 1
+    )
     {
-        using var db = new LiteDatabase(Constant.BDD_NOM);
+          if (_page <= 1)
+               _page = 1;
 
-        var requete = db.GetCollection<PlaneteOrigine>().Query()
-            .OrderBy(x => x.Nom)
-            .Select(x => new PlaneteOrigine
-            {
-                 Id = x.Id,
-                 Nom = x.Nom,
-                 Description = x.Description,
-                 NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
-            }).ToArray();
+          using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        return Results.Extensions.Ok(requete, PlaneteOrigineContext.Default);
+          int total = db.GetCollection<HistoriqueCampagne>().Query().Count();
+
+          var requete = db.GetCollection<PlaneteOrigine>().Query()
+               .OrderBy(x => x.Nom);
+
+          if (!string.IsNullOrWhiteSpace(_recherche))
+               requete = requete.Where(x => x.Nom.ToLower().Contains(_recherche.ToLower()));
+
+          var liste = requete.Select(x => new PlaneteOrigine
+          {
+               Id = x.Id,
+               Nom = x.Nom,
+               Description = x.Description,
+               NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
+          })
+          .Offset((_page - 1) * 12)
+          .Limit(12)
+          .ToArray();
+
+          return Results.Extensions.Ok(
+               new PaginationReponse<PlaneteOrigine>
+               {
+                    Page = _page,
+                    Total = total,
+                    Liste = liste
+               },
+               PaginationReponseContext.Default);
     }
+
+     static async Task<IResult> ListerLegerAsync()
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var requete = db.GetCollection<PlaneteOrigine>().Query()
+              .OrderBy(x => x.Nom)
+              .Select(x => new PlaneteOrigineLegerReponse
+              {
+                   Id = x.Id,
+                   Nom = x.Nom
+              }).ToArray();
+
+          return Results.Extensions.Ok(requete, PlaneteOrigineLegerReponseContext.Default);
+     }
 
     static async Task<IResult> AjouterAsync(
         [FromBody] PlaneteOrigineRequete _requete
