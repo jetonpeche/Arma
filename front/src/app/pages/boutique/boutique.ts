@@ -91,9 +91,7 @@ export class BoutiquePage implements OnInit
 
     private Lister(): void
     {
-        let idPersonnage = this.idPersonnage() == 0 ? 1 : this.idPersonnage();
-
-        this.boutiqueServ.Lister(idPersonnage, this.idPersonnage() != 0 ? true : false).subscribe({
+        this.boutiqueServ.Lister(this.idPersonnage(), this.idPersonnage() != 0 ? true : false).subscribe({
             next: (retour) => this.listeBoutique.set(retour)
         });
     }

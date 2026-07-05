@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
@@ -15,7 +15,7 @@ export class BoutiqueService
     Lister(_idPersonnage: number, _possederUniquement: boolean = false): Observable<Boutique[]>
     {
         return this.http.get<Boutique[]>(
-            `${this.BASE_API}/lister/${_idPersonnage}?posseder=${_possederUniquement}`
+            `${this.BASE_API}/lister?${(_idPersonnage > 0 ? 'idPersonnage=' + _idPersonnage + '&' : '')}posseder=${_possederUniquement}`
         ).pipe(takeUntilDestroyed(this.destroyRef));
     }
 

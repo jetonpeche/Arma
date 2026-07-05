@@ -11,7 +11,7 @@ public static class BoutiqueRoute
 {
      public static RouteGroupBuilder AjouterRouteBoutique(this RouteGroupBuilder builder)
      {
-          builder.MapGet("lister/{idPersonnage:int}", ListerAsync)
+          builder.MapGet("lister", ListerAsync)
                .WithDescription("Lister les objets de la boutique")
                .ProducesNotFound()
                .Produces<BoutiqueReponse[]>();
@@ -47,25 +47,24 @@ public static class BoutiqueRoute
 
      async static Task<IResult> ListerAsync(
           HttpContext _httpContext,
-          [FromRoute(Name = "idPersonnage")] int _idPersonnage,
+          [FromQuery(Name = "idPersonnage")] int _idPersonnage = 0,
           [FromQuery(Name = "posseder")] bool _possederUniquement = false
      )
      {
-          if (_idPersonnage <= 0)
-               return Results.NotFound("Le personnage n'existe pas");
+          int idPersonnage = _idPersonnage <= 0 ? _httpContext.RecupererIdPersonnage() : _idPersonnage;
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
           // lister les objets achetés
           if(_possederUniquement)
           {
-               if (!db.GetCollection<Personnage>().Exists(x => x.Id == _idPersonnage))
+               if (!db.GetCollection<Personnage>().Exists(x => x.Id == idPersonnage))
                     return Results.NotFound("Le personnage n'existe pas");
 
                var ListeObjetAcheter = db.GetCollection<Personnage>()
                     .Include(x => x.ListeBoutiquePrix)
                     .Include(x => x.ListeBoutiquePrix.Select(y => y.Boutique))
-                    .FindById(_idPersonnage)
+                    .FindById(idPersonnage)
                     .ListeBoutiquePrix
                     .GroupBy(x => x.Boutique.Id);
 
@@ -90,7 +89,7 @@ public static class BoutiqueRoute
 
 #pragma warning disable CS8602
           var specialite = db.GetCollection<Personnage>().Query()
-               .Where(x => x.Id == _idPersonnage)
+               .Where(x => x.Id == idPersonnage)
                .Select(x => x.Specialite)
                .FirstOrDefault();
 #pragma warning restore CS8602
@@ -100,7 +99,7 @@ public static class BoutiqueRoute
               .Include(x => x.ListePrix)
               .ToArray();
               
-          if(specialite?.Id is not 0)
+          if(specialite?.Id is not 0 and not null)
           {
                liste = liste.Where(x =>
                     x.ListePrix.Any(y =>
@@ -114,7 +113,7 @@ public static class BoutiqueRoute
           {
                // recupere la liste des objet que le personnage a acheter
                var listeAchatPersonnage = x.ListePrix.OrderBy(x => x.Ordre)
-                    .Where(y => y.ListePersonnage.Any(z => z.Id == _idPersonnage))
+                    .Where(y => y.ListePersonnage.Any(z => z.Id == idPersonnage))
                     .ToArray();
 
                var objetBoutique = new BoutiqueReponse
