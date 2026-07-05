@@ -88,10 +88,12 @@ public static class BoutiqueRoute
           }
 
 #pragma warning disable CS8602
-          var specialite = db.GetCollection<Personnage>().Query()
+
+          var personnage = db.GetCollection<Personnage>().Query()
                .Where(x => x.Id == idPersonnage)
-               .Select(x => x.Specialite)
                .FirstOrDefault();
+
+          var specialite = personnage.Specialite;
 #pragma warning restore CS8602
 
           var liste = db.GetCollection<Boutique>()
