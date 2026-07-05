@@ -1,9 +1,32 @@
-<div class="fleetcom-header">
-  <h1>FLEETCOM - État de la flotte</h1>
-  <button matButton="filled">
-    <mat-icon>hourglass_bottom</mat-icon>
-    Passer le tour (Reload)
-  </button>
+<div class="page-header">
+    <div class="header-titles">
+        <h1>FLEETCOM</h1>
+        <div class="unsc-subtitle">// RÉSEAU DE COMMANDEMENT NAVAL - ACCÈS SÉCURISÉ</div>
+    </div>
+
+    <button matButton="filled">
+            <mat-icon>hourglass_bottom</mat-icon>
+            Passer le tour (Reload)
+    </button>
+</div>
+
+<!-- TERMINAL VERROUILLÉ - ACCÈS RESTREINT UNSC -->
+<div class="unsc-terminal-panel">
+    
+    <!-- Les foutus rivets de fixation -->
+    <div class="panel-rivet top-left"></div>
+    <div class="panel-rivet top-right"></div>
+    <div class="panel-rivet bottom-left"></div>
+    <div class="panel-rivet bottom-right"></div>
+
+    <div class="unsc-construction-banner">
+        <mat-icon class="warning-icon">engineering</mat-icon>
+        <div class="banner-content">
+            <h3 class="banner-title">ATTENTION - SECTION EN COURS DE DÉVELOPPEMENT</h3>
+            <p class="banner-text">Aucune interaction de commande tactique n'est disponible pour le moment. Accès aux terminaux en cours de maintenance.</p>
+        </div>
+        <mat-icon class="warning-icon">construction</mat-icon>
+    </div>
 </div>
 
 <div class="fleet-grid">
