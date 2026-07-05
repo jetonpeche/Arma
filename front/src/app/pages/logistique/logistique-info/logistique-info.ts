@@ -19,6 +19,7 @@ import { ModalInputQuantite } from '@modals/modal-input-quantite/modal-input-qua
 import { Droit } from '@models/DroitGroupe';
 import { environment } from '../../../../environements/environement';
 import { UpperCasePipe } from '@angular/common';
+import { ModalInformation } from '@modals/modal-information/modal-information';
 
 @Component({
   selector: 'app-logistique-info',
@@ -73,6 +74,16 @@ export class LogistiqueInfo implements OnInit, AfterViewInit
             }
 
             return x;
+        });
+    }
+
+    protected OuvrirModalInformation(_logistique: Logistique): void
+    {
+        this.dialog.open(ModalInformation, {
+            data: {
+                message: _logistique.description,
+                titre: `Info ${_logistique.nom}`
+            }
         });
     }
 

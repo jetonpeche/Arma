@@ -87,6 +87,11 @@
             <th mat-header-cell *matHeaderCellDef> COMMANDES </th>
             <td mat-cell *matCellDef="let element">
                 <div class="action-buttons-container">
+
+                    <button [disabled]="!element.description" matMiniFab (click)="OuvrirModalInformation(element)" matTooltip="Information">
+                            <mat-icon>info</mat-icon>
+                    </button>
+
                     @if (peutProposer || peutAcheter)
                     {
                         <button matMiniFab (click)="OuvrirModalPanierQuantite(element)" matTooltip="Réquisitionner">

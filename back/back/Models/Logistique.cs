@@ -13,6 +13,7 @@ public sealed class Logistique
      [BsonRef]
      public TypeStockageLogistique TypeStockage { get; set; } = null!;
      public string Nom { get; set; } = null!;
+     public string? Description { get; set; }
      public int Prix { get; set; }
      public int Stock { get; set; }
      public int NbDetruit { get; set; }

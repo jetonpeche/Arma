@@ -36,6 +36,10 @@
                                             requireSelection />
             </jp-grid-element>
 
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Description" formControlName="description" showMaxLength />
+            </jp-grid-element>
+
             <jp-grid-element [colDefault]="6">
                 <mat-checkbox labelPosition="before" formControlName="estKit">Est en kit ?</mat-checkbox>
             </jp-grid-element>

@@ -48,6 +48,7 @@ public static class LogistiqueRoute
                {
                     Id = x.Id,
                     Nom = x.Nom,
+                    Description = x.Description,
                     Prix = x.Prix,
                     NbDetruit = x.NbDetruit,
                     EstKit = x.EstKit,
@@ -100,6 +101,7 @@ public static class LogistiqueRoute
           var logistique = new Logistique
           {
                Nom = _requete.Nom.XSS(),
+               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
                Prix = _requete.Prix,
                IgnoreTypeStockage = _requete.IgnoreTypeStockage,
                EstKit = _requete.EstKit,
@@ -157,6 +159,7 @@ public static class LogistiqueRoute
           {
                Id = _idLogistique,
                Nom = _requete.Nom.XSS(),
+               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
                Prix = _requete.Prix,
                IgnoreTypeStockage = _requete.IgnoreTypeStockage,
                EstKit = _requete.EstKit,

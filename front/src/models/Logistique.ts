@@ -3,6 +3,7 @@ export type Logistique =
     kind: "Logistique",
     id: number,
     nom: string,
+    description: string,
     prix: number,
     nbDetruit: number,
     stock: number,

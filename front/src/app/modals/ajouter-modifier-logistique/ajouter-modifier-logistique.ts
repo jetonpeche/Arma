@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { AutocompleteDataSource, ButtonLoader, InputText, InputNumber, InputAutocomplete } from '@jetonpeche/angular-mat-input';
+import { AutocompleteDataSource, ButtonLoader, InputText, InputNumber, InputAutocomplete, InputTextarea } from '@jetonpeche/angular-mat-input';
 import { Logistique, TypeLogistique, TypeStockageLogistique } from '@models/Logistique';
 import { SnackBarService } from '@services/SnackBarService';
 import { TypeLogistiqueService } from '@services/TypeLogistiqueService';
@@ -12,7 +12,7 @@ import { LogistiqueService } from '@services/LogistiqueService';
 
 @Component({
     selector: 'app-ajouter-modifier-logistique',
-    imports: [MatCheckboxModule, MatDialogModule, InputText, ButtonLoader, ReactiveFormsModule, GridContainer, GridElement, InputNumber, InputAutocomplete],
+    imports: [MatCheckboxModule, MatDialogModule, InputText, ButtonLoader, ReactiveFormsModule, GridContainer, GridElement, InputNumber, InputAutocomplete, InputTextarea],
     templateUrl: './ajouter-modifier-logistique.html',
     styleUrl: './ajouter-modifier-logistique.scss',
 })
@@ -43,6 +43,7 @@ export class AjouterModifierLogistique implements OnInit
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
             prix: new FormControl(this.matDialogData?.prix ?? 1, [Validators.required, Validators.min(1)]),
             stock: new FormControl(this.matDialogData?.stock ?? 0, [Validators.required, Validators.min(0)]),
+            description: new FormControl(this.matDialogData?.description ?? null, [Validators.maxLength(200)]),
             nbDetruit: new FormControl(
                 this.matDialogData?.nbDetruit ?? 0, 
                 [Validators.required, Validators.min(0)]
