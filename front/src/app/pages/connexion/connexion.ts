@@ -37,7 +37,7 @@ export class ConnexionPage implements OnInit
     protected OuvrirModalInscription(): void
     {
         this.dialog.open(Inscription, {
-            width: this.estMobile ? "95%" : "50%", 
+            width: this.estMobile ? "95%" : "70%", 
             maxWidth: "100vw",
         });
     }
