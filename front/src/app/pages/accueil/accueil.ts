@@ -14,10 +14,14 @@ import { Inscription } from '../connexion/inscription/inscription';
 })
 export class Accueil 
 {
-  private dialog = inject(MatDialog);
+    private dialog = inject(MatDialog);
+    private readonly estMobile = window.innerWidth <= 800;
 
-  protected OuvrirModalInscription(): void
-  {
-    this.dialog.open(Inscription);
-  }
+    protected OuvrirModalInscription(): void
+    {
+            this.dialog.open(Inscription, {
+                width: this.estMobile ? "95%" : "60%", 
+                maxWidth: "100vw",
+            });
+    }
 }

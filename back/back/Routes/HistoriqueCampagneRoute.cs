@@ -13,7 +13,8 @@ public static class HistoriqueCampagneRoute
      {
           builder.MapGet("lister", ListerAsync)
                .WithDescription("Lister les campagnes précédentes")
-               .Produces<PaginationReponse<HistoriqueCampagneReponse>>();
+               .Produces<PaginationReponse<HistoriqueCampagneReponse>>()
+               .AllowAnonymous();
 
           builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter un historique de campagne")
