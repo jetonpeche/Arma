@@ -1,56 +1,100 @@
-<h2 mat-dialog-title>Création de compte</h2>
-<mat-dialog-content>
+<h2 mat-dialog-title class="recruitment-header">
+    <mat-icon>how_to_reg</mat-icon>
+    <span>BUREAU DE RECRUTEMENT DE L'UNSC</span>
+</h2>
+
+<mat-dialog-content class="recruitment-content">
     <form [formGroup]="form">
-        <jp-grid-container [gap]="15">
-            <jp-grid-element [colXs]="12" [colMd]="6">
-                <jp-input-text label="Nom RP" formControlName="nom" />
-            </jp-grid-element>
+        
+        @if(etapeCourante() == 1) 
+        {
+            <div class="officer-dialogue">
+                <div class="officer-name">// OFFICIER RECRUTEUR :</div>
+                <p class="dialogue-text">"Posez vos fesses sur cette chaise et fixez l'objectif. On va commencer par créer votre dossier réseau. Donnez-moi vos identifiants, et tâchez d'être clair !"</p>
+            </div>
 
-            <jp-grid-element [colXs]="12" [colMd]="6">
-                <jp-input-text label="Nom discord" formControlName="nomDiscord" />
-            </jp-grid-element>
+            <div class="form-step">
+                <div class="form-row">
+                    <jp-input-text label="Nom RP" formControlName="nom" />
+                    <jp-input-text label="Nom Discord" formControlName="nomDiscord" />
+                </div>
+                <div class="form-row">
+                    <jp-input-text label="Identifiant réseau (Login)" formControlName="login" />
+                    <jp-input-password label="Code d'accès (Mot de passe)" formControlName="mdp" />
+                </div>
+            </div>
+        }
 
-            <jp-grid-element [colXs]="12" [colSm]="6" [colMd]="4">
-                <jp-input-text label="Matricule" formControlName="matricule" />
-            </jp-grid-element>
+        @if(etapeCourante() == 2) 
+        {
+            <div class="officer-dialogue">
+                <div class="officer-name">// OFFICIER RECRUTEUR :</div>
+                <p class="dialogue-text">"Très bien. Passons aux données biométriques. Les toubibs ont besoin de votre groupe sanguin, et la logistique de savoir de quel trou paumé vous venez."</p>
+            </div>
 
-            <jp-grid-element [colXs]="12" [colSm]="6" [colMd]="4">
-                <jp-input-text label="Date naissance" formControlName="dateNaissance" />
-            </jp-grid-element>
+            <div class="form-step">
+                <div class="form-row">
+                    <jp-input-text label="Matricule" formControlName="matricule" />
+                    <jp-input-text label="Date de naissance" formControlName="dateNaissance" />
+                </div>
+                <div class="form-row">
+                    <jp-input-text label="Groupe sanguin" formControlName="groupeSanguin" />
+                    <jp-autocomplete requireSelection label="Planète d'origine" formControlName="idPlaneteOrigine" [dataSource]="dataSourcePlanete()" />
+                </div>
+            </div>
+        }
 
-            <jp-grid-element [colXs]="12" [colMd]="4">
-                <jp-input-text label="Groupe sanguin" formControlName="groupeSanguin" />
-            </jp-grid-element>
+        @if(etapeCourante() == 3) 
+        {
+            <div class="officer-dialogue">
+                <div class="officer-name">// OFFICIER RECRUTEUR :</div>
+                <p class="dialogue-text">"Dernière ligne droite avant de signer. Dans quoi êtes-vous spécialisé ? Si vous avez déjà tenu un flingue ou si vous avez un passé civil pertinent, notez ça dans vos états de service."</p>
+            </div>
 
-            <jp-grid-element [colXs]="12" [colMd]="6">
-                <jp-autocomplete requireSelection
-                                 label="Planete d'origine"
-                                 formControlName="idPlaneteOrigine" 
-                                 [dataSource]="dataSourcePlanete()" />
-            </jp-grid-element>
-
-            <jp-grid-element [colXs]="12" [colMd]="6">
-                <jp-autocomplete requireSelection
-                                 label="Spécialité"
-                                 formControlName="idSpecialite" 
-                                 [dataSource]="dataSourceSpecialite()" />
-            </jp-grid-element>
-
-            <jp-grid-element [colDefault]="12">
-                <jp-input-text label="Login" formControlName="login" />
-            </jp-grid-element>
-
-            <jp-grid-element [colDefault]="12">
-                <jp-input-password label="Mot de passe" formControlName="mdp" />
-            </jp-grid-element>
-
-            <jp-grid-element [colDefault]="12">
-                <jp-textarea label="Etat de service" formControlName="etatService" showMaxLength />
-            </jp-grid-element>
-        </jp-grid-container>
+            <div class="form-step single-col">
+                <jp-autocomplete requireSelection label="Spécialité visée" formControlName="idSpecialite" [dataSource]="dataSourceSpecialite()" />
+                <jp-textarea label="État de service (Optionnel)" [rows]="5" formControlName="etatService" showMaxLength />
+            </div>
+        }
     </form>
 </mat-dialog-content>
-<mat-dialog-actions>
-    <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
-    <jp-button-loader [loading]="btnClick()" (clicked)="ValiderForm()" label="Valider" />
+
+<mat-dialog-actions class="recruitment-actions">
+    <div class="step-tracker">
+        <span class="step-node" [class.active]="etapeCourante() >= 1">1</span>
+        <span class="step-line" [class.active]="etapeCourante() >= 2"></span>
+        <span class="step-node" [class.active]="etapeCourante() >= 2">2</span>
+        <span class="step-line" [class.active]="etapeCourante() >= 3"></span>
+        <span class="step-node" [class.active]="etapeCourante() >= 3">3</span>
+    </div>
+
+<div class="action-buttons">
+        <button matButton="text" matDialogClose class="unsc-nav-btn">
+            <mat-icon>logout</mat-icon>
+            <span class="btn-text">Quitter</span>
+        </button>
+        
+        @if(etapeCourante() > 1) 
+        {
+            <button matButton="filled" (click)="EtapePrecedente()" class="unsc-nav-btn">
+                <mat-icon>arrow_back</mat-icon>
+                <span class="btn-text">Correction</span>
+            </button>
+        }
+        
+        @if(etapeCourante() < 3) 
+        {
+            <button matButton="filled" (click)="EtapeSuivante()" class="unsc-nav-btn">
+                <span class="btn-text">Suivant</span>
+                <mat-icon>arrow_forward</mat-icon>
+            </button>
+        } 
+        @else 
+        {
+            <button mat-flat-button color="primary" [disabled]="btnClick()" (click)="ValiderForm()" class="unsc-nav-btn sign-btn">
+                <mat-icon [class.is-loading]="btnClick()">{{ btnClick() ? 'sync' : 'assignment_turned_in' }}</mat-icon>
+                <span class="btn-text">{{(btnClick() ? 'Transmission...' : 'Signer l\'engagement')}}</span>
+            </button>
+        }
+    </div>
 </mat-dialog-actions>

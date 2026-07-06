@@ -1,0 +1,188 @@
+/* =========================================================
+   STYLE DU BUREAU DE RECRUTEMENT
+   ========================================================= */
+
+.recruitment-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.3rem;
+    
+    mat-icon {
+        color: var(--mat-sys-primary);
+        transform: scale(1.2);
+    }
+}
+
+/* --- LE DIALOGUE DE L'OFFICIER --- */
+.officer-dialogue {
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, var(--mat-sys-surface-container-highest));
+    border-left: 4px solid var(--mat-sys-primary);
+    padding: 16px;
+    margin-bottom: 24px;
+    border-radius: 0 4px 4px 0;
+    position: relative;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+
+    .officer-name {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        color: var(--mat-sys-primary);
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+        letter-spacing: 2px;
+    }
+
+    .dialogue-text {
+        margin: 0;
+        font-style: italic;
+        color: var(--mat-sys-on-surface);
+        line-height: 1.5;
+        font-size: 0.95rem;
+        
+        /* Animation légère type machine à écrire globale */
+        animation: unsc-fade-text 0.5s ease-out forwards;
+    }
+}
+
+/* --- STRUCTURE DES CHAMPS --- */
+.form-step {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    
+    /* Animation fluide entre les étapes */
+    animation: unsc-slide-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        
+        @media screen and (min-width: 600px) {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    &.single-col {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+
+/* --- BARRE D'ACTIONS ET PROGRESSION --- */
+.recruitment-actions {
+    display: flex;
+    justify-content: space-between !important;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 16px 24px !important;
+    gap: 16px;
+}
+
+.step-tracker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .step-node {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 2px solid var(--mat-sys-outline-variant);
+        color: var(--mat-sys-outline-variant);
+        font-weight: 900;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.8rem;
+        background-color: var(--mat-sys-surface-container);
+        transition: all 0.4s ease;
+
+        &.active {
+            border-color: var(--mat-sys-primary);
+            color: var(--mat-sys-primary);
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+            box-shadow: 0 0 10px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+        }
+    }
+
+    .step-line {
+        width: 30px;
+        height: 2px;
+        background-color: var(--mat-sys-outline-variant);
+        transition: all 0.4s ease;
+
+        &.active {
+            background-color: var(--mat-sys-primary);
+            box-shadow: 0 0 8px var(--mat-sys-primary);
+        }
+    }
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* --- ANIMATIONS --- */
+@keyframes unsc-fade-text {
+    0% { opacity: 0; transform: translateX(-10px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes unsc-slide-in {
+    0% { opacity: 0; transform: translateY(15px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   ANIMATION DE CHARGEMENT TACTIQUE
+   ========================================================= */
+@keyframes unsc-radar-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.is-loading {
+    animation: unsc-radar-spin 1.5s linear infinite;
+    color: var(--mat-sys-on-primary) !important;
+}
+
+/* =========================================================
+   OPTIMISATION FORMAT MOBILE (ÉCRANS < 600PX)
+   ========================================================= */
+@media screen and (max-width: 600px) {
+    .recruitment-actions {
+        padding: 12px 16px !important;
+        flex-direction: column-reverse; 
+        gap: 16px;
+    }
+
+    .action-buttons {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    /* TOUS LES BOUTONS SONT MAINTENANT TRAITÉS DE LA MÊME FAÇON */
+    .unsc-nav-btn {
+        flex: 1;
+        min-width: 48px !important;
+        padding: 0 !important;
+
+        /* Masque le texte brut */
+        .btn-text {
+            display: none !important;
+        }
+
+        /* Centre l'icône proprement sur le bouton carré */
+        mat-icon {
+            margin: 0 !important;
+            transform: scale(1.1); /* Rend l'icône un peu plus visible sur mobile */
+        }
+    }
+}

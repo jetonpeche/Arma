@@ -20,7 +20,7 @@ export class ConnexionPage implements OnInit
 {
     protected form: FormGroup;
     protected btnClick = signal<boolean>(false);
-
+    private readonly estMobile = window.innerWidth <= 800;
     private authServ = inject(AuthentificationService);
     private dialog = inject(MatDialog);
     private router = inject(Router);
@@ -35,7 +35,10 @@ export class ConnexionPage implements OnInit
 
     protected OuvrirModalInscription(): void
     {
-        this.dialog.open(Inscription);
+        this.dialog.open(Inscription, {
+            width: this.estMobile ? "95%" : "50%", 
+            maxWidth: "100vw",
+        });
     }
 
     protected Valider(): void

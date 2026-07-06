@@ -58,6 +58,7 @@
     padding: 20px;
     background-color: var(--mat-sys-surface-container);
     border-top: 1px solid var(--mat-sys-outline-variant);
+    justify-content: end;
 }
 
 @media screen and (max-width: 425px) {
@@ -66,6 +67,18 @@
         border-radius: 0;
         border-left: none;
         border-right: none;
+    }
+
+    .unsc-actions {
+        flex-direction: column;
+
+        jp-button-loader {
+            width: 100%;
+
+            ::ng-deep button {
+                width: 100%;
+            }
+        }
     }
 }
 
