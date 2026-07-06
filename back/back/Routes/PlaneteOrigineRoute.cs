@@ -13,7 +13,8 @@ public static class PlaneteOrigineRoute
     {
           builder.MapGet("lister", ListerAsync)
               .WithDescription("Lister les planetes")
-              .Produces<PaginationReponse<PlaneteOrigine>>();
+              .Produces<PaginationReponse<PlaneteOrigine>>()
+              .AllowAnonymous();
 
           builder.MapGet("lister-leger", ListerLegerAsync)
             .WithDescription("Lister les planetes aleger")

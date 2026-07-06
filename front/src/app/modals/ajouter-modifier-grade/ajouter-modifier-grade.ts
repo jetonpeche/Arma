@@ -21,7 +21,7 @@ export class AjouterModifierGrade implements OnInit
     protected btnClick = signal<boolean>(false);
     protected liste: AutocompleteDataSource[] = [{
         value: 1,
-        display: "Navy"
+        display: "Hospital corps"
     },
     {
         value: 2,

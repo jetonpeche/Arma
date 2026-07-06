@@ -35,7 +35,7 @@
             </mat-select-trigger>
 
             <mat-option [value]="0">Marines</mat-option>
-            <mat-option [value]="1">Navy</mat-option>
+            <mat-option [value]="1">Hospital corps</mat-option>
             <mat-option [value]="2">Honorifique</mat-option>
             <mat-option [value]="3">Candidature requise</mat-option>
 
@@ -103,7 +103,7 @@
                 <span class="unsc-badge badge-tertiary">
                     {{ element.candidatureRequise ? "Candidature /" : "" }}
                     {{ element.estHonorifique ? "Honorifique /" : "" }} 
-                    {{ element.conserne == 1 ? "Navy" : "Marines" }}
+                    {{ element.conserne == 1 ? "Hospital corps" : "Marines" }}
                 </span>
             </td>
         </ng-container>

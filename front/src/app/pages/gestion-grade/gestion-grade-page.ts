@@ -45,7 +45,7 @@ export class GestionGradePage implements OnInit, AfterViewInit
     private labelsFiltre: { [key: string]: string } = {
         'null': 'Tout',
         '0': 'Marines',
-        '1': 'Navy',
+        '1': 'Hospital corps',
         '2': 'Honorifique',
         '3': 'Candidature requise'
     };
