@@ -1,4 +1,28 @@
-<mat-card class="unsc-datapad" appearance="outlined">
+@if(accesAutorise()) 
+{
+    <div class="global-grid-flash"></div>
+    <div class="global-logo-flash"></div>
+}
+
+<mat-card class="unsc-datapad" [class.access-granted]="accesAutorise()" appearance="outlined">
+
+    @if(accesAutorise()) 
+    {
+        <div class="success-overlay">
+            
+            <div class="biometric-scanner">
+                <mat-icon class="fingerprint-icon">fingerprint</mat-icon>
+                <div class="scanner-line"></div>
+            </div>
+
+            <div class="auth-message">
+                <h2>ACCÈS AUTORISÉ</h2>
+                <p>Déchiffrement des protocoles en cours...</p>
+            </div>
+
+        </div>
+    }
+
     <!-- Barre décorative supérieure (ajoutée via CSS) -->
     <div class="datapad-header-accent"></div>
 

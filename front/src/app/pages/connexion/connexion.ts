@@ -7,12 +7,12 @@ import { AuthentificationService } from '@services/AuthentificationService';
 import { environment } from '../../../environements/environement';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { AjouterModifierPersonnage } from '@modals/ajouter-modifier-personnage/ajouter-modifier-personnage';
 import { Inscription } from './inscription/inscription';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-connexion',
-  imports: [MatCardModule, InputText, ReactiveFormsModule, InputPassword, ButtonLoader, GridContainer, GridElement],
+  imports: [MatCardModule, MatIconModule, InputText, ReactiveFormsModule, InputPassword, ButtonLoader, GridContainer, GridElement],
   templateUrl: './connexion.html',
   styleUrl: './connexion.scss',
 })
@@ -20,6 +20,7 @@ export class ConnexionPage implements OnInit
 {
     protected form: FormGroup;
     protected btnClick = signal<boolean>(false);
+    protected accesAutorise = signal<boolean>(false);
     private readonly estMobile = window.innerWidth <= 800;
     private authServ = inject(AuthentificationService);
     private dialog = inject(MatDialog);
@@ -52,6 +53,7 @@ export class ConnexionPage implements OnInit
             next: (retour) =>
             {
                 this.btnClick.set(false);
+                
                 environment.utilisateur = retour;
                 sessionStorage.setItem("utilisateur", JSON.stringify(retour));
                 this.authServ.estConnecter.set(true);
@@ -59,7 +61,11 @@ export class ConnexionPage implements OnInit
                 this.authServ.nbPointBanque.set(retour.nbPointBanque);
                 this.authServ.peutModifierBanque.set(retour.droit.peutModifierBanque);
 
-                this.router.navigateByUrl("/personnage");
+                this.accesAutorise.set(true);
+
+                setTimeout(() => {
+                    this.router.navigateByUrl("/personnage");
+                }, 4500);
             },
             error: () => this.btnClick.set(false)
         });

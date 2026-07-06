@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, FormGroup, Validators } from '@angular/forms';
-import { AutocompleteDataSource, InputText, InputAutocomplete, InputPassword, InputTextarea, ButtonLoader } from '@jetonpeche/angular-mat-input';
+import { AutocompleteDataSource, InputText, InputAutocomplete, InputPassword, InputTextarea } from '@jetonpeche/angular-mat-input';
 import { MatDialogModule, MatDialogRef } from "@angular/material/dialog";
 import { MatIconModule } from "@angular/material/icon";
 import { PlaneteService } from '@services/PlaneteService';
@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-inscription',
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatIconModule, InputText, InputAutocomplete, InputPassword, InputTextarea, ButtonLoader],
+  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatIconModule, InputText, InputAutocomplete, InputPassword, InputTextarea],
   templateUrl: './inscription.html',
   styleUrl: './inscription.scss',
 })

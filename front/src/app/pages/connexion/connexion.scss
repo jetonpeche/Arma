@@ -15,6 +15,234 @@
     box-shadow: 0 8px 32px var(--mat-sys-shadow);
     position: relative;
     overflow: hidden;
+
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    &.access-granted {
+        border-color: var(--mat-sys-primary);
+        box-shadow: 0 0 40px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+        animation: unsc-warp-jump 0.8s ease-in 3.5s forwards; 
+        
+        pointer-events: none; 
+    }
+}
+
+.success-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 95%, transparent);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: unsc-overlay-boot 0.3s ease-out forwards;
+
+    /* --- 1. LE MODULE DE LECTURE --- */
+    .biometric-scanner {
+        position: relative;
+        margin-bottom: 40px;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .fingerprint-icon {
+            font-size: 80px !important;
+            width: 80px !important;
+            height: 80px !important;
+            /* Le maître du temps : L'animation dure 2.8s au total */
+            animation: unsc-fingerprint-sequence 2.8s forwards;
+        }
+
+        .scanner-line {
+            position: absolute;
+            left: -10px;
+            right: -10px;
+            height: 4px;
+            background-color: var(--mat-sys-primary);
+            box-shadow: 0 0 15px var(--mat-sys-primary), 0 0 5px #fff;
+            border-radius: 2px;
+            opacity: 0;
+            /* Le laser balaie l'écran pendant 1s, et commence après 0.5s */
+            animation: unsc-scan-sweep 1s 0.5s forwards;
+        }
+    }
+
+    /* --- 2. L'AFFICHAGE DU MESSAGE --- */
+    .auth-message {
+        opacity: 0;
+        /* Le texte surgit à 2.2s, juste après le clignotement de l'empreinte */
+        animation: unsc-auth-text 0.4s 2.2s forwards;
+
+        h2 {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            font-size: 1.8rem;
+            color: var(--mat-sys-primary);
+            letter-spacing: 4px;
+            margin: 0;
+            text-shadow: 0 0 12px color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+        }
+
+        p {
+            font-family: 'Courier New', Courier, monospace;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: var(--mat-sys-on-surface);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: unsc-pulse-text 1s infinite 2.2s;
+        }
+    }
+}
+
+/* =========================================================
+   KEYFRAMES DE LA SÉQUENCE (TIMING PARFAIT)
+   ========================================================= */
+
+@keyframes unsc-overlay-boot {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Le faisceau du scanner qui descend */
+@keyframes unsc-scan-sweep {
+    0% { top: -10%; opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { top: 110%; opacity: 0; }
+}
+
+/* Comportement de l'empreinte (Gris -> Clignotement Vert -> Vert Fixe) */
+@keyframes unsc-fingerprint-sequence {
+    /* 0 à 0.5s : Apparition en gris (en attente du laser) */
+    0% { opacity: 0; color: var(--mat-sys-on-surface-variant); transform: scale(0.8); }
+    15% { opacity: 0.5; color: var(--mat-sys-on-surface-variant); transform: scale(1); filter: drop-shadow(0 0 0 transparent); }
+    
+    /* 0.5s à 1.5s : Le laser passe, l'empreinte reste inerte */
+    53% { opacity: 0.5; color: var(--mat-sys-on-surface-variant); filter: drop-shadow(0 0 0 transparent); }
+    
+    /* 1.5s à 2.2s : Traitement des données et clignotement rapide d'alerte ! */
+    54% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 10px var(--mat-sys-primary)); }
+    58% { opacity: 0.2; }
+    62% { opacity: 1; }
+    66% { opacity: 0.2; }
+    70% { opacity: 1; }
+    74% { opacity: 0.2; }
+    
+    /* 2.2s à la fin : Validation fixée en vert éclatant */
+    78%, 100% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 20px var(--mat-sys-primary)); }
+}
+
+/* Apparition du texte final */
+@keyframes unsc-auth-text {
+    0% { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes unsc-pulse-text {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+
+/* L'effet de disparition du datapad */
+@keyframes unsc-warp-jump {
+    0% { transform: scale(1); opacity: 1; }
+    30% { transform: scale(1.02); opacity: 1; filter: blur(0px); }
+    100% { transform: scale(0.8) perspective(500px) rotateX(5deg); opacity: 0; filter: blur(10px); }
+}
+
+/* =========================================================
+   ILLUMINATION DE LA GRILLE ENVIRONNEMENTALE
+   ========================================================= */
+
+.global-grid-flash {
+    position: fixed;
+    inset: 0; /* Prend tout l'écran */
+    z-index: -1; /* Se place derrière le datapad, mais au-dessus du body */
+    pointer-events: none;
+
+    /* Copie conforme de votre grille globale, mais en version hautement lumineuse */
+    background-image:
+        linear-gradient(color-mix(in srgb, var(--mat-sys-primary) 60%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-primary) 60%, transparent) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-position: center center;
+
+    /* On utilise la même durée que l'empreinte pour une synchro parfaite ! */
+    opacity: 0;
+    animation: unsc-grid-pulse 2.8s forwards; /* Modifiez "2.8s" si vous aviez rallongé l'empreinte */
+}
+
+/* On réutilise EXACTEMENT les mêmes pourcentages que unsc-fingerprint-sequence */
+@keyframes unsc-grid-pulse {
+    /* De 0 à 53% : La grille reste éteinte pendant que le laser scanne */
+    0%, 53% { opacity: 0; }
+    
+    /* 54% à 74% : Clignotement synchronisé avec l'alerte du processeur */
+    54% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
+    58% { opacity: 0.1; box-shadow: none; }
+    62% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
+    66% { opacity: 0.1; box-shadow: none; }
+    70% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
+    74% { opacity: 0.1; box-shadow: none; }
+    
+    /* 78% à 100% : Validation finale, toute la pièce reste illuminée ! */
+    78%, 100% { 
+        opacity: 0.6; 
+        box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent); 
+    }
+}
+
+/* =========================================================
+   ILLUMINATION DU LOGO UNSC EN FILIGRANE
+   ========================================================= */
+
+.global-logo-flash {
+    position: fixed;
+    inset: 0;
+    z-index: -1; /* Reste derrière le datapad */
+    pointer-events: none;
+
+    /* On copie exactement les règles du masque de votre styles.scss */
+    -webkit-mask-image: url('/unsc-logo.png'); 
+    mask-image: url('/unsc-logo.png');
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center center;
+    mask-position: center center;
+    -webkit-mask-size: 50svh;
+    mask-size: 50svh;
+    
+    /* La couleur de la lumière (Vert UNSC) */
+    background-color: var(--mat-sys-primary);
+
+    opacity: 0;
+    /* Même durée que la grille et l'empreinte pour la synchro */
+    animation: unsc-logo-ignite 2.8s forwards; 
+}
+
+/* Séquence d'allumage de l'ampoule / néon */
+@keyframes unsc-logo-ignite {
+    /* 0 à 65% : Le logo reste invisible, on ne voit que le filigrane de base */
+    0%, 65% { opacity: 0; filter: drop-shadow(0 0 0 transparent); }
+    
+    /* 66% à 74% : Grésillement d'allumage pendant que la grille pulse */
+    66% { opacity: 0.5; filter: drop-shadow(0 0 10px var(--mat-sys-primary)); }
+    68% { opacity: 0.1; filter: none; }
+    70% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-primary)); }
+    72% { opacity: 0.2; filter: none; }
+    
+    /* 75% à 100% : Allumage total ! Pile au moment où "ACCÈS AUTORISÉ" apparaît */
+    75%, 100% { 
+        opacity: 0.45;
+        /* Le drop-shadow s'applique sur la forme du masque, créant un halo lumineux autour de l'aigle */
+        filter: drop-shadow(0 0 30px var(--mat-sys-primary)); 
+    }
 }
 
 .datapad-header-accent {
