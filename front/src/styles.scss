@@ -1223,21 +1223,79 @@ html.light-mode
   .mat-mdc-dialog-container .mdc-dialog__surface {
     background-color: var(--mat-sys-surface-container) !important;
     border-color: var(--mat-sys-outline-variant) !important;
+    /* On adoucit l'ombre pour le mode clair */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
   }
 
   .mat-mdc-dialog-title {
     color: var(--mat-sys-primary) !important;
-    background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, var(--mat-sys-surface));
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 8%, var(--mat-sys-surface-container));
+    border-bottom: 2px solid var(--mat-sys-primary);
   }
 
+  /* CORRECTION STRATÉGIQUE : On laisse la modale respirer en blanc/gris clair réglementaire */
   .mat-mdc-dialog-content 
   {
-    background-color: #1a1c1862 !important; 
-    color: #ffffff !important; 
-    text-shadow: 0 0 4px rgba(255, 255, 255, 0.4);
+    background-color: var(--mat-sys-surface-container) !important; 
+    color: var(--mat-sys-on-surface) !important; 
+    text-shadow: none !important;
   }
 
   .mat-mdc-dialog-actions {
-    background-color: var(--mat-sys-surface-container-highest) !important;
+    background-color: var(--mat-sys-surface-container-low) !important;
+    border-top: 1px dashed var(--mat-sys-outline-variant);
+  }
+
+  /* RE-CALIBRAGE DES INPUTS DANS LES MODALES EN LIGHT MODE */
+  .mat-mdc-form-field {
+    .mdc-notched-outline {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    // 2. Le texte saisi par l'opérateur
+    // Le -webkit-text-fill-color est crucial pour forcer l'affichage sur certains navigateurs !
+    .mat-mdc-input-element, 
+    .mat-mdc-text-area-element,
+    .mat-mdc-select-value-text {
+      color: var(--mat-sys-primary) !important;
+      -webkit-text-fill-color: var(--mat-sys-primary) !important;
+      font-weight: 900 !important;
+    }
+
+    // 3. Quand le champ n'a PAS le focus : On force une couleur très sombre (presque noire)
+    &:not(.mat-focused) {
+      .mdc-floating-label {
+        color: #4a4a4a !important; // Gris foncé pour les labels
+      }
+      
+      .mat-mdc-input-element,
+      .mat-mdc-text-area-element,
+      .mat-mdc-select-value-text {
+        color: #111111 !important; // Texte presque noir, impossible à rater
+        -webkit-text-fill-color: #111111 !important;
+      }
+    }
+
+    &.mat-focused {
+      .mdc-notched-outline {
+        opacity: 1;
+      }
+      .mdc-floating-label {
+        color: var(--mat-sys-primary) !important;
+      }
+      .mat-mdc-input-element,
+      .mat-mdc-text-area-element,
+      .mat-mdc-select-value-text {
+        color: var(--mat-sys-primary) !important;
+        -webkit-text-fill-color: var(--mat-sys-primary) !important;
+      }
+    }
+  }
+
+  // Ajustement pour les cases à cocher en mode clair
+  .mat-mdc-checkbox {
+    .mdc-form-field {
+      color: var(--mat-sys-on-surface) !important;
+    }
   }
 }
