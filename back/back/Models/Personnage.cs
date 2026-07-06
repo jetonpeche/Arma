@@ -25,9 +25,11 @@ public sealed class Personnage
      [BsonRef]
      public List<BoutiquePrix> ListeBoutiquePrix { get; set; } = [];
 
-     public List<MedaillePersonnage> ListeMedaille { get; set; } = [];
+    public List<MedaillePersonnage> ListeMedaille { get; set; } = [];
 
-     public string? Login { get; set; }
+    public Parametre Parametre { get; set; } = null!;
+
+    public string? Login { get; set; }
     public string? Mdp { get; set; }
     public int? IdGradeAvantMort { get; set; }
 
@@ -52,4 +54,10 @@ public sealed class Personnage
 
      public DateTime? DateDerniereParticipation { get; set; }
      public DateTime DateCreation { get; set; }
+}
+
+public sealed class Parametre
+{
+     public bool ThemeSombreActiver { get; set; }
+     public bool SonActiver { get; set; }
 }

@@ -1,5 +1,5 @@
-﻿using back.Models;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using back.Models;
 
 namespace back.ModelsExport;
 
@@ -7,7 +7,8 @@ public sealed class DroitGroupeReponse
 {
      public required int Id { get; set; }
 
-     public required string Nom { get; set; }
+    public required string Nom { get; set; }
+    
      public required bool EstDefaut { get; set; }
      public required bool PeutAcheterVaisseau { get; set; }
      public required bool PeutModifierBanque { get; set; }

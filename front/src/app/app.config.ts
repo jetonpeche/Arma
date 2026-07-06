@@ -33,6 +33,7 @@ import { BanqueService } from '@services/BanqueService';
 import { MedailleService } from '@services/MedailleService';
 import { HistoriqueCampagneService } from '@services/HistoriqueCampagneService';
 import localeFr from '@angular/common/locales/fr';
+import { ParametreService } from '@services/ParametreService';
 
 // 2. Enregistrez la langue française dans le système
 registerLocaleData(localeFr);
@@ -96,6 +97,7 @@ export const appConfig: ApplicationConfig = {
     { provide: DroitGroupeService, useClass: DroitGroupeService },
     { provide: BanqueService, useClass: BanqueService },
     { provide: MedailleService, useClass: MedailleService },
+    { provide: ParametreService, useClass: ParametreService },
     { provide: HistoriqueCampagneService, useClass: HistoriqueCampagneService },
 
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matInput },

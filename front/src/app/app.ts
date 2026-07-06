@@ -1,4 +1,4 @@
-import { Component, computed, DOCUMENT, inject, OnInit, Renderer2, signal } from '@angular/core';
+import { Component, computed, DOCUMENT, effect, inject, OnInit, Renderer2, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,10 +15,13 @@ import { AuthentificationService } from '@services/AuthentificationService';
 import { ModalPointBanque } from '@modals/modal-point-banque/modal-point-banque';
 import { EUrl } from '@enums/EUrl';
 import { DecimalPipe } from '@angular/common';
+import { MatMenuModule } from '@angular/material/menu';
+import { ParametreService } from '@services/ParametreService';
+import { SnackBarService } from '@services/SnackBarService';
 
 @Component({
   selector: 'app-root',
-  imports: [DecimalPipe, RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatTooltipModule, MatListModule, MatSidenavModule, MatToolbarModule],
+  imports: [DecimalPipe, MatMenuModule, RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatTooltipModule, MatListModule, MatSidenavModule, MatToolbarModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -27,10 +30,23 @@ export class App implements OnInit
     protected mdcBackdrop = signal<BooleanInput>(false);
     protected drawerMode = signal<MatDrawerMode>("push");
     protected estLightMode = signal<boolean>(false);
+    protected sonEstActiver = signal<boolean>(false);
+    protected currentTrack = signal<string>('');
+
+    private playlist: string[] = [
+        '/music/theme1.mp3',
+        '/music/theme2.mp3',
+        '/music/theme3.mp3',
+        '/music/theme4.mp3',
+        '/music/theme5.mp3',
+        '/music/theme6.mp3'
+    ];
     
     private dialog = inject(MatDialog);
     private router = inject(Router);
     private authServ = inject(AuthentificationService);
+    private paramServ = inject(ParametreService);
+    private snackbarServ = inject(SnackBarService);
     private document = inject(DOCUMENT);
     private renderer = inject(Renderer2);
 
@@ -39,7 +55,7 @@ export class App implements OnInit
     protected peutModifierBanque = computed(() => this.authServ.peutModifierBanque());
     protected droit = computed(() => 
     {
-        this.authServ.droitGroupe(); // On "écoute" le changement
+        this.authServ.droitGroupe(); 
         return this.authServ.RecupererDroit(EUrl.DroitGroupe)?.peutLire ?? false;
     });
 
@@ -54,8 +70,13 @@ export class App implements OnInit
         .observe([ '(max-width: 500px)']);
 
         breakpoint$.subscribe(() =>
-        this.BreakpointChanges()
+            this.BreakpointChanges()
         );
+
+        effect(() => {
+            if (this.estConnecter() && environment.utilisateur)
+                this.AppliquerParametresUtilisateur();
+        });
     }
 
     ngOnInit(): void 
@@ -70,15 +91,14 @@ export class App implements OnInit
                 const tokenData = JSON.parse(atob(utilisateur.jwt.split(".")[1]));
                 const expirationDate = new Date(tokenData.exp * 1000);
 
-                // JWT valide
                 if (expirationDate > new Date()) 
                 {
                     environment.utilisateur = utilisateur;
                     
-                    this.authServ.estConnecter.set(true);
                     this.authServ.nbPointBanque.set(utilisateur.nbPointBanque);
                     this.authServ.peutModifierBanque.set(utilisateur.droit.peutModifierBanque);
-                   this.authServ.droitGroupe.set(utilisateur.droit);
+                    this.authServ.droitGroupe.set(utilisateur.droit);
+                    this.authServ.estConnecter.set(true); 
                 } 
                 else 
                     this.Deconnexion();
@@ -91,17 +111,78 @@ export class App implements OnInit
         }
     }
 
-    toggleTheme(): void
+    protected toggleTheme(): void
     {
         this.estLightMode.set(!this.estLightMode());
+
         if (this.estLightMode()) 
-        {
             this.renderer.addClass(this.document.documentElement, 'light-mode');
-        } 
         else 
-            {
             this.renderer.removeClass(this.document.documentElement, 'light-mode');
+
+        this.paramServ.Modifier({ sonActiver: this.sonEstActiver(), themeSombreActiver: !this.estLightMode() }).subscribe();
+    }
+
+    protected toggleAudio(): void 
+    {
+        const audio = document.getElementById('tactical-ambience') as HTMLAudioElement;
+        
+        if (audio) 
+        {
+            if (this.sonEstActiver()) 
+            {
+                audio.pause();
+                this.sonEstActiver.set(false);
+                this.paramServ.Modifier({ sonActiver: false, themeSombreActiver: !this.estLightMode() }).subscribe();
+            } 
+            else 
+            {
+                if (!this.currentTrack()) 
+                    this.JouerProchainSonRandom();
+
+                else 
+                {
+                    audio.volume = 0.3;
+                    audio.play()
+                        .then(() => {
+                            this.sonEstActiver.set(true);
+
+                            if(this.estConnecter())
+                                this.paramServ.Modifier({ sonActiver: true, themeSombreActiver: !this.estLightMode() }).subscribe();
+                        })
+                        .catch(() => {
+                            this.snackbarServ.Erreur("Lecture audio bloquée par les protocoles de sécurité du navigateur.");
+                        });
+                }
+            }
         }
+    }
+
+    protected JouerProchainSonRandom(): void 
+    {
+        const audio = document.getElementById('tactical-ambience') as HTMLAudioElement;
+
+        if (!audio)
+            return;
+
+        const randomIndex = Math.floor(Math.random() * this.playlist.length);
+        this.currentTrack.set(this.playlist[randomIndex]);
+
+        setTimeout(() => 
+        {
+            audio.load();
+            audio.volume = 0.3;
+            audio.play()
+                .then(() => {
+                    this.sonEstActiver.set(true);
+
+                    if(this.estConnecter())
+                        this.paramServ.Modifier({ sonActiver: true, themeSombreActiver: !this.estLightMode() }).subscribe();
+                })
+                .catch(() => {
+                    this.snackbarServ.Erreur("Lecture audio bloquée par les protocoles de sécurité du navigateur.");
+                });
+        }, 50);
     }
 
     protected Connexion(): void
@@ -111,6 +192,13 @@ export class App implements OnInit
 
     protected Deconnexion(): void
     {
+        const audio = document.getElementById('tactical-ambience') as HTMLAudioElement;
+        if (audio) {
+            audio.pause();
+        }
+        this.sonEstActiver.set(false);
+        this.currentTrack.set('');
+        
         this.authServ.estConnecter.set(false);
         this.authServ.peutModifierBanque.set(false);
         this.authServ.nbPointBanque.set(0);
@@ -131,6 +219,31 @@ export class App implements OnInit
             width: "60%", 
             maxWidth: "100vw",
         });
+    }
+
+    private AppliquerParametresUtilisateur(): void 
+    {
+        let utilisateur = environment.utilisateur;
+
+        const modeClair = !utilisateur.parametre.themeSombreActiver;
+        this.estLightMode.set(modeClair);
+
+        if (modeClair)
+            this.renderer.addClass(this.document.documentElement, 'light-mode');
+
+        else
+            this.renderer.removeClass(this.document.documentElement, 'light-mode');
+
+        if (utilisateur.parametre.sonActiver)
+        {
+            setTimeout(() => 
+            {
+                const audio = document.getElementById('tactical-ambience') as HTMLAudioElement;
+
+                if (audio && !this.sonEstActiver())
+                    this.JouerProchainSonRandom();
+            }, 500);
+        }
     }
 
     private BreakpointChanges(): void 

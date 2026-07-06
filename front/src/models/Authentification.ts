@@ -1,4 +1,5 @@
 import { DroitGroupe } from "./DroitGroupe"
+import { Parametre } from "./Parametre"
 
 export type Authentification = 
 {
@@ -12,7 +13,8 @@ export type Authentifier =
     nom: string,
     nbPointBoutique: number,
     nbPointBanque: number,
-    droit: DroitGroupe | null
+    droit: DroitGroupe | null,
+    parametre: Parametre
 }
 
 export type Inscription =

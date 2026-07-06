@@ -2,6 +2,128 @@
     flex: 1 1 auto;
 }
 
+/* =========================================================
+   TERMINAL DE SÉLECTION - COMPATIBLE LIGHT/DARK MODE
+   ========================================================= */
+::ng-deep .unsc-mat-menu 
+{
+    background-color: var(--mat-sys-surface-container-highest) !important;
+    border: 2px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent) !important;
+    border-radius: 0px !important; // Toujours pas d'angles pour l'UNSC !
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important; // Ombre neutre pour les deux modes
+    overflow: hidden !important;
+    position: relative;
+
+    animation: unsc-contour-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+
+    // Grille de calcul qui s'adapte au contraste (utilise la couleur du texte)
+    background-image: 
+        linear-gradient(color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent) 1px, transparent 1px);
+    background-size: 12px 12px;
+
+    // --- FAISCEAU DE BALAYAGE RADAR INTERNE ---
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            to bottom,
+            transparent,
+            color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) 50%,
+            transparent 52%
+        );
+        background-size: 100% 200%;
+        animation: unsc-menu-radar-sweep 5s linear infinite;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    // --- NETTOYAGE DU CONTENU ---
+    .mat-mdc-menu-content {
+        padding: 6px 0 !important;
+        position: relative;
+        z-index: 2;
+    }
+
+// --- OPTIONS DU MENU ---
+    .mat-mdc-menu-item {
+        min-height: 48px;
+        border-left: 4px solid transparent !important; 
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        background-color: transparent !important;
+        box-sizing: border-box !important;
+
+        .mdc-list-item__primary-text {
+            font-family: 'Courier New', Courier, monospace !important;
+            font-weight: 900 !important;
+            font-size: 0.85rem !important;
+            letter-spacing: 2px !important;
+            text-transform: uppercase !important;
+            color: var(--mat-sys-on-surface) !important; 
+            /* CORRECTION : On prépare l'animation du déplacement (transform) */
+            transition: transform 0.2s ease, color 0.2s ease;
+            display: inline-block; 
+        }
+
+        mat-icon {
+            color: color-mix(in srgb, var(--mat-sys-primary) 70%, transparent) !important;
+            transition: transform 0.3s ease, color 0.2s ease;
+        }
+
+        // HOVER TACTIQUE : VERROUILLAGE DE LA CIBLE
+        &:hover {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent) !important;
+            /* CORRECTION : On ne change que la couleur, la taille reste intacte */
+            border-left-color: var(--mat-sys-primary) !important; 
+            /* (Le padding-left a été supprimé pour éviter la déformation) */
+
+            .mdc-list-item__primary-text {
+                color: var(--mat-sys-primary) !important;
+                text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+                /* CORRECTION : Le texte se décale visuellement sans pousser les murs */
+                transform: translateX(8px); 
+            }
+
+            mat-icon {
+                color: var(--mat-sys-primary) !important;
+                /* CORRECTION : L'icône se décale et tourne de manière fluide */
+                transform: translateX(4px) scale(1.15) rotate(8deg); 
+                filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent));
+            }
+        }
+    }
+}
+
+/* =========================================================
+   PROTOCOLES D'ANIMATION DES SYSTEMES UNSC
+   ========================================================= */
+
+// Bouclier énergétique adaptatif (L'intensité lumineuse s'adapte à la couleur primaire)
+@keyframes unsc-contour-pulse {
+    0% {
+        border-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 
+                    inset 0 0 5px color-mix(in srgb, var(--mat-sys-primary) 5%, transparent) !important;
+    }
+    50% {
+        border-color: var(--mat-sys-primary) !important;
+        box-shadow: 0 4px 20px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent),
+                    inset 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
+    }
+    100% {
+        border-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 
+                    inset 0 0 5px color-mix(in srgb, var(--mat-sys-primary) 5%, transparent) !important;
+    }
+}
+
+// Déplacement vertical infini de la ligne du moniteur
+@keyframes unsc-menu-radar-sweep {
+    0% { background-position: 0 -200%; }
+    100% { background-position: 0 200%; }
+}
+
 /* --- BARRE DE NAVIGATION (HUD) --- */
 #navbar {
     position: fixed;

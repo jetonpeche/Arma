@@ -22,6 +22,8 @@ public class DroitMiddleware : IEndpointFilter
                if (nomMapGroupe is "specialite" or "grade" or "personnage")
                     return await next(context);
           }
+          else if (verbeHttp == HttpMethods.Put && nomMapGroupe is "parametre")
+               return await next(context);
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 

@@ -1,4 +1,5 @@
-﻿using back.Extensions;
+﻿using System.Security.Claims;
+using back.Extensions;
 using back.Models;
 using back.ModelsExport;
 using back.ModelsImport;
@@ -7,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Services.Jwts;
 using Services.Mdp;
-using System.Security.Claims;
 
 namespace back.Routes;
 
@@ -48,8 +48,9 @@ public static class AuthentificationRoute
                {
                     x.Id,
                     x.Login,
-                    x.Mdp,
-                    x.NbPointBoutique,
+                   x.Mdp,
+                   x.Parametre,
+                   x.NbPointBoutique,
                     x.Nom,
                     x.DroitGroupe
                })
@@ -85,7 +86,8 @@ public static class AuthentificationRoute
                Nom = infoLogin.Nom,
                NbPointBoutique = infoLogin.NbPointBoutique,
                NbPointBanque = nbPointBanque,
-               Droit = droitGroupe
+              Droit = droitGroupe,
+              Parametre = infoLogin.Parametre
           };
 
           return Results.Extensions.Ok(retour, ConnexionReponseContext.Default);
@@ -146,7 +148,8 @@ public static class AuthentificationRoute
                DateDerniereParticipation = null,
                DateCreation = DateTime.Now,
                DroitGroupe = idDroitGroupeDefaut.HasValue ? new DroitGroupe { Id = idDroitGroupeDefaut.Value } : null,
-               GroupeSanguin = _requete.GroupeSanguin.XSS()
+              GroupeSanguin = _requete.GroupeSanguin.XSS(),
+              Parametre = new() { SonActiver = false, ThemeSombreActiver = true }
           };
 
           personnageCol.Insert(personnage);

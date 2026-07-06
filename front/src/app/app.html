@@ -21,9 +21,21 @@
     }
 
     <div class="action-group">
-        <button matIconButton (click)="toggleTheme()" matTooltip="Basculer l'affichage terminal">
-            <mat-icon>{{ estLightMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+        <button matIconButton [matMenuTriggerFor]="settingsMenu" matTooltip="Paramètres système">
+            <mat-icon>settings</mat-icon>
         </button>
+
+        <mat-menu #settingsMenu="matMenu" class="unsc-mat-menu">
+            <button mat-menu-item (click)="toggleTheme()">
+                <mat-icon>{{ estLightMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+                <span>{{ estLightMode() ? 'Basculer en Vision Nocturne' : 'Basculer en Vision Standard' }}</span>
+            </button>
+            
+            <button mat-menu-item (click)="toggleAudio()">
+                <mat-icon>{{ sonEstActiver() ? 'volume_off' : 'volume_up' }}</mat-icon>
+                <span>{{ sonEstActiver() ? 'Couper les transmissions' : 'Ouvrir le canal audio' }}</span>
+            </button>
+        </mat-menu>
 
         @if (estConnecter())
         {
@@ -53,6 +65,8 @@
         }
     </div>
 </mat-toolbar>
+
+<audio id="tactical-ambience" [src]="currentTrack()" (ended)="JouerProchainSonRandom()"></audio>
 
 <mat-drawer-container [hasBackdrop]="mdcBackdrop()" class="unsc-drawer-container">
 
