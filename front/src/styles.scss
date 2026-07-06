@@ -164,14 +164,26 @@ mat-dialog-content {
   padding-top: 6px !important;
 }
 
+/* =========================================================
+   SURCHARGE TACTIQUE DES ALERTES FLASH (SNACKBARS)
+   ========================================================= */
+
 .primaire .mat-mdc-snackbar-surface {
-  background-color: var(--mat-sys-primary) !important;
-  color: var(--mat-sys-on-primary) !important;
+  background-color: var(--mat-sys-surface-container-highest) !important; /* Fond sombre de terminal */
+  color: var(--mat-sys-primary) !important; /* Texte vert UNSC */
+  border: 1px solid var(--mat-sys-primary) !important;
+  border-left: 5px solid var(--mat-sys-primary) !important; /* Grosse barre d'activation à gauche */
+  border-radius: 0px !important; /* Angles vifs militaires */
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent) !important;
 }
 
 .erreur .mat-mdc-snackbar-surface {
-  background-color: var(--mat-sys-error) !important;
-  color: var(--mat-sys-on-error) !important;
+  background-color: var(--mat-sys-surface-container-highest) !important; /* Fond sombre de terminal */
+  color: var(--mat-sys-error) !important; /* Texte rouge d'erreur */
+  border: 1px solid var(--mat-sys-error) !important;
+  border-left: 5px solid var(--mat-sys-error) !important; /* Grosse barre d'urgence à gauche */
+  border-radius: 0px !important; /* Angles vifs militaires */
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--mat-sys-error) 20%, transparent) !important;
 }
 
 .mat-mdc-row:nth-child(even)
