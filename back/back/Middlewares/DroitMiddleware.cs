@@ -2,15 +2,21 @@
 using back.Extensions;
 using back.Models;
 using LiteDB;
+using Microsoft.AspNetCore.Authorization;
 
 namespace back.Middlewares;
 
 public class DroitMiddleware : IEndpointFilter
 {
      public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
-     {
-          // recupere le groupe de l'endpoint
-          var routeSplit = context.HttpContext.Request.Path.Value!.Split('/');
+    {
+        var isAnonymousAllowed = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<IAllowAnonymous>() != null;
+
+          if (isAnonymousAllowed)
+               return await next(context);
+
+        // recupere le groupe de l'endpoint
+        var routeSplit = context.HttpContext.Request.Path.Value!.Split('/');
           string nomMapGroupe = routeSplit[2];
           string verbeHttp = context.HttpContext.Request.Method;
 

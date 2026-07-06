@@ -4,7 +4,6 @@ using back.ModelsExport;
 using back.ModelsImport;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace back.Routes;
 
@@ -18,7 +17,8 @@ public static class PlaneteOrigineRoute
 
           builder.MapGet("lister-leger", ListerLegerAsync)
             .WithDescription("Lister les planetes aleger")
-            .Produces<PlaneteOrigineLegerReponse[]>();
+            .Produces<PlaneteOrigineLegerReponse[]>()
+            .AllowAnonymous();
 
         builder.MapPost("ajouter", AjouterAsync)
             .WithDescription("Ajouter une nouvelle planete")
@@ -117,7 +117,7 @@ public static class PlaneteOrigineRoute
     {
         using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        var ok = db.GetCollection<PlaneteOrigine>().UpdateMany(x => new()
+        var ok = db.GetCollection<PlaneteOrigine>().UpdateMany(_ => new()
         {
              Nom = _requete.Nom.XSS(),
              Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS()

@@ -19,10 +19,10 @@ namespace back.Extensions
                 var httpContext = context.HttpContext;
 
                 // forcer l'authentification
-                if (httpContext.User.Identity?.IsAuthenticated == false)
+                if (httpContext.User.Identity?.IsAuthenticated is false)
                     await httpContext.AuthenticateAsync();
 
-                if (httpContext.User.Identity?.IsAuthenticated == false)
+                if (httpContext.User.Identity?.IsAuthenticated is false)
                     return Results.Forbid();
 
                 var authService = httpContext.RequestServices.GetRequiredService<IAuthorizationService>();
