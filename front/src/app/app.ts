@@ -117,10 +117,11 @@ export class App implements OnInit
 
         if (this.estLightMode()) 
             this.renderer.addClass(this.document.documentElement, 'light-mode');
+
         else 
             this.renderer.removeClass(this.document.documentElement, 'light-mode');
 
-        this.paramServ.Modifier({ sonActiver: this.sonEstActiver(), themeSombreActiver: !this.estLightMode() }).subscribe();
+        this.ModifierParam();
     }
 
     protected toggleAudio(): void 
@@ -133,7 +134,7 @@ export class App implements OnInit
             {
                 audio.pause();
                 this.sonEstActiver.set(false);
-                this.paramServ.Modifier({ sonActiver: false, themeSombreActiver: !this.estLightMode() }).subscribe();
+                this.ModifierParam();
             } 
             else 
             {
@@ -146,9 +147,7 @@ export class App implements OnInit
                     audio.play()
                         .then(() => {
                             this.sonEstActiver.set(true);
-
-                            if(this.estConnecter())
-                                this.paramServ.Modifier({ sonActiver: true, themeSombreActiver: !this.estLightMode() }).subscribe();
+                            this.ModifierParam();
                         })
                         .catch(() => {
                             this.snackbarServ.Erreur("Lecture audio bloquée par les protocoles de sécurité du navigateur.");
@@ -218,6 +217,22 @@ export class App implements OnInit
         this.dialog.open(ModalPanier, {
             width: "60%", 
             maxWidth: "100vw",
+        });
+    }
+
+    private ModifierParam(): void
+    {
+        if(!this.estConnecter())
+            return;
+
+        this.paramServ.Modifier({ sonActiver: this.sonEstActiver(), themeSombreActiver: !this.estLightMode() }).subscribe({
+            next: () =>
+            {
+                environment.utilisateur.parametre.sonActiver = this.sonEstActiver();
+                environment.utilisateur.parametre.themeSombreActiver = !this.estLightMode()
+                sessionStorage.setItem("utilisateur", environment.utilisateur);
+            },
+            error: () => this.snackbarServ.Erreur("Erreur réseau")
         });
     }
 
