@@ -19,19 +19,17 @@
             <div class="grades-grid">
                 @for (grade of listeGrade(); track grade.id) 
                 {
-                    <!-- isNavy: false pour les Marines (Vert / Primary) -->
                     <ng-container *ngTemplateOutlet="gradeCard; context: { $implicit: grade, isNavy: false }"></ng-container>
                 }
             </div>
         </div>
     </mat-tab>
 
-    <mat-tab label="FLOTTE (NAVY)">
+    <mat-tab label="HOSPITAL CORPS">
         <div class="grades-wrapper">
             <div class="grades-grid">
                 @for (grade of listeGrade(); track grade.id) 
                 {
-                    <!-- isNavy: true pour la Flotte (Cyan / Tertiary) -->
                     <ng-container *ngTemplateOutlet="gradeCard; context: { $implicit: grade, isNavy: true }"></ng-container>
                 }
             </div>
