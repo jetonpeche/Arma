@@ -8,10 +8,11 @@ import { SpecialiteService } from '@services/SpecialiteService';
 import { MatCheckbox } from "@angular/material/checkbox";
 import { GradeService } from '@services/GradeService';
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-ajouter-modifier-specialite',
-  imports: [ReactiveFormsModule, MatDialogModule, ButtonLoader, InputText, InputTextarea, MatCheckbox, GridContainer, GridElement, InputAutocomplete],
+  imports: [ReactiveFormsModule, MatSelectModule, MatDialogModule, ButtonLoader, InputText, InputTextarea, MatCheckbox, GridContainer, GridElement, InputAutocomplete],
   templateUrl: './ajouter-modifier-specialite.html',
   styleUrl: './ajouter-modifier-specialite.scss',
 })
@@ -20,9 +21,11 @@ export class AjouterModifierSpecialite
     protected form: FormGroup;
     protected labelBtn = signal<string>("Ajouter");
     protected btnClick = signal<boolean>(false);
+    protected estCategorieParentClicker = signal(false);
     protected listeGrade = signal<AutocompleteDataSource[]>([]);
+    protected listeSpecialite = signal<AutocompleteDataSource[]>([]);
 
-    private matDialogData: Specialite = inject(MAT_DIALOG_DATA);
+    private matDialogData: { specialite: Specialite | null, estCategorieParentClicker: boolean, listeSpecialite: { id: number, nom: string }[], idParent: number } = inject(MAT_DIALOG_DATA);
     private specialiteServ = inject(SpecialiteService);
     private gradeServ = inject(GradeService);
     private snackBarServ = inject(SnackBarService);
@@ -31,17 +34,35 @@ export class AjouterModifierSpecialite
     ngOnInit(): void
     {
         this.ListerGrade();
+        this.listeSpecialite.set(this.matDialogData.listeSpecialite.map(x => ({ value: x.id, display: x.nom })));
 
-        if(this.matDialogData)
+        if(this.matDialogData.specialite)
             this.labelBtn.set("Modifier");
 
+        let idParent = this.matDialogData.specialite ? this.matDialogData.specialite.idParents : [this.matDialogData.idParent];
+        this.estCategorieParentClicker.set(this.matDialogData.estCategorieParentClicker);
+
         this.form = new FormGroup({
-            nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
-            raccourci: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(5)]),
-            idGrade: new FormControl(this.matDialogData?.grade.id ?? 0, [Validators.required]),
-            estNavy: new FormControl(this.matDialogData?.estNavy ?? false),
-            description: new FormControl(this.matDialogData?.description, [Validators.maxLength(300)])
+            nom: new FormControl(this.matDialogData.specialite?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
+            raccourci: new FormControl(this.matDialogData.specialite?.raccourci ?? "", [Validators.required, Validators.maxLength(5)]),
+            idGrade: new FormControl(this.matDialogData.specialite?.grade.id ?? 0, [Validators.required]),
+            listeIdParent: new FormControl(idParent),
+            estNavy: new FormControl(this.matDialogData.specialite?.estNavy ?? false),
+            description: new FormControl(this.matDialogData.specialite?.description, [Validators.maxLength(300)])
         });
+
+        if(this.estCategorieParentClicker())
+        {
+            this.form.addControl("categorie", 
+                new FormControl(this.matDialogData.specialite?.categorie ?? "", [Validators.required, Validators.maxLength(70)])
+            );
+        }
+    }
+
+    protected NomSpecialite(_idSpecialite: number): string
+    {
+        const SPECIALITE = this.listeSpecialite().find(t => t.value === _idSpecialite);
+        return SPECIALITE?.display ?? "";
     }
 
     protected ValiderForm(): void
@@ -51,9 +72,9 @@ export class AjouterModifierSpecialite
 
         this.btnClick.set(true);
 
-        if(this.matDialogData)
+        if(this.matDialogData.specialite)
         {
-            this.specialiteServ.Modifier(this.matDialogData.id, this.form.value).subscribe({
+            this.specialiteServ.Modifier(this.matDialogData.specialite.id, this.form.value).subscribe({
                 next: () =>
                 {
                     this.snackBarServ.Ok("La spécialité a été modifiée");

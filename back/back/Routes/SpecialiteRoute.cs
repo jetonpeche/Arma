@@ -59,8 +59,9 @@ public static class SpecialiteRoute
                     {
                          x.Id,
                          x.Nom,
-                         x.Description,
-                         IdParents = x.ListeParent.Select(x => x.Id).ToList(),
+                        x.Description,
+                        x.Categorie,
+                        IdParents = x.ListeParent.Select(x => x.Id).ToList(),
                          Grade = new
                          {
                               x.Grade.Id,
@@ -84,10 +85,16 @@ public static class SpecialiteRoute
 
           var col = db.GetCollection<Specialite>();
 
-          if (_requete.IdSpecialiteParent is not null and > 0)
+          if (_requete.ListeIdParent.Length > 0)
           {
-               if (!col.Exists(x => x.Id == _requete.IdSpecialiteParent))
-                    return Results.NotFound($"Le parent de n'existe pas");
+               var listeIdSpecialiteBson = _requete.ListeIdParent.Select(x => new BsonValue(x)).ToArray();
+            
+               var nb = col.Query()
+                    .Where(Query.In("_id", listeIdSpecialiteBson))
+                    .Count();
+
+               if (nb != _requete.ListeIdParent.Length)
+                    return Results.NotFound($"Un des parent n'existe pas");
           }
           
           if(!db.GetCollection<Grade>().Exists(x => x.Id == _requete.IdGrade))
@@ -96,8 +103,11 @@ public static class SpecialiteRoute
           var specialite = new Specialite
           {
                Nom = _requete.Nom.XSS(),
-               Raccourci = _requete.Raccourci.XSS(),
-               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS(),
+              Raccourci = _requete.Raccourci.XSS(),
+              Categorie = _requete.Categorie.XSS(),
+              Grade = new() { Id = _requete.IdGrade },
+              ListeParent = [.. _requete.ListeIdParent.Select(x => new Specialite{ Id = x })],
+              Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS(),
                EstNavy = _requete.EstNavy
           };
 
@@ -116,28 +126,39 @@ public static class SpecialiteRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var col = db.GetCollection<Specialite>();
+        var col = db.GetCollection<Specialite>();
 
-          if (_requete.IdSpecialiteParent is not null and > 0)
+        if (!col.Exists(x => x.Id == _idSpecialite))
+          return Results.NotFound("La spécialité n'existe pas");
+
+          if (_requete.ListeIdParent.Length > 0)
           {
-               if (!col.Exists(x => x.Id == _requete.IdSpecialiteParent))
-                    return Results.NotFound($"Le parent n'existe pas");
+               var listeIdSpecialiteBson = _requete.ListeIdParent.Select(x => new BsonValue(x)).ToArray();
+            
+               var nb = col.Query()
+                    .Where(Query.In("_id", listeIdSpecialiteBson))
+                    .Count();
+
+               if (nb != _requete.ListeIdParent.Length)
+                    return Results.NotFound("Un des parent n'existe pas");
           }
-
+          
           if(!db.GetCollection<Grade>().Exists(x => x.Id == _requete.IdGrade))
-               return Results.NotFound("Le grade n'existe pas");
+            return Results.NotFound("Le grade n'existe pas");
 
-          var specialite = new Specialite
-          {
-               Id = _idSpecialite,
-               Nom = _requete.Nom.XSS(),
-               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS(),
-               EstNavy = _requete.EstNavy
-          };
+          var specialite = col.FindById(_idSpecialite);
 
-          var ok = col.Update(specialite);
+          specialite.Nom = _requete.Nom.XSS();
+          specialite.Raccourci = _requete.Raccourci.XSS();
+          specialite.Categorie = _requete.Categorie.XSS();
+          specialite.Grade = new() { Id = _requete.IdGrade };
+          specialite.ListeParent = [.. _requete.ListeIdParent.Select(x => new Specialite{ Id = x })];
+          specialite.Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS();
+          specialite.EstNavy = _requete.EstNavy;
 
-          return ok ? Results.NoContent() : Results.NotFound("La spécialité n'existe pas");
+        var ok = col.Update(specialite);
+
+        return ok ? Results.NoContent() : Results.NotFound("La spécialité n'existe pas");
     }
 
     static async Task<IResult> SupprimerAsync(

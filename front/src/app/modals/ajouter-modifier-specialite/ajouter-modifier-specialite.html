@@ -2,16 +2,50 @@
 <mat-dialog-content>
     <form [formGroup]="form">
         <jp-grid-container>
-            <jp-grid-element [colXs]="12" [colMd]="8">
+            <jp-grid-element [colXs]="12" [colMd]="9">
                 <jp-input-text style="display: block; margin-bottom: 15px;" label="Nom" formControlName="nom" />
             </jp-grid-element>
 
-            <jp-grid-element [colXs]="12" [colMd]="4">
+            <jp-grid-element [colXs]="12" [colMd]="3">
                 <jp-input-text style="display: block; margin-bottom: 15px;" label="Raccourci" formControlName="raccourci" />
             </jp-grid-element>
 
+            @if(estCategorieParentClicker())
+            {
+                <jp-grid-element [colDefault]="12">
+                    <jp-input-text style="display: block; margin-bottom: 15px;" label="Catégorie" formControlName="categorie" />
+                </jp-grid-element>
+            }
+
             <jp-grid-element [colDefault]="12">
-                <jp-autocomplete [dataSource]="listeGrade()" label="Grade" formControlName="idGrade" requireSelection />
+                <jp-autocomplete style="display: block; margin-bottom: 15px;" [dataSource]="listeGrade()" label="Grade" formControlName="idGrade" requireSelection />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                @let specialite = form.controls["listeIdParent"]?.value;
+
+                <mat-form-field style="margin-bottom: 15px;">
+                    <mat-label>Spécialité(s) Parente(s)</mat-label>
+                    <mat-select formControlName="listeIdParent" multiple>
+                        
+                        <mat-select-trigger>
+                            {{ NomSpecialite(specialite?.[0]) }}
+
+                            @if ((specialite?.length || 0) > 1) 
+                            {
+                                <span class="example-additional-selection">
+                                    (+{{ (specialite?.length || 0) - 1 }} 
+                                    {{ specialite?.length === 2 ? 'autre' : 'autres' }})
+                                </span>
+                            }
+                        </mat-select-trigger>
+
+                        @for (element of listeSpecialite(); track element.value) 
+                        {
+                            <mat-option [value]="element.value">{{ element.display }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
             </jp-grid-element>
 
             <jp-grid-element [colDefault]="12">

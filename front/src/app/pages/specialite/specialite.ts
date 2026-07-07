@@ -151,10 +151,23 @@ export class SpecialitePage implements OnInit
 
     protected OuvrirModalAjouterModifier(_specialite: Specialite, _modeAjouter: boolean): void
     {
-        this.dialog.open(AjouterModifierSpecialite, {
+        const DIALOG_REF = this.dialog.open(AjouterModifierSpecialite, {
             width: "50%",
             maxWidth: "100vw",
-            data: _modeAjouter ? null : _specialite
+            data: {
+                idParent: _specialite.id,
+                estCategorieParentClicker: _specialite.idParents.length == 0,
+                listeSpecialite: this.listeSpecialiteClone(),
+                specialite: _modeAjouter ? null : _specialite
+            }
+        });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (retour) =>
+            {
+                if(retour === true)
+                    this.Lister();
+            }
         });
     }
 

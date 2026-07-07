@@ -7,13 +7,13 @@
 
 <div class="tactical-filters">
     <div class="filters-grid">
-        <mat-form-field>
+        <mat-form-field class="filter-input">
             <mat-label>RECHERCHE DANS L'ORGANIGRAMME (MOS)</mat-label>
             <mat-icon matPrefix>search</mat-icon>
             <input matInput (keyup.debounce)="ChangerRechercheTexte($event)">
         </mat-form-field>
 
-        <mat-form-field>
+        <mat-form-field class="filter-select">
             <mat-label>FILTRER PAR BRANCHE</mat-label>
             <mat-icon matPrefix>category</mat-icon>
             <mat-select (selectionChange)="ChangerCategorie($event.value)">

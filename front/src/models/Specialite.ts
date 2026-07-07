@@ -4,7 +4,7 @@ export type Specialite =
     idParents: number[],
     nom: string,
     raccourci: string,
-    categorie?: string,
+    categorie: string,
     grade: {
         id: number,
         nom: string,
@@ -17,4 +17,13 @@ export type Specialite =
 
 export type SpecialiteLeger = Omit<Specialite, "description">;
 
-export type SpecialiteRequete = Omit<Specialite, "id">;
+export type SpecialiteRequete =
+{
+    idParents: number[],
+    nom: string,
+    raccourci: string,
+    categorie?: string,
+    idGrade: number,
+    description: string,
+    estNavy: boolean
+}
