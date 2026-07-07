@@ -7,7 +7,7 @@ public static class WebApplicationExtension
 {
      public static WebApplication AjouterRouteAPI(this WebApplication _app)
      {
-        var mapGroupe = _app.MapGroup("api");//.AddEndpointFilter<DroitMiddleware>();
+        var mapGroupe = _app.MapGroup("api").AddEndpointFilter<DroitMiddleware>();
 
           mapGroupe.MapGroup("test").AjouterTestRoute();
           mapGroupe.MapGroup("authentification").AjouterRouteAuthentification();

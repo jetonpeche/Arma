@@ -149,7 +149,7 @@ public static class AuthentificationRoute
                DateCreation = DateTime.Now,
                DroitGroupe = idDroitGroupeDefaut.HasValue ? new DroitGroupe { Id = idDroitGroupeDefaut.Value } : null,
               GroupeSanguin = _requete.GroupeSanguin.XSS(),
-              Parametre = new() { SonActiver = false, ThemeSombreActiver = true }
+              Parametre = new() { SonActiver = false, ThemeSombreActiver = true, Volume = 0.2 }
           };
 
           personnageCol.Insert(personnage);

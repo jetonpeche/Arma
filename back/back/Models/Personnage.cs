@@ -60,4 +60,5 @@ public sealed class Parametre
 {
      public bool ThemeSombreActiver { get; set; }
      public bool SonActiver { get; set; }
+     public double Volume { get; set; }
 }

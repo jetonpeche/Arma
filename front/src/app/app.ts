@@ -18,10 +18,11 @@ import { DecimalPipe } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { ParametreService } from '@services/ParametreService';
 import { SnackBarService } from '@services/SnackBarService';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
   selector: 'app-root',
-  imports: [DecimalPipe, MatMenuModule, RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatTooltipModule, MatListModule, MatSidenavModule, MatToolbarModule],
+  imports: [DecimalPipe, MatSliderModule, MatMenuModule, RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatTooltipModule, MatListModule, MatSidenavModule, MatToolbarModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -32,6 +33,7 @@ export class App implements OnInit
     protected estLightMode = signal<boolean>(false);
     protected sonEstActiver = signal<boolean>(false);
     protected currentTrack = signal<string>('');
+    protected volume = signal<number>(0.3);
 
     private playlist: string[] = [
         '/music/theme1.mp3',
@@ -49,6 +51,7 @@ export class App implements OnInit
     private snackbarServ = inject(SnackBarService);
     private document = inject(DOCUMENT);
     private renderer = inject(Renderer2);
+    private debounceTimer: any;
 
     protected estConnecter = computed(() => this.authServ.estConnecter());
     protected pointCampagne = computed(() => this.authServ.nbPointBanque());
@@ -111,6 +114,29 @@ export class App implements OnInit
         }
     }
 
+    protected ChangerVolume(event: any): void 
+    {
+        // 1. Modification en direct du volume local
+        const nouveauVolume = parseFloat(event.target.value);
+        this.volume.set(nouveauVolume);
+        
+        const audio = document.getElementById('tactical-ambience') as HTMLAudioElement;
+        if (audio) {
+            audio.volume = nouveauVolume;
+        }
+
+        // 2. PROTOCOLE DE DEBOUNCE
+        // On détruit l'ancien minuteur s'il y en avait un en cours
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+        }
+
+        // On lance un nouveau compte à rebours de 500 millisecondes (0.5s)
+        this.debounceTimer = setTimeout(() => {
+            this.SauvegarderVolume();
+        }, 500);
+    }
+
     protected toggleTheme(): void
     {
         this.estLightMode.set(!this.estLightMode());
@@ -138,12 +164,11 @@ export class App implements OnInit
             } 
             else 
             {
-                if (!this.currentTrack()) 
-                    this.JouerProchainSonRandom();
-
+                if (!this.currentTrack())
+                    this.JouerProchainSonRandom(true);
                 else 
                 {
-                    audio.volume = 0.3;
+                    audio.volume = this.volume();
                     audio.play()
                         .then(() => {
                             this.sonEstActiver.set(true);
@@ -155,9 +180,9 @@ export class App implements OnInit
                 }
             }
         }
-    }
+    }   
 
-    protected JouerProchainSonRandom(): void 
+    protected JouerProchainSonRandom(sauvegarderChoix: boolean = false): void 
     {
         const audio = document.getElementById('tactical-ambience') as HTMLAudioElement;
 
@@ -170,13 +195,13 @@ export class App implements OnInit
         setTimeout(() => 
         {
             audio.load();
-            audio.volume = 0.3;
+            audio.volume = this.volume();
             audio.play()
                 .then(() => {
                     this.sonEstActiver.set(true);
 
-                    if(this.estConnecter())
-                        this.paramServ.Modifier({ sonActiver: true, themeSombreActiver: !this.estLightMode() }).subscribe();
+                    if (sauvegarderChoix && this.estConnecter())
+                        this.ModifierParam();
                 })
                 .catch(() => {
                     this.snackbarServ.Erreur("Lecture audio bloquée par les protocoles de sécurité du navigateur.");
@@ -220,15 +245,24 @@ export class App implements OnInit
         });
     }
 
+    protected SauvegarderVolume(): void
+    {
+        if (this.estConnecter()) 
+        {
+            this.ModifierParam();
+        }
+    }
+
     private ModifierParam(): void
     {
         if(!this.estConnecter())
             return;
 
-        this.paramServ.Modifier({ sonActiver: this.sonEstActiver(), themeSombreActiver: !this.estLightMode() }).subscribe({
+        this.paramServ.Modifier({ sonActiver: this.sonEstActiver(), volume: this.volume(), themeSombreActiver: !this.estLightMode() }).subscribe({
             next: () =>
             {
                 environment.utilisateur.parametre.sonActiver = this.sonEstActiver();
+                environment.utilisateur.parametre.volume = this.volume();
                 environment.utilisateur.parametre.themeSombreActiver = !this.estLightMode()
                 sessionStorage.setItem("utilisateur", environment.utilisateur);
             },

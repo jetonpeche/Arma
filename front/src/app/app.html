@@ -31,10 +31,15 @@
                 <span>{{ estLightMode() ? 'Basculer en Vision Nocturne' : 'Basculer en Vision Standard' }}</span>
             </button>
             
-            <button mat-menu-item (click)="toggleAudio()">
-                <mat-icon>{{ sonEstActiver() ? 'volume_off' : 'volume_up' }}</mat-icon>
-                <span>{{ sonEstActiver() ? 'Couper les transmissions' : 'Ouvrir le canal audio' }}</span>
-            </button>
+            <div class="volume-container" (click)="$event.stopPropagation()">
+                <button mat-icon-button (click)="toggleAudio()" [matTooltip]="sonEstActiver() ? 'Couper les transmissions' : 'Ouvrir le canal audio'">
+                    <mat-icon>{{ sonEstActiver() ? 'volume_up' : 'volume_off' }}</mat-icon>
+                </button>
+                
+                <mat-slider min="0" max="1" step="0.05" class="unsc-volume-slider">
+                    <input matSliderThumb [value]="volume()" (input)="ChangerVolume($event)" (change)="SauvegarderVolume()">
+                </mat-slider>
+            </div>
         </mat-menu>
 
         @if (estConnecter())

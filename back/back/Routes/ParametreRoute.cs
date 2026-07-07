@@ -31,7 +31,8 @@ public static class ParametreRoute
                 Parametre = new()
                 {
                     SonActiver = _requete.SonActiver,
-                    ThemeSombreActiver = _requete.ThemeSombreActiver
+                    ThemeSombreActiver = _requete.ThemeSombreActiver,
+                    Volume = _requete.Volume < 0 ? 0 : _requete.Volume
                 }
             }, x => x.Id == idPersonnage);
                

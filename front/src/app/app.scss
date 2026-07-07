@@ -3,6 +3,45 @@
 }
 
 /* =========================================================
+   CONTRÔLEUR D'AMPLITUDE AUDIO (SLIDER MENU)
+   ========================================================= */
+.volume-container {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 12px;
+    /* On donne une largeur minimum pour que le slider ait de la place pour coulisser */
+    min-width: 250px; 
+    
+    button {
+        flex-shrink: 0;
+        color: var(--mat-sys-primary) !important;
+        
+        &:hover {
+            filter: drop-shadow(0 0 5px var(--mat-sys-primary));
+        }
+    }
+    
+    .unsc-volume-slider {
+        flex-grow: 1;
+        margin: 0;
+        
+        /* Injection des variables Material pour teindre le slider en mode UNSC */
+        --mdc-slider-handle-color: var(--mat-sys-primary);
+        --mdc-slider-focus-handle-color: var(--mat-sys-primary);
+        --mdc-slider-hover-handle-color: var(--mat-sys-primary);
+        --mdc-slider-active-track-color: var(--mat-sys-primary);
+        --mdc-slider-inactive-track-color: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+        
+        /* Animation de survol pour l'immersion */
+        transition: filter 0.2s ease;
+        &:hover {
+            filter: drop-shadow(0 0 8px color-mix(in srgb, var(--mat-sys-primary) 60%, transparent));
+        }
+    }
+}
+
+/* =========================================================
    TERMINAL DE SÉLECTION - COMPATIBLE LIGHT/DARK MODE
    ========================================================= */
 ::ng-deep .unsc-mat-menu 
