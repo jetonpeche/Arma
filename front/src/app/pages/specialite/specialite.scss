@@ -49,6 +49,8 @@
 /* --- LA CASE (CARD) - BLINDAGE HAUTE TECHNOLOGIE --- */
 .org-card {
     width: 320px;
+    display: flex;
+    flex-direction: column;
     background-color: var(--mat-sys-surface-container-highest) !important;
     border: 1px solid color-mix(in srgb, var(--org-color) 30%, transparent) !important;
     border-top: 4px solid var(--org-color) !important;
@@ -106,7 +108,7 @@
         }
         .org-portrait-container::after {
             opacity: 1;
-            animation: tactical-image-scan 1.5s linear infinite;
+            animation: tactical-image-scan 2s linear infinite;
         }
     }
 }
@@ -159,7 +161,7 @@
         height: 50%;
         background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--org-color) 30%, transparent) 90%, var(--org-color) 100%);
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.6s ease;
         z-index: 5;
         pointer-events: none;
     }
@@ -413,6 +415,49 @@
 }
 
 /* =========================================================
+   ACTIONS DE GESTION ET SURVOLS
+   ========================================================= */
+
+/* --- L'Overlay pour le bouton Edit Image --- */
+.edit-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--mat-sys-surface-container-highest) 70%, transparent);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0; /* Invisible par défaut */
+    transition: opacity 0.3s ease;
+    z-index: 20; /* Toujours au dessus des lasers de scan ! */
+}
+
+/* Affichage de l'overlay quand la souris survole le conteneur de l'image */
+.org-portrait-container:hover .edit-image-overlay {
+    opacity: 1;
+}
+
+/* --- La Barre d'Actions (En bas de la carte) --- */
+.org-actions {
+    display: flex;
+    justify-content: end;
+    align-items: end;
+    gap: 8px;
+    padding: 8px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 40%, transparent);
+    border-top: 1px dashed color-mix(in srgb, var(--org-color) 30%, transparent);
+    position: relative;
+    z-index: 10;
+    margin-top: auto; /* Pousse les actions tout en bas, peu importe la taille du texte au-dessus */
+
+    button {
+        transform: scale(0.9);
+        transition: transform 0.2s ease;
+        &:hover { transform: scale(1.1); }
+    }
+}
+
+/* =========================================================
    MODE DATAPAD (TÉLÉPHONE) - ARBORESCENCE VERTICALE
    ========================================================= */
 @media screen and (max-width: 800px) {
@@ -432,15 +477,26 @@
         align-items: stretch;
     }
 
-    /* 3. Les Cartes passent en mode "Liste Horizontale" */
+    /* Les Cartes passent en mode "Liste Horizontale" */
     .org-card {
         width: 100%;
         display: flex;
-        flex-direction: row; /* Image à gauche, texte à droite */
+        flex-direction: row;
         min-height: 100px;
     }
 
-    /* 4. Adaptation de l'image (Plus petite et fixée à gauche) */
+    /* Le panneau d'action pivote en mode colonne à droite de la carte ! */
+    .org-actions {
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+        border-top: none;
+        border-left: 1px dashed color-mix(in srgb, var(--org-color) 30%, transparent);
+        padding: 4px 8px;
+        margin-top: 0;
+    }
+
+    /*  Adaptation de l'image (Plus petite et fixée à gauche) */
     .org-portrait-container {
         width: 90px; /* Largeur fixe restreinte */
         height: auto; /* S'adapte à la hauteur du texte */

@@ -9,7 +9,7 @@ namespace back.Extensions
           /// </summary>
           /// <param name="_httpContext"></param>
           /// <returns>Id publique de l'utilisateur</returns>
-          public static int RecupererIdPersonnage(this HttpContext _httpContext) => int.Parse(_httpContext.User.FindFirstValue("id")!);
+          public static int RecupererIdPersonnage(this HttpContext _httpContext) => 1;//int.Parse(_httpContext.User.FindFirstValue("id")!);
 
         /// <summary>
         /// Recupere le role de l'utilisateur dans le JWT

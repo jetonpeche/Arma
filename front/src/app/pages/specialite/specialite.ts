@@ -5,7 +5,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
-import { Router } from '@angular/router';
 import { NgTemplateOutlet, UpperCasePipe } from '@angular/common';
 import { EUrl } from '@enums/EUrl';
 import { Droit } from '@models/DroitGroupe';
@@ -14,6 +13,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { SpecialiteService } from '@services/SpecialiteService';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
+import { ETypeRessource } from '@enums/ETypeRessource';
+import { FichierService } from '@services/FichierService';
+import { SnackBarService } from '@services/SnackBarService';
+import { DialogConfirmationService } from '@services/DialogConfirmationService';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { AjouterModifierSpecialite } from '@modals/ajouter-modifier-specialite/ajouter-modifier-specialite';
 
 interface SpecialiteNode extends Specialite {
     enfants: SpecialiteNode[];
@@ -21,7 +28,7 @@ interface SpecialiteNode extends Specialite {
 
 @Component({
   selector: 'app-specialite',
-  imports: [UpperCasePipe, MatCardModule, ReactiveFormsModule, MatSelectModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, NgTemplateOutlet, MatTabsModule],
+  imports: [UpperCasePipe, MatTooltipModule, MatCardModule, ReactiveFormsModule, MatSelectModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, NgTemplateOutlet, MatTabsModule, InputFile],
   templateUrl: './specialite.html',
   styleUrl: './specialite.scss',
 })
@@ -35,101 +42,12 @@ export class SpecialitePage implements OnInit
     protected droit: Droit | null;
 
     private listeSpecialiteClone = signal<Specialite[]>([]);
+    private dialog = inject(MatDialog);
     private specialiteServ = inject(SpecialiteService);
     private authServ = inject(AuthentificationService);
-    private router = inject(Router);
-
-private DONNEES_TEST_SPECIALITES: Specialite[] = [
-    {
-        id: 1,
-        idParents: [], // RACINE
-        nom: "Infanterie Standard",
-        raccourci: "INF",
-        grade: { id: 1, nom: "Private", nbOperationRequis: 0 },
-        description: "Unité terrestre de base. Formation généralisée au combat et sécurisation d'objectifs.",
-        estNavy: false,
-        categorie: "Combat Terrestre",
-        urlImage: "https://via.placeholder.com/320x140/2b3a26/4B6344?text=INFANTERIE"
-    },
-    {
-        id: 2,
-        idParents: [1], // ENFANT 1
-        nom: "Opérateur Anti-Tank",
-        raccourci: "AT",
-        grade: { id: 2, nom: "Corporal", nbOperationRequis: 5 },
-        description: "Équipé du lance-roquettes SPNKr M41. Neutralise les blindés lourds et les tourelles antiaériennes avec précision.",
-        estNavy: false,
-        categorie: "Combat Terrestre",
-        urlImage: "https://via.placeholder.com/320x140/2b3a26/4B6344?text=ANTI-TANK"
-    },
-    {
-        id: 3,
-        idParents: [1], // ENFANT 2
-        nom: "Opérateur Radio",
-        raccourci: "RDO",
-        grade: { id: 2, nom: "Corporal", nbOperationRequis: 5 },
-        description: "Gestion des communications cryptées, coordination avec le QG et demande de frappes orbitales ciblées (MAC).",
-        estNavy: false,
-        categorie: "Combat Terrestre",
-        urlImage: "https://via.placeholder.com/320x140/2b3a26/4B6344?text=RADIO"
-    },
-    {
-        id: 4,
-        idParents: [1], // ENFANT 3 (NOUVEAU)
-        nom: "Médecin de terrain",
-        raccourci: "MED",
-        grade: { id: 2, nom: "Corporal", nbOperationRequis: 5 },
-        description: "Opérateur équipé de bio-mousse et de défibrillateurs tactiques. Maintient l'escouade en vie sous le feu nourri.",
-        estNavy: false,
-        categorie: "Combat Terrestre",
-        urlImage: "https://via.placeholder.com/320x140/2b3a26/4B6344?text=MEDECIN"
-    },
-    {
-        id: 5,
-        idParents: [1], // ENFANT 4 (NOUVEAU)
-        nom: "Ingénieur de combat",
-        raccourci: "ING",
-        grade: { id: 2, nom: "Corporal", nbOperationRequis: 5 },
-        description: "Spécialiste des explosifs C-12, du déminage et de la réparation de véhicules endommagés sur le champ de bataille.",
-        estNavy: false,
-        categorie: "Combat Terrestre",
-        urlImage: "https://via.placeholder.com/320x140/2b3a26/4B6344?text=INGENIEUR"
-    },
-
-    {
-        id: 6,
-        idParents: [], // RACINE
-        nom: "Tank tank Standard",
-        raccourci: "AT",
-        grade: { id: 1, nom: "E8-Senior chief hospital corpsman", nbOperationRequis: 0 },
-        description: "Unité terrestre de base. Formation généralisée au combat et sécurisation d'objectifs.",
-        estNavy: false,
-        categorie: "Combat Terrestre",
-        urlImage: "https://via.placeholder.com/320x140/2b3a26/4B6344?text=INFANTERIE"
-    },
-    {
-        id: 7,
-        idParents: [6], // ENFANT 4 (NOUVEAU)
-        nom: "Ingénieur de combat",
-        raccourci: "ING",
-        grade: { id: 2, nom: "Private first class", nbOperationRequis: 5 },
-        description: "Spécialiste des explosifs C-12, du déminage et de la réparation de véhicules endommagés sur le champ de bataille.",
-        estNavy: false,
-        categorie: "Combat Terrestre",
-        urlImage: "https://via.placeholder.com/320x140/2b3a26/4B6344?text=INGENIEUR"
-    },
-    {
-        id: 8,
-        idParents: [6], // ENFANT 4 (NOUVEAU)
-        nom: "Ingénieur de combat",
-        raccourci: "ING",
-        grade: { id: 2, nom: "Corporal", nbOperationRequis: 5 },
-        description: "Spécialiste des explosifs C-12, du déminage et de la réparation de véhicules endommagés sur le champ de bataille.",
-        estNavy: false,
-        categorie: "Combat Terrestre",
-        urlImage: "https://via.placeholder.com/320x140/2b3a26/4B6344?text=INGENIEUR"
-    },
-];
+    private fichierServ = inject(FichierService);
+    private snackBarServ = inject(SnackBarService);
+    private dialogServ = inject(DialogConfirmationService);
 
     ngOnInit(): void 
     {
@@ -211,17 +129,56 @@ private DONNEES_TEST_SPECIALITES: Specialite[] = [
         this.AppliquerFiltres();
     }
 
-    protected GestionSpecialite(): void
+    protected UploadFichier(_idSpecialite: number, _fichier: File): void
     {
-        this.router.navigateByUrl("/gestion-specialite");
+        this.fichierServ.Upload(_idSpecialite, ETypeRessource.Specialite, _fichier).subscribe({
+            next: (url: string) => 
+            {
+                this.snackBarServ.Ok("Le fichier a été uploadé");
+                this.listeSpecialiteClone.update(x => 
+                {
+                    return x.map(p => 
+                    {
+                        if (p.id == _idSpecialite)
+                            return { ...p, urlImage: `${url}?t=${new Date().getTime()}` }
+                        
+                        return p;
+                    });
+                });
+            }
+        });
+    }
+
+    protected OuvrirModalAjouterModifier(_specialite: Specialite, _modeAjouter: boolean): void
+    {
+        this.dialog.open(AjouterModifierSpecialite, {
+            width: "50%",
+            maxWidth: "100vw",
+            data: _modeAjouter ? null : _specialite
+        });
+    }
+
+    protected OuvrirModalConfirmationSupprimer(nodeASupprimer: SpecialiteNode): void 
+    {
+        const MESSAGE = `PROTOCOLE DE SUPPRESSION : Êtes-vous sûr de vouloir effacer la spécialité [${nodeASupprimer.raccourci}] ${nodeASupprimer.nom} ?`
+        this.dialogServ.Ouvrir("Supprimer spécialité", MESSAGE).subscribe({
+            next: (retour) =>
+            {
+                if(retour)
+                    this.Supprimer(nodeASupprimer);
+            }
+        });   
     }
 
     private Lister(): void
     {
-                        this.listeSpecialiteClone.set(this.DONNEES_TEST_SPECIALITES);
+        this.specialiteServ.Lister().subscribe({
+            next: (retour) => 
+            {
+                this.listeSpecialiteClone.set(retour);
                     const categoriesUniques = [
                     ...new Set(
-                        this.DONNEES_TEST_SPECIALITES
+                        retour
                             .filter(x => (!x.idParents || x.idParents.length === 0) && x.categorie)
                             .map(x => x.categorie as string)
                     )
@@ -229,28 +186,49 @@ private DONNEES_TEST_SPECIALITES: Specialite[] = [
                 
                 this.listeCategories.set(categoriesUniques);
 
-                const arbreComplet = this.ConstruireArbre(this.DONNEES_TEST_SPECIALITES);
+                const arbreComplet = this.ConstruireArbre(retour);
                 this.DiviserEtMettreAJourArbres(arbreComplet);
+            }
+        });
+    }
 
-        // this.specialiteServ.Lister().subscribe({
-        //     next: (retour) => 
-        //     {
-        //         this.listeSpecialiteClone.set(retour);
-                
-        //         const categoriesUniques = [
-        //             ...new Set(
-        //                 retour
-        //                     .filter(x => (!x.idParents || x.idParents.length === 0) && x.categorie)
-        //                     .map(x => x.categorie as string)
-        //             )
-        //         ].sort();
-                
-        //         this.listeCategories.set(categoriesUniques);
+    private Supprimer(_nodeASupprimer: SpecialiteNode): void
+    {
+        this.specialiteServ.Supprimer(_nodeASupprimer.id).subscribe({
+            next: () => 
+            {
+                this.MettreAJourBlocsImpactes(_nodeASupprimer.id, _nodeASupprimer.idParents);
+            }
+        });
+    }
 
-        //         const arbreComplet = this.ConstruireArbre(retour);
-        //         this.DiviserEtMettreAJourArbres(arbreComplet);
-        //     }
-        // });
+    private MettreAJourBlocsImpactes(idParentSupprime: number, nouveauxIdsParents: number[]): void
+    {
+        let listeActuelle = this.listeSpecialiteClone();
+
+        // On balaie la liste locale pour mettre à jour les enfants qui contenaient le parent supprimé
+        listeActuelle = listeActuelle.map(specialite => 
+        {
+            if (specialite.idParents && specialite.idParents.includes(idParentSupprime)) 
+            {
+                // On lui retire le parent supprimé
+                let parentsNettoyes = specialite.idParents.filter(id => id !== idParentSupprime);
+
+                // On lui injecte ses nouveaux parents supérieurs (grands-parents)
+                parentsNettoyes = [...new Set([...parentsNettoyes, ...nouveauxIdsParents])];
+                
+                return { ...specialite, idParents: parentsNettoyes };
+            }
+
+            return specialite;
+        });
+
+        // On retire définitivement le bloc supprimé de la mémoire locale
+        listeActuelle = listeActuelle.filter(x => x.id !== idParentSupprime);
+
+        // On met à jour le Signal central et on rafraîchit l'arbre graphique
+        this.listeSpecialiteClone.set(listeActuelle);
+        this.AppliquerFiltres();
     }
 
     // Transforme la liste plate en arbre ET calcule la profondeur

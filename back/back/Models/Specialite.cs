@@ -8,8 +8,9 @@ public sealed class Specialite
     public int Id { get; set; }
 
     [BsonRef]
-    public Specialite? Parent { get; set; }
+    public List<Specialite> ListeParent { get; set; } = [];
 
+    [BsonRef]
     public Grade Grade { get; set; } = null!;
     public string Nom { get; set; } = null!;
     public string Raccourci { get; set; } = null!;

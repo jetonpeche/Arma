@@ -58,17 +58,17 @@ public static class SpecialiteRoute
                     requete.Include(x => x.Grade).Select(x => new
                     {
                          x.Id,
-                        x.Nom,
-                        x.Description,
-                        IdParent = x.Parent.Id,
-                        Grade = new
-                        {
-                              x.grade.Id,
+                         x.Nom,
+                         x.Description,
+                         IdParents = x.ListeParent.Select(x => x.Id).ToList(),
+                         Grade = new
+                         {
+                              x.Grade.Id,
                               x.Grade.Nom,
                               x.Grade.NbOperationRequis
-                        },
-                        x.Raccourci,
-                        x.EstNavy,
+                         },
+                         x.Raccourci,
+                         x.EstNavy,
                          urlImage = x.NomImage != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_SPECIALITE + x.NomImage : ""
                     })
                     .ToArray()
@@ -91,7 +91,7 @@ public static class SpecialiteRoute
           }
           
           if(!db.GetCollection<Grade>().Exists(x => x.Id == _requete.IdGrade))
-               return Results.NotFound("Le grade n'existe pas")
+               return Results.NotFound("Le grade n'existe pas");
 
           var specialite = new Specialite
           {
@@ -125,7 +125,7 @@ public static class SpecialiteRoute
           }
 
           if(!db.GetCollection<Grade>().Exists(x => x.Id == _requete.IdGrade))
-               return Results.NotFound("Le grade n'existe pas")
+               return Results.NotFound("Le grade n'existe pas");
 
           var specialite = new Specialite
           {
@@ -151,20 +151,42 @@ public static class SpecialiteRoute
 
           var specialiteCol = db.GetCollection<Specialite>();
 
-          var nomFichier = specialiteCol.Query()
-               .Where(x => x.Id == _idSpecialite)
-               .Select(x => x.NomImage)
-               .FirstOrDefault();
+          var specialite = specialiteCol.Query()
+                    .Where(x => x.Id == _idSpecialite)
+                    .FirstOrDefault();
 
-          if (nomFichier is not null)
-               File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_SPECIALITE + nomFichier));
+          if (specialite is null)
+               return Results.NotFound("La spécialité n'existe pas");
 
-          db.GetCollection<Specialite>().Delete(_idSpecialite);
-          db.GetCollection<Personnage>().UpdateMany(
-               x => new() { Specialite = null }, 
-               y => y.Specialite != null && y.Specialite.Id == _idSpecialite
-          );
+          var listeSpecialiteEnfant = specialiteCol.Query()
+               .Where(x => x.ListeParent.Select(y => y.Id).Any(y => y == _idSpecialite))
+               .ToList();
 
-          return Results.NoContent();
+          if (listeSpecialiteEnfant.Count > 0)
+          {
+               var estSansParent = specialite.ListeParent.Count is 0;
+             
+               foreach (var element in listeSpecialiteEnfant)
+               {
+                    if (estSansParent)
+                         element.ListeParent.RemoveAll(x => x.Id == _idSpecialite);
+                    
+                    else
+                         element.ListeParent = specialite.ListeParent; 
+               }
+
+               specialiteCol.Update(listeSpecialiteEnfant);
+          }
+
+        if (specialite is not null)
+             File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_IMG_SPECIALITE + specialite.NomImage));
+
+        specialiteCol.Delete(_idSpecialite);
+        db.GetCollection<Personnage>().UpdateMany(
+             _ => new() { Specialite = null }, 
+             y => y.Specialite != null && y.Specialite.Id == _idSpecialite
+        );
+
+        return Results.NoContent();
     }
 }

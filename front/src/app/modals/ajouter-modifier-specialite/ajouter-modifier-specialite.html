@@ -1,12 +1,27 @@
 <h2 mat-dialog-title>{{ labelBtn() }} une spécialité</h2>
 <mat-dialog-content>
     <form [formGroup]="form">
-        <jp-input-text style="display: block; margin-bottom: 15px;" label="Nom" formControlName="nom" />
+        <jp-grid-container>
+            <jp-grid-element [colXs]="12" [colMd]="8">
+                <jp-input-text style="display: block; margin-bottom: 15px;" label="Nom" formControlName="nom" />
+            </jp-grid-element>
 
-        <mat-checkbox labelPosition="before" 
-                                formControlName="estNavy">Navy ?</mat-checkbox>
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-input-text style="display: block; margin-bottom: 15px;" label="Raccourci" formControlName="raccourci" />
+            </jp-grid-element>
 
-        <jp-textarea label="Description" formControlName="description" />
+            <jp-grid-element [colDefault]="12">
+                <jp-autocomplete [dataSource]="listeGrade()" label="Grade" formControlName="idGrade" requireSelection />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <mat-checkbox labelPosition="before" formControlName="estNavy">Navy ?</mat-checkbox>
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Description" formControlName="description" [rows]="5" showMaxLength />
+            </jp-grid-element>
+        </jp-grid-container>
     </form>
 </mat-dialog-content>
 <mat-dialog-actions>

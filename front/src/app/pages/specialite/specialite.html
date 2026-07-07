@@ -3,24 +3,17 @@
         <h1>ORGANIGRAMME DES SPÉCIALITÉS (MOS)</h1>
         <div class="unsc-subtitle">// ARBRES DE DÉPLOIEMENT TACTIQUE - HAUT COMMANDEMENT</div>
     </div>
-
-    @if(droit?.peutLire) {
-        <button matButton="filled" (click)="GestionSpecialite()">
-            <mat-icon>admin_panel_settings</mat-icon>
-            GESTION DES SPÉCIALITÉS
-        </button>
-    }
 </div>
 
 <div class="tactical-filters">
     <div class="filters-grid">
-        <mat-form-field class="filter-input">
+        <mat-form-field>
             <mat-label>RECHERCHE DANS L'ORGANIGRAMME (MOS)</mat-label>
             <mat-icon matPrefix>search</mat-icon>
             <input matInput (keyup.debounce)="ChangerRechercheTexte($event)">
         </mat-form-field>
 
-        <mat-form-field class="filter-select">
+        <mat-form-field>
             <mat-label>FILTRER PAR BRANCHE</mat-label>
             <mat-icon matPrefix>category</mat-icon>
             <mat-select (selectionChange)="ChangerCategorie($event.value)">
@@ -55,7 +48,8 @@
         </ng-template>
         
         <div class="org-tree-container">
-            @for (racine of arbreNavy(); track racine.id) {
+            @for (racine of arbreNavy(); track racine.id) 
+            {
                 <ng-container *ngTemplateOutlet="noeudSpecialite; context: { $implicit: racine, niveau: 0 }"></ng-container>
             }
         </div>
@@ -69,10 +63,18 @@
         
         <mat-card class="org-card" appearance="outlined">
             
-            @if(niveau <= 1) {
+            @if(niveau <= 1) 
+            {
                 <div class="org-portrait-container">
                     <img [src]="node.urlImage" [alt]="node.nom" class="org-portrait">
                     <div class="portrait-overlay"></div>
+
+                    <!-- @if(droit?.peutEcrire) 
+                    { -->
+                        <div class="edit-image-overlay">
+                            <jp-input-file-btn matIconButton icon="photo_camera" (fileChange)="UploadFichier(node.id, $any($event))" />
+                        </div>
+                    <!-- } -->
                 </div>
             }
 
@@ -88,6 +90,30 @@
                 <div class="data-divider"></div>
                 <div class="org-desc">{{ node.description }}</div>
             </div>
+<!-- 
+            @if(droit?.peutEcrire || droit?.peutSupprimer) 
+            { -->
+                <div class="org-actions">
+
+                    <!-- @if(droit.peutEcrire)
+                    { -->
+                        <button matIconButton (click)="OuvrirModalAjouterModifier(node, true)" matTooltip="Ajouter une sous-spécialité">
+                            <mat-icon>add</mat-icon>
+                        </button>
+
+                        <button matIconButton (click)="OuvrirModalAjouterModifier(node, false)" matTooltip="Modifier la spécialité">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    <!-- } -->
+
+                    <!-- @if(droit.peutSupprimer)
+                    { -->
+                        <button matIconButton (click)="OuvrirModalConfirmationSupprimer(node)" matTooltip="Supprimer ce profil">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    <!-- } -->
+                </div>
+            <!-- } -->
         </mat-card>
 
         @if (node.enfants && node.enfants.length > 0) 
