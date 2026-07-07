@@ -33,9 +33,9 @@ public static class GradeRoute
     }
 
     static async Task<IResult> ListerAsync(
-        [FromQuery(Name = "leger")] bool _modeLeger,
-        [FromQuery(Name = "mode")] string _mode,
-        HttpContext _httpContext
+        HttpContext _httpContext,
+        [FromQuery(Name = "leger")] bool _modeLeger = false,
+        [FromQuery(Name = "mode")] string _mode = "tout"
     )
     {
         using var db = new LiteDatabase(Constant.BDD_NOM);

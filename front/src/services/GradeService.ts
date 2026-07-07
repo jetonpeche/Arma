@@ -14,7 +14,7 @@ export class GradeService
 
     Lister(): Observable<Grade[]>
     {
-        return this.http.get<Grade[]>(`${this.BASE_API}/lister?leger=false`).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.get<Grade[]>(`${this.BASE_API}/lister`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     ListerLeger(_mode: 'tout' | 'navy' | 'marines' = 'tout'): Observable<GradeLeger[]>
