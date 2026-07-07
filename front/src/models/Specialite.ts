@@ -1,7 +1,15 @@
 export type Specialite =
 {
     id: number,
+    idParents: number[],
     nom: string,
+    raccourci: string,
+    categorie?: string,
+    grade: {
+        id: number,
+        nom: string,
+        nbOperationRequis: number
+    }
     description: string,
     estNavy: boolean,
     urlImage: string

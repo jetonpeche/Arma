@@ -45,9 +45,9 @@ public static class SpecialiteRoute
                return Results.Ok(
                     requete.Select(x => new
                     {
-                    x.Id,
-                    x.Nom,
-                    x.EstNavy
+                         x.Id,
+                         x.Nom,
+                         x.EstNavy
                     })
                     .ToArray()
                );
@@ -55,11 +55,20 @@ public static class SpecialiteRoute
           else
           {
                return Results.Ok(
-                    requete.Select(x => new
+                    requete.Include(x => x.Grade).Select(x => new
                     {
                          x.Id,
-                         x.Nom,
-                         x.EstNavy,
+                        x.Nom,
+                        x.Description,
+                        IdParent = x.Parent.Id,
+                        Grade = new
+                        {
+                              x.grade.Id,
+                              x.Grade.Nom,
+                              x.Grade.NbOperationRequis
+                        },
+                        x.Raccourci,
+                        x.EstNavy,
                          urlImage = x.NomImage != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_SPECIALITE + x.NomImage : ""
                     })
                     .ToArray()
@@ -71,20 +80,30 @@ public static class SpecialiteRoute
         [FromBody] SpecialiteRequete _requete
     )
     {
-        using var db = new LiteDatabase(Constant.BDD_NOM);
+          using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        var col = db.GetCollection<Specialite>();
+          var col = db.GetCollection<Specialite>();
 
-        var specialite = new Specialite
-        {
-            Nom = _requete.Nom.XSS(),
-            Description = _requete.Description == "" ? null : _requete.Description?.XSS(),
-            EstNavy = _requete.EstNavy
-        };
+          if (_requete.IdSpecialiteParent is not null and > 0)
+          {
+               if (!col.Exists(x => x.Id == _requete.IdSpecialiteParent))
+                    return Results.NotFound($"Le parent de n'existe pas");
+          }
+          
+          if(!db.GetCollection<Grade>().Exists(x => x.Id == _requete.IdGrade))
+               return Results.NotFound("Le grade n'existe pas")
 
-        int id = col.Insert(specialite);
+          var specialite = new Specialite
+          {
+               Nom = _requete.Nom.XSS(),
+               Raccourci = _requete.Raccourci.XSS(),
+               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS(),
+               EstNavy = _requete.EstNavy
+          };
 
-        return Results.Created("", id);
+          int id = col.Insert(specialite);
+
+          return Results.Created("", id);
     }
 
     static async Task<IResult> ModifierAsync(
@@ -95,19 +114,30 @@ public static class SpecialiteRoute
           if (_idSpecialite <= 0)
                return Results.NotFound("La spécialité n'existe pas");
 
-        using var db = new LiteDatabase(Constant.BDD_NOM);
+          using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        var specialite = new Specialite
-        {
-            Id = _idSpecialite,
-            Nom = _requete.Nom.XSS(),
-            Description = _requete.Description == "" ? null : _requete.Description?.XSS(),
-            EstNavy = _requete.EstNavy
-        };
+          var col = db.GetCollection<Specialite>();
 
-        var ok = db.GetCollection<Specialite>().Update(specialite);
+          if (_requete.IdSpecialiteParent is not null and > 0)
+          {
+               if (!col.Exists(x => x.Id == _requete.IdSpecialiteParent))
+                    return Results.NotFound($"Le parent n'existe pas");
+          }
 
-        return ok ? Results.NoContent() : Results.NotFound("La spécialité n'existe pas");
+          if(!db.GetCollection<Grade>().Exists(x => x.Id == _requete.IdGrade))
+               return Results.NotFound("Le grade n'existe pas")
+
+          var specialite = new Specialite
+          {
+               Id = _idSpecialite,
+               Nom = _requete.Nom.XSS(),
+               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS(),
+               EstNavy = _requete.EstNavy
+          };
+
+          var ok = col.Update(specialite);
+
+          return ok ? Results.NoContent() : Results.NotFound("La spécialité n'existe pas");
     }
 
     static async Task<IResult> SupprimerAsync(

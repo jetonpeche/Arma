@@ -6,8 +6,14 @@ public sealed class Specialite
 {
     [BsonId]
     public int Id { get; set; }
+
+    [BsonRef]
+    public Specialite? Parent { get; set; }
+
+    public Grade Grade { get; set; } = null!;
     public string Nom { get; set; } = null!;
+    public string Raccourci { get; set; } = null!;
     public string? Description { get; set; }
-     public bool EstNavy { get; set; }
-     public string? NomImage { get; set; }
+    public bool EstNavy { get; set; }
+    public string? NomImage { get; set; }
 }

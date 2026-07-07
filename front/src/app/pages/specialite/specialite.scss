@@ -1,16 +1,339 @@
 /* =========================================================
-   GRILLE RESPONSIVE DES DOSSIERS (MOS)
+   STYLE DE L'ORGANIGRAMME (ARBRE GÉNÉALOGIQUE)
    ========================================================= */
-.mos-grid-container {
-    display: grid;
-    gap: 24px;
-    margin-top: 24px;
-    grid-template-columns: 1fr;
+.org-tree-container {
+    display: flex;
+    justify-content: center;
+    gap: 64px;
+    padding: 48px 16px;
     
-    /* Passage sur 2 colonnes pour les écrans larges */
-    @media screen and (min-width: 800px) {
-        grid-template-columns: repeat(2, 1fr);
+    overflow-x: auto;
+    align-items: flex-start;
+
+    /* Si le contenu dépasse la largeur, on passe automatiquement à gauche */
+    &:has(.org-node-wrapper:nth-child(2)) {
+        justify-content: flex-start;
     }
+}
+
+/* =========================================================
+   ANIMATION DE CASCADE HOLOGRAPHIQUE (LE SECRET DE L'ARBRE)
+   ========================================================= */
+.org-node-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    
+    --org-color: var(--mat-sys-primary); 
+    &.is-navy { --org-color: var(--mat-sys-tertiary); }
+
+    opacity: 0;
+    animation: unsc-node-boot 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: calc(var(--node-depth, 0) * 0.15s); 
+}
+
+@keyframes unsc-node-boot {
+    0% { 
+        opacity: 0; 
+        transform: translateY(-20px) scale(0.95); 
+        filter: blur(8px) brightness(2); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+        filter: blur(0) brightness(1); 
+    }
+}
+
+/* --- LA CASE (CARD) - BLINDAGE HAUTE TECHNOLOGIE --- */
+.org-card {
+    width: 320px;
+    background-color: var(--mat-sys-surface-container-highest) !important;
+    border: 1px solid color-mix(in srgb, var(--org-color) 30%, transparent) !important;
+    border-top: 4px solid var(--org-color) !important;
+    border-radius: 2px !important;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    overflow: hidden;
+
+    /* LES CROCHETS DE CIBLAGE (Angles) */
+    &::before {
+        content: '';
+        position: absolute;
+        top: 6px; left: 6px; right: 6px; bottom: 6px;
+        pointer-events: none;
+        z-index: 10;
+        
+        $c: var(--org-color);
+        $t: 2px; /* Épaisseur */
+        $l: 12px; /* Longueur */
+        
+        background:
+            linear-gradient($c, $c) top left / $l $t no-repeat,
+            linear-gradient($c, $c) top left / $t $l no-repeat,
+            linear-gradient($c, $c) top right / $l $t no-repeat,
+            linear-gradient($c, $c) top right / $t $l no-repeat,
+            linear-gradient($c, $c) bottom left / $l $t no-repeat,
+            linear-gradient($c, $c) bottom left / $t $l no-repeat,
+            linear-gradient($c, $c) bottom right / $l $t no-repeat,
+            linear-gradient($c, $c) bottom right / $t $l no-repeat;
+            
+        opacity: 0.2;
+        transition: all 0.3s ease;
+    }
+
+    /* EFFET AU SURVOL (Verrouillage de la cible) */
+    &:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.7), inset 0 0 20px color-mix(in srgb, var(--org-color) 15%, transparent);
+        border-color: var(--org-color) !important;
+        z-index: 10;
+
+        /* Les crochets s'écartent vers les bords et s'illuminent */
+        &::before {
+            opacity: 1;
+            top: 2px; left: 2px; right: 2px; bottom: 2px;
+            filter: drop-shadow(0 0 5px var(--org-color));
+        }
+
+        /* Animation de l'image (couleur + zoom + laser) */
+        .org-portrait {
+            filter: grayscale(0%) contrast(1.1) brightness(1.1);
+            transform: scale(1.1);
+        }
+        .org-portrait-container::after {
+            opacity: 1;
+            animation: tactical-image-scan 1.5s linear infinite;
+        }
+    }
+}
+
+/* --- IMAGES DES NIVEAUX 0 ET 1 (Avec Veille + Scanner) --- */
+.org-portrait-container {
+    width: 100%;
+    height: 140px; 
+    position: relative;
+    border-bottom: 2px solid color-mix(in srgb, var(--org-color) 40%, transparent);
+    overflow: hidden;
+    
+    .org-portrait {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(100%) contrast(1.2) brightness(0.7); 
+        transition: all 0.5s ease;
+        transform: scale(1);
+    }
+
+    .portrait-overlay 
+    {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            color-mix(in srgb, var(--mat-sys-on-surface) 15%, transparent) 2px,
+            color-mix(in srgb, var(--mat-sys-on-surface) 15%, transparent) 4px
+        );
+        opacity: 0.4;
+        pointer-events: none;
+        z-index: 2;
+        
+        background-size: 100% 100px; 
+        
+        animation: scan-sweep 4s linear infinite; 
+        transition: opacity 0.3s ease;
+    }
+
+    /* Le Laser de Scan Tactique (Invisible au repos, déclenché au survol) */
+    &::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--org-color) 30%, transparent) 90%, var(--org-color) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 5;
+        pointer-events: none;
+    }
+}
+
+/* L'animation qui fait descendre les barres de veille */
+@keyframes scan-sweep {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100px; }
+}
+
+/* L'animation du gros laser au survol */
+@keyframes tactical-image-scan {
+    0% { top: -50%; }
+    100% { top: 100%; }
+}
+
+/* --- TEXTES DE LA CASE --- */
+.org-info {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.org-header {
+    margin-bottom: 8px;
+}
+
+.org-raccourci {
+    font-family: 'Courier New', Courier, monospace;
+    color: var(--mat-sys-outline);
+    font-size: 0.9rem;
+    margin-right: 4px;
+}
+
+.org-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    font-size: 1rem;
+    color: var(--mat-sys-on-surface);
+    text-transform: uppercase;
+}
+
+.org-grade {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8rem;
+    color: var(--mat-sys-on-surface-variant);
+    
+    mat-icon {
+        font-size: 16px; width: 16px; height: 16px;
+        color: var(--mat-sys-secondary);
+    }
+}
+
+.data-divider {
+    height: 2px;
+    width: 24px;
+    background-color: var(--org-color);
+    margin: 12px 0;
+}
+
+.org-desc {
+    font-size: 0.85rem;
+    color: var(--mat-sys-on-surface-variant);
+    line-height: 1.5; /* Un peu plus aéré */
+    display: -webkit-box;
+    -webkit-line-clamp: 5; 
+    line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    padding: 0;
+}
+
+/* =========================================================
+   LIGNES DE CONNEXION (MAGIE DU CSS)
+   ========================================================= */
+
+/* Conteneur des enfants (Ligne verticale principale) */
+.org-children {
+    display: flex;
+    justify-content: center;
+    padding-top: 32px; /* Espace pour la ligne verticale */
+    position: relative;
+
+    /* Le "tronc" qui descend de la case parente */
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 2px;
+        height: 32px;
+        background-color: var(--org-color);
+        transform: translateX(-50%);
+    }
+}
+
+/* Le wrapper de chaque enfant (Lignes horizontales et pointes de flèches) */
+.org-child-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 12px 0 12px;
+    position: relative;
+
+    /* Ligne horizontale vers la gauche */
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 50%;
+        height: 2px;
+        background-color: var(--org-color);
+    }
+    
+    /* Ligne horizontale vers la droite */
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 50%;
+        width: 50%;
+        height: 2px;
+        background-color: var(--org-color);
+    }
+
+    /* Désactivation des lignes pour les éléments uniques ou extrêmes */
+    &:first-child::before,
+    &:last-child::after {
+        display: none !important;
+    }
+
+    &:only-child {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Si c'est un enfant unique, on cache les deux lignes horizontales */
+    &:only-child::before,
+    &:only-child::after {
+        display: none;
+    }
+
+    > .org-node-wrapper 
+    {
+        &::before {
+            content: '';
+            position: absolute;
+            top: -32px; /* Remonte toucher la ligne horizontale */
+            left: 50%;
+            width: 2px;
+            height: 32px;
+            background-color: var(--org-color);
+            transform: translateX(-50%);
+        }
+    }
+}
+
+/* =========================================================
+   MISE EN PAGE DES FILTRES
+   ========================================================= */
+.filters-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .filter-input { flex: 2; min-width: 250px; }
+    .filter-select { flex: 1; min-width: 200px; }
 }
 
 /* =========================================================
@@ -68,115 +391,6 @@
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* =========================================================
-   CARTE DE SPÉCIALITÉ (ID CARD TACTIQUE)
-   ========================================================= */
-.unsc-mos-card {
-    display: flex;
-    flex-direction: row;
-    background-color: var(--mat-sys-surface-container) !important;
-    border: 1px solid var(--mat-sys-outline-variant);
-    border-radius: 2px !important;
-    overflow: hidden;
-    height: 200px;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    
-    --mos-accent: var(--mat-sys-primary);
-    --mos-glow: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
-
-    &.is-navy {
-        --mos-accent: var(--mat-sys-tertiary);
-        --mos-glow: color-mix(in srgb, var(--mat-sys-tertiary) 20%, transparent);
-    }
-
-    /* --- EFFET AU SURVOL --- */
-    &:hover {
-        transform: translateY(-6px);
-        border-color: var(--mos-accent);
-        box-shadow: 0 10px 24px var(--mos-glow);
-        z-index: 10;
-
-        /* La photo s'agrandit et retrouve ses couleurs */
-        .mos-portrait {
-            transform: scale(1.1);
-            filter: grayscale(0%);
-        }
-
-        /* Activation de l'animation de scan */
-        .scan-line {
-            opacity: 1;
-            animation: portrait-scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-
-        /* Verrouillage des brackets biométriques */
-        .bracket.tl { transform: translate(6px, 6px); border-color: var(--mos-accent); }
-        .bracket.tr { transform: translate(-6px, 6px); border-color: var(--mos-accent); }
-        .bracket.bl { transform: translate(6px, -6px); border-color: var(--mos-accent); }
-        .bracket.br { transform: translate(-6px, -6px); border-color: var(--mos-accent); }
-        
-        /* Expansion du trait de séparation */
-        .data-divider {
-            width: 80px;
-        }
-    }
-}
-
-/* =========================================================
-   PORTRAIT ET EFFETS HOLOGRAPHIQUES
-   ========================================================= */
-.mos-portrait-container {
-    position: relative;
-    width: 150px;
-    min-width: 150px;
-    background-color: var(--mat-sys-surface-container-lowest);
-    border-right: 2px solid var(--mos-accent);
-    overflow: hidden;
-
-    .mos-portrait {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        filter: grayscale(40%); /* Aspect archive par défaut */
-        transition: all 0.5s ease;
-    }
-
-    /* Trame TV Cathodique */
-    .portrait-overlay {
-        position: absolute;
-        inset: 0;
-        background: repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 2px,
-            color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent) 2px,
-            color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent) 4px
-        );
-        pointer-events: none;
-        z-index: 2;
-    }
-}
-
-/* --- LE SCANNER (Actif au Hover) --- */
-.scan-line {
-    position: absolute;
-    top: -10%;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background-color: var(--mos-accent);
-    box-shadow: 0 0 10px var(--mos-accent), 0 0 20px var(--mos-accent);
-    opacity: 0; 
-    z-index: 3;
-    pointer-events: none;
-}
-
-@keyframes portrait-scan {
-    0% { top: -10%; opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { top: 110%; opacity: 0; }
-}
-
 /* --- BRACKETS (Coins tactiques) --- */
 .bracket {
     position: absolute;
@@ -190,34 +404,6 @@
 .bracket.bl { bottom: 6px; left: 6px; border-bottom: 2px solid var(--mat-sys-outline); border-left: 2px solid var(--mat-sys-outline); }
 .bracket.br { bottom: 6px; right: 6px; border-bottom: 2px solid var(--mat-sys-outline); border-right: 2px solid var(--mat-sys-outline); }
 
-/* =========================================================
-   TEXTES ET DONNÉES DU DOSSIER
-   ========================================================= */
-.mos-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 16px 20px;
-    overflow: hidden;
-}
-
-.mos-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-
-    .mos-title {
-        font-family: 'Courier New', Courier, monospace !important;
-        font-weight: 900 !important;
-        font-size: 1.15rem !important;
-        letter-spacing: 1px;
-        color: var(--mat-sys-on-surface);
-        margin: 0;
-        line-height: 1.2;
-    }
-}
-
 .data-divider {
     height: 2px;
     width: 30px;
@@ -226,48 +412,104 @@
     transition: width 0.4s ease;
 }
 
-.mos-description {
-    padding: 0 !important;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
-
-    .desc-label {
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 0.75rem;
-        color: var(--mat-sys-outline);
-        letter-spacing: 1px;
-    }
-
-    p {
-        font-size: 0.9rem;
-        line-height: 1.5;
-        color: var(--mat-sys-on-surface-variant);
-        margin: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        line-clamp: 4;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
-
 /* =========================================================
-   MODE DATAPAD (Téléphone)
+   MODE DATAPAD (TÉLÉPHONE) - ARBORESCENCE VERTICALE
    ========================================================= */
-@media screen and (max-width: 500px) 
-{
-    .unsc-mos-card {
-        flex-direction: column;
-        height: auto;
-    }
+@media screen and (max-width: 800px) {
     
-    .mos-portrait-container {
+    /* 1. Conteneur principal en colonne (Plus de scroll horizontal) */
+    .org-tree-container {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px 8px;
+        gap: 32px;
+        overflow-x: hidden;
+    }
+
+    /* 2. Les noeuds prennent toute la largeur de l'écran */
+    .org-node-wrapper {
         width: 100%;
-        height: 180px;
-        border-right: none;
-        border-bottom: 2px solid var(--mos-accent);
+        align-items: stretch;
+    }
+
+    /* 3. Les Cartes passent en mode "Liste Horizontale" */
+    .org-card {
+        width: 100%;
+        display: flex;
+        flex-direction: row; /* Image à gauche, texte à droite */
+        min-height: 100px;
+    }
+
+    /* 4. Adaptation de l'image (Plus petite et fixée à gauche) */
+    .org-portrait-container {
+        width: 90px; /* Largeur fixe restreinte */
+        height: auto; /* S'adapte à la hauteur du texte */
+        min-height: 100px;
+        border-bottom: none;
+        border-right: 2px solid color-mix(in srgb, var(--org-color) 40%, transparent);
+        flex-shrink: 0; /* Empêche l'image de se faire écraser par le texte */
+    }
+
+    /* 5. Réalignement des textes à gauche pour la lisibilité */
+    .org-info {
+        flex: 1;
+        padding: 12px;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .org-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        text-align: left;
+    }
+
+    .org-desc {
+        padding: 0;
+    }
+
+    .data-divider {
+        margin: 8px 0;
+    }
+
+    /* =========================================================
+       6. MODIFICATION DES LIGNES (Mode Dossier Vertical)
+       ========================================================= */
+    .org-children {
+        flex-direction: column;
+        align-items: stretch;
+        padding-top: 12px;
+        padding-left: 24px; /* Indentation des sous-spécialités */
+        
+        /* La grande ligne verticale à gauche qui relie tous les enfants */
+        &::before {
+            top: 0;
+            left: 12px; /* Placée dans la zone d'indentation */
+            width: 2px;
+            height: calc(100% - 50px); /* S'arrête au centre de la dernière carte */
+            transform: none;
+        }
+    }
+
+    .org-child-wrapper {
+        padding: 8px 0;
+        width: 100%;
+        align-items: stretch;
+
+        /* On supprime les anciennes lignes horizontales du mode PC */
+        &::before, &::after { 
+            display: none !important; 
+        }
+
+        /* Le petit trait horizontal qui relie la carte à la grande ligne verticale */
+        > .org-node-wrapper::before {
+            top: 50%;
+            left: -12px;
+            width: 12px;
+            height: 2px;
+            transform: none; /* Annule le centrage du mode PC */
+        }
     }
 }
