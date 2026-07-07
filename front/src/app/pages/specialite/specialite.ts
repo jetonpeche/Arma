@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatTabsModule } from '@angular/material/tabs'; // NOUVEAU : Module pour les onglets
+import { MatTabsModule } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 import { NgTemplateOutlet, UpperCasePipe } from '@angular/common';
 import { EUrl } from '@enums/EUrl';
@@ -15,14 +15,12 @@ import { AuthentificationService } from '@services/AuthentificationService';
 import { SpecialiteService } from '@services/SpecialiteService';
 import { ReactiveFormsModule } from '@angular/forms';
 
-// Extension de l'interface pour inclure les enfants et la profondeur (niveau)
-export interface SpecialiteNode extends Specialite {
+interface SpecialiteNode extends Specialite {
     enfants: SpecialiteNode[];
 }
 
 @Component({
   selector: 'app-specialite',
-  // Ajout de MatTabsModule
   imports: [UpperCasePipe, MatCardModule, ReactiveFormsModule, MatSelectModule, MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, NgTemplateOutlet, MatTabsModule],
   templateUrl: './specialite.html',
   styleUrl: './specialite.scss',
@@ -103,7 +101,7 @@ private DONNEES_TEST_SPECIALITES: Specialite[] = [
         idParents: [], // RACINE
         nom: "Tank tank Standard",
         raccourci: "AT",
-        grade: { id: 1, nom: "Private", nbOperationRequis: 0 },
+        grade: { id: 1, nom: "E8-Senior chief hospital corpsman", nbOperationRequis: 0 },
         description: "Unité terrestre de base. Formation généralisée au combat et sécurisation d'objectifs.",
         estNavy: false,
         categorie: "Combat Terrestre",
@@ -114,7 +112,7 @@ private DONNEES_TEST_SPECIALITES: Specialite[] = [
         idParents: [6], // ENFANT 4 (NOUVEAU)
         nom: "Ingénieur de combat",
         raccourci: "ING",
-        grade: { id: 2, nom: "Corporal", nbOperationRequis: 5 },
+        grade: { id: 2, nom: "Private first class", nbOperationRequis: 5 },
         description: "Spécialiste des explosifs C-12, du déminage et de la réparation de véhicules endommagés sur le champ de bataille.",
         estNavy: false,
         categorie: "Combat Terrestre",
@@ -144,20 +142,23 @@ private DONNEES_TEST_SPECIALITES: Specialite[] = [
         const VALEUR = _valeur.toLowerCase().trim();
         const fullTree = this.ConstruireArbre(this.listeSpecialiteClone());
 
-        if (!VALEUR) {
+        if (!VALEUR) 
+        {
             this.DiviserEtMettreAJourArbres(fullTree);
             return;
         }
 
         // Algorithme de filtrage : garde un parent si lui OU un de ses enfants correspond
-        const filterTree = (nodes: SpecialiteNode[]): SpecialiteNode[] => {
-            return nodes.reduce((acc, node) => {
+        const filterTree = (nodes: SpecialiteNode[]): SpecialiteNode[] => 
+        {
+            return nodes.reduce((acc, node) => 
+            {
                 const match = node.nom.toLowerCase().includes(VALEUR) || node.raccourci.toLowerCase().includes(VALEUR);
                 const enfantsFiltres = filterTree(node.enfants);
                 
-                if (match || enfantsFiltres.length > 0) {
+                if (match || enfantsFiltres.length > 0)
                     acc.push({ ...node, enfants: enfantsFiltres });
-                }
+                
                 return acc;
             }, [] as SpecialiteNode[]);
         };
@@ -268,17 +269,18 @@ private DONNEES_TEST_SPECIALITES: Specialite[] = [
             const node = map.get(item.id)!;
             
             // Si le noeud a des parents, on l'ajoute dans le dossier de CHACUN de ses parents
-            if (item.idParents && item.idParents.length > 0) {
+            if (item.idParents && item.idParents.length > 0) 
+            {
                 item.idParents.forEach(parentId => {
                     const parent = map.get(parentId);
-                    if (parent) {
+
+                    if (parent)
                         parent.enfants.push(node);
-                    }
                 });
-            } else {
-                // S'il n'a aucun parent, c'est une racine
+            } 
+            // c'est une racine
+            else
                 racines.push(node);
-            }
         });
 
         return racines;

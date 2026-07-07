@@ -17,7 +17,7 @@
         <mat-form-field class="filter-input">
             <mat-label>RECHERCHE DANS L'ORGANIGRAMME (MOS)</mat-label>
             <mat-icon matPrefix>search</mat-icon>
-            <input matInput (keyup)="ChangerRechercheTexte($event)" placeholder="Entrez un nom ou un mot-clé...">
+            <input matInput (keyup.debounce)="ChangerRechercheTexte($event)">
         </mat-form-field>
 
         <mat-form-field class="filter-select">
@@ -25,7 +25,8 @@
             <mat-icon matPrefix>category</mat-icon>
             <mat-select (selectionChange)="ChangerCategorie($event.value)">
                 <mat-option value="">-- TOUTES LES BRANCHES --</mat-option>
-                @for(cat of listeCategories(); track cat) {
+                @for(cat of listeCategories(); track cat) 
+                {
                     <mat-option [value]="cat">{{ cat | uppercase }}</mat-option>
                 }
             </mat-select>
