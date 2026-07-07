@@ -3,16 +3,17 @@
    ========================================================= */
 .org-tree-container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start !important; 
+    
     gap: 64px;
-    padding: 48px 16px;
+    padding: 48px 32px;
     
     overflow-x: auto;
     align-items: flex-start;
 
-    /* Si le contenu dépasse la largeur, on passe automatiquement à gauche */
-    &:has(.org-node-wrapper:nth-child(2)) {
-        justify-content: flex-start;
+    > .org-node-wrapper:only-of-type {
+        margin-left: auto;
+        margin-right: auto;
     }
 }
 
@@ -48,7 +49,7 @@
 
 /* --- LA CASE (CARD) - BLINDAGE HAUTE TECHNOLOGIE --- */
 .org-card {
-    width: 320px;
+    width: 340px;
     display: flex;
     flex-direction: column;
     background-color: var(--mat-sys-surface-container-highest) !important;
@@ -460,8 +461,8 @@
 /* =========================================================
    MODE DATAPAD (TÉLÉPHONE) - ARBORESCENCE VERTICALE
    ========================================================= */
-@media screen and (max-width: 800px) {
-    
+@media screen and (max-width: 800px) 
+{    
     /* 1. Conteneur principal en colonne (Plus de scroll horizontal) */
     .org-tree-container {
         flex-direction: column;
@@ -469,6 +470,11 @@
         padding: 16px 8px;
         gap: 32px;
         overflow-x: hidden;
+
+        &::before, 
+        &::after {
+            display: none;
+        }
     }
 
     /* 2. Les noeuds prennent toute la largeur de l'écran */
@@ -565,7 +571,7 @@
             left: -12px;
             width: 12px;
             height: 2px;
-            transform: none; /* Annule le centrage du mode PC */
+            transform: none;
         }
     }
 }

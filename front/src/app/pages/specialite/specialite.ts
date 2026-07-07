@@ -13,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { SpecialiteService } from '@services/SpecialiteService';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
+import { InputFile } from "@jetonpeche/angular-mat-input";
 import { ETypeRessource } from '@enums/ETypeRessource';
 import { FichierService } from '@services/FichierService';
 import { SnackBarService } from '@services/SnackBarService';
@@ -93,20 +93,21 @@ export class SpecialitePage implements OnInit
 
         // 1. FILTRE PAR BRANCHE (Catégorie)
         // Si l'officier a choisi une catégorie, on élimine les racines qui ne correspondent pas.
-        if (VALEUR_CAT) {
+        if (VALEUR_CAT)
             fullTree = fullTree.filter(racine => racine.categorie === VALEUR_CAT);
-        }
 
         // 2. FILTRE PAR TEXTE
-        if (VALEUR_TEXTE) {
-            const filterTree = (nodes: SpecialiteNode[]): SpecialiteNode[] => {
+        if (VALEUR_TEXTE) 
+        {
+            const filterTree = (nodes: SpecialiteNode[]): SpecialiteNode[] => 
+            {
                 return nodes.reduce((acc, node) => {
                     const match = node.nom.toLowerCase().includes(VALEUR_TEXTE) || node.raccourci.toLowerCase().includes(VALEUR_TEXTE);
                     const enfantsFiltres = filterTree(node.enfants);
                     
-                    if (match || enfantsFiltres.length > 0) {
+                    if (match || enfantsFiltres.length > 0)
                         acc.push({ ...node, enfants: enfantsFiltres });
-                    }
+                    
                     return acc;
                 }, [] as SpecialiteNode[]);
             };
@@ -149,24 +150,31 @@ export class SpecialitePage implements OnInit
         });
     }
 
-    protected OuvrirModalAjouterModifier(_specialite: Specialite, _modeAjouter: boolean): void
+    protected OuvrirModalAjouterModifier(_mode: "ajouter" | "modifier" | "nouveau", _specialite?: Specialite): void
     {
+        const listeFiltree = _specialite 
+            ? this.listeSpecialiteClone().filter(x => x.estNavy === _specialite.estNavy)
+            : this.listeSpecialiteClone();
+
+        const info = {
+            mode: _mode,
+            specialite: _mode === "modifier" ? _specialite : null,
+            idParent: _mode === "ajouter" ? _specialite?.id : null,
+            estNavy: _specialite ? _specialite.estNavy : null,
+            // C'est une racine si c'est un "nouveau" OU si on "modifie" un noeud qui n'a pas de parents
+            estCategorieParentClicker: _mode === "nouveau" || (_mode === "modifier" && _specialite?.idParents?.length === 0),
+            listeSpecialite: listeFiltree
+        };
+
         const DIALOG_REF = this.dialog.open(AjouterModifierSpecialite, {
             width: "50%",
             maxWidth: "100vw",
-            data: {
-                idParent: _specialite.id,
-                estCategorieParentClicker: _specialite.idParents.length == 0,
-                listeSpecialite: this.listeSpecialiteClone(),
-                specialite: _modeAjouter ? null : _specialite
-            }
+            data: info
         });
 
         DIALOG_REF.afterClosed().subscribe({
-            next: (retour) =>
-            {
-                if(retour === true)
-                    this.Lister();
+            next: (retour) => {
+                if(retour === true) this.Lister();
             }
         });
     }

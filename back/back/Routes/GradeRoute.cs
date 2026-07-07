@@ -34,6 +34,7 @@ public static class GradeRoute
 
     static async Task<IResult> ListerAsync(
         [FromQuery(Name = "leger")] bool _modeLeger,
+        [FromQuery(Name = "mode")] string _mode,
         HttpContext _httpContext
     )
     {
@@ -41,6 +42,12 @@ public static class GradeRoute
 
         var requete = db.GetCollection<Grade>().Query()
             .OrderBy(x => x.Ordre);
+
+          if(_mode is "marines")
+               requete = requete.Where(x => x.Conserne == 2);
+
+          else if(_mode is "navy")
+               requete = requete.Where(x => x.Conserne == 1);
 
         if(_modeLeger)
         {

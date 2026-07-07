@@ -5,27 +5,27 @@ import { AutocompleteDataSource, ButtonLoader, InputText, InputTextarea, InputAu
 import { Specialite } from '@models/Specialite';
 import { SnackBarService } from '@services/SnackBarService';
 import { SpecialiteService } from '@services/SpecialiteService';
-import { MatCheckbox } from "@angular/material/checkbox";
 import { GradeService } from '@services/GradeService';
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-ajouter-modifier-specialite',
-  imports: [ReactiveFormsModule, MatSelectModule, MatDialogModule, ButtonLoader, InputText, InputTextarea, MatCheckbox, GridContainer, GridElement, InputAutocomplete],
+  imports: [ReactiveFormsModule, MatSelectModule, MatDialogModule, ButtonLoader, InputText, InputTextarea, GridContainer, GridElement, InputAutocomplete],
   templateUrl: './ajouter-modifier-specialite.html',
   styleUrl: './ajouter-modifier-specialite.scss',
 })
 export class AjouterModifierSpecialite 
 {
     protected form: FormGroup;
+    protected cacherEstNavy = signal(false);
     protected labelBtn = signal<string>("Ajouter");
     protected btnClick = signal<boolean>(false);
     protected estCategorieParentClicker = signal(false);
     protected listeGrade = signal<AutocompleteDataSource[]>([]);
     protected listeSpecialite = signal<AutocompleteDataSource[]>([]);
 
-    private matDialogData: { specialite: Specialite | null, estCategorieParentClicker: boolean, listeSpecialite: { id: number, nom: string }[], idParent: number } = inject(MAT_DIALOG_DATA);
+    private matDialogData: { estNavy: boolean | null, specialite: Specialite | null, estCategorieParentClicker: boolean, listeSpecialite: { id: number, nom: string }[], idParent: number } = inject(MAT_DIALOG_DATA);
     private specialiteServ = inject(SpecialiteService);
     private gradeServ = inject(GradeService);
     private snackBarServ = inject(SnackBarService);
@@ -33,28 +33,29 @@ export class AjouterModifierSpecialite
 
     ngOnInit(): void
     {
+        const DATA = this.matDialogData;
+        const SPE = DATA.specialite;
+
         this.ListerGrade();
-        this.listeSpecialite.set(this.matDialogData.listeSpecialite.map(x => ({ value: x.id, display: x.nom })));
+        this.listeSpecialite.set(DATA.listeSpecialite.map(x => ({ value: x.id, display: x.nom })));
+        
+        this.labelBtn.set(SPE ? "Modifier" : "Ajouter");
+        this.estCategorieParentClicker.set(DATA.estCategorieParentClicker);
 
-        if(this.matDialogData.specialite)
-            this.labelBtn.set("Modifier");
-
-        let idParent = this.matDialogData.specialite ? this.matDialogData.specialite.idParents : [this.matDialogData.idParent];
-        this.estCategorieParentClicker.set(this.matDialogData.estCategorieParentClicker);
+        const parentsParDefaut = SPE ? SPE.idParents : (DATA.idParent ? [DATA.idParent] : []);
 
         this.form = new FormGroup({
-            nom: new FormControl(this.matDialogData.specialite?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
-            raccourci: new FormControl(this.matDialogData.specialite?.raccourci ?? "", [Validators.required, Validators.maxLength(5)]),
-            idGrade: new FormControl(this.matDialogData.specialite?.grade.id ?? 0, [Validators.required]),
-            listeIdParent: new FormControl(idParent),
-            estNavy: new FormControl(this.matDialogData.specialite?.estNavy ?? false),
-            description: new FormControl(this.matDialogData.specialite?.description, [Validators.maxLength(300)])
+            nom: new FormControl(SPE?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
+            raccourci: new FormControl(SPE?.raccourci ?? "", [Validators.required, Validators.maxLength(5)]),
+            idGrade: new FormControl(SPE?.grade.id ?? null, [Validators.required]),
+            listeIdParent: new FormControl(parentsParDefaut),
+            description: new FormControl(SPE?.description ?? "", [Validators.maxLength(300)])
         });
 
         if(this.estCategorieParentClicker())
         {
             this.form.addControl("categorie", 
-                new FormControl(this.matDialogData.specialite?.categorie ?? "", [Validators.required, Validators.maxLength(70)])
+                new FormControl(SPE?.categorie ?? "", [Validators.required, Validators.maxLength(70)])
             );
         }
     }
@@ -98,7 +99,10 @@ export class AjouterModifierSpecialite
 
     private ListerGrade(): void
     {
-        this.gradeServ.ListerLeger().subscribe({
+        const mode = this.matDialogData.estNavy === true ? "navy" : 
+                    (this.matDialogData.estNavy === false ? "marines" : "tout");
+
+        this.gradeServ.ListerLeger(mode).subscribe({
             next: (retour) => {
                 this.listeGrade.set(retour.map(x => ({ value: x.id, display: x.nom })));
             }

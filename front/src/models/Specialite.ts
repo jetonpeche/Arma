@@ -24,6 +24,5 @@ export type SpecialiteRequete =
     raccourci: string,
     categorie?: string,
     idGrade: number,
-    description: string,
-    estNavy: boolean
+    description: string
 }

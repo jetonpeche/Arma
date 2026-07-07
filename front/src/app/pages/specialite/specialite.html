@@ -3,6 +3,14 @@
         <h1>ORGANIGRAMME DES SPÉCIALITÉS (MOS)</h1>
         <div class="unsc-subtitle">// ARBRES DE DÉPLOIEMENT TACTIQUE - HAUT COMMANDEMENT</div>
     </div>
+
+    @if(droit?.peutEcrire)
+    {
+        <button matButton="filled" (click)="OuvrirModalAjouterModifier('nouveau')">
+            <mat-icon>add</mat-icon>
+            Nouvelle spécialité
+        </button>
+    }
 </div>
 
 <div class="tactical-filters">
@@ -69,12 +77,12 @@
                     <img [src]="node.urlImage" [alt]="node.nom" class="org-portrait">
                     <div class="portrait-overlay"></div>
 
-                    <!-- @if(droit?.peutEcrire) 
-                    { -->
+                    @if(droit?.peutEcrire) 
+                    {
                         <div class="edit-image-overlay">
                             <jp-input-file-btn matIconButton icon="photo_camera" (fileChange)="UploadFichier(node.id, $any($event))" />
                         </div>
-                    <!-- } -->
+                    }
                 </div>
             }
 
@@ -90,30 +98,30 @@
                 <div class="data-divider"></div>
                 <div class="org-desc">{{ node.description }}</div>
             </div>
-<!-- 
+
             @if(droit?.peutEcrire || droit?.peutSupprimer) 
-            { -->
+            {
                 <div class="org-actions">
 
-                    <!-- @if(droit.peutEcrire)
-                    { -->
-                        <button matIconButton (click)="OuvrirModalAjouterModifier(node, true)" matTooltip="Ajouter une sous-spécialité">
+                    @if(droit.peutEcrire)
+                    {
+                        <button matIconButton (click)="OuvrirModalAjouterModifier('ajouter', node)" matTooltip="Ajouter une sous-spécialité">
                             <mat-icon>add</mat-icon>
                         </button>
 
-                        <button matIconButton (click)="OuvrirModalAjouterModifier(node, false)" matTooltip="Modifier la spécialité">
+                        <button matIconButton (click)="OuvrirModalAjouterModifier('modifier', node)" matTooltip="Modifier la spécialité">
                             <mat-icon>edit</mat-icon>
                         </button>
-                    <!-- } -->
+                    }
 
-                    <!-- @if(droit.peutSupprimer)
-                    { -->
+                    @if(droit.peutSupprimer)
+                    {
                         <button matIconButton (click)="OuvrirModalConfirmationSupprimer(node)" matTooltip="Supprimer ce profil">
                             <mat-icon>delete</mat-icon>
                         </button>
-                    <!-- } -->
+                    }
                 </div>
-            <!-- } -->
+            }
         </mat-card>
 
         @if (node.enfants && node.enfants.length > 0) 

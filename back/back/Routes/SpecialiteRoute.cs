@@ -96,19 +96,23 @@ public static class SpecialiteRoute
                if (nb != _requete.ListeIdParent.Length)
                     return Results.NotFound($"Un des parent n'existe pas");
           }
-          
-          if(!db.GetCollection<Grade>().Exists(x => x.Id == _requete.IdGrade))
+
+          var grade = db.GetCollection<Grade>().Query()
+               .Where(x => x.Id == _requete.IdGrade)
+               .FirstOrDefault();
+
+          if (grade is null)
                return Results.NotFound("Le grade n'existe pas");
 
           var specialite = new Specialite
           {
                Nom = _requete.Nom.XSS(),
-              Raccourci = _requete.Raccourci.XSS(),
-              Categorie = _requete.Categorie?.XSS() ?? "",
-              Grade = new() { Id = _requete.IdGrade },
-              ListeParent = [.. _requete.ListeIdParent.Select(x => new Specialite{ Id = x })],
-              Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS(),
-               EstNavy = _requete.EstNavy
+               Raccourci = _requete.Raccourci.XSS(),
+               Categorie = _requete.Categorie?.XSS() ?? "",
+               Grade = new() { Id = _requete.IdGrade },
+               ListeParent = [.. _requete.ListeIdParent.Select(x => new Specialite{ Id = x })],
+               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS(),
+               EstNavy = grade.Conserne == 1
           };
 
           int id = col.Insert(specialite);
@@ -154,7 +158,6 @@ public static class SpecialiteRoute
           specialite.Grade = new() { Id = _requete.IdGrade };
           specialite.ListeParent = [.. _requete.ListeIdParent.Select(x => new Specialite{ Id = x })];
           specialite.Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS();
-          specialite.EstNavy = _requete.EstNavy;
 
         var ok = col.Update(specialite);
 

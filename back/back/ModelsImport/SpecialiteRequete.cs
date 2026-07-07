@@ -10,7 +10,6 @@ public sealed class SpecialiteRequete
     public required string Nom { get; set; }
     public string? Categorie { get; set; }
     public string? Description { get; set; }
-    public bool EstNavy { get; set; }
 }
 
 [JsonSerializable(typeof(SpecialiteRequete))]
