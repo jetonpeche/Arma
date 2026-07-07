@@ -104,7 +104,7 @@ public static class SpecialiteRoute
           {
                Nom = _requete.Nom.XSS(),
               Raccourci = _requete.Raccourci.XSS(),
-              Categorie = _requete.Categorie.XSS(),
+              Categorie = _requete.Categorie?.XSS() ?? "",
               Grade = new() { Id = _requete.IdGrade },
               ListeParent = [.. _requete.ListeIdParent.Select(x => new Specialite{ Id = x })],
               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS(),
@@ -150,7 +150,7 @@ public static class SpecialiteRoute
 
           specialite.Nom = _requete.Nom.XSS();
           specialite.Raccourci = _requete.Raccourci.XSS();
-          specialite.Categorie = _requete.Categorie.XSS();
+          specialite.Categorie = _requete.Categorie?.XSS() ?? "";
           specialite.Grade = new() { Id = _requete.IdGrade };
           specialite.ListeParent = [.. _requete.ListeIdParent.Select(x => new Specialite{ Id = x })];
           specialite.Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description?.XSS();

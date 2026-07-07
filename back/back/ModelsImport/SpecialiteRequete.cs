@@ -8,7 +8,7 @@ public sealed class SpecialiteRequete
     public required int IdGrade { get; set; }
     public required string Raccourci { get; set; }
     public required string Nom { get; set; }
-    public required string Categorie { get; set; }
+    public string? Categorie { get; set; }
     public string? Description { get; set; }
     public bool EstNavy { get; set; }
 }
