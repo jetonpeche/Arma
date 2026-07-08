@@ -45,6 +45,7 @@ export class PersonnagePage implements OnInit
     private fichierServ = inject(FichierService);
     private dialogServ = inject(DialogConfirmationService);
     private authServ = inject(AuthentificationService);
+    private readonly estMobile = window.innerWidth <= 800;
 
     ngOnInit(): void
     {
@@ -90,7 +91,7 @@ export class PersonnagePage implements OnInit
     protected OuvrirModalDeclarerMort(_personnage: Personnage): void
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierPersonnage, { 
-            width: "50%", 
+            width: this.estMobile ? "95%" : "50%", 
             maxWidth: "100vw",
             data: {
                 modeMort: true,
@@ -119,7 +120,7 @@ export class PersonnagePage implements OnInit
     protected OuvrirModalInformation(_personnage: Personnage): void
     {
         this.dialog.open(ModalInformation, {
-            width: "50%", 
+            width: this.estMobile ? "95%" : "50%", 
             maxWidth: "100vw",
             data: {
                 titre: `Etat de service de ${_personnage.nom}`,
@@ -131,7 +132,7 @@ export class PersonnagePage implements OnInit
     protected OuvrirModalPersonnageParticiper(): void
     {
         const DIALOG_REF = this.dialog.open(ModalPersonnageParticiperOperation, {
-            width: "50%", 
+            width: this.estMobile ? "95%" : "50%", 
             maxWidth: "100vw",
             data: this.listePersonnage()
         });
@@ -146,7 +147,7 @@ export class PersonnagePage implements OnInit
     protected OuvrirModalObjetBoutiquePosseder(_personnage: Personnage): void
     {
         this.dialog.open(ModalObjetPossede, { 
-            width: "70%", 
+            width: this.estMobile ? "95%" : "70%", 
             maxWidth: "100vw",
             data: _personnage.id
         });
@@ -155,7 +156,7 @@ export class PersonnagePage implements OnInit
     protected OuvrirModalAjouterPersonne(_personnage?: Personnage): void
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierPersonnage, { 
-            width: "50%", 
+            width: this.estMobile ? "95%" : "50%", 
             maxWidth: "100vw",
             data: _personnage
         });
