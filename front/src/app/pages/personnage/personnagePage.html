@@ -86,14 +86,6 @@
                             <span class="info-label">BOOTCAMPS:</span>
                             <span class="info-value">{{ element.nbBootcamp }}</span>
                         </div>
-
-                        <div class="assignment-block">
-                            <div class="assignment-title">SECTOR 1 COMMAND</div>
-                            <div class="assignment-unit">
-                                ELEMENT UNSCMC <br>
-                                <span class="unit-sub">88th MEU 21st Company</span>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Logo Dynamique -->
@@ -101,6 +93,39 @@
                         <img src="logoDroite.png" alt="Logo Section">
                     </div>
                 </section>
+
+                <!-- NOUVEAU : LIGNE DU BAS PLEINE LARGEUR (Sous la photo et les infos) -->
+                <div class="info-bottom-row">
+                    
+                    <!-- Bloc de Gauche : Affectation -->
+                    <div class="assignment-block">
+                        <div class="assignment-title">SECTOR 1 COMMAND</div>
+                        <div class="assignment-unit">
+                            ELEMENT UNSCMC <br>
+                            <span class="unit-sub">88th MEU 21st Company</span>
+                        </div>
+                    </div>
+
+                    @if (element.listeMedaille && element.listeMedaille.length > 0)
+                    {
+                        <div class="ribbon-rack-container">
+                            <div class="ribbon-rack">
+                                <!-- On autorise jusqu'à 15 rubans (3 lignes de 5) -->
+                                @for (medaille of element.listeMedaille | slice:0:15; track medaille.id) 
+                                {
+                                    <img class="mini-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
+                                }
+                                
+                                @if (element.listeMedaille.length > 15) 
+                                {
+                                    <div class="ribbon-more" matTooltip="Voir le dossier complet pour le reste">
+                                        +{{ element.listeMedaille.length - 15 }}
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
 
                 <mat-divider class="id-divider"></mat-divider>
 

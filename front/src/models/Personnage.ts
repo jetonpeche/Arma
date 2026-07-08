@@ -24,7 +24,8 @@ export type Personnage =
     planeteOrigine: PlaneteOrigine | null,
     dateDerniereParticipation: Date | null,
     dateCreation: Date,
-    estValider: boolean
+    estValider: boolean,
+    listeMedaille: [{ id: number, nom: string, urlImage: string }]
 }
 
 export type PersonnageLeger =

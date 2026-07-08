@@ -23,10 +23,11 @@ import { MatCheckboxChange, MatCheckboxModule } from "@angular/material/checkbox
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { ModalInformation } from '@modals/modal-information/modal-information';
+import { SlicePipe } from '@angular/common';
 
 @Component({
   selector: 'app-personnage',
-  imports: [MatCheckboxModule, MatTooltipModule, MatCardModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon, MatFormField, MatLabel, InputFile],
+  imports: [SlicePipe, MatCheckboxModule, MatTooltipModule, MatCardModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon, MatFormField, MatLabel, InputFile],
   templateUrl: './personnagePage.html',
   styleUrl: './personnagePage.scss',
 })

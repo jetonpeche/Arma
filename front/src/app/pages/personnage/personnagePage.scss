@@ -167,28 +167,6 @@
     .mt-2 { margin-top: 8px; }
 }
 
-/* Bloc d'affectation */
-.assignment-block {
-    background-color: var(--mat-sys-surface-container-highest);
-    padding: 10px;
-    border-left: 3px solid var(--mat-sys-tertiary);
-    border-radius: 0 4px 4px 0;
-
-    .assignment-title {
-        font-weight: 900;
-        font-size: 0.95rem;
-        color: var(--mat-sys-on-surface);
-    }
-    
-    .assignment-unit {
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 0.85rem;
-        color: var(--mat-sys-on-surface-variant);
-        
-        .unit-sub { font-size: 0.75rem; }
-    }
-}
-
 /* Logo Dynamique */
 .divLogoDroite {
     width: 140px;
@@ -313,6 +291,93 @@
     }
 }
 
+/* =========================================================
+   LIGNE DU BAS : AFFECTATION & DÉCORATIONS
+   ========================================================= */
+.info-bottom-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between; 
+    width: 100%;
+}
+
+/* --- Bloc de Gauche (Affectation) --- */
+.assignment-block {
+    flex: 1; /* S'étire pour prendre toute la place disponible à gauche */
+    background-color: var(--mat-sys-surface-container-highest);
+    padding: 10px 16px; /* Marges confortables */
+    border-left: 3px solid var(--mat-sys-tertiary);
+    border-radius: 0 4px 4px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .assignment-title {
+        font-weight: 900;
+        font-size: 0.95rem;
+        color: var(--mat-sys-on-surface);
+    }
+    
+    .assignment-unit {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.85rem;
+        color: var(--mat-sys-on-surface-variant);
+        line-height: 1.2;
+        margin-top: 4px;
+        
+        .unit-sub { font-size: 0.75rem; }
+    }
+}
+
+/* --- Bloc de Droite (Médailles / Rubans) --- */
+.ribbon-rack-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    max-width: 295px; 
+}
+
+.ribbon-rack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: flex-end;
+
+    .mini-medal {
+        width: 55px; 
+        height: 20px;
+        object-fit: cover;
+        filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+        border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+        border-radius: 2px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+        box-sizing: border-box;
+
+        &:hover {
+            transform: scale(1.5);
+            z-index: 2;
+            border-color: var(--mat-sys-primary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+        }
+    }
+
+    .ribbon-more {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: var(--mat-sys-on-surface-variant);
+        background-color: color-mix(in srgb, var(--mat-sys-surface) 50%, transparent);
+        border: 1px dashed var(--mat-sys-outline-variant);
+        padding: 0 4px;
+        border-radius: 2px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
 @media screen and (max-width: 680px) 
 {
     .unsc-id-card { width: 100%; }
@@ -321,6 +386,20 @@
     .divPhoto { width: 100%; max-width: 200px; }
     .info-section { width: 100%; }
     .footer-section { flex-direction: column; gap: 16px; text-align: center; }
+    .info-bottom-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .ribbon-rack-container {
+        max-width: 100%;
+        justify-content: center;
+    }
+    
+    .ribbon-rack {
+        justify-content: center;
+    }
     .divCodeBar { 
         flex-direction: column; 
         align-items: center; 
