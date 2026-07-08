@@ -1,27 +1,69 @@
-<h2 mat-dialog-title>Liste des personnages</h2>
-<mat-dialog-content style="margin-top: 20px;">
-    <p>
-        Selectionner les personnages ayant participé à l'opération. 
-        <br> Les points seront ajoutés à la validation et les grades mise à jour.
-    </p>
-    <mat-selection-list #selectionPersonnage>
+<div class="unsc-modal-header">
+    <h2 mat-dialog-title class="unsc-title">RAPPORT DE DÉPLOIEMENT TACTIQUE</h2>
+    <div class="datapad-header-accent"></div>
+</div>
 
-        @for (element of liste(); track element.id)
+<mat-dialog-content class="unsc-modal-content">
+    
+    <div class="tactical-briefing">
+        <mat-icon class="briefing-icon">verified_user</mat-icon>
+        <div class="briefing-text">
+            <p class="primary-directive">DIRECTIVE : Identifiez les opérateurs ayant participé à cette mission.</p>
+            <p class="secondary-directive">Le registre central mettra à jour leur dossier et allouera les crédits correspondants de manière automatique après validation du présent rapport.</p>
+        </div>
+    </div>
+
+    <mat-form-field class="unsc-search-bar">
+        <mat-label>RECHERCHE D'OPÉRATEUR</mat-label>
+        <mat-icon matIconPrefix>person_search</mat-icon>
+        <input matInput (input)="ChangerRecherche($event)" placeholder="Entrez l'indicatif de la recrue...">
+    </mat-form-field>
+
+    <mat-selection-list #selectionPersonnage 
+                        class="unsc-roster-list"
+                        (selectionChange)="GererSelection($event)">
+
+        @for (element of listeFiltree(); track element.id)
         {
-            <mat-list-option [value]="element.id">
-                <div class="test">
-                    @if(element.estBloquer)
+            <mat-list-option [value]="element.id" 
+                             [selected]="operateursSelectionnes.includes(element.id)"
+                             class="unsc-roster-item" 
+                             [class.is-locked]="element.estBloquer">
+                
+                <div class="operator-row">
+                    @if(element.estBloquer) 
                     {
-                        <mat-icon>lock</mat-icon>
+                        <mat-icon class="status-icon locked" matTooltip="Progression gelée par le Haut Commandement">lock</mat-icon>
+                    } 
+                    @else 
+                    {
+                        <mat-icon class="status-icon active">military_tech</mat-icon>
                     }
 
-                    <span> {{ element.nomGrade }} {{ element.nom }} ({{ element.nbPoint }} Pts)</span>
+                    <div class="operator-info">
+                        <span class="operator-grade">[{{ element.nomGrade }}]</span>
+                        <span class="operator-name">{{ element.nom }}</span>
+                    </div>
+
+                    <div class="operator-bounty">
+                        <span>+{{ element.nbPoint }} CR</span>
+                    </div>
                 </div>
             </mat-list-option>
         }
+
+        @if(listeFiltree().length == 0) 
+        {
+            <div class="no-result-warning">
+                <mat-icon>radar</mat-icon>
+                <p>Aucun signal détecté pour cet opérateur.</p>
+            </div>
+        }
+
     </mat-selection-list>
 </mat-dialog-content>
-<mat-dialog-actions>
-    <jp-button-loader matButton="text" label="fermer" matDialogClose />
-    <jp-button-loader label="Valider" [loading]="btnClick()" (clicked)="Valider(selectionPersonnage)" />
+
+<mat-dialog-actions class="unsc-modal-actions">
+    <jp-button-loader class="btn-secondary" matButton="text" label="ANNULER" matDialogClose />&nbsp;
+    <jp-button-loader class="btn-primary" label="VALIDER LE RAPPORT" [loading]="btnClick()" (clicked)="Valider()" />
 </mat-dialog-actions>

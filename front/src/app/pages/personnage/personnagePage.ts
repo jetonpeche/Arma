@@ -136,7 +136,11 @@ export class PersonnagePage implements OnInit
             data: this.listePersonnage()
         });
 
-        DIALOG_REF.afterClosed().subscribe(() => this.Lister());
+        DIALOG_REF.afterClosed().subscribe((retour) => {
+
+            if(retour === true) 
+                this.Lister();
+        });
     }
 
     protected OuvrirModalObjetBoutiquePosseder(_personnage: Personnage): void

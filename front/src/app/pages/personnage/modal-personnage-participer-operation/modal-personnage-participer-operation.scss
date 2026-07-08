@@ -1,6 +1,164 @@
-.test
+.unsc-modal-content {
+    padding-top: 16px !important;
+}
+
+/* =========================================================
+   LE BRIEFING MILITAIRE
+   ========================================================= */
+.tactical-briefing 
 {
     display: flex;
-    gap: 5px;
+    gap: 16px;
+    background: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+    border-left: 4px solid var(--mat-sys-primary);
+    padding: 16px;
+    margin-bottom: 24px;
+    align-items: flex-start;
+
+    .briefing-icon {
+        color: var(--mat-sys-primary);
+        display: contents;
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .briefing-text 
+    {
+        font-family: 'Courier New', Courier, monospace;
+        p { margin: 0; }
+        .primary-directive 
+        {
+            font-weight: 900;
+            color: var(--mat-sys-tertiary);
+            margin-bottom: 4px;
+        }
+        .secondary-directive {
+            font-size: 0.85rem;
+            color: var(--mat-sys-on-surface-variant);
+            line-height: 1.4;
+        }
+    }
+}
+
+/* =========================================================
+   BARRE DE RECHERCHE
+   ========================================================= */
+.unsc-search-bar {
+    margin-bottom: 16px;
+}
+
+/* =========================================================
+   LISTE DES OPÉRATEURS (ROSTER)
+   ========================================================= */
+.unsc-roster-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--mat-sys-outline-variant);
+    background-color: var(--mat-sys-surface-container-lowest);
+    padding: 0 !important;
+
+    /* Le Wrapper de la Ligne */
+    ::ng-deep .mdc-list-item {
+        border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent) !important;
+        transition: background-color 0.2s ease;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+
+        /* Effet de Cible au survol */
+        &:hover {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent) !important;
+        }
+
+        /* Si l'opérateur est sélectionné */
+        &.mdc-list-item--selected {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
+            border-left: 4px solid var(--mat-sys-primary);
+        }
+    }
+
+    /* Le Contenu de la Ligne */
+    .operator-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+    }
+
+    /* L'icône de statut (Cadenas ou Médaille) */
+    .status-icon {
+        &.locked { color: var(--mat-sys-error); }
+        &.active { color: color-mix(in srgb, var(--mat-sys-on-surface-variant) 50%, transparent); }
+    }
+
+    /* Infos Opérateur */
+    .operator-info {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .operator-grade {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--mat-sys-outline);
+            font-size: 0.85rem;
+        }
+
+        .operator-name {
+            font-weight: bold;
+            color: var(--mat-sys-on-surface);
+            text-transform: uppercase;
+        }
+    }
+
+    /* Prime de Crédits */
+    .operator-bounty {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        color: var(--mat-sys-tertiary);
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+        padding: 4px 8px;
+        border-radius: 2px;
+        font-size: 0.85rem;
+    }
+
+    /* Surcharge si le compte est verrouillé */
+    .is-locked {
+        .operator-name { color: var(--mat-sys-error); }
+        .operator-bounty { 
+            color: var(--mat-sys-error); 
+            background-color: color-mix(in srgb, var(--mat-sys-error) 15%, transparent);
+        }
+    }
+}
+
+/* Aucun résultat radar */
+.no-result-warning {
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    padding: 32px;
+    color: var(--mat-sys-outline);
+
+    mat-icon {
+        font-size: 48px;
+        width: 48px; height: 48px;
+        margin-bottom: 16px;
+        animation: unsc-pulse-text 2s infinite;
+    }
+}
+
+@keyframes unsc-pulse-text {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+/* =========================================================
+   ACTIONS EN BAS DE MODALE
+   ========================================================= */
+.unsc-modal-actions {
+    background-color: var(--mat-sys-surface-container-highest);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    padding: 16px 24px;
+    justify-content: flex-end;
 }

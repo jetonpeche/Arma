@@ -1,17 +1,20 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ButtonLoader } from "@jetonpeche/angular-mat-input";
-import {MatListModule, MatSelectionList} from '@angular/material/list';
+import { MatListModule, MatSelectionList } from '@angular/material/list';
 import { Personnage } from '@models/Personnage';
 import { Grade } from '@models/Grade';
 import { GradeService } from '@services/GradeService';
 import { SnackBarService } from '@services/SnackBarService';
 import { PersonnageService } from '@services/PersonnageService';
-import { MatIcon, MatIconModule } from "@angular/material/icon";
+import { MatIconModule } from "@angular/material/icon";
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms'; 
 
 @Component({
   selector: 'app-modal-personnage-participer-operation',
-  imports: [MatIconModule, MatDialogModule, ButtonLoader, MatListModule, MatIcon],
+  imports: [MatIconModule, MatDialogModule, ButtonLoader, MatListModule, MatFormFieldModule, MatInputModule, FormsModule],
   templateUrl: './modal-personnage-participer-operation.html',
   styleUrl: './modal-personnage-participer-operation.scss',
 })
@@ -20,8 +23,20 @@ export class ModalPersonnageParticiperOperation implements OnInit
     protected listeGrade = signal<Grade[]>([]);
     protected liste = signal<{ id: number, nom: string, nomGrade: string, nbPoint: number, estBloquer: boolean }[]>([]);
     protected btnClick = signal(false);
+    protected texteRecherche = signal<string>('');
+
+    protected operateursSelectionnes: number[] = []; 
+
+    protected listeFiltree = computed(() => {
+        const recherche = this.texteRecherche().toLowerCase().trim();
+        if (!recherche) 
+            return this.liste();
+        
+        return this.liste().filter(p => p.nom.toLowerCase().includes(recherche));
+    });
 
     private listePersonnage = inject<Personnage[]>(MAT_DIALOG_DATA);
+    private dialogRef = inject(MatDialogRef<ModalPersonnageParticiperOperation>);
     private gradeServ = inject(GradeService);
     private personnageServ = inject(PersonnageService);
     private snackBarServ  = inject(SnackBarService);
@@ -31,23 +46,42 @@ export class ModalPersonnageParticiperOperation implements OnInit
         this.ListerGrade();
     }
 
-    protected Valider(_matSelection: MatSelectionList): void
+    protected ChangerRecherche(event: any): void 
     {
-        if(!_matSelection._value)
+        this.texteRecherche.set(event.target.value);
+    }
+
+    protected GererSelection(event: any): void 
+    {
+        for (let option of event.options) 
         {
-            this.snackBarServ.Erreur("Aucun personnage choisi");
+            const ID = option.value;
+            const EST_COCHE = option.selected;
+
+            if (EST_COCHE && !this.operateursSelectionnes.includes(ID)) 
+                this.operateursSelectionnes.push(ID);
+
+            else if (!EST_COCHE) 
+                this.operateursSelectionnes = this.operateursSelectionnes.filter(x => x != ID);
+        }
+    }
+
+    protected Valider(): void
+    {
+        if(!this.operateursSelectionnes || this.operateursSelectionnes.length === 0)
+        {
+            this.snackBarServ.Erreur("Aucun opérateur sélectionné pour le rapport.");
             return;
         }
 
         this.btnClick.set(true);
 
-        const LISTE = _matSelection._value.map(x => +x);
-
-        this.personnageServ.ModifierPoint(LISTE).subscribe({
+        this.personnageServ.ModifierPoint(this.operateursSelectionnes).subscribe({
             next: () =>
             {
                 this.btnClick.set(false);
-                this.snackBarServ.Ok("Les points ont été donnés");
+                this.snackBarServ.Ok("Déploiement enregistré, crédits transférés.");
+                this.dialogRef.close();
             },
             error: () => this.btnClick.set(false)
         });
@@ -59,7 +93,6 @@ export class ModalPersonnageParticiperOperation implements OnInit
             next: (retour) =>
             {
                 this.listeGrade.set(retour);
-
                 const GRADE_MAP = new Map(retour.map(x => [x.id, x.nbPointBoutiqueGagnerParOperation]));
                 
                 this.liste.set(this.listePersonnage.map(x => ({
