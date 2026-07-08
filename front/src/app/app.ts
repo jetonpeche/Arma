@@ -32,6 +32,7 @@ export class App implements OnInit
     protected drawerMode = signal<MatDrawerMode>("push");
     protected estLightMode = signal<boolean>(false);
     protected sonEstActiver = signal<boolean>(false);
+    protected deconnexionEnCours = signal<boolean>(false);
     protected currentTrack = signal<string>('');
     protected volume = signal<number>(0.3);
 
@@ -217,19 +218,26 @@ export class App implements OnInit
 
     protected Deconnexion(): void
     {
+        this.deconnexionEnCours.set(true);
+
         const audio = document.getElementById('tactical-ambience') as HTMLAudioElement;
-        if (audio) {
+        if (audio)
             audio.pause();
-        }
+
         this.sonEstActiver.set(false);
         this.currentTrack.set('');
         
-        this.authServ.estConnecter.set(false);
-        this.authServ.peutModifierBanque.set(false);
-        this.authServ.nbPointBanque.set(0);
-        sessionStorage.removeItem("utilisateur");
-        environment.utilisateur = null;
-        this.router.navigateByUrl("/");
+        setTimeout(() => 
+        {
+            this.deconnexionEnCours.set(false);
+            
+            this.authServ.estConnecter.set(false);
+            this.authServ.peutModifierBanque.set(false);
+            this.authServ.nbPointBanque.set(0);
+            sessionStorage.removeItem("utilisateur");
+            environment.utilisateur = null;
+            this.router.navigateByUrl("/");
+        }, 3500);
     }
 
     protected OuvrirModalModifierPoint(): void

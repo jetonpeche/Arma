@@ -127,3 +127,22 @@
     </mat-drawer-content>
 
 </mat-drawer-container>
+
+@if (deconnexionEnCours()) 
+{
+    <div class="unsc-logout-overlay">
+        <div class="crt-screen"></div>
+        
+        <div class="shutdown-sequence">
+            <mat-icon class="warning-icon">power_settings_new</mat-icon>
+            <h2>TERMINAISON DE LA SESSION</h2>
+            
+            <div class="log-container">
+                <p class="log-line type-1">> Purge du cache local............ [OK]</p>
+                <p class="log-line type-2">> Effacement des identifiants..... [OK]</p>
+                <p class="log-line type-3">> Coupure de la liaison Netcom.... [OK]</p>
+                <p class="log-line type-4 blink">> EXTINCTION DU SYSTÈME_</p>
+            </div>
+        </div>
+    </div>
+}

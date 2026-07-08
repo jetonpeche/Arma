@@ -3,6 +3,124 @@
 }
 
 /* =========================================================
+   SÉQUENCE DE DÉCONNEXION (SHUTDOWN)
+   ========================================================= */
+.unsc-logout-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background-color: #030504;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Le clou du spectacle : l'effet vieille télé qui s'éteint juste avant la fin */
+    animation: unsc-tv-turn-off 0.4s cubic-bezier(0.23, 1, 0.32, 1) 3.1s forwards;
+
+    /* Le filtre CRT global */
+    .crt-screen {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 4px, 6px 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* Le conteneur du texte */
+    .shutdown-sequence {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        color: var(--mat-sys-error);
+        
+        .warning-icon {
+            font-size: 80px; width: 80px; height: 80px;
+            margin-bottom: 24px;
+            animation: pulse-shutdown 1s infinite;
+        }
+
+        h2 {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin: 0 0 32px 0;
+            text-shadow: 0 0 15px var(--mat-sys-error);
+        }
+
+        /* La zone des logs de fermeture */
+        .log-container {
+            text-align: left;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 410px;
+            max-width: 90vw;
+            color: color-mix(in srgb, var(--mat-sys-error) 80%, #fff);
+        }
+
+        .log-line {
+            margin: 0 0 12px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+        }
+
+        /* Cascade de frappe des lignes */
+        .type-1 { animation: typing 0.4s steps(30, end) forwards; }
+        .type-2 { animation: typing 0.4s steps(30, end) 0.6s forwards; }
+        .type-3 { animation: typing 0.4s steps(30, end) 1.2s forwards; }
+        
+        .type-4 {
+            margin-top: 24px;
+            color: var(--mat-sys-error);
+            animation: typing 0.4s steps(30, end) 2s forwards, blink-caret 0.8s step-end infinite 2.5s;
+        }
+    }
+}
+
+/* --- KEYFRAMES D'EXTINCTION --- */
+
+/* Effet Tube Cathodique (TV) : S'écrase en ligne lumineuse, puis disparaît */
+@keyframes unsc-tv-turn-off {
+    0% { transform: scale(1, 1); opacity: 1; filter: brightness(1); }
+    40% { transform: scale(1, 0.005); opacity: 1; filter: brightness(3); }
+    70% { transform: scale(0.005, 0.005); opacity: 1; }
+    100% { transform: scale(0, 0); opacity: 0; }
+}
+
+@keyframes pulse-shutdown {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 15px var(--mat-sys-error)); }
+    50% { opacity: 0.5; filter: drop-shadow(0 0 5px var(--mat-sys-error)); }
+}
+
+/* L'effet machine à écrire magique */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+/* Le clignotement du curseur final */
+@keyframes blink-caret {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@media screen and (max-width: 768px) 
+{
+    .unsc-logout-overlay .shutdown-sequence {
+        h2 { font-size: 1.2rem; letter-spacing: 2px; }
+        .log-container { font-size: 0.8rem; width: 305px; }
+        .warning-icon { font-size: 60px; width: 60px; height: 60px; }
+    }
+}
+
+/* =========================================================
    CONTRÔLEUR D'AMPLITUDE AUDIO (SLIDER MENU)
    ========================================================= */
 .volume-container {
@@ -10,7 +128,6 @@
     align-items: center;
     padding: 8px 16px;
     gap: 12px;
-    /* On donne une largeur minimum pour que le slider ait de la place pour coulisser */
     min-width: 250px; 
     
     button {
