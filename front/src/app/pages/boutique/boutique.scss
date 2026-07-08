@@ -371,44 +371,46 @@
 /* =========================================================
    TERMINAL DE LIAISON UNSC (COMMAND PROMPT)
    ========================================================= */
-.unsc-terminal-overlay {
+.unsc-terminal-overlay 
+{
     position: fixed;
     inset: 0;
     z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(5, 10, 5, 0.9); /* Fond très sombre */
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 90%, #000000e6);
     backdrop-filter: blur(8px);
 
     /* Définition de la couleur globale du terminal selon l'état */
-    &.processing { --term-color: var(--mat-sys-tertiary); } /* Cyan/Ambre en cours */
-    &.success { --term-color: var(--mat-sys-primary); }    /* Vert succès */
-    &.error { --term-color: var(--mat-sys-error); }        /* Rouge erreur */
+    &.processing { --term-color: var(--mat-sys-tertiary); }
+    &.success { --term-color: var(--mat-sys-primary); }
+    &.error { --term-color: var(--mat-sys-error); }     
 
     /* Filtre d'écran d'ordinateur old-school (Cathodique) */
     .crt-screen {
         position: absolute;
         inset: 0;
-        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
         background-size: 100% 4px, 6px 100%;
         pointer-events: none;
         z-index: 1;
     }
 
-    /* La fenêtre du terminal (Style MS-DOS / Linux brut) */
+    /* La fenêtre du terminal (Boîtier adaptatif) */
     .terminal-window {
         position: relative;
         width: 750px;
         max-width: 95vw;
-        background-color: rgba(0, 15, 5, 0.95);
+        
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 95%, #000);
+        
         border: 2px solid var(--term-color);
-        box-shadow: 0 0 30px color-mix(in srgb, var(--term-color) 30%, transparent), 
-                    inset 0 0 20px rgba(0, 0, 0, 0.8);
+        box-shadow: 0 0 30px color-mix(in srgb, var(--term-color) 20%, transparent), 
+                    inset 0 0 20px rgba(0, 0, 0, 0.6);
         z-index: 2;
         padding: 2px;
-        /* Animation d'allumage de l'écran */
         animation: unsc-turn-on 0.2s ease-out forwards;
     }
 
@@ -416,8 +418,9 @@
     .terminal-header {
         display: flex;
         justify-content: space-between;
-        background-color: var(--term-color);
-        color: var(--mat-sys-surface-container-highest);
+        background-color: var(--term-color);        
+        color: var(--mat-sys-surface-container-lowest); 
+        
         padding: 4px 12px;
         font-family: 'Courier New', Courier, monospace;
         font-weight: 900;
@@ -443,10 +446,9 @@
         font-weight: bold;
         white-space: nowrap;
         overflow: hidden;
-        width: 0; /* Caché au départ */
+        width: 0;
     }
 
-    /* Les lignes s'affichent les unes après les autres (0.6s par ligne) */
     .typing-1 { animation: typing 0.6s steps(40, end) forwards; }
     .typing-2 { animation: typing 0.6s steps(40, end) 0.6s forwards; }
     .typing-3 { animation: typing 0.6s steps(40, end) 1.2s forwards; }
@@ -460,19 +462,17 @@
         margin: 20px 0;
         padding: 2px;
         opacity: 0;
-        animation: appear-instant 0.1s 2.4s forwards; /* Apparaît après la 4ème ligne */
+        animation: appear-instant 0.1s 2.4s forwards;
     }
 
     .loading-bar {
         height: 100%;
         background-color: var(--term-color);
         width: 0%;
-        /* Effet de segments (petits blocs) */
-        background-image: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.85) 8px, rgba(0,0,0,0.85) 12px);
+        background-image: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.5) 8px, rgba(0,0,0,0.5) 12px);
         animation: load-progress 0.6s linear 2.4s forwards;
     }
 
-    /* Curseur clignotant */
     .blink {
         opacity: 0;
         animation: blink-caret 1s step-end infinite 2.4s;
@@ -497,7 +497,7 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             background-color: var(--term-color);
-            color: var(--mat-sys-surface-container-highest);
+            color: var(--mat-sys-surface-container-lowest);
             display: inline-block;
             padding: 4px 12px;
         }
@@ -506,13 +506,24 @@
             margin: 6px 0; 
             font-size: 1rem; 
             font-weight: bold;
+            color: var(--mat-sys-on-surface); 
         }
     }
 
-    /* Si Erreur : L'icône subit un glitch */
     .error-box mat-icon { 
         animation: glitch-icon 0.2s infinite; 
     }
+
+    .bracket {
+        position: absolute;
+        width: 25px; height: 25px;
+        border: 3px solid var(--term-color);
+        opacity: 0.7;
+    }
+    .bracket.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+    .bracket.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+    .bracket.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+    .bracket.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
 }
 
 /* =========================================================
