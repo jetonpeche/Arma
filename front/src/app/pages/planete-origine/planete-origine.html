@@ -4,6 +4,14 @@
         <h1>Cartographie Planétaire</h1>
         <div class="unsc-subtitle">// ARCHIVES COLONIALES - DÉPARTEMENT D'ASTROMÉTRIE</div>
     </div>
+
+        @if(droit?.peutEcrire)
+        {
+            <button matButton="filled" (click)="OuvrirModalAjouterModifierPlanete()">
+                <mat-icon>Add</mat-icon>
+                Nouvelle planète
+            </button>
+        }
 </div>
 
 <div class="tactical-filters">
