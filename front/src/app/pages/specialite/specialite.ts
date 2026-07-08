@@ -146,6 +146,8 @@ export class SpecialitePage implements OnInit
                         return p;
                     });
                 });
+
+                this.AppliquerFiltres();
             }
         });
     }

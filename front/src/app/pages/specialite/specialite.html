@@ -80,7 +80,10 @@
                     @if(droit?.peutEcrire) 
                     {
                         <div class="edit-image-overlay">
-                            <jp-input-file-btn matIconButton icon="photo_camera" (fileChange)="UploadFichier(node.id, $any($event))" />
+                            <jp-input-file-btn matIconButton 
+                                                        icon="photo_camera" 
+                                                        accept=".png, .jpg, .webp, .jpeg"
+                                                        (fileChange)="UploadFichier(node.id, $any($event))" />
                         </div>
                     }
                 </div>

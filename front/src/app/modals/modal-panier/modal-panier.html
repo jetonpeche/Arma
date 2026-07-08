@@ -71,6 +71,8 @@
         </div>
 </mat-dialog-content>
 <mat-dialog-actions>
+     <jp-button-loader matButton="text" label="Fermer" matDialogClose />
+
     @if(dataSource().data.length > 0)
     {
         <jp-button-loader matButton="text" 
@@ -81,8 +83,6 @@
                                     [loading]="btnClick()" 
                                     (clicked)="OuvrirModalConfirmationAchat()" />
     }
-    @else
-    {
-        <jp-button-loader label="Fermer" matDialogClose />
-    }
+
+   
 </mat-dialog-actions>

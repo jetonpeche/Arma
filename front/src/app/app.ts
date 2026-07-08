@@ -52,6 +52,7 @@ export class App implements OnInit
     private document = inject(DOCUMENT);
     private renderer = inject(Renderer2);
     private debounceTimer: any;
+    private readonly estMobile = window.innerWidth <= 800;
 
     protected estConnecter = computed(() => this.authServ.estConnecter());
     protected pointCampagne = computed(() => this.authServ.nbPointBanque());
@@ -234,13 +235,16 @@ export class App implements OnInit
     protected OuvrirModalModifierPoint(): void
     {
         if(this.peutModifierBanque())
-            this.dialog.open(ModalPointBanque);
+            this.dialog.open(ModalPointBanque, {
+                width: this.estMobile ? "95%" : "30%",
+                maxWidth: "100vw"
+        });
     }
 
     protected OuvrirModalPanier(): void
     { 
         this.dialog.open(ModalPanier, {
-            width: "60%", 
+            width: this.estMobile ? "95%" : "70%", 
             maxWidth: "100vw",
         });
     }
