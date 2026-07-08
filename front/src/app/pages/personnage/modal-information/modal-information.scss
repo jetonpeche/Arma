@@ -1,60 +1,131 @@
-p {
-    white-space: pre-wrap;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1rem;
-    letter-spacing: 1px;
+/* =========================================================
+   CONTENEUR GLOBAL DU DATAPAD (MODALE)
+   ========================================================= */
+.unsc-modal-container {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--mat-sys-surface-container-high);
+    position: relative;
+    overflow: hidden;
+
+    /* Barre supérieure décorative */
+    .modal-header-accent {
+        height: 4px;
+        background-color: var(--mat-sys-tertiary);
+        width: 100%;
+    }
+
+    /* En-tête tactique */
+    .unsc-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        background-color: var(--mat-sys-surface-container-highest);
+        border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+        .header-titles h2 {
+            color: var(--mat-sys-primary);
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            margin: 0 0 4px 0;
+            text-transform: uppercase;
+        }
+
+        .classification {
+            color: var(--mat-sys-error);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-error) 40%, transparent);
+        }
+
+        .header-logo mat-icon {
+            color: var(--mat-sys-outline);
+            font-size: 40px;
+            width: 40px;
+            height: 40px;
+            opacity: 0.4;
+        }
+    }
 }
 
+/* =========================================================
+   ZONE DE CONTENU & GRILLE HOLOGRAPHIQUE
+   ========================================================= */
+.unsc-modal-content {
+    padding: 0 !important; /* Retire le padding par défaut de Material */
+    position: relative;
+    min-height: 350px;
+
+    /* Grille de fond en filigrane pour combler le vide */
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(color-mix(in srgb, var(--mat-sys-primary) 5%, transparent) 1px, transparent 1px),
+            linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-primary) 5%, transparent) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+        z-index: 0;
+    }
+}
+
+/* Enveloppe pour le contenu des autres onglets (permet de voir la grille derrière) */
+.tab-wrapper {
+    padding: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+/* =========================================================
+   ONGLET 1 : DÉCORATIONS (PLASTRON ÉPOUSANT LES MÉDAILLES)
+   ========================================================= */
 .chest-plate-container {
     padding: 40px 24px;
-    background-color: var(--mat-sys-surface-container);
-    min-height: 250px;
+    /* Un fond très légèrement coloré pour laisser transparaître la grille en dessous */
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container) 70%, transparent);
+    min-height: 300px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    position: relative;
+    z-index: 1;
 }
 
-/* Le support métallique */
 .uniform-ribbon-rack {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 2px;
-    max-width: 446px; 
-    
-    background-color: #0d0d0d;
-    padding: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-    
-    /* 2. Une ombre portée bien lourde pour que la plaque "ressorte" de l'écran */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(0, 0, 0, 0.9);
+    gap: 0; 
+    max-width: 456px; 
+    filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.8));
 }
 
-/* Le Ruban (Tissu + Plaque métallique) */
-.uniform-medal {
+.uniform-medal 
+{
     width: 110px; 
     height: 40px;
     object-fit: cover;
-    box-sizing: border-box;
+    box-sizing: content-box;
+    border: 2px solid #0a0a0a; 
+    background-color: #0a0a0a; 
     
-    border: 1px solid #000; 
-    background-color: #141414; 
-    
-    transition: transform 0.2s ease, filter 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, filter 0.2s ease;
     cursor: help;
 
-    /* Mise en avant lors de l'inspection par l'opérateur */
     &:hover {
         transform: scale(1.15);
-        z-index: 10;
+        z-index: 2;
         filter: brightness(1.2);
-        border: 1px solid var(--mat-sys-primary);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.9);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 1);
     }
 }
 
-/* Affichage si dossier vide */
 .no-medals {
     width: 100%;
     display: flex;
@@ -70,7 +141,6 @@ p {
         height: 60px;
         margin-bottom: 16px;
         opacity: 0.5;
-        filter: grayscale(100%);
     }
 
     p {
@@ -80,4 +150,69 @@ p {
         letter-spacing: 2px;
         margin: 0;
     }
+}
+
+/* =========================================================
+   ONGLET 3 : TERMINAL DES ÉTATS DE SERVICE
+   ========================================================= */
+.tactical-terminal {
+    background-color: #080c0a; /* Fond terminal très sombre */
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+
+    .terminal-header {
+        background-color: var(--mat-sys-surface-container-highest);
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--mat-sys-outline-variant);
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--mat-sys-outline);
+            margin-right: 6px;
+            
+            &:nth-child(1) { background-color: var(--mat-sys-error); }
+            &:nth-child(2) { background-color: var(--mat-sys-tertiary); }
+            &:nth-child(3) { background-color: var(--mat-sys-primary); }
+        }
+
+        .terminal-title {
+            margin-left: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.75rem;
+            color: var(--mat-sys-on-surface-variant);
+        }
+    }
+
+    .terminal-body {
+        padding: 24px;
+        min-height: 200px;
+        
+        p {
+            margin: 0;
+            white-space: pre-wrap;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            color: var(--mat-sys-primary); /* Texte en vert terminal */
+            letter-spacing: 1px;
+            line-height: 1.6;
+            text-shadow: 0 0 5px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+        }
+    }
+}
+
+/* =========================================================
+   ACTIONS DE LA MODALE (PIED DE PAGE)
+   ========================================================= */
+.unsc-modal-actions {
+    background-color: var(--mat-sys-surface-container-highest);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    padding: 16px 24px !important; /* Force le padding sur Material */
+    justify-content: flex-end;
+    margin: 0 !important;
 }

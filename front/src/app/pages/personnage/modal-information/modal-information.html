@@ -1,36 +1,72 @@
-<h2 mat-dialog-title>Information</h2>
-<mat-dialog-content>
-   <mat-tab-group>
-        <mat-tab label="DÉCORATIONS">
-            <div class="chest-plate-container">
-                
-                @if(dialogData.listeMedaille && dialogData.listeMedaille.length > 0) 
-                {
-                    <!-- Le rack qui s'adapte à la forme des rubans -->
-                    <div class="uniform-ribbon-rack">
-                        @for (medaille of dialogData.listeMedaille; track medaille.id) 
-                        {
-                            <img class="uniform-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
-                        }
+<div class="unsc-modal-container">
+    
+    <div class="modal-header-accent"></div>
+
+    <div class="unsc-modal-header">
+        <div class="header-titles">
+            <h2>DOSSIER PERSONNEL // {{ dialogData.matricule || 'CLASSIFIÉ' }}</h2>
+            <div class="classification">ACCRÉDITATION REQUISE : NIVEAU 3</div>
+        </div>
+        <div class="header-logo">
+            <mat-icon>shield</mat-icon>
+        </div>
+    </div>
+
+    <mat-dialog-content class="unsc-modal-content">
+        <mat-tab-group class="unsc-tabs">
+            
+            <!-- ONGLET 1 : DÉCORATIONS (Le plastron) -->
+            <mat-tab label="Décorations">
+                <div class="chest-plate-container">
+                    @if(dialogData.listeMedaille && dialogData.listeMedaille.length > 0) 
+                    {
+                        <div class="uniform-ribbon-rack">
+                            @for (medaille of dialogData.listeMedaille; track medaille.id) 
+                            {
+                                <img class="uniform-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
+                            }
+                        </div>
+                    } 
+                    @else 
+                    {
+                        <div class="no-medals">
+                            <mat-icon>military_tech</mat-icon>
+                            <p>Aucune décoration enregistrée.</p>
+                        </div>
+                    }
+                </div>
+            </mat-tab>
+
+            <!-- ONGLET 2 : MATÉRIEL -->
+            <mat-tab label="Matériel">
+                <div class="tab-wrapper">
+                    <app-boutique [idPersonnage]="dialogData.id" />
+                </div>
+            </mat-tab>
+
+            <!-- ONGLET 3 : ÉTATS DE SERVICE -->
+            <mat-tab label="États de service">
+                <div class="tab-wrapper">
+                    <div class="tactical-terminal">
+                        <div class="terminal-header">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="terminal-title">Rapport_Operationnel.log</span>
+                        </div>
+                        <div class="terminal-body">
+                            <p>{{ dialogData.etatService || 'Aucune donnée de service disponible dans les archives.' }}</p>
+                        </div>
                     </div>
-                } 
-                @else 
-                {
-                    <div class="no-medals">
-                        <mat-icon>military_tech</mat-icon>
-                        <p>Aucune décoration enregistrée.</p>
-                    </div>
-                }
-            </div>
-        </mat-tab>
-        <mat-tab label="Materiel">
-            <app-boutique [idPersonnage]="dialogData.id" />
-        </mat-tab>
-        <mat-tab label="Etat de service">
-            <p>{{ dialogData.etatService }}</p>
-        </mat-tab>
-    </mat-tab-group>
-</mat-dialog-content>
-<mat-dialog-actions>
-    <button matButton="filled" mat-dialog-close>Fermer</button>
-</mat-dialog-actions>
+                </div>
+            </mat-tab>
+
+        </mat-tab-group>
+    </mat-dialog-content>
+
+    <!-- Pied de page tactique -->
+    <mat-dialog-actions class="unsc-modal-actions">
+        <button matButton="filled" mat-dialog-close>VERROUILLER LE DOSSIER</button>
+    </mat-dialog-actions>
+
+</div>
