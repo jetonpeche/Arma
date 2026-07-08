@@ -15,27 +15,50 @@
     <mat-dialog-content class="unsc-modal-content">
         <mat-tab-group class="unsc-tabs">
             
-            <!-- ONGLET 1 : DÉCORATIONS (Le plastron) -->
-            <mat-tab label="Décorations">
-                <div class="chest-plate-container">
-                    @if(dialogData.listeMedaille && dialogData.listeMedaille.length > 0) 
-                    {
-                        <div class="uniform-ribbon-rack">
-                            @for (medaille of dialogData.listeMedaille; track medaille.id) 
-                            {
-                                <img class="uniform-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
-                            }
-                        </div>
-                    } 
-                    @else 
-                    {
-                        <div class="no-medals">
-                            <mat-icon>military_tech</mat-icon>
-                            <p>Aucune décoration enregistrée.</p>
-                        </div>
-                    }
+<!-- ONGLET 1 : DÉCORATIONS (Le plastron) -->
+        <mat-tab label="Décorations">
+            <div class="chest-plate-container">
+                
+                <!-- NOUVEAU : HUD TACTIQUE (Décoration d'arrière-plan) -->
+                <div class="tactical-hud-overlay">
+                    <!-- Coins de ciblage -->
+                    <div class="crosshair tl"></div>
+                    <div class="crosshair tr"></div>
+                    <div class="crosshair bl"></div>
+                    <div class="crosshair br"></div>
+                    
+                    <!-- Lignes de données latérales -->
+                    <div class="hud-data left-data">
+                        <span>// SYS.OP_TRACKING</span>
+                        <span>// FLEETCOM_VERIFIED</span>
+                        <span>// RACK_MOUNT: ACTIVE</span>
+                    </div>
+                    <div class="hud-data right-data">
+                        <span>SYNC_RATE: 99.8%</span>
+                        <span>UPLINK: SECURE</span>
+                        <span>AUTH_LVL: ALPHA</span>
+                    </div>
                 </div>
-            </mat-tab>
+
+                @if(dialogData.listeMedaille && dialogData.listeMedaille.length > 0) 
+                {
+                    <div class="uniform-ribbon-rack">
+                        @for (medaille of dialogData.listeMedaille; track medaille.id) 
+                        {
+                            <img class="uniform-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
+                        }
+                    </div>
+                } 
+                @else 
+                {
+                    <div class="no-medals">
+                        <mat-icon>military_tech</mat-icon>
+                        <p>Aucune décoration enregistrée.</p>
+                    </div>
+                }
+                
+            </div>
+        </mat-tab>
 
             <!-- ONGLET 2 : MATÉRIEL -->
             <mat-tab label="Matériel">

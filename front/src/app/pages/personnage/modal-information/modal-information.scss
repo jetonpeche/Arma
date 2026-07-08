@@ -83,46 +83,94 @@
 }
 
 /* =========================================================
-   ONGLET 1 : DÉCORATIONS (PLASTRON ÉPOUSANT LES MÉDAILLES)
+   ONGLET DÉCORATIONS (PLASTRON UNITAIRE)
    ========================================================= */
 .chest-plate-container {
     padding: 40px 24px;
-    /* Un fond très légèrement coloré pour laisser transparaître la grille en dessous */
-    background-color: color-mix(in srgb, var(--mat-sys-surface-container) 70%, transparent);
-    min-height: 300px;
+    background-color: var(--mat-sys-surface-container);
+    min-height: 250px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    position: relative;
-    z-index: 1;
+    
+    /* TRÈS IMPORTANT : Permet au HUD de se positionner par rapport à ce conteneur */
+    position: relative; 
+}
+
+/* --- HUD TACTIQUE (Habillage visuel) --- */
+.tactical-hud-overlay {
+    position: absolute;
+    inset: 16px; /* S'écarte des bords de 16px */
+    pointer-events: none; /* Empêche le texte de gêner les clics sur les médailles */
+    z-index: 0; /* Se place derrière le rack */
+
+    /* Mires de ciblage holographiques (Les 4 coins) */
+    .crosshair {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        border: 2px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+        transition: all 0.5s ease;
+    }
+    .tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+    .tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+    .bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+    .br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+    /* Flux de télémétrie sur les côtés */
+    .hud-data {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.65rem;
+        font-weight: bold;
+        color: color-mix(in srgb, var(--mat-sys-primary) 35%, transparent);
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+
+        span {
+            opacity: 0.8;
+            animation: unsc-pulse-text 3s infinite alternate;
+        }
+
+        &.left-data { left: 10px; border-left: 2px solid color-mix(in srgb, var(--mat-sys-primary) 20%, transparent); padding-left: 8px; }
+        &.right-data { right: 10px; text-align: right; border-right: 2px solid color-mix(in srgb, var(--mat-sys-primary) 20%, transparent); padding-right: 8px; }
+    }
+}
+
+@keyframes unsc-pulse-text {
+    0% { opacity: 0.4; }
+    100% { opacity: 0.9; }
 }
 
 .uniform-ribbon-rack {
-    display: flex;
+    display: inline-flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0; 
-    max-width: 456px; 
-    filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.8));
+    gap: 2px;
+    padding: 6px;
+    border-radius: 2px;
+    max-width: 458px; 
 }
 
-.uniform-medal 
-{
+.uniform-medal {
     width: 110px; 
     height: 40px;
     object-fit: cover;
-    box-sizing: content-box;
-    border: 2px solid #0a0a0a; 
-    background-color: #0a0a0a; 
+    display: block;
     
     transition: transform 0.2s ease, filter 0.2s ease;
     cursor: help;
 
     &:hover {
-        transform: scale(1.15);
+        transform: scale(1.05);
         z-index: 2;
-        filter: brightness(1.2);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 1);
+        filter: brightness(1.1);
+        outline: 1px solid var(--mat-sys-primary);
     }
 }
 
@@ -215,4 +263,68 @@
     padding: 16px 24px !important; /* Force le padding sur Material */
     justify-content: flex-end;
     margin: 0 !important;
+}
+
+/* =========================================================
+   ADAPTATION THEME CLAIR / SOMBRE (LIGHT/DARK MODE)
+   ========================================================= */
+
+/* --- 1. Mode Sombre (Par défaut) --- */
+:host-context(html:not(.light-mode)) {
+    /* Le rack est une plaque d'acier noir mat */
+    .uniform-ribbon-rack {
+        background-color: #050505; 
+        border: 1px solid #1a1a1a;
+        filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.8));
+    }
+
+    /* Le terminal est un écran noir typique des vieux moniteurs */
+    .tactical-terminal {
+        background-color: #080c0a; 
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        border: 1px solid var(--mat-sys-outline-variant);
+    }
+}
+
+/* --- 2. Mode Clair (Light Mode) --- */
+:host-context(html.light-mode) {
+    /* Le rack devient une plaque d'argent/laiton clair pour contraster avec le fond blanc */
+    .uniform-ribbon-rack {
+        background-color: #e0e4e8; 
+        border: 1px solid #b0b5ba;
+        /* Ombre beaucoup plus douce pour ne pas "salir" le fond clair */
+        filter: drop-shadow(0px 6px 8px rgba(0, 0, 0, 0.25));
+    }
+
+    /* L'écran du terminal devient un fond clair (façon papier digital ou datapad moderne) */
+    .tactical-terminal {
+        background-color: #f4f7f6; 
+        /* Ombre inversée, plus légère */
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--mat-sys-outline);
+
+        .terminal-header {
+            background-color: var(--mat-sys-surface-container);
+            border-bottom: 1px solid var(--mat-sys-outline);
+        }
+
+        .terminal-body p {
+            /* On s'assure que le texte du terminal reste bien lisible en mode clair */
+            color: var(--mat-sys-primary); 
+            text-shadow: none; 
+            font-weight: 600;
+        }
+    }
+    
+    /* Le HUD Tactique doit être un peu plus prononcé en mode clair pour rester visible */
+    .tactical-hud-overlay {
+        .crosshair {
+            border-color: color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+        }
+        .hud-data {
+            color: color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+            &.left-data { border-left-color: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
+            &.right-data { border-right-color: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
+        }
+    }
 }
