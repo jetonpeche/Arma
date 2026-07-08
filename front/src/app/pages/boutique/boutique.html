@@ -107,3 +107,72 @@
         </jp-grid-element>
     }
 </jp-grid-container>
+
+@if (transactionEnCours() || transactionSucces() || transactionEchec()) 
+{
+    <div class="unsc-terminal-overlay" 
+         [class.processing]="transactionEnCours()"
+         [class.success]="transactionSucces()"
+         [class.error]="transactionEchec()">
+        
+        <div class="crt-screen"></div>
+
+        <div class="terminal-window">
+            
+            <div class="terminal-header">
+                <span class="sys-id">UNSC_NETCOM_UPLINK_v7.4</span>
+                <span class="sys-status">
+                    @if(transactionEnCours()) { [ CONNEXION... ] }
+                    @if(transactionSucces()) { [ AUTORISÉ ] }
+                    @if(transactionEchec()) { [ VERROUILLÉ ] }
+                </span>
+            </div>
+
+            <div class="terminal-body">
+                
+                @if(transactionEnCours()) 
+                {
+                    <div class="log-sequence">
+                        <p class="log-line typing-1">> Initialisation du protocole de liaison tactique...</p>
+                        <p class="log-line typing-2">> Vérification des habilitations UNSC...</p>
+                        <p class="log-line typing-3">> Analyse des fonds disponibles...</p>
+                        <p class="log-line typing-4">> Demande de réquisition transmise au quartier-maître.</p>
+                        
+                        <div class="loading-bar-container">
+                            <div class="loading-bar"></div>
+                        </div>
+                        
+                        <p class="log-line blink">> ATTENTE DE LA RÉPONSE DU SERVEUR CENTRAL_</p>
+                    </div>
+                }
+
+                @if(transactionSucces())
+                {
+                    <div class="result-sequence success-box">
+                        <mat-icon>verified</mat-icon>
+                        <div class="result-text">
+                            <h2>RÉQUISITION APPROUVÉE</h2>
+                            <p>> CODE: VERT. Transfert de crédits confirmé.</p>
+                            <p>> L'équipement a été assigné à votre matricule.</p>
+                            <p class="blink">> Fermeture de la liaison_</p>
+                        </div>
+                    </div>
+                }
+
+                @if(transactionEchec()) 
+                {
+                    <div class="result-sequence error-box">
+                        <mat-icon>warning</mat-icon>
+                        <div class="result-text">
+                            <h2>ERREUR // TRANSACTION REJETÉE</h2>
+                            <p>> CODE: ROUGE. Fonds insuffisants ou accès refusé.</p>
+                            <p>> Le Haut Commandement a été notifié de l'anomalie.</p>
+                            <p class="blink">> Coupure immédiate de la transmission_</p>
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+}

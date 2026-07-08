@@ -302,9 +302,12 @@
     }
 }
 
-/* --- SÉCURITÉ RESPONSIVE (MOBILES) --- */
-@media screen and (max-width: 768px) {
-    .quartermaster-brief {
+/* =========================================================
+   SÉCURITÉ RESPONSIVE (MOBILES ET DATAPADS)
+   ========================================================= */
+@media screen and (max-width: 768px) 
+{
+        .quartermaster-brief {
         flex-direction: column;
         text-align: center;
         
@@ -313,4 +316,252 @@
             margin-bottom: 16px;
         }
     }
+
+    .unsc-terminal-overlay 
+    {    
+        /* On maximise la largeur pour ne pas perdre un pixel */
+        .terminal-window {
+            width: 95vw;
+        }
+
+        /* On réduit l'en-tête */
+        .terminal-header {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            padding: 4px 8px;
+        }
+
+        /* On diminue les marges internes pour laisser place au texte */
+        .terminal-body {
+            padding: 16px 10px;
+            min-height: 180px;
+        }
+
+        .log-line {
+            font-size: 0.75rem; 
+            margin: 0 0 10px 0;
+        }
+
+        /* On empile l'icône de validation et le texte l'un sur l'autre */
+        .result-sequence {
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+            
+            mat-icon {
+                font-size: 64px; 
+                width: 64px; 
+                height: 64px;
+            }
+
+            h2 {
+                font-size: 1.1rem;
+                margin: 0 0 12px 0;
+                letter-spacing: 1px;
+            }
+
+            p { 
+                font-size: 0.8rem; 
+                white-space: normal; 
+            }
+        }
+    }
+}
+
+/* =========================================================
+   TERMINAL DE LIAISON UNSC (COMMAND PROMPT)
+   ========================================================= */
+.unsc-terminal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(5, 10, 5, 0.9); /* Fond très sombre */
+    backdrop-filter: blur(8px);
+
+    /* Définition de la couleur globale du terminal selon l'état */
+    &.processing { --term-color: var(--mat-sys-tertiary); } /* Cyan/Ambre en cours */
+    &.success { --term-color: var(--mat-sys-primary); }    /* Vert succès */
+    &.error { --term-color: var(--mat-sys-error); }        /* Rouge erreur */
+
+    /* Filtre d'écran d'ordinateur old-school (Cathodique) */
+    .crt-screen {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 4px, 6px 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* La fenêtre du terminal (Style MS-DOS / Linux brut) */
+    .terminal-window {
+        position: relative;
+        width: 750px;
+        max-width: 95vw;
+        background-color: rgba(0, 15, 5, 0.95);
+        border: 2px solid var(--term-color);
+        box-shadow: 0 0 30px color-mix(in srgb, var(--term-color) 30%, transparent), 
+                    inset 0 0 20px rgba(0, 0, 0, 0.8);
+        z-index: 2;
+        padding: 2px;
+        /* Animation d'allumage de l'écran */
+        animation: unsc-turn-on 0.2s ease-out forwards;
+    }
+
+    /* L'en-tête de la fenêtre */
+    .terminal-header {
+        display: flex;
+        justify-content: space-between;
+        background-color: var(--term-color);
+        color: var(--mat-sys-surface-container-highest);
+        padding: 4px 12px;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+    }
+
+    /* Le corps du texte */
+    .terminal-body {
+        padding: 30px;
+        min-height: 250px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: var(--term-color);
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    /* --- ANIMATIONS DE SAISIE (TYPING) --- */
+    .log-line {
+        margin: 0 0 12px 0;
+        font-size: 1rem;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 0; /* Caché au départ */
+    }
+
+    /* Les lignes s'affichent les unes après les autres (0.6s par ligne) */
+    .typing-1 { animation: typing 0.6s steps(40, end) forwards; }
+    .typing-2 { animation: typing 0.6s steps(40, end) 0.6s forwards; }
+    .typing-3 { animation: typing 0.6s steps(40, end) 1.2s forwards; }
+    .typing-4 { animation: typing 0.6s steps(40, end) 1.8s forwards; }
+
+    /* La barre de progression brute (Segmentée) */
+    .loading-bar-container {
+        width: 100%;
+        height: 16px;
+        border: 1px solid var(--term-color);
+        margin: 20px 0;
+        padding: 2px;
+        opacity: 0;
+        animation: appear-instant 0.1s 2.4s forwards; /* Apparaît après la 4ème ligne */
+    }
+
+    .loading-bar {
+        height: 100%;
+        background-color: var(--term-color);
+        width: 0%;
+        /* Effet de segments (petits blocs) */
+        background-image: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.85) 8px, rgba(0,0,0,0.85) 12px);
+        animation: load-progress 0.6s linear 2.4s forwards;
+    }
+
+    /* Curseur clignotant */
+    .blink {
+        opacity: 0;
+        animation: blink-caret 1s step-end infinite 2.4s;
+    }
+
+    /* --- AFFICHAGE DU RÉSULTAT (Succès / Échec) --- */
+    .result-sequence {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        animation: unsc-flash-in 0.1s ease-out forwards;
+        
+        mat-icon {
+            font-size: 80px; width: 80px; height: 80px;
+            filter: drop-shadow(0 0 15px var(--term-color));
+        }
+
+        h2 {
+            font-weight: 900;
+            font-size: 1.5rem;
+            margin: 0 0 16px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background-color: var(--term-color);
+            color: var(--mat-sys-surface-container-highest);
+            display: inline-block;
+            padding: 4px 12px;
+        }
+
+        p { 
+            margin: 6px 0; 
+            font-size: 1rem; 
+            font-weight: bold;
+        }
+    }
+
+    /* Si Erreur : L'icône subit un glitch */
+    .error-box mat-icon { 
+        animation: glitch-icon 0.2s infinite; 
+    }
+}
+
+/* =========================================================
+   KEYFRAMES DU TERMINAL
+   ========================================================= */
+
+/* Allumage style vieille TV */
+@keyframes unsc-turn-on {
+    0% { transform: scale(1, 0.05); opacity: 0; }
+    50% { transform: scale(1, 0.05); opacity: 1; }
+    100% { transform: scale(1, 1); opacity: 1; }
+}
+
+/* L'effet machine à écrire magique */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes appear-instant {
+    to { opacity: 1; }
+}
+
+@keyframes blink-caret {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Barre de progression sacadée */
+@keyframes load-progress {
+    0% { width: 0%; }
+    40% { width: 35%; }
+    50% { width: 35%; } /* Petit coup de lag réseau */
+    100% { width: 100%; }
+}
+
+/* Flash de validation immédiat */
+@keyframes unsc-flash-in {
+    0% { opacity: 0; }
+    50% { opacity: 1; filter: brightness(3) invert(1); }
+    100% { opacity: 1; filter: brightness(1) invert(0); }
+}
+
+/* Tremblement d'erreur critique */
+@keyframes glitch-icon {
+    0% { transform: translate(0) }
+    20% { transform: translate(-3px, 2px) }
+    40% { transform: translate(-1px, -2px) }
+    60% { transform: translate(3px, 1px) }
+    80% { transform: translate(1px, -1px) }
+    100% { transform: translate(0) }
 }

@@ -3,7 +3,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { SnackBarService } from '@services/SnackBarService';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { ButtonLoader } from "@jetonpeche/angular-mat-input";
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
@@ -33,9 +32,12 @@ export class BoutiquePage implements OnInit
     protected listeBoutique = signal<Boutique[]>([]);
     protected droit: Droit;
 
+    protected transactionEnCours = signal<boolean>(false);
+    protected transactionSucces = signal<boolean>(false);
+    protected transactionEchec = signal<boolean>(false);
+
     private router = inject(Router);
     private boutiqueServ = inject(BoutiqueService);
-    private snackBarServ = inject(SnackBarService);
     private authServ = inject(AuthentificationService);
     private dialogConfimationServ = inject(DialogConfirmationService);
 
@@ -77,16 +79,38 @@ export class BoutiquePage implements OnInit
             idBoutiquePrix: _idBoutiquePrix
         };
 
-        this.boutiqueServ.Acheter(INFO).subscribe({
-            next: () =>
-            {
-                this.snackBarServ.Ok("L'objet a été acheté");
-                this.pointPersonnage.update(x => x - _prix);
-                environment.utilisateur.nbPointBoutique -= _prix;
-                sessionStorage.setItem("utilisateur", environment.utilisateur);
-                this.Lister();
-            }
-        });
+        this.transactionEnCours.set(true);
+        this.transactionSucces.set(false);
+        this.transactionEchec.set(false);
+
+        setTimeout(() => 
+        {
+            this.boutiqueServ.Acheter(INFO).subscribe({
+                next: () =>
+                {
+                    this.transactionEnCours.set(false);
+                    this.transactionSucces.set(true);
+
+                    this.pointPersonnage.update(x => x - _prix);
+                    environment.utilisateur.nbPointBoutique -= _prix;
+                    sessionStorage.setItem("utilisateur", environment.utilisateur);
+                    
+                    setTimeout(() => {
+                        this.transactionSucces.set(false);
+                        this.Lister();
+                    }, 3500);
+                },
+                error: () => 
+                {
+                    this.transactionEnCours.set(false);
+                    this.transactionEchec.set(true);
+
+                    setTimeout(() => {
+                        this.transactionEchec.set(false);
+                    }, 4000);
+                }
+            });
+        }, 3000);
     }
 
     private Lister(): void
