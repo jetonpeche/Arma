@@ -2,31 +2,39 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; 
+    min-height: 100%;
 }
 
+/* =========================================================
+   LE CONTENEUR DATAPAD
+   ========================================================= */
 .unsc-datapad {
     width: 80%;
     background-color: var(--mat-sys-surface-container-high); 
-    
     border: 2px solid var(--mat-sys-outline); 
     border-radius: 4px;
-    
     box-shadow: 0 8px 32px var(--mat-sys-shadow);
     position: relative;
     overflow: hidden;
-
     transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 
     &.access-granted {
         border-color: var(--mat-sys-primary);
         box-shadow: 0 0 40px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
         animation: unsc-warp-jump 0.8s ease-in 3.5s forwards; 
-        
         pointer-events: none; 
+    }
+
+    &.access-denied {
+        border-color: var(--mat-sys-error) !important;
+        pointer-events: none;
+        animation: unsc-datapad-shake 0.4s cubic-bezier(.36,.07,.19,.97) forwards;
     }
 }
 
+/* =========================================================
+   L'OVERLAY CENTRAL DE SÉCURITÉ
+   ========================================================= */
 .success-overlay {
     position: absolute;
     inset: 0;
@@ -40,12 +48,11 @@
     text-align: center;
     animation: unsc-overlay-boot 0.3s ease-out forwards;
 
-    /* --- 1. LE MODULE DE LECTURE --- */
     .biometric-scanner {
         position: relative;
         margin-bottom: 40px;
-        width: 80px;
-        height: 80px;
+        width: 110px;
+        height: 110px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -54,38 +61,44 @@
             font-size: 80px !important;
             width: 80px !important;
             height: 80px !important;
-            /* Le maître du temps : L'animation dure 2.8s au total */
-            animation: unsc-fingerprint-sequence 2.8s forwards;
+            z-index: 2;
         }
 
         .scanner-line {
             position: absolute;
-            left: -10px;
-            right: -10px;
+            left: -15px;
+            right: -15px;
             height: 4px;
-            background-color: var(--mat-sys-primary);
-            box-shadow: 0 0 15px var(--mat-sys-primary), 0 0 5px #fff;
-            border-radius: 2px;
+            border-radius: 4px;
             opacity: 0;
-            /* Le laser balaie l'écran pendant 1s, et commence après 0.5s */
-            animation: unsc-scan-sweep 1s 0.5s forwards;
+            z-index: 3;
         }
+
+        .bracket {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+        .bracket.tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+        .bracket.tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+        .bracket.bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+        .bracket.br { bottom: 0; right: 0; border-left: none; border-top: none; }
     }
 
-    /* --- 2. L'AFFICHAGE DU MESSAGE --- */
     .auth-message {
         opacity: 0;
-        /* Le texte surgit à 2.2s, juste après le clignotement de l'empreinte */
-        animation: unsc-auth-text 0.4s 2.2s forwards;
+        animation: unsc-auth-text 0.4s 2.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 
         h2 {
             font-family: 'Courier New', Courier, monospace;
             font-weight: 900;
             font-size: 1.8rem;
-            color: var(--mat-sys-primary);
             letter-spacing: 4px;
             margin: 0;
-            text-shadow: 0 0 12px color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
         }
 
         p {
@@ -101,244 +114,74 @@
 }
 
 /* =========================================================
-   SURCHARGE DE SÉCURITÉ : RECALIBRAGE DU TIMING D'ÉCHEC
+   PILOTAGE DES ÉTATS (SCANNING / SUCCESS / ERROR)
    ========================================================= */
 
-/* 1. Le Datapad tremble MAINTENANT à 1.5s (pile quand le laser a fini son scan) */
-.unsc-datapad.access-denied {
-    border-color: var(--mat-sys-outline) !important; /* Reste neutre au début */
-    pointer-events: none;
-    
-    /* L'animation de secousse démarre après 1.5s de scanneur */
-    animation: 
-        unsc-datapad-shake 0.4s cubic-bezier(.36,.07,.19,.97) 1.5s forwards,
-        unsc-datapad-red-border 0.2s ease-in 1.5s forwards; /* Devient rouge à l'impact */
+/* --- ÉTAT 1 : EN COURS DE SCAN --- */
+.success-overlay.scanning {
+    .bracket { border-color: var(--mat-sys-primary); opacity: 0.5; }
+    .fingerprint-icon { animation: unsc-fingerprint-pulse-infinite 1s infinite alternate; }
+    .scanner-line {
+        background-color: var(--mat-sys-primary);
+        box-shadow: 0 0 10px var(--mat-sys-primary), 0 0 20px var(--mat-sys-primary), 0 0 5px #fff;
+        animation: unsc-scan-sweep-once 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
 }
 
-/* 2. L'overlay d'échec applique la teinte de crise */
-.success-overlay.error {
-    
-    .biometric-scanner {
-        
-        /* On empile les deux icônes parfaitement l'une sur l'autre */
-        .fingerprint-icon {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .scanner-line {
-            background-color: var(--mat-sys-primary) !important; 
-            box-shadow: 0 0 15px var(--mat-sys-primary), 0 0 5px #fff !important;
-            animation: unsc-scan-sweep 1s 0.5s forwards !important; 
-        }
-
-        /* Le relais des animations (Chacune dure 2.8s pour être synchro) */
-        .scan-mode {
-            animation: unsc-fingerprint-scan-phase 2.8s forwards !important;
-        }
-        
-        .error-mode {
-            animation: unsc-fingerprint-error-phase 2.8s forwards !important;
-        }
-    }
-
+/* --- ÉTAT 2 : SÉCURITÉ APPROUVÉE (SUCCÈS) --- */
+.success-overlay.success {
+    .bracket { border-color: var(--mat-sys-primary); opacity: 0.8; }
+    .scanner-line { display: none; }
+    .fingerprint-icon { animation: unsc-fingerprint-success-instant 2.5s forwards; }
     .auth-message h2 {
-        color: var(--mat-sys-error) !important;
-        text-shadow: 0 0 12px color-mix(in srgb, var(--mat-sys-error) 60%, transparent) !important;
+        color: var(--mat-sys-primary);
+        text-shadow: 0 0 12px color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
     }
 }
 
-/* 3. Les flashs environnementaux attendent aussi 1.5s pour foudroyer la pièce */
-.global-grid-flash.error {
-    background-image:
-        linear-gradient(color-mix(in srgb, var(--mat-sys-error) 60%, transparent) 1px, transparent 1px),
-        linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-error) 60%, transparent) 1px, transparent 1px) !important;
-    animation: unsc-grid-error-pulse 1.3s 1.5s forwards; /* Dure le reste du temps (2.8s - 1.5s = 1.3s) */
-}
-
-.global-logo-flash.error {
-    background-color: var(--mat-sys-error) !important;
-    animation: unsc-logo-error-ignite 1.3s 1.5s forwards; /* S'allume pile à 1.5s */
-}
-
-/* =========================================================
-   KEYFRAMES DU RELAIS D'ICÔNES (Coupure à 54% / 1.5s)
-   ========================================================= */
-
-/* Phase 1 : L'empreinte se fait scanner normalement */
-@keyframes unsc-fingerprint-scan-phase {
-    /* De 0 à 1.5s, c'est l'empreinte grise classique */
-    0% { opacity: 0; transform: scale(0.8); color: var(--mat-sys-on-surface-variant); }
-    15%, 53% { opacity: 0.6; transform: scale(1); color: var(--mat-sys-on-surface-variant); }
-    
-    /* À 1.5s (54%), elle se désintègre instantanément */
-    54%, 100% { opacity: 0; } 
-}
-
-/* Phase 2 : Le bouclier d'erreur prend le relais de façon explosive */
-@keyframes unsc-fingerprint-error-phase {
-    /* De 0 à 1.5s, le bouclier est tapi dans l'ombre (invisible) */
-    0%, 53% { opacity: 0; transform: scale(1); } 
-    
-    /* À 1.5s (54%), il explose au visage de l'utilisateur en rouge */
-    54% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 15px var(--mat-sys-error)); transform: scale(1.1); }
-    58% { opacity: 0.2; transform: scale(1); }
-    62% { opacity: 1; filter: drop-shadow(0 0 15px var(--mat-sys-error)); }
-    66% { opacity: 0.2; }
-    70% { opacity: 1; }
-    
-    /* Et il reste verrouillé jusqu'à la fin de la séquence */
-    75%, 100% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 20px var(--mat-sys-error)); }
-}
-
-/* =========================================================
-   KEYFRAMES AJUSTÉES POUR LA NOUVELLE SÉQUENCE
-   ========================================================= */
-
-/* Le Datapad passe au rouge à l'impact */
-@keyframes unsc-datapad-red-border {
-    100% { 
-        border-color: var(--mat-sys-error) !important;
-        box-shadow: 0 0 30px color-mix(in srgb, var(--mat-sys-error) 40%, transparent) !important;
+/* --- ÉTAT 3 : ALERTE SÉCURITÉ (ERREUR) --- */
+.success-overlay.error {
+    .bracket { animation: unsc-bracket-error-instant 2.5s forwards; }
+    .scanner-line { display: none; }
+    .fingerprint-icon.error-mode { animation: unsc-fingerprint-error-instant 2.5s forwards; }
+    .auth-message h2 {
+        color: var(--mat-sys-error);
+        text-shadow: 0 0 12px color-mix(in srgb, var(--mat-sys-error) 60%, transparent);
     }
 }
 
-/* Secousse physique (Déclenchée à 1.5s) */
-@keyframes unsc-datapad-shake {
-    10%, 90% { transform: translate3d(-2px, 0, 0); }
-    20%, 80% { transform: translate3d(4px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-    40%, 60% { transform: translate3d(6px, 0, 0); }
-}
-
-/* Allumage instantané de l'aigle en alerte de crise (Déclenché à 1.5s) */
-@keyframes unsc-logo-error-ignite {
-    0% { opacity: 0; filter: drop-shadow(0 0 0 transparent); }
-    /* Grésillement électrique ultra-rapide au moment de la secousse */
-    5% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-error)); }
-    10% { opacity: 0.2; filter: none; }
-    15% { opacity: 1; filter: drop-shadow(0 0 30px var(--mat-sys-error)); }
-    20% { opacity: 0.3; filter: none; }
-    /* Reste allumé à fond */
-    25%, 100% { opacity: 0.5; filter: drop-shadow(0 0 35px var(--mat-sys-error)); }
-}
-
-/* Grille rouge clignotante (Déclenchée à 1.5s) */
-@keyframes unsc-grid-error-pulse {
-    0% { opacity: 0; }
-    5%, 25%, 45% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-error) 50%, transparent); }
-    15%, 35% { opacity: 0.1; box-shadow: none; }
-    55%, 100% { opacity: 0.7; box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-error) 30%, transparent); }
-}
-
 /* =========================================================
-   KEYFRAMES DE LA SÉQUENCE (TIMING PARFAIT)
-   ========================================================= */
-
-@keyframes unsc-overlay-boot {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-/* Le faisceau du scanner qui descend */
-@keyframes unsc-scan-sweep {
-    0% { top: -10%; opacity: 0; }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% { top: 110%; opacity: 0; }
-}
-
-/* Comportement de l'empreinte (Gris -> Clignotement Vert -> Vert Fixe) */
-@keyframes unsc-fingerprint-sequence {
-    /* 0 à 0.5s : Apparition en gris (en attente du laser) */
-    0% { opacity: 0; color: var(--mat-sys-on-surface-variant); transform: scale(0.8); }
-    15% { opacity: 0.5; color: var(--mat-sys-on-surface-variant); transform: scale(1); filter: drop-shadow(0 0 0 transparent); }
-    
-    /* 0.5s à 1.5s : Le laser passe, l'empreinte reste inerte */
-    53% { opacity: 0.5; color: var(--mat-sys-on-surface-variant); filter: drop-shadow(0 0 0 transparent); }
-    
-    /* 1.5s à 2.2s : Traitement des données et clignotement rapide d'alerte ! */
-    54% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 10px var(--mat-sys-primary)); }
-    58% { opacity: 0.2; }
-    62% { opacity: 1; }
-    66% { opacity: 0.2; }
-    70% { opacity: 1; }
-    74% { opacity: 0.2; }
-    
-    /* 2.2s à la fin : Validation fixée en vert éclatant */
-    78%, 100% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 20px var(--mat-sys-primary)); }
-}
-
-/* Apparition du texte final */
-@keyframes unsc-auth-text {
-    0% { opacity: 0; transform: translateY(15px); filter: blur(4px); }
-    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
-
-@keyframes unsc-pulse-text {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-}
-
-/* L'effet de disparition du datapad */
-@keyframes unsc-warp-jump {
-    0% { transform: scale(1); opacity: 1; }
-    30% { transform: scale(1.02); opacity: 1; filter: blur(0px); }
-    100% { transform: scale(0.8) perspective(500px) rotateX(5deg); opacity: 0; filter: blur(10px); }
-}
-
-/* =========================================================
-   ILLUMINATION DE LA GRILLE ENVIRONNEMENTALE
+   LES FLASHS ENVIRONNEMENTAUX (PLURALS & SÉCURISÉS)
    ========================================================= */
 .global-grid-flash {
     position: fixed;
-    inset: 0; /* Prend tout l'écran */
-    z-index: -1; /* Se place derrière le datapad, mais au-dessus du body */
+    inset: 0; 
+    z-index: -1; 
     pointer-events: none;
+    background-size: 30px 30px;
+    background-position: center center;
+    opacity: 0;
 
-    /* Copie conforme de votre grille globale, mais en version hautement lumineuse */
+    // Configuration par défaut (VERT)
     background-image:
         linear-gradient(color-mix(in srgb, var(--mat-sys-primary) 60%, transparent) 1px, transparent 1px),
         linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-primary) 60%, transparent) 1px, transparent 1px);
-    background-size: 30px 30px;
-    background-position: center center;
+    animation: unsc-grid-pulse 2.8s forwards;
 
-    /* On utilise la même durée que l'empreinte pour une synchro parfaite ! */
-    opacity: 0;
-    animation: unsc-grid-pulse 2.8s forwards; /* Modifiez "2.8s" si vous aviez rallongé l'empreinte */
-}
-
-/* On réutilise EXACTEMENT les mêmes pourcentages que unsc-fingerprint-sequence */
-@keyframes unsc-grid-pulse {
-    /* De 0 à 53% : La grille reste éteinte pendant que le laser scanne */
-    0%, 53% { opacity: 0; }
-    
-    /* 54% à 74% : Clignotement synchronisé avec l'alerte du processeur */
-    54% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
-    58% { opacity: 0.1; box-shadow: none; }
-    62% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
-    66% { opacity: 0.1; box-shadow: none; }
-    70% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
-    74% { opacity: 0.1; box-shadow: none; }
-    
-    /* 78% à 100% : Validation finale, toute la pièce reste illuminée ! */
-    78%, 100% { 
-        opacity: 0.6; 
-        box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent); 
+    // Surcharge d'urgence (ROUGE) - Placé en dessous pour gagner la cascade !
+    &.error {
+        background-image:
+            linear-gradient(color-mix(in srgb, var(--mat-sys-error) 60%, transparent) 1px, transparent 1px),
+            linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-error) 60%, transparent) 1px, transparent 1px) !important;
+        animation: unsc-grid-error-pulse 1.3s forwards !important;
     }
 }
 
-/* =========================================================
-   ILLUMINATION DU LOGO UNSC EN FILIGRANE
-   ========================================================= */
 .global-logo-flash {
     position: fixed;
     inset: 0;
-    z-index: -1; /* Reste derrière le datapad */
+    z-index: -1; 
     pointer-events: none;
-
-    /* On copie exactement les règles du masque de votre styles.scss */
     -webkit-mask-image: url('/unsc-logo.png'); 
     mask-image: url('/unsc-logo.png');
     -webkit-mask-repeat: no-repeat;
@@ -347,40 +190,25 @@
     mask-position: center center;
     -webkit-mask-size: 50svh;
     mask-size: 50svh;
-    
-    /* La couleur de la lumière (Vert UNSC) */
-    background-color: var(--mat-sys-primary);
-
     opacity: 0;
-    /* Même durée que la grille et l'empreinte pour la synchro */
-    animation: unsc-logo-ignite 2.8s forwards; 
-}
 
-/* Séquence d'allumage de l'ampoule / néon */
-@keyframes unsc-logo-ignite {
-    /* 0 à 65% : Le logo reste invisible, on ne voit que le filigrane de base */
-    0%, 65% { opacity: 0; filter: drop-shadow(0 0 0 transparent); }
-    
-    /* 66% à 74% : Grésillement d'allumage pendant que la grille pulse */
-    66% { opacity: 0.5; filter: drop-shadow(0 0 10px var(--mat-sys-primary)); }
-    68% { opacity: 0.1; filter: none; }
-    70% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-primary)); }
-    72% { opacity: 0.2; filter: none; }
-    
-    /* 75% à 100% : Allumage total ! Pile au moment où "ACCÈS AUTORISÉ" apparaît */
-    75%, 100% { 
-        opacity: 0.45;
-        /* Le drop-shadow s'applique sur la forme du masque, créant un halo lumineux autour de l'aigle */
-        filter: drop-shadow(0 0 30px var(--mat-sys-primary)); 
+    // Remplissage par défaut (VERT)
+    background-color: var(--mat-sys-primary);
+    animation: unsc-logo-ignite 2.8s forwards;
+
+    // Surcharge d'urgence (ROUGE) - Placé en dessous pour gagner la cascade !
+    &.error {
+        background-color: var(--mat-sys-error) !important;
+        animation: unsc-logo-error-ignite 1.3s forwards !important;
     }
 }
 
+/* =========================================================
+   ÉLÉMENTS STUBBORN DU FORMULAIRE STANDARD
+   ========================================================= */
 .datapad-header-accent {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
+    top: 0; left: 0; width: 100%; height: 4px;
     background-color: var(--mat-sys-tertiary); 
 }
 
@@ -409,6 +237,7 @@
 
 .unsc-content {
     padding: 0 20px;
+    padding-bottom: 10px;
     color: var(--mat-sys-on-surface);
 }
 
@@ -419,30 +248,124 @@
     justify-content: end;
 }
 
-@media screen and (max-width: 425px) {
-    .unsc-datapad {
-        width: 100%;
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
-    }
+/* =========================================================
+   KEYFRAMES LOGIQUES COMPACTES
+   ========================================================= */
+@keyframes unsc-scan-sweep-infinite {
+    0% { top: -15%; opacity: 0; transform: scaleX(0.8); }
+    15% { opacity: 1; transform: scaleX(1); }
+    85% { opacity: 1; transform: scaleX(1); }
+    100% { top: 115%; opacity: 0; transform: scaleX(0.8); }
+}
 
+@keyframes unsc-fingerprint-pulse-infinite {
+    0% { opacity: 0.5; color: var(--mat-sys-on-surface-variant); filter: none; }
+    100% { opacity: 0.8; color: var(--mat-sys-primary-container); filter: drop-shadow(0 0 8px var(--mat-sys-primary)); }
+}
+
+@keyframes unsc-fingerprint-success-instant {
+    0% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 15px var(--mat-sys-primary)); transform: scale(1.1); }
+    5% { transform: scale(1); }
+    15% { opacity: 0.2; }
+    30% { opacity: 1; }
+    45% { opacity: 0.2; }
+    60% { opacity: 1; }
+    80%, 100% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 20px var(--mat-sys-primary)); }
+}
+
+@keyframes unsc-fingerprint-error-instant {
+    0% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 20px var(--mat-sys-error)); transform: scale(1.15) translate3d(-5px, 0, 0); }
+    2% { transform: scale(1.1) translate3d(5px, 0, 0); }
+    4% { transform: scale(1.12) translate3d(-2px, 0, 0); }
+    6% { transform: scale(1.1) translate3d(0, 0, 0); }
+    10% { opacity: 0.1; }
+    20% { opacity: 1; filter: drop-shadow(0 0 15px var(--mat-sys-error)); }
+    30% { opacity: 0.1; }
+    40% { opacity: 1; }
+    70%, 100% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 20px var(--mat-sys-error)); }
+}
+
+@keyframes unsc-bracket-error-instant {
+    0% { border-color: var(--mat-sys-error); opacity: 0.8; filter: drop-shadow(0 0 8px var(--mat-sys-error)); }
+    15% { opacity: 0.2; }
+    30% { opacity: 0.8; }
+    45% { opacity: 0.2; }
+    60%, 100% { border-color: var(--mat-sys-error); opacity: 0.6; filter: none; }
+}
+
+@keyframes unsc-datapad-shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(4px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+    40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+@keyframes unsc-logo-error-ignite {
+    0% { opacity: 0; filter: drop-shadow(0 0 0 transparent); }
+    5% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-error)); }
+    10% { opacity: 0.2; filter: none; }
+    15% { opacity: 1; filter: drop-shadow(0 0 30px var(--mat-sys-error)); }
+    20% { opacity: 0.3; filter: none; }
+    25%, 100% { opacity: 0.45; filter: drop-shadow(0 0 35px var(--mat-sys-error)); }
+}
+
+@keyframes unsc-grid-error-pulse {
+    0% { opacity: 0; }
+    5%, 25%, 45% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-error) 50%, transparent); }
+    15%, 35% { opacity: 0.1; box-shadow: none; }
+    55%, 100% { opacity: 0.7; box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-error) 30%, transparent); }
+}
+
+@keyframes unsc-overlay-boot { 0% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes unsc-auth-text {
+    0% { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes unsc-pulse-text { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+@keyframes unsc-warp-jump {
+    0% { transform: scale(1); opacity: 1; }
+    30% { transform: scale(1.02); opacity: 1; filter: blur(0px); }
+    100% { transform: scale(0.8) perspective(500px) rotateX(5deg); opacity: 0; filter: blur(10px); }
+}
+
+@keyframes unsc-grid-pulse {
+    0%, 53% { opacity: 0; }
+    54% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
+    58% { opacity: 0.1; box-shadow: none; }
+    62% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
+    66% { opacity: 0.1; box-shadow: none; }
+    70% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
+    74% { opacity: 0.1; box-shadow: none; }
+    78%, 100% { opacity: 0.6; box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent); }
+}
+
+@keyframes unsc-logo-ignite {
+    0%, 65% { opacity: 0; filter: drop-shadow(0 0 0 transparent); }
+    66% { opacity: 0.5; filter: drop-shadow(0 0 10px var(--mat-sys-primary)); }
+    68% { opacity: 0.1; filter: none; }
+    70% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-primary)); }
+    72% { opacity: 0.2; filter: none; }
+    75%, 100% { opacity: 0.45; filter: drop-shadow(0 0 30px var(--mat-sys-primary)); }
+}
+
+@keyframes unsc-scan-sweep-once {
+    0% { top: -15%; opacity: 0; transform: scaleX(0.8); }
+    15% { opacity: 1; transform: scaleX(1); }
+    85% { opacity: 1; transform: scaleX(1); }
+    100% { top: 115%; opacity: 0; transform: scaleX(0.8); } /* Il reste figé en bas, invisible */
+}
+
+/* =========================================================
+   MEDIA QUERIES DE SÉCURITÉ TACTIQUE
+   ========================================================= */
+@media screen and (max-width: 425px) {
+    .unsc-datapad { width: 100%; border-radius: 0; border-left: none; border-right: none; }
     .unsc-actions {
         flex-direction: column;
-
-        jp-button-loader {
-            width: 100%;
-
-            ::ng-deep button {
-                width: 100%;
-            }
-        }
+        jp-button-loader { width: 100%; ::ng-deep button { width: 100%; } }
     }
 }
 
 @media screen and (min-width: 769px) {
-    .unsc-datapad {
-        width: 40%; 
-        max-width: 500px;
-    }
+    .unsc-datapad { width: 40%; max-width: 500px; }
 }

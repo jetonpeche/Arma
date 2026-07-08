@@ -41,7 +41,8 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) =>
 
                 case 404:
                 case 400:
-                    snackBarServ.Erreur(erreur.error);
+                    if(erreur.error != "Le login ou le mot de passe est incorrect")
+                        snackBarServ.Erreur(erreur.error);
                     break;
 
                 case 413:

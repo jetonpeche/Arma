@@ -20,8 +20,10 @@ export class ConnexionPage implements OnInit
 {
     protected form: FormGroup;
     protected btnClick = signal<boolean>(false);
+    protected enCoursDeScan = signal<boolean>(false);
     protected accesAutorise = signal<boolean>(false);
     protected accesRefuse = signal<boolean>(false);
+
     private readonly estMobile = window.innerWidth <= 800;
     private authServ = inject(AuthentificationService);
     private dialog = inject(MatDialog);
@@ -49,32 +51,54 @@ export class ConnexionPage implements OnInit
             return;
 
         this.btnClick.set(true);
+        this.enCoursDeScan.set(true);
+        this.accesAutorise.set(false);
+        this.accesRefuse.set(false);
+
+        const DATE_DEBUT = Date.now();
+        const TEMPS_MINIMUM_SCAN = 2000;
 
         this.authServ.Connexion(this.form.value).subscribe({
             next: (retour) =>
             {
-                this.accesAutorise.set(true);
+                // On calcule le temps que l'API a mis à répondre
+                const tempsEcoule = Date.now() - DATE_DEBUT;
+                // S'il reste du temps sur nos 2 secondes obligatoires, on patiente
+                const tempsRestant = Math.max(0, TEMPS_MINIMUM_SCAN - tempsEcoule);
 
                 setTimeout(() => {
-                    this.btnClick.set(false);
-                
-                    environment.utilisateur = retour;
-                    sessionStorage.setItem("utilisateur", JSON.stringify(retour));
-                    this.authServ.estConnecter.set(true);
-                    this.authServ.droitGroupe.set(retour.droit);
-                    this.authServ.nbPointBanque.set(retour.nbPointBanque);
-                    this.authServ.peutModifierBanque.set(retour.droit.peutModifierBanque);
+                    this.enCoursDeScan.set(false);
+                    this.accesAutorise.set(true);
 
-                    this.router.navigateByUrl("/personnage");
-                }, 4000);
+                    setTimeout(() => 
+                    {
+                        this.btnClick.set(false);
+                        environment.utilisateur = retour;
+                        sessionStorage.setItem("utilisateur", JSON.stringify(retour));
+                        this.authServ.estConnecter.set(true);
+                        this.authServ.droitGroupe.set(retour.droit);
+                        this.authServ.nbPointBanque.set(retour.nbPointBanque);
+                        this.authServ.peutModifierBanque.set(retour.droit.peutModifierBanque);
+                        this.router.navigateByUrl("/personnage");
+                    }, 3500);
+                }, tempsRestant);
             },
-            error: () => {
-                this.btnClick.set(false);
-                this.accesRefuse.set(true);
+            error: () => 
+            {
+                const tempsEcoule = Date.now() - DATE_DEBUT;
+                const tempsRestant = Math.max(0, TEMPS_MINIMUM_SCAN - tempsEcoule);
 
-                setTimeout(() => {
-                    this.accesRefuse.set(false);
-                }, 4000);
+                setTimeout(() => 
+                {
+                    this.enCoursDeScan.set(false);
+                    this.accesRefuse.set(true);
+
+                    setTimeout(() => 
+                    {
+                        this.accesRefuse.set(false);
+                        this.btnClick.set(false);
+                    }, 3500);
+                }, tempsRestant);
             }
         });
     }

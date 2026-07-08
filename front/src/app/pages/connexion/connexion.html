@@ -1,48 +1,59 @@
 @if(accesAutorise()) 
-{
+{ 
     <div class="global-grid-flash"></div>
-    <div class="global-logo-flash"></div>
+    <div class="global-logo-flash"></div> 
 }
 
 @if(accesRefuse()) 
-{
+{ 
     <div class="global-grid-flash error"></div>
-    <div class="global-logo-flash error"></div>
+    <div class="global-logo-flash error"></div> 
 }
 
 <mat-card class="unsc-datapad" [class.access-granted]="accesAutorise()" [class.access-denied]="accesRefuse()" appearance="outlined">
 
-    @if(accesAutorise()) 
+    @if(enCoursDeScan() || accesAutorise() || accesRefuse()) 
     {
-        <div class="success-overlay">
+        <div class="success-overlay" 
+             [class.scanning]="enCoursDeScan()"
+             [class.success]="accesAutorise()"
+             [class.error]="accesRefuse()">
             
             <div class="biometric-scanner">
-                <mat-icon class="fingerprint-icon">fingerprint</mat-icon>
+                <div class="bracket tl"></div>
+                <div class="bracket tr"></div>
+                <div class="bracket bl"></div>
+                <div class="bracket br"></div>
+
+                @if(enCoursDeScan() || accesAutorise()) 
+                {
+                    <mat-icon class="fingerprint-icon">fingerprint</mat-icon>
+                }
+
+                @if(accesRefuse()) 
+                {
+                    <mat-icon class="fingerprint-icon error-mode">gpp_bad</mat-icon>
+                }
+
                 <div class="scanner-line"></div>
             </div>
 
             <div class="auth-message">
-                <h2>ACCÈS AUTORISÉ</h2>
-                <p>Déchiffrement des protocoles en cours...</p>
-            </div>
-
-        </div>
-    }
-
-    @if(accesRefuse()) 
-    {
-        <div class="success-overlay error">
-            <div class="biometric-scanner">
-                
-                <mat-icon class="fingerprint-icon scan-mode">fingerprint</mat-icon>
-                
-                <mat-icon class="fingerprint-icon error-mode">gpp_bad</mat-icon>
-                
-                <div class="scanner-line"></div>
-            </div>
-            <div class="auth-message">
-                <h2>ACCÈS REFUSÉ</h2>
-                <p>Identifiants invalides // Session verrouillée</p>
+                @if(enCoursDeScan()) 
+                {
+                    <h2>ANALYSE EN COURS</h2>
+                    <p>Interrogation des serveurs de l'ONI...</p>
+                }
+                @if(accesAutorise()) 
+                {
+                    <h2>ACCÈS AUTORISÉ</h2>
+                    <p>Déchiffrement des protocoles en cours...</p>
+                }
+                @if(accesRefuse()) 
+                {
+                    <h2>ACCÈS REFUSÉ</h2>
+                    <p>Identifiants invalides // Session verrouillée</p>
+                }
             </div>
         </div>
     }
@@ -59,7 +70,7 @@
         <form [formGroup]="form">
             <jp-grid-container [gap]="15">
                 <jp-grid-element [colDefault]="12">
-                    <jp-input-text label="Identifiant Marine" formControlName="login" />
+                    <jp-input-text label="Identifiant réseau" formControlName="login" />
                 </jp-grid-element>
 
                 <jp-grid-element [colDefault]="12">
