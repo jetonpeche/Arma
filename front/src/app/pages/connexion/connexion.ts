@@ -66,7 +66,7 @@ export class ConnexionPage implements OnInit
                     this.authServ.peutModifierBanque.set(retour.droit.peutModifierBanque);
 
                     this.router.navigateByUrl("/personnage");
-                }, 4500);
+                }, 4000);
             },
             error: () => {
                 this.btnClick.set(false);
