@@ -4,7 +4,13 @@
     <div class="global-logo-flash"></div>
 }
 
-<mat-card class="unsc-datapad" [class.access-granted]="accesAutorise()" appearance="outlined">
+@if(accesRefuse()) 
+{
+    <div class="global-grid-flash error"></div>
+    <div class="global-logo-flash error"></div>
+}
+
+<mat-card class="unsc-datapad" [class.access-granted]="accesAutorise()" [class.access-denied]="accesRefuse()" appearance="outlined">
 
     @if(accesAutorise()) 
     {
@@ -23,7 +29,25 @@
         </div>
     }
 
-    <!-- Barre décorative supérieure (ajoutée via CSS) -->
+    @if(accesRefuse()) 
+    {
+        <div class="success-overlay error">
+            <div class="biometric-scanner">
+                
+                <mat-icon class="fingerprint-icon scan-mode">fingerprint</mat-icon>
+                
+                <mat-icon class="fingerprint-icon error-mode">gpp_bad</mat-icon>
+                
+                <div class="scanner-line"></div>
+            </div>
+            <div class="auth-message">
+                <h2>ACCÈS REFUSÉ</h2>
+                <p>Identifiants invalides // Session verrouillée</p>
+            </div>
+        </div>
+    }
+
+    <!-- Barre décorative supérieure -->
     <div class="datapad-header-accent"></div>
 
     <mat-card-header class="unsc-header">
@@ -46,7 +70,7 @@
     </mat-card-content>
 
     <mat-card-actions class="unsc-actions">
-        <jp-button-loader label="Enrôlement" (clicked)="OuvrirModalInscription()" class="btn-secondary" />&nbsp;
-        <jp-button-loader label="Authentification" [loading]="btnClick()" (clicked)="Valider()" class="btn-primary" />
+        <jp-button-loader label="Enrôlement" (clicked)="OuvrirModalInscription()" />&nbsp;
+        <jp-button-loader label="Authentification" [loading]="btnClick()" (clicked)="Valider()" />
     </mat-card-actions>
 </mat-card>

@@ -21,6 +21,7 @@ export class ConnexionPage implements OnInit
     protected form: FormGroup;
     protected btnClick = signal<boolean>(false);
     protected accesAutorise = signal<boolean>(false);
+    protected accesRefuse = signal<boolean>(false);
     private readonly estMobile = window.innerWidth <= 800;
     private authServ = inject(AuthentificationService);
     private dialog = inject(MatDialog);
@@ -67,7 +68,14 @@ export class ConnexionPage implements OnInit
                     this.router.navigateByUrl("/personnage");
                 }, 4500);
             },
-            error: () => this.btnClick.set(false)
+            error: () => {
+                this.btnClick.set(false);
+                this.accesRefuse.set(true);
+
+                setTimeout(() => {
+                    this.accesRefuse.set(false);
+                }, 4000);
+            }
         });
     }
 }

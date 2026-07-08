@@ -101,6 +101,138 @@
 }
 
 /* =========================================================
+   SURCHARGE DE SÉCURITÉ : RECALIBRAGE DU TIMING D'ÉCHEC
+   ========================================================= */
+
+/* 1. Le Datapad tremble MAINTENANT à 1.5s (pile quand le laser a fini son scan) */
+.unsc-datapad.access-denied {
+    border-color: var(--mat-sys-outline) !important; /* Reste neutre au début */
+    pointer-events: none;
+    
+    /* L'animation de secousse démarre après 1.5s de scanneur */
+    animation: 
+        unsc-datapad-shake 0.4s cubic-bezier(.36,.07,.19,.97) 1.5s forwards,
+        unsc-datapad-red-border 0.2s ease-in 1.5s forwards; /* Devient rouge à l'impact */
+}
+
+/* 2. L'overlay d'échec applique la teinte de crise */
+.success-overlay.error {
+    
+    .biometric-scanner {
+        
+        /* On empile les deux icônes parfaitement l'une sur l'autre */
+        .fingerprint-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .scanner-line {
+            background-color: var(--mat-sys-primary) !important; 
+            box-shadow: 0 0 15px var(--mat-sys-primary), 0 0 5px #fff !important;
+            animation: unsc-scan-sweep 1s 0.5s forwards !important; 
+        }
+
+        /* Le relais des animations (Chacune dure 2.8s pour être synchro) */
+        .scan-mode {
+            animation: unsc-fingerprint-scan-phase 2.8s forwards !important;
+        }
+        
+        .error-mode {
+            animation: unsc-fingerprint-error-phase 2.8s forwards !important;
+        }
+    }
+
+    .auth-message h2 {
+        color: var(--mat-sys-error) !important;
+        text-shadow: 0 0 12px color-mix(in srgb, var(--mat-sys-error) 60%, transparent) !important;
+    }
+}
+
+/* 3. Les flashs environnementaux attendent aussi 1.5s pour foudroyer la pièce */
+.global-grid-flash.error {
+    background-image:
+        linear-gradient(color-mix(in srgb, var(--mat-sys-error) 60%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-error) 60%, transparent) 1px, transparent 1px) !important;
+    animation: unsc-grid-error-pulse 1.3s 1.5s forwards; /* Dure le reste du temps (2.8s - 1.5s = 1.3s) */
+}
+
+.global-logo-flash.error {
+    background-color: var(--mat-sys-error) !important;
+    animation: unsc-logo-error-ignite 1.3s 1.5s forwards; /* S'allume pile à 1.5s */
+}
+
+/* =========================================================
+   KEYFRAMES DU RELAIS D'ICÔNES (Coupure à 54% / 1.5s)
+   ========================================================= */
+
+/* Phase 1 : L'empreinte se fait scanner normalement */
+@keyframes unsc-fingerprint-scan-phase {
+    /* De 0 à 1.5s, c'est l'empreinte grise classique */
+    0% { opacity: 0; transform: scale(0.8); color: var(--mat-sys-on-surface-variant); }
+    15%, 53% { opacity: 0.6; transform: scale(1); color: var(--mat-sys-on-surface-variant); }
+    
+    /* À 1.5s (54%), elle se désintègre instantanément */
+    54%, 100% { opacity: 0; } 
+}
+
+/* Phase 2 : Le bouclier d'erreur prend le relais de façon explosive */
+@keyframes unsc-fingerprint-error-phase {
+    /* De 0 à 1.5s, le bouclier est tapi dans l'ombre (invisible) */
+    0%, 53% { opacity: 0; transform: scale(1); } 
+    
+    /* À 1.5s (54%), il explose au visage de l'utilisateur en rouge */
+    54% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 15px var(--mat-sys-error)); transform: scale(1.1); }
+    58% { opacity: 0.2; transform: scale(1); }
+    62% { opacity: 1; filter: drop-shadow(0 0 15px var(--mat-sys-error)); }
+    66% { opacity: 0.2; }
+    70% { opacity: 1; }
+    
+    /* Et il reste verrouillé jusqu'à la fin de la séquence */
+    75%, 100% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 20px var(--mat-sys-error)); }
+}
+
+/* =========================================================
+   KEYFRAMES AJUSTÉES POUR LA NOUVELLE SÉQUENCE
+   ========================================================= */
+
+/* Le Datapad passe au rouge à l'impact */
+@keyframes unsc-datapad-red-border {
+    100% { 
+        border-color: var(--mat-sys-error) !important;
+        box-shadow: 0 0 30px color-mix(in srgb, var(--mat-sys-error) 40%, transparent) !important;
+    }
+}
+
+/* Secousse physique (Déclenchée à 1.5s) */
+@keyframes unsc-datapad-shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(4px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+    40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+/* Allumage instantané de l'aigle en alerte de crise (Déclenché à 1.5s) */
+@keyframes unsc-logo-error-ignite {
+    0% { opacity: 0; filter: drop-shadow(0 0 0 transparent); }
+    /* Grésillement électrique ultra-rapide au moment de la secousse */
+    5% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-error)); }
+    10% { opacity: 0.2; filter: none; }
+    15% { opacity: 1; filter: drop-shadow(0 0 30px var(--mat-sys-error)); }
+    20% { opacity: 0.3; filter: none; }
+    /* Reste allumé à fond */
+    25%, 100% { opacity: 0.5; filter: drop-shadow(0 0 35px var(--mat-sys-error)); }
+}
+
+/* Grille rouge clignotante (Déclenchée à 1.5s) */
+@keyframes unsc-grid-error-pulse {
+    0% { opacity: 0; }
+    5%, 25%, 45% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-error) 50%, transparent); }
+    15%, 35% { opacity: 0.1; box-shadow: none; }
+    55%, 100% { opacity: 0.7; box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-error) 30%, transparent); }
+}
+
+/* =========================================================
    KEYFRAMES DE LA SÉQUENCE (TIMING PARFAIT)
    ========================================================= */
 
@@ -159,7 +291,6 @@
 /* =========================================================
    ILLUMINATION DE LA GRILLE ENVIRONNEMENTALE
    ========================================================= */
-
 .global-grid-flash {
     position: fixed;
     inset: 0; /* Prend tout l'écran */
@@ -201,7 +332,6 @@
 /* =========================================================
    ILLUMINATION DU LOGO UNSC EN FILIGRANE
    ========================================================= */
-
 .global-logo-flash {
     position: fixed;
     inset: 0;
