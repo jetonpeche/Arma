@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,14 +14,20 @@ import { Inscription } from '../connexion/inscription/inscription';
 })
 export class Accueil 
 {
+    protected cinematiquePasse = signal(false);
     private dialog = inject(MatDialog);
     private readonly estMobile = window.innerWidth <= 800;
 
+    protected PasserCinematique(): void 
+    {
+        this.cinematiquePasse.set(true);
+    }
+
     protected OuvrirModalInscription(): void
     {
-            this.dialog.open(Inscription, {
-                width: this.estMobile ? "95%" : "60%", 
-                maxWidth: "100vw",
-            });
+        this.dialog.open(Inscription, {
+            width: this.estMobile ? "95%" : "60%", 
+            maxWidth: "100vw",
+        });
     }
 }

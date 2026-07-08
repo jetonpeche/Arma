@@ -759,8 +759,10 @@ mat-dialog-content {
   }
 }
 
+
 /* En-tête de la modale */
-.mat-mdc-dialog-title {
+.mat-mdc-dialog-title 
+{
   background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, var(--mat-sys-surface-container-highest));
   padding: 20px 24px !important;
   border-bottom: 2px solid var(--mat-sys-primary);
@@ -770,8 +772,12 @@ mat-dialog-content {
   text-transform: uppercase;
   letter-spacing: 2px;
   position: relative;
-  z-index: 2; /* Reste au-dessus des scanlines */
+  z-index: 2; 
   text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+  font-size: clamp(1rem, 4vw, 1.4rem) !important;
+  line-height: 1.1 !important; 
+  
+  padding-right: 80px !important; 
 
   /* Indicateur d'enregistrement (Caméra embarquée) */
   &::before {
@@ -795,6 +801,21 @@ mat-dialog-content {
     border-radius: 50%;
     animation: unsc-blink 1.5s infinite;
     box-shadow: 0 0 8px var(--mat-sys-error);
+  }
+
+  @media screen and (max-width: 600px) {
+    padding: 16px !important;
+    padding-right: 65px !important; 
+    letter-spacing: 1px; 
+    
+    &::before {
+      right: 16px;
+      top: 18px;
+    }
+    &::after {
+      right: 45px;
+      top: 21px;
+    }
   }
 }
 
