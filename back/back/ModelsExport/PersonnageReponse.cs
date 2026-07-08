@@ -27,6 +27,14 @@ public sealed class PersonnageReponse
      public GradeLegerReponse? Grade { get; set; }
     public PlaneteOrigineLegerReponse? PlaneteOrigine { get; set; }
     public SpecialiteLegerReponse? Specialite { get; set; }
+    public MedaillePersonnageReponse[] ListeMedaille { get; set; } = [];
+}
+
+public sealed class MedaillePersonnageReponse
+{
+    public required int Id { get; set; }
+    public required string Nom { get; set; }
+    public required string UrlImage { get; set; }
 }
 
 [JsonSerializable(typeof(PersonnageReponse[]))]

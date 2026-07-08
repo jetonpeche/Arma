@@ -78,6 +78,7 @@ public static class PersonnageRoute
                .Include(x => x.Grade)
                .Include(x => x.Specialite)
                .Include(x => x.PlaneteOrigine)
+               .Include(x => x.ListeMedaille.Select(y => y.Medaille))
                .Select(x => new PersonnageReponse
                {
                     Id = x.Id,
@@ -114,7 +115,13 @@ public static class PersonnageRoute
                          Id = x.Specialite.Id,
                          Nom = x.Specialite.Nom
                     } : null,
-                    UrlPhotoIdentite = x.NomFichierPhotoIdentite != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PERSONNAGE + x.NomFichierPhotoIdentite : "",
+                    ListeMedaille = x.ListeMedaille.Select(y => new MedaillePersonnageReponse              
+                    {
+                         Id = y.Medaille.Id,
+                         Nom = y.Medaille.Nom,
+                         UrlImage = y.Medaille.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_MEDAILLE + y.Medaille.NomFichier : "",
+                    }).ToArray(),
+                   UrlPhotoIdentite = x.NomFichierPhotoIdentite != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PERSONNAGE + x.NomFichierPhotoIdentite : "",
                })
                .ToArray();
 

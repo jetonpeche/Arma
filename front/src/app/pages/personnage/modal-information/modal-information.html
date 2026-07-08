@@ -1,1 +1,36 @@
-<p>modal-information works!</p>
+<h2 mat-dialog-title>Information</h2>
+<mat-dialog-content>
+   <mat-tab-group>
+        <mat-tab label="DÉCORATIONS">
+            <div class="chest-plate-container">
+                
+                @if(dialogData.listeMedaille && dialogData.listeMedaille.length > 0) 
+                {
+                    <!-- Le rack qui s'adapte à la forme des rubans -->
+                    <div class="uniform-ribbon-rack">
+                        @for (medaille of dialogData.listeMedaille; track medaille.id) 
+                        {
+                            <img class="uniform-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
+                        }
+                    </div>
+                } 
+                @else 
+                {
+                    <div class="no-medals">
+                        <mat-icon>military_tech</mat-icon>
+                        <p>Aucune décoration enregistrée.</p>
+                    </div>
+                }
+            </div>
+        </mat-tab>
+        <mat-tab label="Materiel">
+            <app-boutique [idPersonnage]="dialogData.id" />
+        </mat-tab>
+        <mat-tab label="Etat de service">
+            <p>{{ dialogData.etatService }}</p>
+        </mat-tab>
+    </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="filled" mat-dialog-close>Fermer</button>
+</mat-dialog-actions>

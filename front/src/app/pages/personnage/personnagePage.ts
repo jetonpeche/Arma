@@ -14,7 +14,6 @@ import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { InputFile } from "@jetonpeche/angular-mat-input";
 import { FichierService } from '@services/FichierService';
 import { ETypeRessource } from '@enums/ETypeRessource';
-import { ModalObjetPossede } from './modal-objet-possede/modal-objet-possede';
 import { Droit } from '@models/DroitGroupe';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { EUrl } from '@enums/EUrl';
@@ -22,7 +21,7 @@ import { ModalPersonnageParticiperOperation } from './modal-personnage-participe
 import { MatCheckboxChange, MatCheckboxModule } from "@angular/material/checkbox";
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
-import { ModalInformation } from '@modals/modal-information/modal-information';
+import { ModalInformation } from './modal-information/modal-information';
 import { SlicePipe } from '@angular/common';
 
 @Component({
@@ -121,12 +120,9 @@ export class PersonnagePage implements OnInit
     protected OuvrirModalInformation(_personnage: Personnage): void
     {
         this.dialog.open(ModalInformation, {
-            width: this.estMobile ? "95%" : "50%", 
+            width: this.estMobile ? "95%" : "70%", 
             maxWidth: "100vw",
-            data: {
-                titre: `Etat de service de ${_personnage.nom}`,
-                message: _personnage.etatService
-            }
+            data: _personnage
         });
     }
 
@@ -142,15 +138,6 @@ export class PersonnagePage implements OnInit
 
             if(retour === true) 
                 this.Lister();
-        });
-    }
-
-    protected OuvrirModalObjetBoutiquePosseder(_personnage: Personnage): void
-    {
-        this.dialog.open(ModalObjetPossede, { 
-            width: this.estMobile ? "95%" : "70%", 
-            maxWidth: "100vw",
-            data: _personnage.id
         });
     }
 
