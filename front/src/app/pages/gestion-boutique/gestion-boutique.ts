@@ -42,6 +42,7 @@ export class GestionBoutiquePage implements OnInit, AfterViewInit
     private dialog = inject(MatDialog);
     private dialogConfirmationServ = inject(DialogConfirmationService);
     private authServ = inject(AuthentificationService);
+    private readonly estMobile = window.innerWidth <= 800;
 
     ngOnInit(): void 
     {
@@ -111,7 +112,7 @@ export class GestionBoutiquePage implements OnInit, AfterViewInit
     protected OuvrirModalAjouterModifierBoutique(_boutique?: BoutiqueAdmin): void
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierBoutique, {
-            width: "60%", 
+            width: this.estMobile ? "95%" : "60%", 
             maxWidth: "100vw",
             data: _boutique
         });

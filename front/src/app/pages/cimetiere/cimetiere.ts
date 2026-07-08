@@ -22,24 +22,25 @@ import { SnackBarService } from '@services/SnackBarService';
 })
 export class Cimetiere implements OnInit
 {
-  protected droit: Droit;
-  protected btnClick = signal<boolean>(false);
-  protected liste = signal<PersonnageMort[]>([]);
-  private personnageServ = inject(PersonnageService);
-  private authServ = inject(AuthentificationService);
-  private dialogConfirmationServ = inject(DialogConfirmationService);
-  private snackBarServ = inject(SnackBarService);
-  private dialog = inject(MatDialog);
+    protected droit: Droit;
+    protected btnClick = signal<boolean>(false);
+    protected liste = signal<PersonnageMort[]>([]);
+    private personnageServ = inject(PersonnageService);
+    private authServ = inject(AuthentificationService);
+    private dialogConfirmationServ = inject(DialogConfirmationService);
+    private snackBarServ = inject(SnackBarService);
+    private dialog = inject(MatDialog);
+    private readonly estMobile = window.innerWidth <= 800;
 
-  ngOnInit(): void 
-  {
-    this.droit = this.authServ.RecupererDroit(EUrl.Personnage);
-    this.ListerPersonnageMort();
-  }
+    ngOnInit(): void 
+    {
+      this.droit = this.authServ.RecupererDroit(EUrl.Personnage);
+      this.ListerPersonnageMort();
+    }
 
   protected OuvrirModalAjouterModifierMort(_personnageMort?: PersonnageMort): void
   {
-    this.dialog.open(AjouterModifierMort, { data: _personnageMort }).afterClosed().subscribe({
+    this.dialog.open(AjouterModifierMort, { data: _personnageMort, width: this.estMobile ? "95%" : "60%", maxWidth: "100vw" }).afterClosed().subscribe({
       next: (retour) => 
       {
         if(retour === true)

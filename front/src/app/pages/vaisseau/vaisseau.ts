@@ -42,6 +42,7 @@ export class VaisseauPage implements OnInit
     private dialogConfirmationServ = inject(DialogConfirmationService);
     private authServ = inject(AuthentificationService);
     private dialog = inject(MatDialog);
+    private readonly estMobile = window.innerWidth <= 800;
     protected listeVaisseauClone = signal<Vaisseau[]>([]);
 
     ngOnInit(): void
@@ -126,7 +127,7 @@ export class VaisseauPage implements OnInit
     protected OuvrirModalAjouterModifierVaisseau(_vaisseau?: Vaisseau): void
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierVaisseau, {
-            width: "50%", 
+            width: this.estMobile ? "95%" : "70%", 
             maxWidth: "100vw",
             data: _vaisseau
         });

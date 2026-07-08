@@ -32,6 +32,7 @@ export class GestionDroitPage implements OnInit
     private authServ = inject(AuthentificationService);
     private dialogConfirmationServ = inject(DialogConfirmationService);
     private snackBarServ = inject(SnackBarService);
+    private readonly estMobile = window.innerWidth <= 800;
 
     ngOnInit(): void
     {
@@ -56,6 +57,8 @@ export class GestionDroitPage implements OnInit
     protected OuvrirModalDroitGroupePersonnage(): void
     {
         this.dialog.open(ModalGoupeDroitPersonnage, {
+            width: this.estMobile ? "95%" : "30%",
+            maxWidth: "100vw",
             data: this.listeDroitGroupe().map(x => ({ id: x.id, nom: x.nom }))
         });
     }
@@ -63,7 +66,7 @@ export class GestionDroitPage implements OnInit
     protected OuvrirModalAjouterModifierDroitGroupe(_droitGroupe?: DroitGroupe): void
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierDroitGroupe, {
-            width: "70%", 
+            width: this.estMobile ? "95%" : "70%", 
             maxWidth: "100vw",
             data: _droitGroupe
         });

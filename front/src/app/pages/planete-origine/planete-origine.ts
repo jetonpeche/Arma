@@ -39,6 +39,7 @@ export class PlaneteOriginePage implements OnInit
     private dialog = inject(MatDialog);
     private fichierServ = inject(FichierService);
     private dialogServ = inject(DialogConfirmationService);    
+    private readonly estMobile = window.innerWidth <= 800;
 
     ngOnInit(): void 
     {
@@ -77,7 +78,7 @@ export class PlaneteOriginePage implements OnInit
     protected OuvrirModalAjouterModifierPlanete(_planete?: PlaneteOrigine): void
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierPlaneteOrigine, {
-            width: "50%", 
+            width: this.estMobile ? "95%" : "50%", 
             maxWidth: "100vw",
             data: _planete
         });

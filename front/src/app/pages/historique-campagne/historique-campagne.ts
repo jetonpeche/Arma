@@ -36,6 +36,7 @@ export class HistoriqueCampagnePage implements OnInit
     private dialogConfirmationServ = inject(DialogConfirmationService);
     private fichierServ = inject(FichierService);
     private dialog = inject(MatDialog);
+    private readonly estMobile = window.innerWidth <= 800;
 
     ngOnInit(): void 
     {
@@ -84,7 +85,7 @@ export class HistoriqueCampagnePage implements OnInit
     protected OuvriModalAjouterModifierHistoriqueCampagne(_historiqueCampagne?: HistoriqueCampagne): void
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierHistoriqueCampagne, {
-            width: "80%", 
+            width: this.estMobile ? "95%" : "80%", 
             maxWidth: "100vw",
             data: _historiqueCampagne
         });
