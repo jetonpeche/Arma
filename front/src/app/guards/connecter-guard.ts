@@ -44,9 +44,6 @@ export const connecterGuard: CanActivateFn = (route, state) =>
 
     let url = state.url;
 
-    if(state.url == "/gestion-specialite")
-        url = EUrl.Specialite;
-
     if(state.url == "/gestion-boutique")
         url = EUrl.Boutique;
 

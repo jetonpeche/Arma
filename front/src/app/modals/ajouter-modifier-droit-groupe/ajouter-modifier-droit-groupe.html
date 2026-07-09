@@ -70,13 +70,17 @@
                                         {
                                             Gestion planète
                                         }
+                                        @case("preset")
+                                        {
+                                            Gestion preset
+                                        }
                                         @default {
                                             {{ nomRoute }}
                                         }
                                     }
                                 </p>
 
-                                @if (nomRoute != "upload-fichier" && nomRoute != "medaille" && nomRoute != "historique-campagne" && nomRoute != "personnage" && nomRoute != "planete-origine") 
+                                @if (nomRoute != "upload-fichier" && nomRoute != "medaille" && nomRoute != "historique-campagne" && nomRoute != "personnage" && nomRoute != "planete-origine" && nomRoute != "preset") 
                                 {
                                     <mat-checkbox labelPosition="before" formControlName="peutLire">
                                         Droit de lecture

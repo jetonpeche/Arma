@@ -8,6 +8,9 @@ import { SnackBarService } from '@services/SnackBarService';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { Droit } from '@models/DroitGroupe';
+import { EUrl } from '@enums/EUrl';
 @Component({
   selector: 'app-modal-preset',
   imports: [MatDialogModule,MatInputModule, ReactiveFormsModule, MatFormFieldModule, MatButtonModule, MatIconModule],
@@ -18,6 +21,7 @@ export class ModalPreset implements OnInit
 {
   protected form: FormGroup;
   protected formFichier: FormGroup;
+  protected droit: Droit;
   protected modeEdition = signal(false);
   protected chargementTermine = signal(false);
   protected preset = signal<Preset | null>(null);
@@ -25,9 +29,11 @@ export class ModalPreset implements OnInit
 
   private presetServ = inject(PresetService);
   private snackBarServ = inject(SnackBarService);
+  private authServ = inject(AuthentificationService);
 
   ngOnInit(): void 
   {
+    this.droit = this.authServ.RecupererDroit(EUrl.Preset);
     this.Recuperer(); 
 
     this.form = new FormGroup({

@@ -61,7 +61,7 @@ export class AjouterModifierDroitGroupe implements OnInit
         {
             const LISTE = [
                 EUrl.Boutique, EUrl.DroitGroupe, EUrl.Grade, EUrl.Logistique, 
-                EUrl.Materiel, EUrl.Personnage, EUrl.Medaille, EUrl.HistoriqueCampagne, 
+                EUrl.Materiel, EUrl.Personnage, EUrl.Preset, EUrl.Medaille, EUrl.HistoriqueCampagne, 
                 EUrl.PlaneteOrigine, EUrl.PropositionAchat, EUrl.Specialite, EUrl.TypeLogistique, 
                 EUrl.TypeMateriel, EUrl.TypeStockageLogistique, EUrl.UploadFichier, EUrl.Vaisseau
             ];
@@ -70,7 +70,7 @@ export class AjouterModifierDroitGroupe implements OnInit
             {
                 this.listeDroit.push(new FormGroup({
                     routeGroupe: new FormControl(element.replace("/", "")),
-                    peutLire: new FormControl(element == EUrl.UploadFichier || element == EUrl.Personnage || element == EUrl.Medaille || element == EUrl.HistoriqueCampagne || element == EUrl.PlaneteOrigine ? true : false),
+                    peutLire: new FormControl(element == EUrl.UploadFichier || element == EUrl.Personnage || element == EUrl.Medaille || element == EUrl.HistoriqueCampagne || element == EUrl.Preset || element == EUrl.PlaneteOrigine ? true : false),
                     peutEcrire: new FormControl(false),
                     peutSupprimer: new FormControl(false)
                 }));

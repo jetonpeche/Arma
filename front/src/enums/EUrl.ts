@@ -15,5 +15,6 @@ export enum EUrl
     PropositionAchat = "/proposition-achat",
     DroitGroupe = "/droit-groupe",
     Medaille = "/medaille",
-    HistoriqueCampagne = "/historique-campagne"
+    HistoriqueCampagne = "/historique-campagne",
+    Preset = "/preset"
 }

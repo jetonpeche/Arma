@@ -1,7 +1,7 @@
 <h2 mat-dialog-title class="dialog-header">
     <span>COORDONNÉES DE DÉPLOIEMENT</span>
     
-    @if (chargementTermine() && preset()) 
+    @if (chargementTermine() && preset() && droit.peutEcrire) 
     {
         <button matIconButton class="edit-toggle-btn" (click)="BasculerEdition()" [class.active]="modeEdition()" matTooltip="Modifier les coordonnées">
             <mat-icon>{{ modeEdition() ? 'close' : 'settings' }}</mat-icon>
@@ -20,7 +20,7 @@
     } 
     @else 
     {    
-        @if (modeEdition()) 
+        @if (modeEdition() && droit.peutEcrire) 
         {    
             <form [formGroup]="form" class="tactical-form">
                 <div class="info-header form-header">
@@ -124,7 +124,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-    @if (modeEdition() && preset()) 
+    @if (modeEdition() && preset() && droit.peutEcrire) 
     {
         <button matButton="text" (click)="BasculerEdition()">RETOUR AU RAPPORT</button>
     } 
