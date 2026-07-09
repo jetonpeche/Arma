@@ -1,4 +1,8 @@
-<div class="boot-sequence-overlay" (click)="PasserCinematique()" [class.skipped]="cinematiquePasse()">  
+<div class="boot-sequence-overlay" (click)="PasserCinematique()" [class.hidden]="cinematiquePasse()">  
+    <div class="boot-hud">
+        <div class="bracket tl"></div><div class="bracket tr"></div>
+        <div class="bracket bl"></div><div class="bracket br"></div>
+    </div>
     <div class="boot-terminal">
         <div class="sys-line line-1">> CONNEXION AU RÉSEAU FLEETCOM... <span class="status">[OK]</span></div>
         <div class="sys-line line-2">> DÉCRYPTAGE DES PROTOCOLES ONI... <span class="status">[OK]</span></div>
@@ -11,23 +15,24 @@
     </div>
 </div>
 
-<div class="main-content-delayed" [class.skipped]="cinematiquePasse()">
+<div class="main-content" [class.is-ready]="cinematiquePasse()">
     <div class="home-container">
     
-        <!-- EN-TÊTE ÉPIQUE UNSC (Style Terminal de Transmission) -->
         <div class="hero-section">
             <div class="hero-hud">
-            <div class="bracket tl"></div><div class="bracket tr"></div>
-            <div class="bracket bl"></div><div class="bracket br"></div>
-            <div class="telemetry">// UPLINK SECURE // UNSC NETCOM ACTIVE // ACCES: PUBLIC</div>
+                <div class="bracket tl"></div><div class="bracket tr"></div>
+                <div class="bracket bl"></div><div class="bracket br"></div>
+                <div class="telemetry">// UPLINK SECURE // UNSC NETCOM ACTIVE // ACCES: PUBLIC</div>
             </div>
             
-            <h1 class="unsc-title glitch-effect" data-text="Compagnie 21">Compagnie 21</h1>
-            <h2 class="unsc-subtitle type-writer">Corps des Marines de l'UNSC</h2>
+            <h1 class="unsc-title">
+                <span class="glitch-text">Compagnie 21</span>
+            </h1>
+            <h2 class="unsc-subtitle">Corps des Marines de l'UNSC</h2>
             
             <div class="quote-box">
-            <mat-icon class="quote-icon">format_quote</mat-icon>
-            <p class="tagline">« Ces tas de fumier Covenants et ces traîtres d'insurgés pensent avoir le dessus ? Laissez-les s'approcher... et je leur garantis qu'ils vont regretter le jour où ils ont appris à tenir une arme. <br> J'AI RAISON MARINES !? »</p>
+                <mat-icon class="quote-icon">format_quote</mat-icon>
+                <p class="tagline">« Ces tas de fumier Covenants et ces traîtres d'insurgés pensent avoir le dessus ? Laissez-les s'approcher... et je leur garantis qu'ils vont regretter le jour où ils ont appris à tenir une arme. <br> J'AI RAISON MARINES !? »</p>
             </div>
         </div>
 
@@ -35,86 +40,83 @@
             <div class="line"></div><div class="diamond"></div><div class="line"></div>
         </div>
 
-        <!-- LE MANIFESTE DE LA FLOTTE -->
-        <div class="manifesto-section fade-in-up" style="animation-delay: 0.2s;">
+        <div class="manifesto-section fade-in-up" style="--delay: 0.2s;">
             <div class="manifesto-header">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="title">Rapport_De_Mission.log</span>
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="title">Rapport_De_Mission.log</span>
             </div>
             <div class="manifesto-body">
-            <p class="lead-text">
-                La Compagnie 21, c'est pas une garderie pour fragiles.<br>
-                On est des <strong class="glow-text">Marines de l'UNSC</strong>. On est ceux qui plongent dans la fosse aux lions pendant que les autres chient dans leur froc.
-            </p>
-            <p>
-                On est déployés partout, de la moindre planète paumée aux zones de guerre les plus chaudes. Que ce soit pour dézinguer du Covenant ou pour mater des Insurgés qui croient qu'ils peuvent défier l'Humanité, on est là. Le commandement veut pas des héros de pacotille, ils veulent des tueurs disciplinés. Tu vas bouffer de la boue, tu vas apprendre à manier le blindé et le flingue, et tu vas surtout apprendre à rester en vie pour le gars à côté de toi.
-            </p>
+                <p class="lead-text">
+                    La Compagnie 21, c'est pas une garderie pour fragiles.<br>
+                    On est des <strong class="glow-text">Marines de l'UNSC</strong>. On est ceux qui plongent dans la fosse aux lions pendant que les autres chient dans leur froc.
+                </p>
+                <p>
+                    On est déployés partout, de la moindre planète paumée aux zones de guerre les plus chaudes. Que ce soit pour dézinguer du Covenant ou pour mater des Insurgés qui croient qu'ils peuvent défier l'Humanité, on est là. Le commandement veut pas des héros de pacotille, ils veulent des tueurs disciplinés. Tu vas bouffer de la boue, tu vas apprendre à manier le blindé et le flingue, et tu vas surtout apprendre à rester en vie pour le gars à côté de toi.
+                </p>
             </div>
         </div>
 
-        <!-- GRILLE DES FONCTIONNALITÉS (Blindage Mjolnir) -->
         <div class="features-grid">
             
-            <mat-card class="feature-card fade-in-up" style="animation-delay: 0.4s;">
-            <div class="card-glint"></div>
-            <mat-card-content class="feature-content">
-                <mat-icon class="feature-icon">security</mat-icon>
-                <h3>Le jouet de l'ONI</h3>
-                <p>L'ONI ? Ces connards nous considèrent comme de la chair à canon pour leurs sales boulots. Attends-toi à ce qu'ils te sortent des missions "Black Ops" en plein milieu de la nuit sans prévenir. Tu fermes ta gueule et tu fais le sale boulot. Pas le choix.</p>
-            </mat-card-content>
+            <mat-card class="feature-card fade-in-up" style="--delay: 0.4s;">
+                <div class="card-glint"></div>
+                <mat-card-content class="feature-content">
+                    <mat-icon class="feature-icon">security</mat-icon>
+                    <h3>Le jouet de l'ONI</h3>
+                    <p>L'ONI ? Ces connards nous considèrent comme de la chair à canon pour leurs sales boulots. Attends-toi à ce qu'ils te sortent des missions "Black Ops" en plein milieu de la nuit sans prévenir. Tu fermes ta gueule et tu fais le sale boulot. Pas le choix.</p>
+                </mat-card-content>
             </mat-card>
             
-            <mat-card class="feature-card fade-in-up" style="animation-delay: 0.5s;">
-            <div class="card-glint"></div>
-            <mat-card-content class="feature-content">
-                <mat-icon class="feature-icon">explore</mat-icon>
-                <h3>La guerre, la vraie</h3>
-                <p>C'est pas du tourisme. Affronte des forces hostiles sur tous les terrains pourris et merdiques de la galaxie y compris lors de batailles spatiales ! Si tu survis à une extraction sans perdre un membre, c'est déjà un miracle.</p>
-            </mat-card-content>
+            <mat-card class="feature-card fade-in-up" style="--delay: 0.5s;">
+                <div class="card-glint"></div>
+                <mat-card-content class="feature-content">
+                    <mat-icon class="feature-icon">explore</mat-icon>
+                    <h3>La guerre, la vraie</h3>
+                    <p>C'est pas du tourisme. Affronte des forces hostiles sur tous les terrains pourris et merdiques de la galaxie y compris lors de batailles spatiales ! Si tu survis à une extraction sans perdre un membre, c'est déjà un miracle.</p>
+                </mat-card-content>
             </mat-card>
 
-            <mat-card class="feature-card fade-in-up" style="animation-delay: 0.6s;">
-            <div class="card-glint"></div>
-            <mat-card-content class="feature-content">
-                <mat-icon class="feature-icon">shield_moon</mat-icon>
-                <h3>Infanterie & Blindés</h3>
-                <p>On est là pour fracasser tout ce qui bouge ! Que tu sois en train de ramper dans la tranchée ou de piloter un Scorpion pour écraser tout ces enculés sur ton chemin, on est l'enfer sur terre.</p>
-            </mat-card-content>
+            <mat-card class="feature-card fade-in-up" style="--delay: 0.6s;">
+                <div class="card-glint"></div>
+                <mat-card-content class="feature-content">
+                    <mat-icon class="feature-icon">shield_moon</mat-icon>
+                    <h3>Infanterie & Blindés</h3>
+                    <p>On est là pour fracasser tout ce qui bouge ! Que tu sois en train de ramper dans la tranchée ou de piloter un Scorpion pour écraser tout ces enculés sur ton chemin, on est l'enfer sur terre.</p>
+                </mat-card-content>
             </mat-card>
             
-            <mat-card class="feature-card fade-in-up" style="animation-delay: 0.7s;">
-            <div class="card-glint"></div>
-            <mat-card-content class="feature-content">
-                <mat-icon class="feature-icon">school</mat-icon>
-                <h3>Le bootcamp (le baptême)</h3>
-                <p>Nos entraînements, c'est de l'immersion brute. On t'apprend pas la poésie, on t'apprend à charger ton arme et à obéir. Zéro pression, mais si tu fais n'importe quoi, tu le paieras cher.</p>
-            </mat-card-content>
+            <mat-card class="feature-card fade-in-up" style="--delay: 0.7s;">
+                <div class="card-glint"></div>
+                <mat-card-content class="feature-content">
+                    <mat-icon class="feature-icon">school</mat-icon>
+                    <h3>Le bootcamp (le baptême)</h3>
+                    <p>Nos entraînements, c'est de l'immersion brute. On t'apprend pas la poésie, on t'apprend à charger ton arme et à obéir. Zéro pression, mais si tu fais n'importe quoi, tu le paieras cher.</p>
+                </mat-card-content>
             </mat-card>
 
         </div>
 
-        <!-- APPEL À L'ACTION : ALERTE ROUGE -->
-        <mat-card class="cta-card fade-in-up" style="animation-delay: 0.8s;">
+        <mat-card class="cta-card fade-in-up" style="--delay: 0.8s;">
             <div class="caution-tape top"></div>
             
             <mat-card-header>
-            <div mat-card-avatar class="cta-icon-wrapper">
-                <mat-icon class="cta-icon pulse-alert">warning</mat-icon>
-            </div>
-            <div class="cta-titles">
-                <mat-card-title>AVIS AUX RECRUES - MOBILISATION IMMÉDIATE</mat-card-title>
-                <mat-card-subtitle>Accréditation : RECRUE / PRIORITÉ ABSOLUE</mat-card-subtitle>
-            </div>
+                <div mat-card-avatar class="cta-icon-wrapper">
+                    <mat-icon class="cta-icon pulse-alert">warning</mat-icon>
+                </div>
+                <div class="cta-titles">
+                    <mat-card-title>AVIS AUX RECRUES - MOBILISATION IMMÉDIATE</mat-card-title>
+                    <mat-card-subtitle>Accréditation : RECRUE / PRIORITÉ ABSOLUE</mat-card-subtitle>
+                </div>
             </mat-card-header>
             
             <mat-card-content>
-            <p>
-                L'état-major attend pas toute la journée. Nos colonies se font défoncer par les Insurgés et les Covenants, et on a besoin de monde pour tenir la ligne. <br>
-                Tu veux voir à quoi ressemble la vraie guerre ? Tu veux prouver que t'es pas un déchet ?
-            </p>
-            <div class="recruitment-banner">
-                <h3 class="recruitment-text">Prouve que t'as des couilles. Engage-toi dans la Compagnie 21.</h3>
-            </div>
+                <p>
+                    L'état-major attend pas toute la journée. Nos colonies se font défoncer par les Insurgés et les Covenants, et on a besoin de monde pour tenir la ligne. <br>
+                    Tu veux voir à quoi ressemble la vraie guerre ? Tu veux prouver que t'es pas un déchet ?
+                </p>
+                <div class="recruitment-banner">
+                    <h3 class="recruitment-text">Prouve que t'as des couilles. Engage-toi dans la Compagnie 21.</h3>
+                </div>
             </mat-card-content>
             
             <div class="caution-tape bottom"></div>
@@ -122,18 +124,16 @@
 
     </div>
 
-    <!-- Boutons avec radar pulse -->
-    <!-- Boutons d'action tactiques -->
     <div class="fab-wrapper sticky-fab-desktop">
-    <button matFab extended (click)="OuvrirModalInscription()" class="tactical-btn">
-        <mat-icon>how_to_reg</mat-icon>
-        Bureau de recrutement
-    </button>
+        <button matFab extended (click)="OuvrirModalInscription()" class="tactical-btn">
+            <mat-icon>how_to_reg</mat-icon>
+            Bureau de recrutement
+        </button>
     </div>
 
     <div class="fab-wrapper sticky-fab-mobile">
-    <button matMiniFab (click)="OuvrirModalInscription()" class="tactical-btn">
-        <mat-icon>how_to_reg</mat-icon>
-    </button>
+        <button matMiniFab (click)="OuvrirModalInscription()" class="tactical-btn">
+            <mat-icon>how_to_reg</mat-icon>
+        </button>
     </div>
 </div>

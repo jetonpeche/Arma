@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,11 +12,17 @@ import { Inscription } from '../connexion/inscription/inscription';
   templateUrl: './accueil.html',
   styleUrl: './accueil.scss',
 })
-export class Accueil 
+export class Accueil implements OnInit
 {
     protected cinematiquePasse = signal(false);
     private dialog = inject(MatDialog);
     private readonly estMobile = window.innerWidth <= 800;
+
+    ngOnInit(): void {
+        setTimeout(() => {
+            this.cinematiquePasse.set(true);
+        }, 8500); 
+    }
 
     protected PasserCinematique(): void 
     {
