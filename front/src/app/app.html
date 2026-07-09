@@ -26,6 +26,14 @@
         </button>
 
         <mat-menu #settingsMenu="matMenu" class="unsc-mat-menu">
+            @if (estConnecter())
+            {
+                <button mat-menu-item (click)="OuvrirModalPreset()">
+                    <mat-icon>file</mat-icon>
+                    <span>Preset</span>
+                </button>
+            }
+
             <button mat-menu-item (click)="toggleTheme()">
                 <mat-icon>{{ estLightMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
                 <span>{{ estLightMode() ? 'Basculer en Vision Nocturne' : 'Basculer en Vision Standard' }}</span>

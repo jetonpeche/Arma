@@ -28,6 +28,7 @@ public static class WebApplicationExtension
           mapGroupe.MapGroup("droit-groupe").AjouterRouteDroitGroupe();
           mapGroupe.MapGroup("banque").AjouterRouteBanque();
           mapGroupe.MapGroup("medaille").AjouterRouteMedaille();
+          mapGroupe.MapGroup("preset").AjouterRoutePreset();
           mapGroupe.MapGroup("historique-campagne").AjouterRouteHistoriqueCampagne();
           mapGroupe.MapGroup("bot-discord").AjouterRouteBotDiscord().ExcludeFromDescription();
 

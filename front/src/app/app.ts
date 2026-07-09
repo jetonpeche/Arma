@@ -19,6 +19,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { ParametreService } from '@services/ParametreService';
 import { SnackBarService } from '@services/SnackBarService';
 import { MatSliderModule } from '@angular/material/slider';
+import { ModalPreset } from '@modals/modal-preset/modal-preset';
 
 @Component({
   selector: 'app-root',
@@ -246,6 +247,14 @@ export class App implements OnInit
             this.dialog.open(ModalPointBanque, {
                 width: this.estMobile ? "95%" : "30%",
                 maxWidth: "100vw"
+        });
+    }
+
+    protected OuvrirModalPreset(): void
+    {
+        this.dialog.open(ModalPreset, {
+            width: this.estMobile ? "95%" : "50%", 
+            maxWidth: "100vw",
         });
     }
 

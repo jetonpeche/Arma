@@ -20,7 +20,7 @@ public class DroitMiddleware : IEndpointFilter
           string nomMapGroupe = routeSplit[2];
           string verbeHttp = context.HttpContext.Request.Method;
 
-          if (nomMapGroupe is "authentification" or "test" or "bot-discord")
+          if (nomMapGroupe is "authentification" or "test" or "bot-discord" or "preset")
                return await next(context);
 
           if (verbeHttp == HttpMethods.Get)

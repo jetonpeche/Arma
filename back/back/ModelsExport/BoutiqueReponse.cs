@@ -15,4 +15,4 @@ public sealed class BoutiqueReponse
 
 [JsonSerializable(typeof(BoutiqueReponse[]))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-public partial class BoutiqueReponseContext: JsonSerializerContext { }
+public partial class BoutiqueReponseContext: JsonSerializerContext;
