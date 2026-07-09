@@ -17,9 +17,11 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 export class ModalPreset implements OnInit
 {
   protected form: FormGroup;
+  protected formFichier: FormGroup;
   protected modeEdition = signal(false);
   protected chargementTermine = signal(false);
   protected preset = signal<Preset | null>(null);
+  protected fichierSelectionne = signal<File | null>(null);
 
   private presetServ = inject(PresetService);
   private snackBarServ = inject(SnackBarService);
@@ -34,6 +36,10 @@ export class ModalPreset implements OnInit
       mdpArma: new FormControl(this.preset()?.mdpArma, [Validators.required]),
       codeAmiSteam: new FormControl(this.preset()?.codeAmiSteam, [Validators.required])
     });
+
+    this.formFichier = new FormGroup({
+      aliasNomFichier: new FormControl(this.preset()?.aliasNomFichier, [Validators.required])
+    });
   }
 
   protected BasculerEdition(): void 
@@ -41,8 +47,22 @@ export class ModalPreset implements OnInit
     const etatActuel = this.modeEdition();
     this.modeEdition.set(!etatActuel);
     
-    if (etatActuel && this.preset())
+    if (etatActuel && this.preset()) 
+    {
       this.form.patchValue(this.preset()!);
+      this.formFichier.patchValue({ aliasNomFichier: this.preset()!.aliasNomFichier });
+      this.fichierSelectionne.set(null);
+    }
+  }
+
+  protected FichierChoisi(event: Event): void 
+  {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0)
+    {
+      const fichier = input.files[0];
+      this.fichierSelectionne.set(fichier);
+    }
   }
 
   protected Sauvegarder(): void 
@@ -58,6 +78,25 @@ export class ModalPreset implements OnInit
     this.presetServ.Modifier(donneesModifiees).subscribe({
       next: () => {
         this.preset.set(donneesModifiees);
+        this.modeEdition.set(false);
+        this.snackBarServ.Ok('Coordonnées mises à jour');
+      }
+    });
+  }
+
+  protected SauvegardeFichier(): void
+  {
+    if(this.formFichier.invalid || this.fichierSelectionne() == null || this.fichierSelectionne() == undefined)
+      return;
+
+    this.presetServ.ModifierFichier(this.fichierSelectionne(), this.formFichier.value.aliasNomFichier).subscribe({
+      next: () => 
+      {
+        this.preset.update(x => {
+          x.aliasNomFichier = this.formFichier.value.aliasNomFichier;
+          return x;
+        });
+
         this.modeEdition.set(false);
         this.snackBarServ.Ok('Coordonnées mises à jour');
       }
@@ -92,9 +131,10 @@ export class ModalPreset implements OnInit
         this.chargementTermine.set(true);
 
         if (retour) 
-        {
+        {          
           this.preset.set(retour);
           this.form.patchValue(retour);
+                    console.log(this.preset());
         } 
         else 
           this.modeEdition.set(true);

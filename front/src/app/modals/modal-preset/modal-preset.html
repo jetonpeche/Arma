@@ -1,8 +1,9 @@
 <h2 mat-dialog-title class="dialog-header">
     <span>COORDONNÉES DE DÉPLOIEMENT</span>
     
-    @if (chargementTermine() && preset()) {
-        <button mat-icon-button class="edit-toggle-btn" (click)="BasculerEdition()" [class.active]="modeEdition()" matTooltip="Modifier les coordonnées">
+    @if (chargementTermine() && preset()) 
+    {
+        <button matIconButton class="edit-toggle-btn" (click)="BasculerEdition()" [class.active]="modeEdition()" matTooltip="Modifier les coordonnées">
             <mat-icon>{{ modeEdition() ? 'close' : 'settings' }}</mat-icon>
         </button>
     }
@@ -10,69 +11,104 @@
 
 <mat-dialog-content class="preset-content">
     
-    @if (!chargementTermine()) {
+    @if (!chargementTermine()) 
+    {
         <div class="loading-data">
             <mat-icon class="pulse-alert">radar</mat-icon>
             <span>RECHERCHE DES COORDONNÉES...</span>
         </div>
     } 
-    @else {
-        
-        @if (modeEdition()) {
+    @else 
+    {    
+        @if (modeEdition()) 
+        {    
             <form [formGroup]="form" class="tactical-form">
                 <div class="info-header form-header">
-                    <mat-icon>edit_square</mat-icon>
-                    <span>{{ preset() ? 'MISE À JOUR DES DONNÉES' : 'SAISIE DES NOUVELLES COORDONNÉES' }}</span>
+                    <mat-icon>dns</mat-icon>
+                    <span>MODIFIER LES COORDONNÉES</span>
                 </div>
 
-                <mat-form-field appearance="outline" class="tactical-field">
+                <mat-form-field>
                     <mat-label>Serveur TeamSpeak</mat-label>
-                    <input matInput formControlName="serveurTS" placeholder="ex: ts.compagnie21.com">
+                    <input matInput formControlName="serveurTS">
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="tactical-field">
+                <mat-form-field>
                     <mat-label>Mot de passe TeamSpeak</mat-label>
                     <input matInput formControlName="mdpTS">
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="tactical-field">
+                <mat-form-field>
                     <mat-label>Mot de passe Arma 3</mat-label>
                     <input matInput formControlName="mdpArma">
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="tactical-field">
+                <mat-form-field>
                     <mat-label>Code Ami Steam (Host)</mat-label>
                     <input matInput formControlName="codeAmiSteam">
                 </mat-form-field>
+
+                <div class="form-actions">
+                    <button matButton="filled" (click)="Sauvegarder()">
+                        <mat-icon>save</mat-icon> 
+                        SAUVEGARDER LES COORDONNÉES
+                    </button>
+                </div>
+            </form>
+
+            <div class="tactical-divider-small">
+                <div class="line"></div><div class="diamond"></div><div class="line"></div>
+            </div>
+
+            <form [formGroup]="formFichier" class="tactical-form">
+                <div class="info-header form-header">
+                    <mat-icon>upload_file</mat-icon>
+                    <span>NOUVEAU FICHIER HTML</span>
+                </div>
+
+                <div class="file-upload-section">
+                    <input type="file" #fileInput hidden accept=".html" (change)="FichierChoisi($event)">
+                    <button mat-stroked-button type="button" class="upload-btn" (click)="fileInput.click()">
+                        <mat-icon>attach_file</mat-icon> SÉLECTIONNER UN PRESET
+                    </button>
+
+                    @if (fichierSelectionne(); as f) 
+                    {
+                        <div class="file-status success"><mat-icon>check_circle</mat-icon><span>{{ f.name }}</span></div>
+                    } 
+                    @else {
+                        <div class="file-status waiting"><mat-icon>sd_card_alert</mat-icon><span>Aucun fichier en attente</span></div>
+                    }
+                </div>
+
+                <mat-form-field>
+                    <mat-label>Alias du fichier</mat-label>
+                    <input matInput formControlName="aliasNomFichier">
+                </mat-form-field>
+
+                <div class="form-actions">
+                    <button matButton="filled" (click)="SauvegardeFichier()">
+                        <mat-icon>cloud_upload</mat-icon> UPLOADER LE FICHIER
+                    </button>
+                </div>
             </form>
         } 
         @else if (preset(); as p) 
         {
             <div class="tactical-info-panel">
-                <div class="info-header">
-                    <mat-icon>dns</mat-icon>
-                    <span>DONNÉES DU SERVEUR CLASSIFIÉES</span>
-                </div>
-
+                <div class="info-header"><mat-icon>dns</mat-icon><span>DONNÉES DU SERVEUR CLASSIFIÉES</span></div>
                 <div class="info-list">
                     <div class="info-row clickable-row" (click)="CopierDonnee(p.serveurTS, 'Serveur TeamSpeak')">
-                        <span class="info-label">SERVEUR TEAMSPEAK</span>
-                        <span class="info-value copyable">{{ p.serveurTS }} <mat-icon class="copy-icon">content_copy</mat-icon></span>
+                        <span class="info-label">SERVEUR TEAMSPEAK</span><span class="info-value copyable">{{ p.serveurTS }} <mat-icon class="copy-icon">content_copy</mat-icon></span>
                     </div>
-                    
                     <div class="info-row clickable-row" (click)="CopierDonnee(p.mdpTS, 'Mot de passe TS')">
-                        <span class="info-label">MOT DE PASSE TS</span>
-                        <span class="info-value secret">{{ p.mdpTS }} <mat-icon class="copy-icon">content_copy</mat-icon></span>
+                        <span class="info-label">MOT DE PASSE TS</span><span class="info-value secret">{{ p.mdpTS }} <mat-icon class="copy-icon">content_copy</mat-icon></span>
                     </div>
-                    
                     <div class="info-row clickable-row" (click)="CopierDonnee(p.mdpArma, 'Mot de passe Arma 3')">
-                        <span class="info-label">MOT DE PASSE ARMA 3</span>
-                        <span class="info-value secret">{{ p.mdpArma }} <mat-icon class="copy-icon">content_copy</mat-icon></span>
+                        <span class="info-label">MOT DE PASSE ARMA 3</span><span class="info-value secret">{{ p.mdpArma }} <mat-icon class="copy-icon">content_copy</mat-icon></span>
                     </div>
-                    
                     <div class="info-row clickable-row" (click)="CopierDonnee(p.codeAmiSteam, 'Code Ami Steam')">
-                        <span class="info-label">CODE AMI STEAM</span>
-                        <span class="info-value copyable">{{ p.codeAmiSteam }} <mat-icon class="copy-icon">content_copy</mat-icon></span>
+                        <span class="info-label">CODE AMI STEAM</span><span class="info-value copyable">{{ p.codeAmiSteam }} <mat-icon class="copy-icon">content_copy</mat-icon></span>
                     </div>
                 </div>
             </div>
@@ -80,25 +116,20 @@
             <div class="download-section">
                 <button mat-raised-button (click)="Telecharger()" class="tactical-btn download-btn">
                     <mat-icon>download</mat-icon>
-                    {{ p.aliasNomFichier ? 'TÉLÉCHARGER ' + p.aliasNomFichier : 'TÉLÉCHARGER LE PRESET HTML' }}
+                    {{ p.aliasNomFichier ? 'TÉLÉCHARGER ' + p.aliasNomFichier : 'TÉLÉCHARGER LE PRESET' }}
                 </button>
             </div>
         }
     }
-
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-    @if (modeEdition()) 
+    @if (modeEdition() && preset()) 
     {
-        @if (preset()) 
-        {
-            <button matButton="text" (click)="BasculerEdition()">ANNULER</button>
-        }
-        <button matButton="filled" (click)="Sauvegarder()">SAUVEGARDER</button>
+        <button matButton="text" (click)="BasculerEdition()">RETOUR AU RAPPORT</button>
     } 
     @else 
     {
-        <button matButton="text" mat-dialog-close class="tactical-btn text-only">FERMER LE CANAL</button>
+        <button mat-button mat-dialog-close>FERMER LE CANAL</button>
     }
 </mat-dialog-actions>

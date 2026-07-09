@@ -22,6 +22,15 @@ export class PresetService
         return this.http.post<void>(`${this.BASE_API}/publier`, _preset).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
+    ModifierFichier(_fichier: File, _aliasNomFichier: string): Observable<void>
+    {
+        const FORM_DATA = new FormData();
+        FORM_DATA.append("Nom", _aliasNomFichier);
+        FORM_DATA.append("Fichier", _fichier, _fichier.name);
+
+        return this.http.post<void>(`${this.BASE_API}/modifier-fichier`, FORM_DATA).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
     Telecharger(): void
     {
         this.http.get(`${this.BASE_API}/telecharger`,
