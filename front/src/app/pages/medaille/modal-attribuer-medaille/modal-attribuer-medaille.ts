@@ -33,8 +33,8 @@ export class ModalAttribuerMedaille implements OnInit
     {
         this.formControl.valueChanges.subscribe({
             next: (idPersonnage) =>
-            {
-                if(!isNaN(idPersonnage))
+            {   
+                if(idPersonnage != null && !isNaN(idPersonnage))
                     this.Ajouter(idPersonnage);
             }
         });

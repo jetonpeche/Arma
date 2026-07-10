@@ -5,7 +5,7 @@
                                 [formControl]="formControl"
                                 requireSelection />
 
-    @for (element of listePersonnageChoisi(); track $index) 
+    @for (element of listePersonnageChoisi(); track element.id) 
     {
         <div class="flex">
             <span style="font-size: 1em; padding-top: 10px;">{{ element.nom }}</span>
