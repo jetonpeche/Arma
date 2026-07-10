@@ -39,7 +39,7 @@ export class Inscription implements OnInit
         this.form = new FormGroup({
             nom: new FormControl<string>("", [Validators.required, Validators.maxLength(100)]),
             nomDiscord: new FormControl<string>("", [Validators.required, Validators.maxLength(100)]),
-            matricule: new FormControl<string>("", [Validators.required, Validators.maxLength(40)]),
+            matricule: new FormControl<string>(""),
             groupeSanguin: new FormControl<string>("", [Validators.required, Validators.maxLength(5)]),
             dateNaissance: new FormControl<string>("20 avril 2520", [Validators.required]),
             etatService: new FormControl<string | null>(null, [Validators.maxLength(5_000)]),
@@ -48,6 +48,30 @@ export class Inscription implements OnInit
             login: new FormControl<string>("", [Validators.required, Validators.maxLength(30)]),
             mdp: new FormControl("", [Validators.required])
         });
+    }
+
+    private GenererCinqChiffres(): string 
+    {
+        return Math.floor(Math.random() * 100000)
+            .toString()
+            .padStart(5, '0');
+    }
+
+    private GenererMatricule(): string 
+    {
+        const bloc1 = this.GenererCinqChiffres();
+        const bloc2 = this.GenererCinqChiffres();
+        
+        const nomSplit = (this.form.value.nom as string).trim().split(' ');
+        let initialePrenom = nomSplit[0].trim().charAt(0).toUpperCase() || 'X';
+        let initialeNom = "X";
+
+        if(nomSplit.length > 1)
+            initialeNom = nomSplit[1].trim().charAt(0).toUpperCase() || 'X';
+
+        const initiales = `${initialeNom}${initialePrenom}`;
+
+        return `${bloc1}-${bloc2}-${initiales}`;
     }
 
     protected EtapeSuivante(): void 
@@ -73,6 +97,7 @@ export class Inscription implements OnInit
         }
 
         this.btnClick.set(true);
+        this.form.controls["matricule"].setValue(this.GenererMatricule());
 
         this.authServ.Inscription(this.form.value).subscribe({
             next: () =>
