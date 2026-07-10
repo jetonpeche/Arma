@@ -44,7 +44,7 @@
         <mat-card class="unsc-id-card" appearance="outlined">
             
             <!-- EN-TÊTE DE LA CARTE -->
-            <div class="id-header">
+            <div class="id-header" [class.is-navy]="element.estNavy" [class.is-marines]="!element.estNavy">
                 <div class="id-title">UNITED NATIONS SPACE COMMAND</div>
                 <div class="id-subtitle">IDENTIFICATION AND PRIVILEGE CARD</div>
             </div>
@@ -89,8 +89,8 @@
                     </div>
 
                     <!-- Logo Dynamique -->
-                    <div class="divLogoDroite">
-                        <img src="logoDroite.png" alt="Logo Section">
+                    <div class="divLogoDroite" [class.logo-navy]="element.estNavy" [class.logo-marines]="!element.estNavy">
+                        <img [src]="element.estNavy ? 'logoDroiteNavy.png' : 'logoDroiteMarines.png'" alt="Logo Section">
                     </div>
                 </section>
 

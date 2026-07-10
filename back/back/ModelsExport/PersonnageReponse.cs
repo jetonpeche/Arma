@@ -19,6 +19,7 @@ public sealed class PersonnageReponse
      public required bool EstFormateurSpecialite { get; set; }
      public required bool FormationFaite { get; set; }
      public required bool EstValider { get; set; }
+     public required bool EstNavy { get; set; }
 
      public string? DateDerniereParticipation { get; set; }
      public required string DateCreation { get; set; }

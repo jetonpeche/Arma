@@ -55,11 +55,21 @@
 
 /* --- EN-TÊTE DE LA CARTE --- */
 .id-header {
-    background-color: var(--mat-sys-primary);
-    color: var(--mat-sys-on-primary);
+
+    &.is-navy {
+        background-color: var(--mat-sys-tertiary);
+        color: var(--mat-sys-on-tertiary);
+        border-bottom: 4px solid var(--mat-sys-primary);
+    }
+
+    &.is-marines {
+        background-color: var(--mat-sys-primary);
+        color: var(--mat-sys-on-primary);
+        border-bottom: 4px solid var(--mat-sys-tertiary);
+    }
+
     padding: 12px 24px;
     text-align: center;
-    border-bottom: 4px solid var(--mat-sys-tertiary);
 
     .id-title {
         font-size: 1.2rem;
@@ -181,11 +191,21 @@
 }
 
 /* --- LOGIQUE CLAIR/SOMBRE DU LOGO --- */
-:host-context(html:not(.light-mode)) {
-    .divLogoDroite {
+:host-context(html:not(.light-mode)) 
+{
+    .divLogoDroite 
+    {
+        &.logo-navy {
+            -webkit-mask-image: url('/logoDroiteNavy.png');
+            mask-image: url('/logoDroiteNavy.png');
+        }
+
+        &.logo-marines {
+            -webkit-mask-image: url('/logoDroiteMarines.png');
+            mask-image: url('/logoDroiteMarines.png');
+        }
+
         background-color: var(--mat-sys-outline-variant); 
-        -webkit-mask-image: url('/logoDroite.png');
-        mask-image: url('/logoDroite.png');
         -webkit-mask-size: 100% auto;
         mask-size: 100% auto;
         -webkit-mask-repeat: no-repeat;

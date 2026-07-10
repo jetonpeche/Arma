@@ -25,6 +25,7 @@ export type Personnage =
     dateDerniereParticipation: Date | null,
     dateCreation: Date,
     estValider: boolean,
+    estNavy: boolean,
     listeMedaille: [{ id: number, nom: string, urlImage: string }]
 }
 

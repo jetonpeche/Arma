@@ -18,7 +18,7 @@ export type GradeLeger =
 {
     id: number,
     nom: string,
-    nomRaccourci
+    nomRaccourci: string
 }
 
 export type GradeRequete = Omit<Grade, "id"|"nomFichier">;

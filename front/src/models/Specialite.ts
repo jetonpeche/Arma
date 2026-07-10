@@ -15,7 +15,11 @@ export type Specialite =
     urlImage: string
 }
 
-export type SpecialiteLeger = Omit<Specialite, "description">;
+export type SpecialiteLeger = 
+{
+    id: number,
+    nom: string
+}
 
 export type SpecialiteRequete =
 {

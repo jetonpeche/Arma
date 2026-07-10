@@ -96,8 +96,9 @@ public static class PersonnageRoute
                     NomDiscord = x.NomDiscord,
                     EtatService = x.EtatService,
                     DateNaissance = x.DateNaissance,
-                   
-                    DateCreation = x.DateCreation.ToString("yyyy-MM-dd"),
+                    EstNavy = x.Specialite != null ? x.Specialite.EstNavy : (x.Grade != null && x.Grade.Conserne == 1),
+
+                   DateCreation = x.DateCreation.ToString("yyyy-MM-dd"),
                     DateDerniereParticipation = x.DateDerniereParticipation.HasValue ? x.DateDerniereParticipation.Value.ToString("yyyy-MM-dd") : null,
                     Grade = x.Grade != null ? new GradeLegerReponse
                     {
