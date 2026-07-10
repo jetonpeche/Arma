@@ -406,7 +406,7 @@ public static class VaisseauRoute
                .Include("$.ListeVaisseauEnPlus[*].ListeVaisseauEnPlus")
                .FindById(_requete.IdVaisseau);
 
-          if (vaisseauDb == null)
+          if (vaisseauDb is null)
                return Results.NotFound("Vaisseau introuvable");
 
           var listeIdEnfant = vaisseauDb.ListeVaisseauEnPlus.Select(e => e.Id);
@@ -440,7 +440,7 @@ public static class VaisseauRoute
           {
                var listeIdVaisseauBson = new BsonArray(info.ListeVaisseauEnPlus.Select(id => new BsonValue(id)))
                {
-               new(_requete.IdVaisseau)
+                    new(_requete.IdVaisseau)
                };
 
                foreach (var element in listeIdVaisseauBson)
@@ -452,7 +452,7 @@ public static class VaisseauRoute
                     Vaisseau = new Vaisseau { Id = x },
                     NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
                     NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
-                    Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
+                   Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
                }));
           }
           else
@@ -473,6 +473,32 @@ public static class VaisseauRoute
           }
 
           db.GetCollection<VaisseauPosseder>().Insert(listeVaisseau);
+
+          // ajout des stockage par defaut dans chaque vaisseau
+          var listeIdVaisseauAcheterBson = listeVaisseau.Select(x => new BsonValue(x.Id)).ToArray();
+          var listeVaisseauDb = db.GetCollection<Vaisseau>()
+               .Include(x => x.ListeStockage)
+               .Include(x => x.ListeStockage.Select(y => y.ListeContenuDefaut))
+               .Find(Query.In("_id", listeIdVaisseauAcheterBson));
+
+          foreach (var element in listeVaisseauDb)
+          {
+               var vaisseauAcheter = listeVaisseau.First(x => x.Vaisseau.Id == element.Id);
+   
+               foreach (var stockage in element.ListeStockage)
+               {
+                    vaisseauAcheter.ListeStockage = [..stockage.ListeContenuDefaut.Select(x => new StockageVaisseauPosseder
+                    {
+                        Logistique = new() { Id = x.Logistique.Id },
+                        Quantite = x.Quantite,
+                        Stockage = new() { Id = stockage.Id },
+                        VaisseauPosseder = new() { Id = vaisseauAcheter.Id }
+                    })];
+               }
+
+               if(vaisseauAcheter.ListeStockage.Count > 0)
+                    db.GetCollection<StockageVaisseauPosseder>().Insert(vaisseauAcheter.ListeStockage);
+        }
 
           var nomPersonnage = db.GetCollection<Personnage>().FindById(_httpContext.RecupererIdPersonnage()).Nom;
           db.GetCollection<Historique>().Insert(new Historique
