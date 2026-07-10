@@ -168,8 +168,60 @@
 
                                 <jp-grid-element [colDefault]="12">
                                     <jp-autocomplete [dataSource]="dataSourceTypeStockage()"
+                                                                label="Type de soute"
                                                                 formControlName="idTypeStockage" 
                                                                 requireSelection />
+                                </jp-grid-element>
+
+                                <jp-grid-element [colDefault]="12">
+                                    <p>
+                                        <strong>Contenu par défaut</strong> 
+                                        - Espace restant : <span [style.color]="CalculerEspaceRestant(i) < 0 ? 'var(--mat-sys-error)' : 'inherit'">{{ CalculerEspaceRestant(i) }} / {{ element.get('taille').value }}</span>
+                                    </p>
+
+                                    <mat-form-field style="width: 100%;">
+                                        <mat-label>Ajouter un élément dans cette soute...</mat-label>
+                                        <mat-select (selectionChange)="SelectionnerLogistique(i, $event)" [value]="null">
+                                            <mat-option [value]="null">-- Sélectionner --</mat-option>
+                                            
+                                            @for (log of ListerLogistiquesCompatible(element.get('idTypeStockage').value); track log.id) 
+                                            {
+                                                <mat-option [value]="log">
+                                                    {{ log.nom }} (Vol. unitaire: {{ log.tailleUnitaireInventaire }})
+                                                </mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                </jp-grid-element>
+
+                                <jp-grid-element [colDefault]="12">
+                                    <div formArrayName="contenuParDefaut">
+                                        @for (item of RecupererContenuSoute(i).controls; track item; let j = $index) 
+                                        {
+                                            <jp-grid-container [formGroupName]="j" [gap]="15" style="align-items: center; background: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent); padding: 10px; border-radius: 4px; margin-bottom: 5px;">
+                                                
+                                                <jp-grid-element [colDefault]="6">
+                                                    <span style="font-weight: bold; color: var(--mat-sys-primary);">{{ item.get('nom').value }}</span><br>
+                                                    
+                                                    <span style="font-size: 0.85em; color: var(--mat-sys-on-surface-variant);">
+                                                        Taille unit: {{ item.get('tailleUnitaireInventaire').value }} 
+                                                        | Total: {{ item.get('tailleUnitaireInventaire').value * item.get('quantite').value }}
+                                                    </span>
+                                                </jp-grid-element>
+
+                                                <jp-grid-element [colDefault]="4">
+                                                    <jp-input-number label="Quantité" formControlName="quantite" />
+                                                </jp-grid-element>
+
+                                                <jp-grid-element [colDefault]="2" style="text-align: right;">
+                                                    <button mat-icon-button color="warn" (click)="SupprimerLogistiqueDeSoute(i, j)" type="button" matTooltip="Retirer de la soute">
+                                                        <mat-icon>delete</mat-icon>
+                                                    </button>
+                                                </jp-grid-element>
+                                                
+                                            </jp-grid-container>
+                                        }
+                                    </div>
                                 </jp-grid-element>
 
                                 <jp-grid-element [colDefault]="12">

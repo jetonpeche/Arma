@@ -28,7 +28,17 @@ public sealed class StockageVaisseauReponse
      public required string Nom { get; set; }
      public required int Taille { get; set; }
 
-     public required TypeStockageLogistiqueReponse TypeStockage { get; set; }
+    public required TypeStockageLogistiqueReponse TypeStockage { get; set; }
+
+    [JsonPropertyName("contenuParDefaut")]
+    public required StockageVaisseauContenuDefautReponse[] ListeContenuDefaut { get; set; }
+}
+
+public sealed class StockageVaisseauContenuDefautReponse
+{
+    public required int IdLogistique { get; set; }
+    public required int Quantite { get; set; }
+    public required string Nom { get; set; }
 }
 
 public sealed class EquipageVaisseauReponse

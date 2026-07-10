@@ -38,10 +38,15 @@ export type VaisseauArmement =
 
 export type VaisseauStockage = 
 {
-    id?: number,
+    id: number,
     nom: string,
     taille: number,
-    typeStockage: TypeStockageLogistique
+    typeStockage: TypeStockageLogistique,
+    contenuParDefaut: {
+        idLogistique: number,
+        quantite: number,
+        nom: string
+    }[]
 }
 
 export type VaisseauEquipage = 
@@ -69,5 +74,17 @@ export type VaisseauRequete =
     capaciteSpeciale: string | null,
     equipage: VaisseauEquipage,
     listeArmement: VaisseauArmement[],
-    listeStockage: VaisseauStockage[]
+    listeStockage: VaisseauStockageRequete[]
+}
+
+export type VaisseauStockageRequete = 
+{
+    id?: number,
+    nom: string,
+    taille: number,
+    typeStockage: TypeStockageLogistique,
+    contenuParDefaut: {
+        idLogistique: number,
+        quantite: number
+    }[]
 }

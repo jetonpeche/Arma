@@ -12,9 +12,9 @@ export class LogistiqueService
 
     private readonly BASE_API = `${environment.urlApi}/logistique`;
 
-    Lister(): Observable<Logistique[]>
+    Lister(_idTypeStockage?: number): Observable<Logistique[]>
     {
-        return this.http.get<Logistique[]>(`${this.BASE_API}/lister`)
+        return this.http.get<Logistique[]>(`${this.BASE_API}/lister${_idTypeStockage && _idTypeStockage > 0 ? '?idTypeStockage=' + _idTypeStockage : ''}`)
             .pipe(
                 takeUntilDestroyed(this.destroyRef),
                 map(x =>

@@ -19,4 +19,4 @@ public sealed class VaisseauRequete
 }
 
 [JsonSerializable(typeof(VaisseauRequete))]
-public partial class VaisseauRequeteContext: JsonSerializerContext { }
+public partial class VaisseauRequeteContext: JsonSerializerContext;

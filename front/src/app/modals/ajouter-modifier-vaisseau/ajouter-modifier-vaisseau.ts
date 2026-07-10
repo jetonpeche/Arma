@@ -11,10 +11,14 @@ import { TypeStockageLogistiqueService } from '@services/TypeStockageLogistiqueS
 import { VaisseauService } from '@services/VaisseauService';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { LogistiqueService } from '@services/LogistiqueService';
+import { Logistique } from '@models/Logistique';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from "@angular/material/button";
 
 @Component({
   selector: 'app-ajouter-modifier-vaisseau',
-  imports: [MatFormFieldModule, MatSelectModule, MatExpansionModule, MatCheckboxModule, MatDialogModule, ReactiveFormsModule, InputText, ButtonLoader, GridContainer, GridElement, InputNumber, InputTextarea, InputAutocomplete],
+  imports: [MatFormFieldModule, MatIconModule, MatSelectModule, MatExpansionModule, MatCheckboxModule, MatDialogModule, ReactiveFormsModule, InputText, ButtonLoader, GridContainer, GridElement, InputNumber, InputTextarea, InputAutocomplete, MatButtonModule],
   templateUrl: './ajouter-modifier-vaisseau.html',
   styleUrl: './ajouter-modifier-vaisseau.scss',
 })
@@ -25,12 +29,14 @@ export class AjouterModifierVaisseau implements OnInit
     protected btnClick = signal<boolean>(false);
     protected dataSourceTypeStockage = signal<AutocompleteDataSource[]>([]);
     protected listeVaisseauLeger = signal<VaisseauLeger[]>([]);
+    protected listeLogistiqueGlobale = signal<Logistique[]>([]);
 
     private matDialogData: Vaisseau = inject(MAT_DIALOG_DATA);
 
     private typeStockageServ = inject(TypeStockageLogistiqueService);
     private snackBarServ = inject(SnackBarService);
     private vaisseauServ = inject(VaisseauService);
+    private logistiqueServ = inject(LogistiqueService);
     private dialogRef = inject(MatDialogRef<AjouterModifierVaisseau>);
 
     get listeArmement(): FormArray 
@@ -46,6 +52,7 @@ export class AjouterModifierVaisseau implements OnInit
     ngOnInit(): void
     {
         this.ListerTypeStockage();
+        this.ListerLogistique();
         this.ListerVaisseauLeger();
 
         this.form = new FormGroup({
@@ -105,12 +112,44 @@ export class AjouterModifierVaisseau implements OnInit
 
     protected AjouterStockage(_stockage?: VaisseauStockage): void
     {
-        this.listeStockage.push(new FormGroup({
+        const contenuDefautArray = new FormArray<FormGroup>([]);
+
+        if (_stockage?.contenuParDefaut) 
+        {
+            for (const item of _stockage.contenuParDefaut) 
+            {
+                contenuDefautArray.push(new FormGroup({
+                    idLogistique: new FormControl(item.idLogistique),
+                    nom: new FormControl(item.nom),
+                    quantite: new FormControl(item.quantite, [Validators.required, Validators.min(1)]),
+                    tailleUnitaireInventaire: new FormControl(0), 
+                    ignoreTypeStockage: new FormControl(false)
+                }));
+            }
+        }
+
+        const souteGroup = new FormGroup({
             id: new FormControl(_stockage?.id),
-            idTypeStockage: new FormControl(_stockage?.typeStockage.id ?? 0, [Validators.required]),
+            idTypeStockage: new FormControl(_stockage?.typeStockage?.id ?? 0, [Validators.required]),
             nom: new FormControl(_stockage?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
-            taille: new FormControl(_stockage?.taille, [Validators.min(1)]),
-        }));
+            taille: new FormControl(_stockage?.taille ?? 1, [Validators.min(1)]),
+            contenuParDefaut: contenuDefautArray 
+        });
+
+        souteGroup.get('idTypeStockage')?.valueChanges.subscribe(() => 
+        {
+            const contenuArray = souteGroup.get('contenuParDefaut') as FormArray;
+        
+            for (let i = contenuArray.length - 1; i >= 0; i--) 
+            {
+                const itemGroup = contenuArray.at(i);
+                
+                if (itemGroup.get('ignoreTypeStockage')?.value !== true)
+                    contenuArray.removeAt(i);
+            }
+        });
+
+        this.listeStockage.push(souteGroup);
     }
 
     protected SupprimerArmement(_index: number): void
@@ -125,6 +164,8 @@ export class AjouterModifierVaisseau implements OnInit
 
     protected ValiderForm(): void
     {   
+        console.log(this.form.value);
+        
         if(this.form.invalid)
             return;
 
@@ -154,6 +195,104 @@ export class AjouterModifierVaisseau implements OnInit
                 error: () => this.btnClick.set(false)
             });
         }
+    }
+
+    protected RecupererContenuSoute(indexSoute: number): FormArray 
+    {
+        return this.listeStockage.at(indexSoute).get('contenuParDefaut') as FormArray;
+    }
+
+    protected ListerLogistiquesCompatible(_idTypeStockage: number): any[] 
+    {
+        if (!_idTypeStockage) 
+            return [];
+        
+        return this.listeLogistiqueGlobale().filter(x => 
+            x.ignoreTypeStockage || (x.typeStockage && x.typeStockage.id == _idTypeStockage)
+        );
+    }
+
+    protected SelectionnerLogistique(_indexSoute: number, _event: any): void 
+    {
+        const logistique = _event.value;
+        if (!logistique) 
+            return;
+
+        let contenuSoute = this.RecupererContenuSoute(_indexSoute);
+
+        const EXISTE_DEJA = contenuSoute.controls.some(c => c.get('idLogistique')?.value === logistique.id);
+
+        if(EXISTE_DEJA) 
+            return; 
+
+        contenuSoute.push(new FormGroup({
+            idLogistique: new FormControl(logistique.id),
+            nom: new FormControl(logistique.nom),
+            tailleUnitaireInventaire: new FormControl(logistique.tailleUnitaireInventaire), 
+            quantite: new FormControl(1, [Validators.required, Validators.min(1)]),
+            ignoreTypeStockage: new FormControl(logistique.ignoreTypeStockage)
+        }));
+    }
+
+    protected SupprimerLogistiqueDeSoute(indexSoute: number, indexLogistique: number): void 
+    {
+        this.RecupererContenuSoute(indexSoute).removeAt(indexLogistique);
+    }
+
+    protected CalculerEspaceRestant(indexSoute: number): number 
+    {
+        const soute = this.listeStockage.at(indexSoute);
+        const tailleMax = soute.get('taille')?.value || 1;
+        const contenuArray = this.RecupererContenuSoute(indexSoute);
+        
+        let volumeOccupe = 0;
+        for (const item of contenuArray.controls) 
+        {
+            const tailleU = item.get('tailleUnitaireInventaire')?.value || 0;
+            const qte = item.get('quantite')?.value || 0;
+            volumeOccupe += (tailleU * qte);
+        }
+
+        return tailleMax - volumeOccupe;
+    }
+
+    private MettreAJourInformationsSoutes(): void 
+    {
+        const logistiques = this.listeLogistiqueGlobale();
+        if (logistiques.length == 0 || !this.matDialogData) 
+            return;
+
+        for (let i = 0; i < this.listeStockage.length; i++) 
+        {
+            const contenuArray = this.RecupererContenuSoute(i);
+
+            for (let j = 0; j < contenuArray.length; j++) 
+            {
+                const itemGroup = contenuArray.at(j) as FormGroup;
+                const idLogistique = itemGroup.get('idLogistique')?.value;
+                
+                const logistiqueTrouvee = logistiques.find(l => l.id === idLogistique);
+                
+                if (logistiqueTrouvee) 
+                {
+                    itemGroup.patchValue({
+                        tailleUnitaireInventaire: logistiqueTrouvee.tailleUnitaireInventaire,
+                        ignoreTypeStockage: logistiqueTrouvee.ignoreTypeStockage
+                    });
+                }
+            }
+        }
+    }
+
+    private ListerLogistique(): void 
+    {
+        this.logistiqueServ.Lister().subscribe({
+            next: (retour) => 
+            {
+                this.listeLogistiqueGlobale.set(retour);
+                this.MettreAJourInformationsSoutes();
+            }
+        });
     }
 
     private ListerTypeStockage(): void
