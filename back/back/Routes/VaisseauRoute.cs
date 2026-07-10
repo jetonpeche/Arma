@@ -61,7 +61,7 @@ public static class VaisseauRoute
                .Include(x => x.ListeStockage.Select(y => y.TypeStockage))
                .Include(x => x.ListeStockage.Select(y => y.ListeContenuDefaut))
                .Include(x => x.ListeStockage.Select(y => y.ListeContenuDefaut.Select(z => z.Logistique)))
-               //.Where(x => !x.EstSupprimer)
+               .Where(x => !x.EstSupprimer)
                .ToList()
                .Select(x => new VaisseauReponse
                {
