@@ -475,11 +475,12 @@ public static class VaisseauRoute
           db.GetCollection<VaisseauPosseder>().Insert(listeVaisseau);
 
           // ajout des stockage par defaut dans chaque vaisseau
-          var listeIdVaisseauAcheterBson = listeVaisseau.Select(x => new BsonValue(x.Id)).ToArray();
+          var listeIdVaisseauAcheterBson = listeVaisseau.Select(x => new BsonValue(x.Vaisseau.Id)).ToArray();
           var listeVaisseauDb = db.GetCollection<Vaisseau>()
                .Include(x => x.ListeStockage)
                .Include(x => x.ListeStockage.Select(y => y.ListeContenuDefaut))
-               .Find(Query.In("_id", listeIdVaisseauAcheterBson));
+               .Find(Query.In("_id", listeIdVaisseauAcheterBson))
+               .ToArray();
 
           foreach (var element in listeVaisseauDb)
           {
@@ -497,8 +498,11 @@ public static class VaisseauRoute
                }
 
                if(vaisseauAcheter.ListeStockage.Count > 0)
+               {
                     db.GetCollection<StockageVaisseauPosseder>().Insert(vaisseauAcheter.ListeStockage);
-        }
+                    db.GetCollection<VaisseauPosseder>().Update(vaisseauAcheter);
+               }
+          }
 
           var nomPersonnage = db.GetCollection<Personnage>().FindById(_httpContext.RecupererIdPersonnage()).Nom;
           db.GetCollection<Historique>().Insert(new Historique
