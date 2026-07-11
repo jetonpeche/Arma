@@ -45,7 +45,17 @@
                     <div class="uniform-ribbon-rack">
                         @for (medaille of dialogData.listeMedaille; track medaille.id) 
                         {
-                            <img class="uniform-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
+                            <div class="medal-wrapper">
+                                <img class="uniform-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
+
+                                @if(droit.peutSupprimer)
+                                {
+                                    <!-- Le bouton de suppression caché -->
+                                    <div class="delete-medal-btn" (click)="SupprimerMedaille(medaille)" matTooltip="Révoquer cette décoration">
+                                        <mat-icon>close</mat-icon>
+                                    </div>
+                                }
+                            </div>
                         }
                     </div>
                 } 

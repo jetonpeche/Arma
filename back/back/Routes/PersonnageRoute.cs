@@ -65,7 +65,12 @@ public static class PersonnageRoute
                .ProducesNotFound()
                .ProducesNoContent();
 
-        return builder;
+          builder.MapDelete("supprimer-medaille", SupprimerMedailleAsync)
+               .WithDescription("Supprimer une medaille à un personnage")
+               .ProducesNotFound()
+               .ProducesNoContent();
+
+          return builder;
     }
 
     static async Task<IResult> ListerAsync(
@@ -516,5 +521,34 @@ public static class PersonnageRoute
 
         return ok ? Results.NoContent() : Results.NotFound("La tombe n'existe pas");
     }
+
+     static async Task<IResult> SupprimerMedailleAsync(
+          [FromBody] SupprimerMedaillePersonnageRequete _requete 
+     )
+     {
+          if (_requete.IdMedaille <= 0 || _requete.IdPersonnage <= 0)
+               return Results.NotFound("Médaille ou personnage n'existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var personnage = db.GetCollection<Personnage>().FindById(_requete.IdPersonnage);
+
+          if (personnage is null)
+               return Results.NotFound("Personnage n'existe pas");
+
+          var nb = personnage.ListeMedaille.RemoveAll(x => x.Medaille.Id == _requete.IdMedaille);
+
+          if (nb is 0)
+               return Results.NoContent();
+
+          var nbPointMedaille = db.GetCollection<Medaille>().Query().Where(x => x.Id == _requete.IdMedaille)
+               .Select(x => x.NbPoint)
+               .FirstOrDefault();
+
+          personnage.NbPointBoutique -= nbPointMedaille;
+          db.GetCollection<Personnage>().Update(personnage);
+
+          return Results.NoContent();
+     }
 
 }

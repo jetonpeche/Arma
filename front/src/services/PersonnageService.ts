@@ -85,4 +85,10 @@ export class PersonnageService
     {
         return this.http.delete<void>(`${this.BASE_API}/supprimer-mort/${_idPersonnageMort}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
+
+    SupprimerMedaille(_idMedaille: number, _idPersonnage: number): Observable<void>
+    {
+        const INFO = { idMedaille: _idMedaille, idPersonnage: _idPersonnage };
+        return this.http.delete<void>(`${this.BASE_API}/supprimer-medaille`, { body: INFO }).pipe(takeUntilDestroyed(this.destroyRef));
+    }
 }

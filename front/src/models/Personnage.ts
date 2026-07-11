@@ -26,7 +26,7 @@ export type Personnage =
     dateCreation: Date,
     estValider: boolean,
     estNavy: boolean,
-    listeMedaille: [{ id: number, nom: string, urlImage: string }]
+    listeMedaille: { id: number, nom: string, urlImage: string }[]
 }
 
 export type PersonnageLeger =
