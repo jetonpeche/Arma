@@ -5,7 +5,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import { Logistique } from '@models/Logistique';
 
-// NOUVEAU : Interface pour typer l'arbre de localisation
 interface NoeudLocalisation 
 {
     nom: string;
@@ -36,9 +35,8 @@ export class ModalLogistiqueStockage implements OnInit
         {
             const nomVaisseau = element.nomVaisseau;
 
-            if (!regroupement[nomVaisseau]) {
+            if (!regroupement[nomVaisseau])
                 regroupement[nomVaisseau] = [];
-            }
 
             // NIVEAU 1 : La Soute et la Quantité
             regroupement[nomVaisseau].push({ 

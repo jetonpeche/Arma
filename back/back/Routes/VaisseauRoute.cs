@@ -448,7 +448,7 @@ public static class VaisseauRoute
 
                listeVaisseau.AddRange(listeIdVaisseauBson.Select(x => new VaisseauPosseder
                {
-                    Vaisseau = new Vaisseau { Id = x },
+                    Vaisseau = new Vaisseau { Id = x.AsInt32 },
                     NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
                     NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
                    Information = string.IsNullOrWhiteSpace(_requete.Information) ? null : _requete.Information
@@ -486,13 +486,13 @@ public static class VaisseauRoute
    
                foreach (var stockage in element.ListeStockage)
                {
-                    vaisseauAcheter.ListeStockage = [..stockage.ListeContenuDefaut.Select(x => new StockageVaisseauPosseder
+                    vaisseauAcheter.ListeStockage.AddRange(stockage.ListeContenuDefaut.Select(x => new StockageVaisseauPosseder
                     {
                         Logistique = new() { Id = x.Logistique.Id },
                         Quantite = x.Quantite,
                         Stockage = new() { Id = stockage.Id },
                         VaisseauPosseder = new() { Id = vaisseauAcheter.Id }
-                    })];
+                    }));
                }
 
                if(vaisseauAcheter.ListeStockage.Count > 0)
