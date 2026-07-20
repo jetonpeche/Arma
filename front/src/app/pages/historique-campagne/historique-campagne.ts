@@ -159,6 +159,11 @@ export class HistoriqueCampagnePage implements OnInit
                 this.listeHistoriqueCampagne.set(retour.liste);
                 this.nbElement.set(retour.total);
                 this.pageIndex.set(retour.page - 1);
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
         });
     }

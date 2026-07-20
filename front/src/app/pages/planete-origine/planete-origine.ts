@@ -129,10 +129,16 @@ export class PlaneteOriginePage implements OnInit
     private Lister(_page: number = 1, _recherche: string = ""): void
     {
         this.planeteServ.Lister(_page, _recherche).subscribe({
-            next: (retour) => {
+            next: (retour) => 
+            {
                 this.nbElement.set(retour.total);
                 this.pageIndex.set(retour.page - 1);
                 this.listePlanete.set(retour.liste);
+             
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             }
         });
     }
