@@ -1,24 +1,36 @@
-<h2 mat-dialog-title>Stockage du vaisseau {{ dialogData.nom }}</h2>
+<h2 mat-dialog-title>MANIFESTE DE CARGAISON // {{ dialogData.nom }}</h2>
 <mat-dialog-content>
     <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor">
-        <mat-tree-node *matTreeNodeDef="let node">
+        
+        <mat-tree-node *matTreeNodeDef="let node" style="padding-left: 24px;">
             <button matIconButton disabled></button>
+            
+            @if (node.estContenu) 
+            {
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 8px; color: var(--mat-sys-tertiary);">inventory_2</mat-icon>
+            } 
+            @else 
+            {
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 8px; color: var(--mat-sys-outline);">check_box_outline_blank</mat-icon>
+            }
+            
             {{node.nom}}
         </mat-tree-node>
 
         <mat-tree-node *matTreeNodeDef="let node;when: hasChild" 
-                                  matTreeNodeToggle
-                                 [cdkTreeNodeTypeaheadLabel]="node.name" style="padding-left: 0;">
+                       matTreeNodeToggle
+                       [cdkTreeNodeTypeaheadLabel]="node.name">
 
             <button matIconButton matTreeNodeToggle>
-                <mat-icon class="mat-icon-rtl-mirror">
+                <mat-icon>
                     {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                 </mat-icon>
             </button>
             {{node.nom}}
         </mat-tree-node>
+
     </mat-tree>
 </mat-dialog-content>
-<mat-dialog-actions>
-    <button matButton="filled" mat-dialog-close>Fermer</button>
+<mat-dialog-actions align="end">
+    <button matButton="text" mat-dialog-close>FERMER LE REGISTRE</button>
 </mat-dialog-actions>

@@ -92,6 +92,8 @@ export class VaisseauPage implements OnInit
     protected OuvrirModalStockage(_vaisseau: Vaisseau): void
     {
         this.dialog.open(ModalStockage, {
+            width: this.estMobile ? "95%" : "50%", 
+            maxWidth: "100vw",
             data: _vaisseau
         });
     }

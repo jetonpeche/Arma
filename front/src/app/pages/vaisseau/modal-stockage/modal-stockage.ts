@@ -9,6 +9,7 @@ interface NoeudStockage
 {
   nom: string;
   enfants?: NoeudStockage[];
+  estContenu?: boolean;
 }
 
 @Component({
@@ -26,27 +27,41 @@ export class ModalStockage implements OnInit
 	protected childrenAccessor = (node: NoeudStockage) => node.enfants ?? [];
 
 	ngOnInit(): void 
-	{
-		const regroupement: Record<string, NoeudStockage[]> = {};
+    {
+        const regroupement: Record<string, NoeudStockage[]> = {};
 
-		for (const element of this.dialogData.listeStockage) 
-		{
-			const nomType = element.typeStockage.nom;
+        for (const element of this.dialogData.listeStockage) 
+        {
+            const nomType = element.typeStockage.nom;
 
-			if (!regroupement[nomType])
-				regroupement[nomType] = [];
+            if (!regroupement[nomType])
+                regroupement[nomType] = [];
 
-			regroupement[nomType].push({ nom: `Taille: ${element.taille}, ${element.nom}` });
-		}
+            // 1. On crée le nœud principal de la soute
+            const noeudSoute: NoeudStockage = { 
+                nom: `Soute : ${element.nom} (Volume : ${element.taille})` 
+            };
 
-		const donneesArbre: NoeudStockage[] = Object.entries(regroupement).map(([nomCategorie, listeVaisseaux]) => 
-		{
-			return {
-				nom: nomCategorie + " (" + listeVaisseaux.length + ")",
-				enfants: listeVaisseaux
-			};
-		});
+            // 2. Si la soute contient du matériel par défaut, on l'ajoute comme enfant
+            if (element.contenuParDefaut && element.contenuParDefaut.length > 0) 
+            {
+                noeudSoute.enfants = element.contenuParDefaut.map(contenu => ({
+                    nom: `${contenu.quantite}x ${contenu.nom}`,
+                    estContenu: true
+                }));
+            }
 
-		this.dataSource.data = donneesArbre;
-	}
+            regroupement[nomType].push(noeudSoute);
+        }
+
+        const donneesArbre: NoeudStockage[] = Object.entries(regroupement).map(([nomCategorie, listeVaisseaux]) => 
+        {
+            return {
+                nom: `${nomCategorie} (${listeVaisseaux.length})`,
+                enfants: listeVaisseaux
+            };
+        });
+
+        this.dataSource.data = donneesArbre;
+    }
 }
