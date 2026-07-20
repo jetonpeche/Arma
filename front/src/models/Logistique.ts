@@ -6,7 +6,7 @@ export type Logistique =
     description: string,
     prix: number,
     nbDetruit: number,
-    stock: number,
+    listeStockageVaisseau: LogistiqueStockageVaisseau[],
     tailleUnitaireInventaire: number,
     estKit: boolean,
     ignoreTypeStockage: boolean,
@@ -14,7 +14,14 @@ export type Logistique =
     typeStockage: TypeStockageLogistique
 }
 
-export type LogistiqueRequete = Omit<Logistique, "id">;
+export type LogistiqueRequete = Omit<Logistique, "id" | "listeStockageVaisseau">;
+
+export type LogistiqueStockageVaisseau =
+{
+    nomVaisseau: string,
+    nomStockage: string,
+    quantite: number
+}
 
 export type TypeLogistique = 
 {

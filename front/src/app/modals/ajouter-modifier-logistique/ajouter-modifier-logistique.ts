@@ -42,7 +42,6 @@ export class AjouterModifierLogistique implements OnInit
         this.form = new FormGroup({
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
             prix: new FormControl(this.matDialogData?.prix ?? 1, [Validators.required, Validators.min(1)]),
-            stock: new FormControl(this.matDialogData?.stock ?? 0, [Validators.required, Validators.min(0)]),
             description: new FormControl(this.matDialogData?.description ?? null, [Validators.maxLength(200)]),
             nbDetruit: new FormControl(
                 this.matDialogData?.nbDetruit ?? 0, 

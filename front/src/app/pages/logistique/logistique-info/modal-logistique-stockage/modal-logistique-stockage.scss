@@ -1,0 +1,117 @@
+*:not(mat-icon) {
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 1px;
+}
+
+/* =========================================================
+   STYLE DE L'ARBRE (MAT-TREE)
+   ========================================================= */
+.tactical-tree {
+    background: transparent !important;
+}
+
+mat-tree-node {
+    min-height: 40px;
+    padding-right: 16px;
+    border-left: 2px solid transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    
+    /* Préparation pour l'animation fluide */
+    > * {
+        transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .node-text {
+        font-weight: bold;
+    }
+
+    /* Mouvement holographique global sans layout shift */
+    &:hover {
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+        border-left-color: var(--mat-sys-primary);
+        
+        > * {
+            transform: translateX(4px);
+        }
+    }
+}
+
+/* --- NIVEAU 0 : LES VAISSEAUX --- */
+.tactical-node-lvl-0 {
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 80%, transparent);
+    border-top: 1px solid var(--mat-sys-primary);
+    border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+    margin-top: 16px;
+    margin-bottom: 4px;
+    border-left: 4px solid var(--mat-sys-primary);
+    
+    &:first-child { margin-top: 0; }
+
+    .node-text {
+        color: var(--mat-sys-primary);
+        text-transform: uppercase;
+        font-size: 1.1rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+    }
+
+    .tree-toggle-btn {
+        color: var(--mat-sys-primary);
+    }
+}
+
+/* --- NIVEAU 1 : LES SOUTES (Indentation renforcée) --- */
+.tactical-node-lvl-1 {
+    margin-left: 32px; 
+    border-left: 2px solid var(--mat-sys-tertiary);
+    color: color-mix(in srgb, var(--mat-sys-on-surface) 80%, transparent);
+    background-color: color-mix(in srgb, var(--mat-sys-tertiary) 5%, transparent);
+    border-radius: 0 4px 4px 0;
+    margin-top: 2px;
+    margin-bottom: 2px;
+
+    .node-text {
+        font-size: 0.95rem;
+    }
+
+    &:hover {
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+        border-left-color: var(--mat-sys-tertiary) !important;
+        box-shadow: inset 2px 0 0 var(--mat-sys-tertiary);
+    }
+}
+
+/* =========================================================
+   ICÔNES ET ALERTES
+   ========================================================= */
+.icon-soute {
+    font-size: 18px; 
+    width: 18px; 
+    height: 18px; 
+    margin-right: 8px; 
+    color: var(--mat-sys-tertiary);
+}
+
+.tree-toggle-btn mat-icon {
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Écran radar vide */
+.no-data-warning {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    color: var(--mat-sys-outline);
+    text-align: center;
+    
+    mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 16px;
+        opacity: 0.6;
+    }
+}

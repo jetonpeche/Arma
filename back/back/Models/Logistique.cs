@@ -11,13 +11,17 @@ public sealed class Logistique
      public LogistiqueType LogistiqueType { get; set; } = null!;
 
      [BsonRef]
-     public TypeStockageLogistique TypeStockage { get; set; } = null!;
-     public string Nom { get; set; } = null!;
+    public TypeStockageLogistique TypeStockage { get; set; } = null!;
+
+    [BsonRef]
+    public List<StockageVaisseauPosseder> ListeStockageVaisseauPosseder { get; set; } = [];
+    
+    public string Nom { get; set; } = null!;
      public string? Description { get; set; }
      public int Prix { get; set; }
-     public int Stock { get; set; }
      public int NbDetruit { get; set; }
      public int TailleUnitaireInventaire { get; set; }
      public bool IgnoreTypeStockage { get; set; }
-     public bool EstKit { get; set; }
+    public bool EstKit { get; set; }
+    public bool EstSupprimer { get; set; }
 }

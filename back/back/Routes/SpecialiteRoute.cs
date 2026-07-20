@@ -27,7 +27,7 @@ public static class SpecialiteRoute
                .ProducesNotFound()
                .ProducesNoContent();
 
-             return builder;
+          return builder;
     }
 
     static async Task<IResult> ListerAsync(

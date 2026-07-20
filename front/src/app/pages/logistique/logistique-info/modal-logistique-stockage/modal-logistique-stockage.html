@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>LOCALISATION DU MATÉRIEL // {{ dialogData.nom }}</h2>
+<mat-dialog-content>
+
+    @if (dataSource.data.length > 0) 
+    {
+        <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor" class="tactical-tree">
+            
+            <!-- NŒUDS SANS ENFANT (Soutes avec Quantité - Niveau 1) -->
+            <mat-tree-node *matTreeNodeDef="let node" [class]="'tactical-node-lvl-' + node.niveau">
+                <button matIconButton disabled></button>
+                <mat-icon class="icon-soute">inventory_2</mat-icon>
+                <span class="node-text">{{node.nom}}</span>
+            </mat-tree-node>
+
+            <!-- NŒUDS AVEC ENFANTS (Vaisseaux - Niveau 0) -->
+            <mat-tree-node *matTreeNodeDef="let node;when: hasChild" 
+                           matTreeNodeToggle
+                           [class]="'tactical-node-lvl-' + node.niveau">
+
+                <button matIconButton matTreeNodeToggle class="tree-toggle-btn">
+                    <mat-icon>
+                        {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                    </mat-icon>
+                </button>
+                <span class="node-text">{{node.nom}}</span>
+            </mat-tree-node>
+
+        </mat-tree>
+    } 
+    @else 
+    {
+        <div class="no-data-warning">
+            <mat-icon>search_off</mat-icon>
+            <p>Cet équipement n'est actuellement affecté à aucun inventaire de la flotte.</p>
+        </div>
+    }
+
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>FERMER LE REGISTRE</button>
+</mat-dialog-actions>

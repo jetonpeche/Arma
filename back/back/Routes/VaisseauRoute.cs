@@ -448,7 +448,6 @@ public static class VaisseauRoute
 
                listeVaisseau.AddRange(listeIdVaisseauBson.Select(x => new VaisseauPosseder
                {
-                    Id = 0,
                     Vaisseau = new Vaisseau { Id = x },
                     NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
                     NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
@@ -464,7 +463,6 @@ public static class VaisseauRoute
 
                listeVaisseau.Add(new VaisseauPosseder
                {
-                    Id = 0,
                     Vaisseau = new Vaisseau { Id = _requete.IdVaisseau },
                     NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseau) ? null : _requete.NomVaisseau,
                     NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
@@ -501,6 +499,22 @@ public static class VaisseauRoute
                {
                     db.GetCollection<StockageVaisseauPosseder>().Insert(vaisseauAcheter.ListeStockage);
                     db.GetCollection<VaisseauPosseder>().Update(vaisseauAcheter);
+
+                    var listeIdLogistiqueBson = vaisseauAcheter.ListeStockage.Select(x => new BsonValue(x.Logistique.Id));
+                    var listeLogistique = db.GetCollection<Logistique>().Query().Where(Query.In("_id", listeIdLogistiqueBson)).ToArray();
+
+                    // ajout des stockages dans logisitique pour la liaison
+                    foreach (var element2 in vaisseauAcheter.ListeStockage)
+                    {
+                         var logistique = listeLogistique.FirstOrDefault(x => x.Id == element2.Logistique.Id);
+
+                         if (logistique is null)
+                              continue;
+
+                        logistique.ListeStockageVaisseauPosseder.Add(element2);
+                    }
+
+                    db.GetCollection<Logistique>().Update(listeLogistique);
                }
           }
 

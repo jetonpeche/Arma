@@ -9,7 +9,6 @@ public sealed class LogistiqueRequete
      public string Nom { get; set; } = null!;
      public string? Description { get; set; }
      public int Prix { get; set; }
-     public int Stock { get; set; }
      public int NbDetruit { get; set; }
      public int TailleUnitaireInventaire { get; set; }
      public bool IgnoreTypeStockage { get; set; }

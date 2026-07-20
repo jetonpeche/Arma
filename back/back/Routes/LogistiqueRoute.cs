@@ -4,12 +4,15 @@ using back.ModelsExport;
 using back.ModelsImport;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace back.Routes;
 
 public static class LogistiqueRoute
 {
-     public static RouteGroupBuilder AjouterRouteLogistique(this RouteGroupBuilder builder)
+    const string NOM_CACHE = "logistique";
+    
+    public static RouteGroupBuilder AjouterRouteLogistique(this RouteGroupBuilder builder)
      {
           builder.MapGet("lister", ListerAsync)
               .WithDescription("Lister les objets de la logistique")
@@ -35,44 +38,67 @@ public static class LogistiqueRoute
           return builder;
      }
 
-     async static Task<IResult> ListerAsync()
-     {
-          using var db = new LiteDatabase(Constant.BDD_NOM);
+    async static Task<IResult> ListerAsync(
+          [FromServices] IMemoryCache _cache
+    )
+    {
+          var liste = await _cache.GetOrCreateAsync(NOM_CACHE, async cache =>
+          {
+               using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var liste = db.GetCollection<Logistique>()
-               .Query()
-               .Include(x => x.LogistiqueType)
-               .Include(x => x.TypeStockage)
-               .OrderBy(x => x.Prix)
-               .Select(x => new LogistiqueReponse
+               var liste = db.GetCollection<Logistique>()
+                    .Query()
+                    .Include(x => x.LogistiqueType)
+                    .Include(x => x.TypeStockage)
+                    .Include(x => x.ListeStockageVaisseauPosseder)
+                    .Include(x => x.ListeStockageVaisseauPosseder.Select(y => y.VaisseauPosseder))
+                    .Include(x => x.ListeStockageVaisseauPosseder.Select(y => y.Stockage))
+                    .OrderBy(x => x.Prix)
+                    .ToEnumerable()
+                    .Select(x => new LogistiqueReponse
+                    {
+                         Id = x.Id,
+                         Nom = x.Nom,
+                         Description = x.Description,
+                         Prix = x.Prix,
+                         NbDetruit = x.NbDetruit,
+                         EstKit = x.EstKit,
+                         IgnoreTypeStockage = x.IgnoreTypeStockage,
+                         ListeStockageVaisseau = [.. x.ListeStockageVaisseauPosseder.Select(y => new LogistiqueStockReponse
+                         {
+                              NomVaisseau = y.VaisseauPosseder.NomVaisseau ?? "SANS NOM",
+                              NomStockage = y.Stockage.Nom,
+                              Quantite = y.Quantite
+                         })],
+                         TailleUnitaireInventaire = x.TailleUnitaireInventaire,
+                         Type = new LogistiqueTypeReponse
+                         {
+                              Id = x.LogistiqueType.Id,
+                              Nom = x.LogistiqueType.Nom
+                         },
+                         TypeStockage = new TypeStockageLogistiqueReponse
+                         {
+                              Id = x.TypeStockage.Id,
+                              Nom = x.TypeStockage.Nom
+                         }
+                    })
+                    .ToArray();
+
+               if (liste.Length > 0)
                {
-                    Id = x.Id,
-                    Nom = x.Nom,
-                    Description = x.Description,
-                    Prix = x.Prix,
-                    NbDetruit = x.NbDetruit,
-                    EstKit = x.EstKit,
-                    IgnoreTypeStockage = x.IgnoreTypeStockage,
-                    Stock = x.Stock,
-                    TailleUnitaireInventaire = x.TailleUnitaireInventaire,
-                    Type = new LogistiqueTypeReponse
-                    {
-                         Id = x.LogistiqueType.Id,
-                         Nom = x.LogistiqueType.Nom
-                    },
-                    TypeStockage = new TypeStockageLogistiqueReponse
-                    {
-                         Id = x.TypeStockage.Id,
-                         Nom = x.TypeStockage.Nom
-                    }
-               })
-               .ToArray();
+                    cache.SlidingExpiration = TimeSpan.FromMinutes(5);
+                    cache.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(20);
+              }
+
+              return liste;
+          });
 
           return Results.Extensions.Ok(liste, LogistiqueReponseContext.Default);
      }
 
-     async static Task<IResult> AjouterAsync(
-          [FromBody] LogistiqueRequete _requete
+    async static Task<IResult> AjouterAsync(
+          [FromServices] IMemoryCache _cache,
+         [FromBody] LogistiqueRequete _requete
      )
      {
           if (string.IsNullOrWhiteSpace(_requete.Nom))
@@ -83,9 +109,6 @@ public static class LogistiqueRoute
 
           if (_requete.NbDetruit < 0)
                return Results.BadRequest("Détruit ne peut pas être négatif");
-
-          if (_requete.Stock < 0)
-               return Results.BadRequest("Le stock ne peut pas être négatif");
 
           if (_requete.TailleUnitaireInventaire < 0)
                return Results.BadRequest("La taille d'inventaire ne peut pas être négatif");
@@ -106,7 +129,6 @@ public static class LogistiqueRoute
                IgnoreTypeStockage = _requete.IgnoreTypeStockage,
                EstKit = _requete.EstKit,
                NbDetruit = _requete.NbDetruit,
-               Stock = _requete.Stock,
                TailleUnitaireInventaire = _requete.TailleUnitaireInventaire
           };
 
@@ -121,10 +143,13 @@ public static class LogistiqueRoute
 
           var id = db.GetCollection<Logistique>().Insert(logistique).AsInt32;
 
-          return Results.Created("", id);
+          _cache.Remove(NOM_CACHE);
+          
+        return Results.Created("", id);
      }
 
-     async static Task<IResult> ModifierAsync(
+    async static Task<IResult> ModifierAsync(
+          [FromServices] IMemoryCache _cache,
           [FromRoute(Name = "idLogistique")] int _idLogistique,
           [FromBody] LogistiqueRequete _requete
      )
@@ -140,9 +165,6 @@ public static class LogistiqueRoute
 
           if (_requete.NbDetruit < 0)
                return Results.BadRequest("Détruit ne peut pas être négatif");
-
-          if (_requete.Stock < 0)
-               return Results.BadRequest("Le stock ne peut pas être négatif");
 
           if (_requete.TailleUnitaireInventaire < 0)
                return Results.BadRequest("La taille d'inventaire ne peut pas être négatif");
@@ -164,7 +186,6 @@ public static class LogistiqueRoute
                IgnoreTypeStockage = _requete.IgnoreTypeStockage,
                EstKit = _requete.EstKit,
                NbDetruit = _requete.NbDetruit,
-               Stock = _requete.Stock,
                TailleUnitaireInventaire = _requete.TailleUnitaireInventaire
           };
 
@@ -179,11 +200,18 @@ public static class LogistiqueRoute
 
           var ok = db.GetCollection<Logistique>().Update(logistique);
 
-          return ok ? Results.NoContent() : Results.NotFound("L'objet n'existe pas");
-     }
+          if (ok)
+          {
+               _cache.Remove(NOM_CACHE);
+               return Results.NoContent();
+          }
 
-     async static Task<IResult> SupprimerAsync(
-          [FromRoute(Name = "idLogistique")] int _idLogistique
+          return Results.NotFound("L'objet n'existe pas");
+    }
+
+    async static Task<IResult> SupprimerAsync(
+          [FromServices] IMemoryCache _cache,
+         [FromRoute(Name = "idLogistique")] int _idLogistique
      )
      {
           if (_idLogistique <= 0)
@@ -191,8 +219,19 @@ public static class LogistiqueRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var ok = db.GetCollection<Logistique>().Delete(_idLogistique);
+          var ok = false;   
+          if (db.GetCollection<StockageVaisseauPosseder>().Query().Where(x => x.Logistique.Id == _idLogistique).Count() > 0)
+               ok = db.GetCollection<Logistique>().UpdateMany(_ => new Logistique { EstSupprimer = true }, x => x.Id == _idLogistique) > 0;
 
-          return ok ? Results.NoContent() : Results.NotFound("l'objet n'existe pas");
+          else
+               ok = db.GetCollection<Logistique>().Delete(_idLogistique);
+
+          if (ok)
+          {
+               _cache.Remove(NOM_CACHE);
+               return Results.NoContent();
+          }
+        
+          return Results.NotFound("l'objet n'existe pas");
      }
 }

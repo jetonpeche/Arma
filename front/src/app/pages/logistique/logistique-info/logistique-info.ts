@@ -20,6 +20,12 @@ import { Droit } from '@models/DroitGroupe';
 import { environment } from '../../../../environements/environement';
 import { UpperCasePipe } from '@angular/common';
 import { ModalInformation } from '@modals/modal-information/modal-information';
+import { ModalLogistiqueStockage } from './modal-logistique-stockage/modal-logistique-stockage';
+
+interface LogistiqueTable extends Logistique
+{
+    stock: number;
+}
 
 @Component({
   selector: 'app-logistique-info',
@@ -32,7 +38,7 @@ export class LogistiqueInfo implements OnInit, AfterViewInit
     droit = input.required<Droit>();
 
     protected displayedColumns = ["nom", "prix", "stock", "nbDetruit", "tailleUnitaireInventaire", "typeStockage", "action"];
-    protected dataSource = signal<MatTableDataSource<Logistique>>(new MatTableDataSource());
+    protected dataSource = signal<MatTableDataSource<LogistiqueTable>>(new MatTableDataSource());
     protected listeType = signal<TypeLogistique[]>([]);
     protected btnClick = signal(false);
     protected peutProposer = environment.utilisateur.droit.peutProposerLogistiqueMateriel;
@@ -127,6 +133,15 @@ export class LogistiqueInfo implements OnInit, AfterViewInit
         });
     }
 
+    protected OuvrirModalStockageLogistique(_logistique: Logistique): void
+    {
+        this.dialog.open(ModalLogistiqueStockage, {
+            width: "50%", 
+            maxWidth: "100vw",
+            data: _logistique
+        });
+    }
+
     protected FiltrerLogistiqueType(_event: MatSelectChange): void
     {   
         this.dataSource.update(x => {
@@ -169,8 +184,11 @@ export class LogistiqueInfo implements OnInit, AfterViewInit
                     [...new Map(retour.map(x => [x.type.id, x.type])).values()]  
                 );
 
+                for (const element of retour)
+                    (element as LogistiqueTable).stock = element.listeStockageVaisseau.reduce((acc, valeurCourante) => acc + valeurCourante.quantite, 0);
+
                 this.dataSource.update(x => {
-                    x.data = retour;
+                    x.data = retour as LogistiqueTable[];
 
                     return x;
                 });
