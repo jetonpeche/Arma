@@ -3,6 +3,76 @@
 }
 
 /* =========================================================
+   TERMINAL D'AUDIT (HISTORIQUE EN LECTURE SEULE)
+   ========================================================= */
+.audit-log-terminal {
+    background-color: #080c0a; /* Fond de terminal très sombre */
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-left: 4px solid var(--mat-sys-tertiary);
+    border-radius: 2px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+
+    .audit-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--mat-sys-tertiary);
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.8rem;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        margin-bottom: 8px;
+        border-bottom: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+        padding-bottom: 6px;
+
+        mat-icon {
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+            overflow: visible;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .audit-body {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .audit-row {
+        display: flex;
+        align-items: flex-start; /* Important pour les longues listes de personnages */
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .audit-label {
+        color: var(--mat-sys-outline);
+        width: 175px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        letter-spacing: 1px;
+    }
+
+    .audit-value {
+        color: color-mix(in srgb, var(--mat-sys-primary) 80%, white);
+        font-weight: bold;
+        
+        /* Spécial pour la liste des personnages pour éviter qu'elle ne casse le design */
+        &.personnel-list {
+            color: var(--mat-sys-primary);
+            text-shadow: 0 0 5px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+        }
+    }
+}
+
+/* =========================================================
    LE BRIEFING MILITAIRE
    ========================================================= */
 .tactical-briefing 
@@ -161,4 +231,78 @@
     border-top: 1px solid var(--mat-sys-outline-variant);
     padding: 16px 24px;
     justify-content: flex-end;
+}
+
+/* =========================================================
+   ADAPTATION THEME CLAIR (LIGHT MODE)
+   ========================================================= */
+:host-context(html.light-mode) 
+{    
+    .audit-log-terminal {
+        background-color: #f4f7f6;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        border-color: var(--mat-sys-outline);
+
+        .audit-header {
+            border-bottom-color: color-mix(in srgb, var(--mat-sys-outline) 50%, transparent);
+        }
+
+        .audit-value {
+            color: var(--mat-sys-on-surface); 
+            font-weight: 900;
+
+            &.personnel-list {
+                color: var(--mat-sys-primary);
+                text-shadow: none; 
+            }
+        }
+    }
+    
+    .tactical-briefing {
+        background: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+        
+        .briefing-text .primary-directive {
+            color: var(--mat-sys-primary);
+        }
+    }
+}
+
+@media screen and (max-width: 600px) 
+{
+    .audit-log-terminal {
+        padding: 10px 5px;
+
+        .audit-body {
+            gap: 8px;
+        }
+
+        .audit-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .audit-label {
+            width: 100%;
+            margin-bottom: 4px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 20%, transparent);
+        }
+
+        .audit-value {
+            padding-left: 8px;
+            border-left: 2px solid color-mix(in srgb, var(--mat-sys-tertiary) 40%, transparent);
+            word-break: break-word;
+        }
+    }
+    
+    .tactical-briefing {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 12px;
+        
+        .briefing-icon {
+            margin-bottom: 8px;
+        }
+    }
 }

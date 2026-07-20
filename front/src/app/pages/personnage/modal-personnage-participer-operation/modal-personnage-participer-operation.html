@@ -13,6 +13,30 @@
         </div>
     </div>
 
+    @if (historique(); as hist) 
+    {
+        <div class="audit-log-terminal">
+            <div class="audit-header">
+                <mat-icon>manage_search</mat-icon>
+                <span>DERNIÈRE ENTRÉE DANS LE REGISTRE</span>
+            </div>
+            <div class="audit-body">
+                <div class="audit-row">
+                    <span class="audit-label">OFFICIER TRAITANT :</span>
+                    <span class="audit-value">{{ hist.nomAuteur }}</span>
+                </div>
+                <div class="audit-row">
+                    <span class="audit-label">HORODATAGE :</span>
+                    <span class="audit-value">{{ hist.dateString }}</span>
+                </div>
+                <div class="audit-row">
+                    <span class="audit-label">PERSONNEL DÉPLOYÉ :</span>
+                    <span class="audit-value personnel-list">{{ hist.listePersonnage.join(', ') }}</span>
+                </div>
+            </div>
+        </div>
+    }
+
     <mat-form-field class="unsc-search-bar">
         <mat-label>RECHERCHE D'OPÉRATEUR</mat-label>
         <mat-icon matIconPrefix>person_search</mat-icon>

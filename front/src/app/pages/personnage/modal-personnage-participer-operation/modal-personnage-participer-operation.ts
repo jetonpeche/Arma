@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ButtonLoader } from "@jetonpeche/angular-mat-input";
-import { MatListModule, MatSelectionList } from '@angular/material/list';
+import { MatListModule } from '@angular/material/list';
 import { Personnage } from '@models/Personnage';
 import { Grade } from '@models/Grade';
 import { GradeService } from '@services/GradeService';
@@ -11,6 +11,8 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms'; 
+import { LogService } from '@services/LogService';
+import { HistoriqueRapportCampagne } from '@models/HistoriqueRapportCampagne';
 
 @Component({
   selector: 'app-modal-personnage-participer-operation',
@@ -24,6 +26,7 @@ export class ModalPersonnageParticiperOperation implements OnInit
     protected liste = signal<{ id: number, nom: string, nomGrade: string, nbPoint: number, estBloquer: boolean }[]>([]);
     protected btnClick = signal(false);
     protected texteRecherche = signal<string>('');
+    protected historique = signal<HistoriqueRapportCampagne | null>(null);
 
     protected operateursSelectionnes: number[] = []; 
 
@@ -39,11 +42,13 @@ export class ModalPersonnageParticiperOperation implements OnInit
     private dialogRef = inject(MatDialogRef<ModalPersonnageParticiperOperation>);
     private gradeServ = inject(GradeService);
     private personnageServ = inject(PersonnageService);
+    private logServ = inject(LogService);
     private snackBarServ  = inject(SnackBarService);
 
     ngOnInit(): void
     {
         this.ListerGrade();
+        this.RecupererDerniereEntrer();
     }
 
     protected ChangerRecherche(event: any): void 
@@ -84,6 +89,13 @@ export class ModalPersonnageParticiperOperation implements OnInit
                 this.dialogRef.close();
             },
             error: () => this.btnClick.set(false)
+        });
+    }
+
+    private RecupererDerniereEntrer(): void
+    {
+        this.logServ.RecupererDerniereEntrerPersonnageParticiperOperation().subscribe({
+            next: (retour) => this.historique.set(retour)
         });
     }
 

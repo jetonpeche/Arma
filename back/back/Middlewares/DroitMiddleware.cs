@@ -25,7 +25,7 @@ public class DroitMiddleware : IEndpointFilter
 
           if (verbeHttp == HttpMethods.Get)
           {
-               if (nomMapGroupe is "specialite" or "grade" or "personnage")
+               if (nomMapGroupe is "specialite" or "grade" or "personnage" or "log")
                     return await next(context);
           }
           else if (verbeHttp == HttpMethods.Put && nomMapGroupe is "parametre")

@@ -402,6 +402,7 @@ public static class PersonnageRoute
      }
 
     static async Task<IResult> ModifierPointAsync(
+          HttpContext _httpContext,
           [FromServices] IMemoryCache _cache,
           [FromBody] int[] _listeIdPersonnage
      )
@@ -427,6 +428,9 @@ public static class PersonnageRoute
                .Include(x => x.Grade)
                .Where(predicatBuilder)
                .ToArray();
+
+          if (listePersonnage.Length is 0)
+               return Results.BadRequest("Aucun personnage");
 
           foreach (var element in listePersonnage)
           {
@@ -458,11 +462,20 @@ public static class PersonnageRoute
                }
                else
                     element.NbPointBoutique++;
-        }
+          }
 
           personnageCol.Update(listePersonnage);
 
-          _cache.Remove("listePartiellePersonnage");
+          var nomAuteur = personnageCol.Query().Where(x => x.Id == _httpContext.RecupererIdPersonnage()).Select(x => x.Nom).First();
+
+          db.GetCollection<HistoriqueRapportOperation>().Insert(new HistoriqueRapportOperation
+          {
+               ListePersonnage = [..listePersonnage.Select(x => x.Nom)],
+               NomAuteur = nomAuteur,
+               DateCreation = DateTime.UtcNow
+          });
+
+        _cache.Remove("listePartiellePersonnage");
 
           return Results.NoContent();
      }
