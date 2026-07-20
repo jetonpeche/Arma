@@ -50,6 +50,18 @@ export class PlaneteOriginePage implements OnInit
 
     protected handlePageEvent(e: PageEvent): void
     {
+        const conteneurScroll = document.querySelector('mat-sidenav-content') 
+                             || document.querySelector('.mat-drawer-content') 
+                             || document.documentElement;
+
+        if (conteneurScroll) 
+        {
+            conteneurScroll.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
         this.Lister(e.pageIndex + 1);
     }
 
@@ -134,11 +146,6 @@ export class PlaneteOriginePage implements OnInit
                 this.nbElement.set(retour.total);
                 this.pageIndex.set(retour.page - 1);
                 this.listePlanete.set(retour.liste);
-             
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
             }
         });
     }
