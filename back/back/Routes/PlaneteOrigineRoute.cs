@@ -48,7 +48,7 @@ public static class PlaneteOrigineRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          int total = db.GetCollection<HistoriqueCampagne>().Query().Count();
+          int total = db.GetCollection<PlaneteOrigine>().Query().Count();
 
           var requete = db.GetCollection<PlaneteOrigine>().Query()
                .OrderBy(x => x.Nom);
