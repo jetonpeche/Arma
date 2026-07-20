@@ -41,6 +41,10 @@ export class SpecialitePage implements OnInit
     protected texteRecherche = signal<string>('');
     protected droit: Droit | null;
 
+    private isDown = false;
+    private startX = 0;
+    private scrollLeftInit = 0;
+
     private listeSpecialiteClone = signal<Specialite[]>([]);
     private dialog = inject(MatDialog);
     private specialiteServ = inject(SpecialiteService);
@@ -53,6 +57,46 @@ export class SpecialitePage implements OnInit
     {
         this.droit = this.authServ.RecupererDroit(EUrl.Specialite);
         this.Lister();
+    }
+
+    protected OnMouseDown(event: MouseEvent): void 
+    {
+        const container = event.currentTarget as HTMLElement;
+        this.isDown = true;
+        container.classList.add('grabbing');
+        
+        // On mémorise le point de départ du clic (X) et la position du scroll
+        this.startX = event.pageX - container.offsetLeft;
+        this.scrollLeftInit = container.scrollLeft;
+    }
+
+    protected OnMouseLeave(event: MouseEvent): void 
+    {
+        this.isDown = false;
+        const container = event.currentTarget as HTMLElement;
+        container.classList.remove('grabbing');
+    }
+
+    protected OnMouseUp(event: MouseEvent): void 
+    {
+        this.isDown = false;
+        const container = event.currentTarget as HTMLElement;
+        container.classList.remove('grabbing');
+    }
+
+    protected OnMouseMove(event: MouseEvent): void 
+    {
+        if (!this.isDown) 
+            return;
+        
+        event.preventDefault();
+        const container = event.currentTarget as HTMLElement;
+        
+        // Calcul de la distance parcourue par la souris
+        const x = event.pageX - container.offsetLeft;
+        const deplacement = (x - this.startX) * 1.5;
+        
+        container.scrollLeft = this.scrollLeftInit - deplacement;
     }
 
     protected Recherche(_valeur: string): void

@@ -42,8 +42,12 @@
             CORPS DES MARINES
         </ng-template>
         
-        <div class="org-tree-container">
-            @for (racine of arbreMarines(); track racine.id) 
+        <div class="org-tree-container"
+                (mousedown)="OnMouseDown($event)"
+                (mouseleave)="OnMouseLeave($event)"
+                (mouseup)="OnMouseUp($event)"
+                (mousemove)="OnMouseMove($event)">
+            @for (racine of arbreMarines(); track racine.id)
             {
                 <ng-container *ngTemplateOutlet="noeudSpecialite; context: { $implicit: racine, niveau: 0 }"></ng-container>
             }
@@ -55,7 +59,11 @@
             HOSPITAL CORPS
         </ng-template>
         
-        <div class="org-tree-container">
+        <div class="org-tree-container"
+                (mousedown)="OnMouseDown($event)"
+                (mouseleave)="OnMouseLeave($event)"
+                (mouseup)="OnMouseUp($event)"
+                (mousemove)="OnMouseMove($event)">
             @for (racine of arbreNavy(); track racine.id) 
             {
                 <ng-container *ngTemplateOutlet="noeudSpecialite; context: { $implicit: racine, niveau: 0 }"></ng-container>
