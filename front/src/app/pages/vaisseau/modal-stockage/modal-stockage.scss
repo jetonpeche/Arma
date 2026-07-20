@@ -5,23 +5,6 @@
 }
 
 /* =========================================================
-   TITRE ET CONTENEUR
-   ========================================================= */
-.unsc-title {
-    color: var(--mat-sys-primary);
-    font-weight: 900;
-    border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
-    padding-bottom: 16px;
-    background-color: var(--mat-sys-surface-container-highest);
-    margin: 0;
-}
-
-.unsc-content {
-    background-color: var(--mat-sys-surface-container-lowest);
-    padding: 16px 24px !important;
-}
-
-/* =========================================================
    STYLE DE L'ARBRE TACTIQUE (MAT-TREE)
    ========================================================= */
 .tactical-tree {
@@ -140,12 +123,4 @@ mat-tree-node {
 /* Animation des chevrons */
 .tree-toggle-btn mat-icon {
     transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-/* Actions en bas */
-.unsc-actions {
-    background-color: var(--mat-sys-surface-container-highest);
-    border-top: 1px solid var(--mat-sys-outline-variant);
-    padding: 12px 24px;
-    margin: 0 !important;
 }

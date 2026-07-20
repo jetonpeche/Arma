@@ -1,5 +1,5 @@
-<h2 mat-dialog-title class="unsc-title">MANIFESTE DE CARGAISON // {{ dialogData.nom }}</h2>
-<mat-dialog-content class="unsc-content">
+<h2 mat-dialog-title>MANIFESTE DE CARGAISON // {{ dialogData.nom }}</h2>
+<mat-dialog-content>
     <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor" class="tactical-tree">
         
         <!-- NŒUDS SANS ENFANT (Soutes vides ou Matériel de niveau 2) -->
@@ -34,6 +34,6 @@
 
     </mat-tree>
 </mat-dialog-content>
-<mat-dialog-actions align="end" class="unsc-actions">
+<mat-dialog-actions>
     <button matButton="text" mat-dialog-close>FERMER LE REGISTRE</button>
 </mat-dialog-actions>
