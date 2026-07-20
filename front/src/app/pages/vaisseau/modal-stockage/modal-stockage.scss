@@ -1,0 +1,151 @@
+/* Font de base militaire pour tout ce qui n'est pas une icône */
+*:not(mat-icon) {
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 1px;
+}
+
+/* =========================================================
+   TITRE ET CONTENEUR
+   ========================================================= */
+.unsc-title {
+    color: var(--mat-sys-primary);
+    font-weight: 900;
+    border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+    padding-bottom: 16px;
+    background-color: var(--mat-sys-surface-container-highest);
+    margin: 0;
+}
+
+.unsc-content {
+    background-color: var(--mat-sys-surface-container-lowest);
+    padding: 16px 24px !important;
+}
+
+/* =========================================================
+   STYLE DE L'ARBRE TACTIQUE (MAT-TREE)
+   ========================================================= */
+.tactical-tree {
+    background: transparent !important;
+}
+
+/* Style commun à tous les nœuds */
+mat-tree-node {
+    min-height: 40px;
+    padding-right: 16px;
+    border-left: 2px solid transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    
+    /* Préparation des éléments internes pour un glissement fluide */
+    > * {
+        transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .node-text {
+        font-weight: bold;
+    }
+
+    &:hover {
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+        border-left-color: var(--mat-sys-primary);
+        
+        /* Glissement holographique fluide vers la droite (sans saccade) */
+        > * {
+            transform: translateX(4px);
+        }
+    }
+}
+
+/* --- NIVEAU 0 : LES CATÉGORIES (Grandes délimitations) --- */
+.tactical-node-lvl-0 {
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 80%, transparent);
+    border-top: 1px solid var(--mat-sys-primary);
+    border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+    margin-top: 16px;
+    margin-bottom: 4px;
+    border-left: 4px solid var(--mat-sys-primary);
+    
+    /* Retire la marge du tout premier élément */
+    &:first-child { margin-top: 0; }
+
+    .node-text {
+        color: var(--mat-sys-primary);
+        text-transform: uppercase;
+        font-size: 1.1rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+    }
+
+    .tree-toggle-btn {
+        color: var(--mat-sys-primary);
+    }
+}
+
+/* --- NIVEAU 1 : LES SOUTES (Indentation + Lignes directrices) --- */
+.tactical-node-lvl-1 {
+    margin-left: 20px;
+    border-left: 2px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+    color: var(--mat-sys-on-surface);
+
+    .node-text {
+        font-size: 0.95rem;
+    }
+
+    .tree-toggle-btn {
+        color: var(--mat-sys-outline);
+    }
+}
+
+/* --- NIVEAU 2 : LE CONTENU PAR DÉFAUT --- */
+.tactical-node-lvl-2 
+{
+    margin-left: 56px; 
+    border-left: 2px solid var(--mat-sys-tertiary);
+    color: color-mix(in srgb, var(--mat-sys-on-surface) 80%, transparent);
+    background-color: color-mix(in srgb, var(--mat-sys-tertiary) 5%, transparent);
+    border-radius: 0 4px 4px 0;
+    margin-top: 2px;
+    margin-bottom: 2px;
+
+    .node-text {
+        font-size: 0.85rem;
+    }
+
+    &:hover {
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+        border-left-color: var(--mat-sys-tertiary) !important;
+        box-shadow: inset 2px 0 0 var(--mat-sys-tertiary);
+    }
+}
+
+/* =========================================================
+   ICÔNES SPÉCIFIQUES
+   ========================================================= */
+.icon-contenu {
+    font-size: 18px; 
+    width: 18px; 
+    height: 18px; 
+    margin-right: 8px; 
+    color: var(--mat-sys-tertiary);
+}
+
+.icon-soute-vide {
+    font-size: 18px; 
+    width: 18px; 
+    height: 18px; 
+    margin-right: 8px; 
+    color: var(--mat-sys-outline-variant);
+}
+
+/* Animation des chevrons */
+.tree-toggle-btn mat-icon {
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Actions en bas */
+.unsc-actions {
+    background-color: var(--mat-sys-surface-container-highest);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    padding: 12px 24px;
+    margin: 0 !important;
+}

@@ -10,6 +10,7 @@ interface NoeudStockage
   nom: string;
   enfants?: NoeudStockage[];
   estContenu?: boolean;
+  niveau?: number;
 }
 
 @Component({
@@ -37,28 +38,32 @@ export class ModalStockage implements OnInit
             if (!regroupement[nomType])
                 regroupement[nomType] = [];
 
-            // 1. On crée le nœud principal de la soute
+            // 1. Soute (NIVEAU 1)
             const noeudSoute: NoeudStockage = { 
-                nom: `Soute : ${element.nom} (Volume : ${element.taille})` 
+                nom: `Soute : ${element.nom} (Volume : ${element.taille})`,
+                niveau: 1 
             };
 
-            // 2. Si la soute contient du matériel par défaut, on l'ajoute comme enfant
+            // 2. Contenu (NIVEAU 2)
             if (element.contenuParDefaut && element.contenuParDefaut.length > 0) 
             {
                 noeudSoute.enfants = element.contenuParDefaut.map(contenu => ({
                     nom: `${contenu.quantite}x ${contenu.nom}`,
-                    estContenu: true
+                    estContenu: true,
+                    niveau: 2
                 }));
             }
 
             regroupement[nomType].push(noeudSoute);
         }
 
+        // 3. Catégorie Racine (NIVEAU 0)
         const donneesArbre: NoeudStockage[] = Object.entries(regroupement).map(([nomCategorie, listeVaisseaux]) => 
         {
             return {
                 nom: `${nomCategorie} (${listeVaisseaux.length})`,
-                enfants: listeVaisseaux
+                enfants: listeVaisseaux,
+                niveau: 0
             };
         });
 

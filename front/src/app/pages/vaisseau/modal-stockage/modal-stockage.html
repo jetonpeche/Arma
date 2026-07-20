@@ -1,36 +1,39 @@
-<h2 mat-dialog-title>MANIFESTE DE CARGAISON // {{ dialogData.nom }}</h2>
-<mat-dialog-content>
-    <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor">
+<h2 mat-dialog-title class="unsc-title">MANIFESTE DE CARGAISON // {{ dialogData.nom }}</h2>
+<mat-dialog-content class="unsc-content">
+    <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor" class="tactical-tree">
         
-        <mat-tree-node *matTreeNodeDef="let node" style="padding-left: 24px;">
+        <!-- NŒUDS SANS ENFANT (Soutes vides ou Matériel de niveau 2) -->
+        <mat-tree-node *matTreeNodeDef="let node" [class]="'tactical-node-lvl-' + node.niveau">
             <button matIconButton disabled></button>
             
             @if (node.estContenu) 
             {
-                <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 8px; color: var(--mat-sys-tertiary);">inventory_2</mat-icon>
+                <mat-icon class="icon-contenu">inventory_2</mat-icon>
             } 
             @else 
             {
-                <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 8px; color: var(--mat-sys-outline);">check_box_outline_blank</mat-icon>
+                <mat-icon class="icon-soute-vide">check_box_outline_blank</mat-icon>
             }
             
-            {{node.nom}}
+            <span class="node-text">{{node.nom}}</span>
         </mat-tree-node>
 
+        <!-- NŒUDS AVEC ENFANTS (Catégories niveau 0 ou Soutes niveau 1) -->
         <mat-tree-node *matTreeNodeDef="let node;when: hasChild" 
                        matTreeNodeToggle
-                       [cdkTreeNodeTypeaheadLabel]="node.name">
+                       [cdkTreeNodeTypeaheadLabel]="node.name"
+                       [class]="'tactical-node-lvl-' + node.niveau">
 
-            <button matIconButton matTreeNodeToggle>
+            <button matIconButton matTreeNodeToggle class="tree-toggle-btn">
                 <mat-icon>
                     {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                 </mat-icon>
             </button>
-            {{node.nom}}
+            <span class="node-text">{{node.nom}}</span>
         </mat-tree-node>
 
     </mat-tree>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
+<mat-dialog-actions align="end" class="unsc-actions">
     <button matButton="text" mat-dialog-close>FERMER LE REGISTRE</button>
 </mat-dialog-actions>
