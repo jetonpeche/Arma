@@ -447,6 +447,10 @@ public static class PersonnageRoute
                {
                     element.NbPointBoutique += element.Grade.NbPointBoutiqueGagnerParOperation;
 
+                    // passe si le grade actuel est un grade qui ne peut pas être atteind par le nombre d'opération requise
+                    if (element.Grade.EstHonorifique || element.Grade.CandidatureRequise)
+                         continue;
+                    
                     var prochainGrade = listeGrade.FirstOrDefault(x => x.NbOperationRequis >= element.NbOperation && x.Conserne == element.Grade.Conserne);
 
                     if(prochainGrade is not null && prochainGrade.Id != element.Grade.Id)
