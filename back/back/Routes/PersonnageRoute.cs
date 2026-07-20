@@ -455,9 +455,9 @@ public static class PersonnageRoute
                     if (element.Grade.EstHonorifique || element.Grade.CandidatureRequise)
                          continue;
                     
-                    var prochainGrade = listeGrade.FirstOrDefault(x => x.NbOperationRequis >= element.NbOperation && x.Conserne == element.Grade.Conserne);
+                    var prochainGrade = listeGrade.FirstOrDefault(x => x.NbOperationRequis == element.NbOperation && x.Conserne == element.Grade.Conserne);
 
-                    if(prochainGrade is not null && prochainGrade.Id != element.Grade.Id)
+                    if(prochainGrade is not null)
                          element.Grade = prochainGrade;
                }
                else
