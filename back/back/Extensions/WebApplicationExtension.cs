@@ -30,6 +30,7 @@ public static class WebApplicationExtension
           mapGroupe.MapGroup("medaille").AjouterRouteMedaille();
           mapGroupe.MapGroup("preset").AjouterRoutePreset();
           mapGroupe.MapGroup("log").AjouterRouteLog();
+          mapGroupe.MapGroup("formation").AjouterRouteFormation();
           mapGroupe.MapGroup("historique-campagne").AjouterRouteHistoriqueCampagne();
           mapGroupe.MapGroup("bot-discord").AjouterRouteBotDiscord().ExcludeFromDescription();
 

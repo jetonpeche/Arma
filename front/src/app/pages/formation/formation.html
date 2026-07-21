@@ -1,0 +1,100 @@
+<div class="page-header">
+    <div class="header-titles">
+        <h1>Centre d'Entraînement</h1>
+        <div class="unsc-subtitle">// PROGRAMMES DE FORMATION TACTIQUE - MARINES & OFFICIERS</div>
+    </div>
+
+    @if(droit?.peutEcrire)
+    {
+        <button (click)="OuvrirModalAjouterModifierFormation()" matButton="filled">
+            <mat-icon>admin_panel_settings</mat-icon>
+            NOUVELLE FORMATION
+        </button>
+    }
+</div>
+
+<div class="formation-container">
+
+    <!-- SÉLECTEUR DE PROTOCOLE -->
+    <mat-form-field>
+        <mat-label>SÉLECTIONNER UN PROGRAMME DE FORMATION</mat-label>
+        <mat-icon matPrefix>school</mat-icon>
+        <mat-select [(ngModel)]="formationSelectionnee">
+            @for (form of listeFormation(); track form.id) 
+            {
+                <mat-option [value]="form">
+                    {{ form.nomComplet }} ({{ form.nomRaccourci }})
+                </mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <!-- DOSSIER DE FORMATION (Affiché uniquement si une formation est sélectionnée) -->
+    @if (formationSelectionnee(); as form) 
+    {
+        <div class="unsc-dossier">
+            
+            <div class="dossier-header">
+                <h2>[{{ form.nomRaccourci }}] {{ form.nomComplet }}</h2>
+            </div>
+
+            <!-- Tags du personnel requis -->
+            <div class="personnel-tags">
+                <span class="tag-label">HABILITATION REQUISE :</span>
+                <div class="tags-list">
+                    @for (tag of form.personnelleRequis; track tag) 
+                    {
+                        <span class="unsc-tag"><mat-icon>military_tech</mat-icon> {{ tag }}</span>
+                    }
+                </div>
+            </div>
+
+            <div class="data-divider"></div>
+
+            <!-- Objectif & Conditions -->
+            <div class="dossier-grid">
+                <div class="info-block objective-block">
+                    <div class="block-title"><mat-icon>track_changes</mat-icon> OBJECTIF OPÉRATIONNEL</div>
+                    <p>{{ form.objectif }}</p>
+                </div>
+
+                <div class="info-block success-block">
+                    <div class="block-title"><mat-icon>verified</mat-icon> CONDITIONS DE RÉUSSITE</div>
+                    <p>{{ form.conditionReussite }}</p>
+                </div>
+            </div>
+
+            <div class="data-divider"></div>
+
+            <!-- Étapes (Timeline) -->
+            <div class="timeline-section">
+                <div class="timeline-title"><mat-icon>format_list_numbered</mat-icon> DÉROULEMENT DU PROTOCOLE</div>
+                
+                <div>
+                    @for (etape of etapesTriees(); track etape.numeroEtape) 
+                    {
+                        <div class="timeline-step">
+                            <div class="step-indicator">
+                                <div class="step-number">{{ etape.numeroEtape }}</div>
+                                <div class="step-line"></div>
+                            </div>
+                            <div class="step-content">
+                                <p>{{ etape.description }}</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    } 
+    @else 
+    {
+        <!-- ÉCRAN RADAR (Si aucune sélection) -->
+        <div class="empty-state">
+            <mat-icon>radar</mat-icon>
+            <p>EN ATTENTE DE SÉLECTION DE PROGRAMME...</p>
+        </div>
+    }
+
+</div>

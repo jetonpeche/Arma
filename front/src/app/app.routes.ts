@@ -19,6 +19,12 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
+        path: "formation",
+        loadComponent: () => import("./pages/formation/formation").then(x => x.FormationPage),
+        title: "Formation",
+        canActivate: [connecterGuard]
+    },
+    { 
         path: "cimetiere",
         loadComponent: () => import("./pages/cimetiere/cimetiere").then(x => x.Cimetiere),
         title: "Cimetière",

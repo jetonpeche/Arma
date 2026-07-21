@@ -36,6 +36,7 @@ import localeFr from '@angular/common/locales/fr';
 import { ParametreService } from '@services/ParametreService';
 import { PresetService } from '@services/PresetService';
 import { LogService } from '@services/LogService';
+import { FormationService } from '@services/FormationService';
 
 // 2. Enregistrez la langue française dans le système
 registerLocaleData(localeFr);
@@ -102,6 +103,7 @@ export const appConfig: ApplicationConfig = {
     { provide: ParametreService, useClass: ParametreService },
     { provide: PresetService, useClass: PresetService },
     { provide: LogService, useClass: LogService },
+    { provide: FormationService, useClass: FormationService },
     { provide: HistoriqueCampagneService, useClass: HistoriqueCampagneService },
 
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matInput },
