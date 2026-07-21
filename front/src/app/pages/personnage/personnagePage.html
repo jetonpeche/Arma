@@ -86,8 +86,17 @@
                             <span class="info-label mt-2">OPÉRATIONS:</span>
                             <span class="info-value mt-2">{{ element.nbOperation }}</span>
 
-                            <span class="info-label">BOOTCAMPS:</span>
-                            <span class="info-value">{{ element.nbBootcamp }}</span>
+                            <span class="info-label mt-2" style="align-self: center;">FORMATIONS:</span>
+                            <div class="formation-tags-list mt-2">
+                                @for (formation of element.listeFormation; track formation) 
+                                {
+                                    <span class="formation-tag">{{ formation }}</span>
+                                }
+                                @empty 
+                                {
+                                    <span class="no-formation">NON-QUALIFIÉ</span>
+                                }
+                            </div>
                         </div>
                     </div>
 

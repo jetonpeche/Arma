@@ -12,7 +12,7 @@ public sealed class PersonnageReponse
      public string? EtatService { get; set; }
      public string? UrlPhotoIdentite { get; set; }
      public required int NbOperation { get; set; }
-     public required int NbBootcamp { get; set; }
+     public required string[] ListeFormation { get; set; }
     public required int NbPointBoutique { get; set; }
     public required int NbOperationGradeBloquer { get; set; }
     public required bool EstFormateur { get; set; }

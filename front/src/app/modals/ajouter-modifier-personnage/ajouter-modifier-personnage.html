@@ -60,7 +60,27 @@
                 </jp-grid-element>
 
                 <jp-grid-element [colXs]="12" [colSm]="4">
-                    <jp-input-number label="Nombre de bootcamp" formControlName="nbBootcamp" />
+                    <mat-form-field>
+                        <mat-label>Fqormation(s) faite(s)</mat-label>
+                        <mat-select formControlName="listeFormation" multiple>
+                            <mat-select-trigger>
+                                {{ NomFormation () }}
+
+                                @if (form.controls["listeFormation"].value.length > 1) 
+                                {
+                                    <span class="example-additional-selection">
+                                        (+{{ (form.controls["listeFormation"].value.length || 0) - 1 }} 
+                                        {{ form.controls["listeFormation"].value.length === 2 ? 'autre' : 'autres' }})
+                                    </span>
+                                }
+                            </mat-select-trigger>
+
+                            @for (element of listeFormation(); track element.id)
+                            {
+                                <mat-option [value]="element.nomRaccourci">{{ element.nomRaccourci }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
                 </jp-grid-element>
             }
 

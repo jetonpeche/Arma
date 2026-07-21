@@ -41,7 +41,7 @@ public sealed class Personnage
      public string? EtatService { get; set; }
      public string? NomFichierPhotoIdentite { get; set; }
      public int NbOperation { get; set; }
-     public int NbBootcamp { get; set; }
+     public string[] ListeFormation { get; set; } = [];
      public int NbPointBoutique { get; set; }
     public int NbVote { get; set; }
 

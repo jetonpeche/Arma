@@ -16,4 +16,11 @@ export type FormationEtape =
     description: string
 }
 
+export type FormationLeger =
+{
+    id: number,
+    nomComplet: string,
+    nomRaccourci: string
+}
+
 export type FormationRequete = Omit<Formation, "id">;

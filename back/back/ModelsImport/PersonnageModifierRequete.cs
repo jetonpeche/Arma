@@ -6,7 +6,7 @@ public sealed class PersonnageModifierRequete
      public required int IdPlaneteOrigine { get; set; }
      public required int? IdSpecialite { get; set; }
      public required int NbOperation { get; set; }
-     public required int NbBootcamp { get; set; }
+     public required string[] ListeFormation { get; set; }
      public int NbPointBoutique { get; set; }
      public required string NomDiscord { get; set; }
      public required string Nom { get; set; }

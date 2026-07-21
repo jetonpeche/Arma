@@ -93,7 +93,7 @@ public static class PersonnageRoute
                     EstValider = x.Valider,
                     GroupeSanguin = x.GroupeSanguin,
                     Matricule = x.Matricule,
-                    NbBootcamp = x.NbBootcamp,
+                    ListeFormation = x.ListeFormation,
                     NbOperation = x.NbOperation,
                     Nom = x.Nom,
                     NbOperationGradeBloquer = x.NbOperationGradeBloquer,
@@ -202,7 +202,6 @@ public static class PersonnageRoute
           if(_requete.FormationFaite)
           {
                personnage.FormationFaite = true;
-               personnage.NbBootcamp++;
                personnage.DateDerniereParticipation = DateTime.Now;
           }
 
@@ -268,7 +267,7 @@ public static class PersonnageRoute
           personnageBdd.Matricule = _requete.Matricule.XSS();
           personnageBdd.EtatService = _requete.EtatService?.XSS();
           personnageBdd.GroupeSanguin = _requete.GroupeSanguin.XSS();
-          personnageBdd.NbBootcamp = _requete.NbBootcamp;
+          personnageBdd.ListeFormation = [.. _requete.ListeFormation.Select(x => x.XSS())];
           personnageBdd.NbOperation = _requete.NbOperation;
           personnageBdd.EstFormateur = _requete.EstFormateur;
           personnageBdd.EstFormateurSpecialite = _requete.EstFormateurSpecialite;
@@ -296,7 +295,7 @@ public static class PersonnageRoute
           if (_requete.IdSpecialite is not null)
                personnageBdd.Specialite = db.GetCollection<Specialite>().FindById(_requete.IdSpecialite);
 
-          if (_requete.NbBootcamp > personnageBdd.NbBootcamp || _requete.NbOperation > personnageBdd.NbOperation)
+          if (_requete.NbOperation > personnageBdd.NbOperation)
                personnageBdd.DateDerniereParticipation = DateTime.UtcNow;
 
           var ok = col.Update(personnageBdd);

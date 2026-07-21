@@ -175,6 +175,33 @@
     .primary-text { color: var(--mat-sys-primary); font-size: 1rem; }
     .warning-text { color: var(--mat-sys-error); }
     .mt-2 { margin-top: 8px; }
+
+    /* --- MICRO-TAGS FORMATION --- */
+    .formation-tags-list 
+    {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+
+        .formation-tag {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            font-weight: 900;
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+            color: var(--mat-sys-primary);
+            border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+            padding: 0px 2px;
+            border-radius: 2px;
+            letter-spacing: 1px;
+        }
+
+        .no-formation {
+            font-size: 0.75rem;
+            color: var(--mat-sys-outline);
+            font-style: italic;
+        }
+    }
 }
 
 /* Logo Dynamique */

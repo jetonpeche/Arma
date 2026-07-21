@@ -1,5 +1,6 @@
 using back.Extensions;
 using back.Models;
+using back.ModelsExport;
 using back.ModelsImport;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,11 @@ public static class FormationRoute
             .WithDescription("Lister les formations dans le bon ordre")
             .Produces<Formation[]>();
 
-        builder.MapPost("ajouter", AjouterAsync)
+          builder.MapGet("lister-leger", ListerLegerAsync)
+              .WithDescription("Lister les formations dans le bon ordre")
+              .Produces<FormationLegerReponse[]>();
+
+          builder.MapPost("ajouter", AjouterAsync)
             .WithDescription("Ajouter une nouvelle description")
             .ProducesBadRequest()
             .ProducesCreated();
@@ -59,6 +64,23 @@ public static class FormationRoute
 
         return Results.Extensions.Ok(liste, FormationContext.Default);
     }
+
+     static async Task<IResult> ListerLegerAsync()
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var liste = db.GetCollection<Formation>().Query()
+              .OrderBy(x => x.Ordre)
+              .Select(x => new FormationLegerReponse
+              {
+                   Id = x.Id,
+                   NomComplet = x.NomComplet,
+                   NomRaccourci = x.NomRaccourci
+              })
+              .ToArray();
+
+          return Results.Extensions.Ok(liste, FormationLegerReponseContext.Default);
+     }
 
     static async Task<IResult> AjouterAsync(
         [FromServices] IMemoryCache _cache,
