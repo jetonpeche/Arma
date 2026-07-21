@@ -95,7 +95,7 @@ export class AjouterModifierPersonnage implements OnInit
       idSpecialite: new FormControl<number | null>(this.matDialogData?.specialite?.id),
       formationFaite: new FormControl<boolean>(this.matDialogData?.formationFaite ?? false),
       nbOperation: new FormControl<number>(this.matDialogData?.nbOperation ?? 0, [Validators.min(0)]),
-      listeFormation: new FormControl<string[]>(this.matDialogData?.listeFormation ?? [], [Validators.required]),
+      listeFormation: new FormControl<string[]>(this.matDialogData?.listeFormation ?? []),
       estFormateur: new FormControl<boolean>(this.matDialogData?.estFormateur ?? false),
       estFormateurSpecialite: new FormControl<boolean>(this.matDialogData?.estFormateurSpecialite ?? false)
     });
