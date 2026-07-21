@@ -1,13 +1,16 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { EUrl } from '@enums/EUrl';
+import { AjouterModifierFormation } from '@modals/ajouter-modifier-formation/ajouter-modifier-formation';
 import { Droit } from '@models/DroitGroupe';
 import { Formation } from '@models/Formation';
 import { AuthentificationService } from '@services/AuthentificationService';
+import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { FormationService } from '@services/FormationService';
 
 @Component({
@@ -21,9 +24,12 @@ export class FormationPage implements OnInit
     protected droit: Droit;
     protected listeFormation = signal<Formation[]>([]);
     protected formationSelectionnee = signal<Formation | null>(null);
+    private readonly estMobile = window.innerWidth <= 800;
 
     private formationServ = inject(FormationService);
     private authServ = inject(AuthentificationService);
+    private dialogServ = inject(DialogConfirmationService);
+    private dialog = inject(MatDialog);
 
     protected etapesTriees = computed(() => {
         const formation = this.formationSelectionnee();
@@ -36,28 +42,49 @@ export class FormationPage implements OnInit
     ngOnInit(): void 
     {
       this.droit = this.authServ.RecupererDroit(EUrl.Formation);
-      this.listeFormation.set([
-            {
-                id: 1,
-                ordre: 1,
-                nomComplet: "Formation au Combat d'Infanterie Avancé",
-                nomRaccourci: "FCI-A",
-                objectif: "Maîtriser les tactiques de guérilla, l'assaut en milieu urbain et la coordination d'escouade sous le feu ennemi.",
-                conditionReussite: "Obtenir une note de 85% à l'épreuve de simulation à balles réelles (Wargames).",
-                personnelleRequis: ["Marines", "ODST", "Sous-Officier"],
-                listeEtapeFormation: [
-                    { numeroEtape: 2, description: "Simulations tactiques en réalité augmentée (Environnement urbain)." },
-                    { numeroEtape: 1, description: "Révision des protocoles d'engagement et maniement du fusil MA5C." },
-                    { numeroEtape: 3, description: "Épreuve finale sur le terrain avec escouade complète." }
-                ]
-            }
-        ]);
-        //this.Lister();
+        this.Lister();
     }
 
     protected OuvrirModalAjouterModifierFormation(_formation?: Formation): void
     {
+      const DIALOG_REF = this.dialog.open(AjouterModifierFormation, {
+        width: this.estMobile ? "95%" : "70%",
+        maxWidth: "100vw",
+        data: _formation
+      });
 
+      DIALOG_REF.afterClosed().subscribe({
+        next: (retour) =>
+        {
+          if(retour === true)
+            this.Lister();
+        }
+      });
+    }
+
+    protected OuvrirModalConfirmation(_formation: Formation): void
+    {
+        const TITRE = `Supprimer la formation ${_formation.nomRaccourci}`;
+        const MESSAGE = `Confirmez-vous la suppression definitif de ${_formation.nomComplet} ?`;
+
+        this.dialogServ.Ouvrir(TITRE, MESSAGE).subscribe({
+            next: (retour) =>
+            {
+                if(retour)
+                    this.Supprimer(_formation.id);
+            }
+        });
+    }
+
+    private Supprimer(_idFormation: number): void
+    {
+      this.formationServ.Supprimer(_idFormation).subscribe({
+        next: () =>
+        {
+          this.formationSelectionnee.set(null);
+          this.listeFormation.update(x => x.filter(y => y.id != _idFormation));
+        }
+      });
     }
 
     private Lister(): void

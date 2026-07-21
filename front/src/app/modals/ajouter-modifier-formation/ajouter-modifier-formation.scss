@@ -1,0 +1,164 @@
+/* =========================================================
+   ÉDITEUR D'ÉTAPES DE FORMATION
+   ========================================================= */
+.tactical-steps-section {
+    margin-top: 16px;
+    padding-top: 24px;
+    border-top: 1px dashed color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+
+    .section-header {
+        display: flex;
+        justify-content: space-between; /* Alignement sur la gauche */
+        gap: 16px; /* Espacement entre le bouton et le titre */
+        align-items: center;
+        margin-bottom: 24px;
+
+        h3 {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--mat-sys-primary);
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+    }
+}
+
+.steps-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* --- BLOC D'ÉTAPE INDIVIDUEL --- */
+.tactical-step-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 40%, transparent);
+    padding: 16px 16px 0 16px; 
+    border-left: 3px solid color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+    border-radius: 2px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    &:hover {
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+        border-left-color: var(--mat-sys-primary);
+        box-shadow: inset 4px 0 0 color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+    }
+
+    .step-number-container {
+        width: 80px; 
+        flex-shrink: 0;
+    }
+
+    .step-desc-container {
+        flex-grow: 1; 
+    }
+
+    .step-action-container {
+        padding-top: 8px; 
+    }
+
+    /* --- GESTION DU RESPONSIVE (Écrans mobiles / Datapads) --- */
+    @media screen and (max-width: 600px) {
+        flex-direction: column; /* Empilement vertical */
+        align-items: stretch;
+        gap: 8px; /* Réduction de l'espace interne sur mobile */
+
+        .step-number-container {
+            width: 100%; /* Le numéro prend toute la largeur */
+        }
+
+        .step-action-container {
+            align-self: flex-end; /* La corbeille se place en bas à droite */
+            padding-top: 0;
+            padding-bottom: 8px;
+            margin-top: -8px;
+        }
+    }
+}
+
+/* =========================================================
+   ADAPTATION THEME CLAIR (LIGHT MODE)
+   ========================================================= */
+:host-context(html.light-mode) {
+    /* (Insérez ceci dans votre bloc light-mode existant s'il y en a un) */
+    
+    .tactical-step-row {
+        background-color: #f4f7f6;
+        border: 1px solid var(--mat-sys-outline-variant);
+        border-left: 3px solid color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+
+        &:hover {
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+    }
+}
+
+/* =========================================================
+   STYLE DES TAGS D'HABILITATION (CHIPS) - PURGE MDC ABSOLUE
+   ========================================================= */
+.tactical-tags-field {
+    
+    ::ng-deep mat-chip-row {
+        /* 1. ÉCRASEMENT DES VARIABLES INTERNES MDC (Le secret pour tuer l'arrondi) */
+        --mdc-chip-container-shape: 2px !important;
+        --mdc-chip-elevated-container-shape: 2px !important;
+        --mdc-chip-outline-width: 0px !important;
+        --mdc-chip-outline-color: transparent !important;
+
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent) !important;
+        border: 1px solid var(--mat-sys-tertiary) !important;
+        border-radius: 2px !important; 
+        
+        /* 3. DESTRUCTION DES SOUS-COUCHES (Outline et ripple) */
+        .mdc-evolution-chip__outline,
+        .mdc-evolution-chip__action::before,
+        .mdc-evolution-chip__action::after {
+            display: none !important; 
+            border: none !important;
+        }
+
+        /* 4. FORÇAGE DE LA TYPOGRAPHIE */
+        .mdc-evolution-chip__text-label,
+        .mdc-evolution-chip__action {
+            font-family: 'Courier New', Courier, monospace !important;
+            font-weight: bold !important;
+            color: var(--mat-sys-tertiary) !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 4px !important;
+            border-radius: 2px !important;
+        }
+
+        /* 5. NETTOYAGE DU BOUTON DE SUPPRESSION (Croix) */
+        button.mat-mdc-chip-remove {
+            background: transparent !important;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+            
+            /* Purge absolue de la pastille sous l'icône */
+            &::before, &::after, .mat-mdc-chip-action-label, .mdc-evolution-chip__icon {
+                background: transparent !important;
+                border: none !important;
+                border-radius: 0 !important;
+            }
+
+            mat-icon {
+                color: var(--mat-sys-tertiary) !important;
+                font-size: 18px !important;
+                width: 18px !important;
+                height: 18px !important;
+                margin: 0 !important;
+            }
+
+            &:hover {
+                opacity: 1;
+                filter: drop-shadow(0 0 5px var(--mat-sys-tertiary));
+                transform: scale(1.2);
+            }
+        }
+    }
+}

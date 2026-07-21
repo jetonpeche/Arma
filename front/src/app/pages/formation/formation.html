@@ -29,13 +29,28 @@
         </mat-select>
     </mat-form-field>
 
-    <!-- DOSSIER DE FORMATION (Affiché uniquement si une formation est sélectionnée) -->
     @if (formationSelectionnee(); as form) 
     {
         <div class="unsc-dossier">
             
             <div class="dossier-header">
                 <h2>[{{ form.nomRaccourci }}] {{ form.nomComplet }}</h2>
+                
+                <div>
+                    @if (droit.peutEcrire) 
+                    {
+                        <button mat-icon-button (click)="OuvrirModalAjouterModifierFormation(form)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    }
+
+                    @if (droit.peutSupprimer) 
+                    {
+                        <button mat-icon-button (click)="OuvrirModalConfirmation(form)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    }
+                </div>
             </div>
 
             <!-- Tags du personnel requis -->

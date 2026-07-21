@@ -103,6 +103,10 @@
 
     .dossier-header {
         margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
 
         h2 {
             font-size: 1.6rem;

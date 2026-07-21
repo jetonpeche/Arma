@@ -1,1 +1,95 @@
-<p>ajouter-modifier-formation works!</p>
+<h2 mat-dialog-title>{{ labelBtn() }} une formation</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+
+            <jp-grid-element [colXs]="12" [colMd]="10">
+                <jp-input-text label="Nom" formControlName="nomComplet" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="2">
+                <jp-input-text label="Raccourci" formControlName="nomRaccourci" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-input-number label="Ordre" formControlName="ordre" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Objectif(s)" [rows]="4" showMaxLength formControlName="objectif" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Condition(s) de réussite(s)" [rows]="4" showMaxLength formControlName="conditionReussite" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <mat-form-field class="tactical-tags-field">
+                    <mat-label>Personnel requis (Appuyez sur Entrée pour valider)</mat-label>
+                    <mat-chip-grid #chipGrid aria-label="Sélection du personnel">
+                        
+                        @for (personnel of form.get('personnelleRequis')?.value; track personnel) 
+                        {
+                            <mat-chip-row (removed)="SupprimerTag(personnel)">
+                                {{ personnel }}
+                                <button matChipRemove [attr.aria-label]="'Retirer ' + personnel">
+                                    <mat-icon>cancel</mat-icon>
+                                </button>
+                            </mat-chip-row>
+                        }
+                        
+                    </mat-chip-grid>
+                    
+                    <!-- Champ de saisie relié au grid -->
+                    <input [matChipInputFor]="chipGrid"
+                           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                           [matChipInputAddOnBlur]="true"
+                           (matChipInputTokenEnd)="AjouterTag($event)"/>
+                </mat-form-field>
+            </jp-grid-element>
+
+            <!-- liste des étapes -->
+            <jp-grid-element [colDefault]="12">
+                <div class="tactical-steps-section">
+                    
+                    <!-- En-tête réorganisé (Bouton à gauche du titre) -->
+                    <div class="section-header">
+                        <h3>DÉROULEMENT DU PROTOCOLE (ÉTAPES)</h3>
+                        <button matMiniFab (click)="AjouterEtape()" type="button">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                    </div>
+
+                    <div formArrayName="listeEtapeFormation" class="steps-container">
+                        @for (element of listeEtapeFormation.controls; track element; let i = $index) 
+                        {
+                            <!-- ... le contenu interne de tactical-step-row reste identique ... -->
+                            <div [formGroupName]="i" class="tactical-step-row">
+                                
+                                <div class="step-number-container">
+                                    <jp-input-number label="N°" formControlName="numeroEtape" />
+                                </div>
+
+                                <div class="step-desc-container">
+                                    <jp-textarea label="Description de la manœuvre" [rows]="2" showMaxLength formControlName="description" />
+                                </div>
+
+                                <div class="step-action-container">
+                                    <button mat-icon-button (click)="SupprimerEtape(i)" type="button" class="btn-delete" matTooltip="Supprimer l'étape">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </div>
+
+                            </div>
+                        }
+                    </div>
+                    
+                </div>
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>Fermer</button>&nbsp;
+    <jp-button-loader matButton="filled" [loading]="btnClick()" [label]="labelBtn()" (clicked)="Valider()" />
+</mat-dialog-actions>
