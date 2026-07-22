@@ -21,5 +21,12 @@ public sealed class ObjetProposerRequete
     public string? NomVaisseau { get; set; }
 
     [JsonIgnore]
-    public int IdStockagePosseder { get; set; }
+    public string? NomStockage { get; set; }
+
+    /// <summary>
+    /// Utiliser pour le service Proposition achat service
+    /// </summary>
+    /// <value></value>
+    [JsonIgnore]
+    public int? IdStockagePosseder { get; set; }
 }

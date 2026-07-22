@@ -30,5 +30,7 @@ export type ObjetProposer =
     prixUnitaire: number,
     quantite: number,
     type: ETypeObjetProposer,
-    idType: number
+    idType: number,
+    nomVaisseau: string,
+    nomStockage: string
 }

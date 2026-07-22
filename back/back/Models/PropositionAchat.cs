@@ -21,9 +21,8 @@ public sealed class ObjetProposer
     public int? IdStockage { get; set; }
     public ETypeObjetProposer Type { get; set; }
     public string Nom { get; set; } = null!;
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? NomVaisseau { get; set; }
+    public string? NomStockage { get; set; }
     public int PrixUnitaire { get; set; }
      public int Quantite { get; set; }
 }

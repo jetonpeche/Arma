@@ -68,7 +68,7 @@ public sealed class PropositionAchatService
                                    .Include(x => x.Vaisseau)
                                    .Include(x => x.Vaisseau.ListeStockage)
                                    .Where(x =>
-                                        x.Vaisseau.Id == element.IdVaisseau
+                                        x.Id == element.IdVaisseau
                                         && x.Vaisseau.ListeStockage.Select(y => y.Id).Any(y => y == element.IdStockage!.Value)
                                    )
                                    .FirstOrDefault()?
@@ -137,13 +137,7 @@ public sealed class PropositionAchatService
                }
                else
                {
-                    db.Execute(
-                         $"UPDATE {nameof(Logistique)} SET Stock = Stock + @0 WHERE _id = @1",
-                         element.Quantite,
-                         element.IdType
-                    );
-
-                    if (element.IdStockagePosseder is 0)
+                    if (!element.IdStockagePosseder.HasValue)
                     {
                          int id = db.GetCollection<StockageVaisseauPosseder>().Insert(new StockageVaisseauPosseder
                          {
@@ -157,8 +151,13 @@ public sealed class PropositionAchatService
                               .Where(x => x.Id == element.IdVaisseau)
                               .First();
 
-                         vaisseauPosseder.ListeStockage.Add(new StockageVaisseauPosseder { Id = id });
+                         var s = new StockageVaisseauPosseder { Id = id };
+                         vaisseauPosseder.ListeStockage.Add(s);
                          db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
+                    
+                         var logistique = db.GetCollection<Logistique>().FindById(element.IdType);
+                         logistique.ListeStockageVaisseauPosseder.Add(s);
+                         db.GetCollection<Logistique>().Update(logistique);
                     }
                     else
                     {

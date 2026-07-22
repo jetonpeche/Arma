@@ -44,15 +44,16 @@
             <td mat-cell *matCellDef="let element"> 
                 <span class="unsc-badge badge-tertiary">{{ element.prixUnitaire }} CR</span>
             </td>
-            <td mat-footer-cell *matFooterCellDef><b>Total</b></td>
+            <td mat-footer-cell *matFooterCellDef><b>TOTAL</b></td>
         </ng-container>
 
         <ng-container matColumnDef="prixTotal">
             <th mat-header-cell *matHeaderCellDef> Total </th>
             <td mat-cell *matCellDef="let element"> 
-                <span>{{ element.prixUnitaire * element.quantite }} CR</span>
+                <span class="unsc-badge badge-error">{{ element.prixUnitaire * element.quantite }} CR</span>
             </td>
-            <td mat-footer-cell *matFooterCellDef><b>{{ prixTotal() }}</b></td>
+            <td mat-footer-cell *matFooterCellDef>
+                <span class="unsc-badge badge-error">{{ prixTotal() }} CR</span></td>
         </ng-container>
 
         <ng-container matColumnDef="action">

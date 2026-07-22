@@ -198,9 +198,9 @@ public static class VaisseauRoute
           if(_idTypeStockage <= 0)
                return Results.NotFound();
 
-          using var db = new LiteDatabase(Constant.BDD_NOM);
+        using var db = new LiteDatabase(Constant.BDD_NOM);
 
-            var liste = db.GetCollection<VaisseauPosseder>()
+        var liste = db.GetCollection<VaisseauPosseder>()
                .Include(v => v.Vaisseau)
                .Include(v => v.Vaisseau.ListeStockage)
                .Include(x => x.ListeStockage)
@@ -212,7 +212,7 @@ public static class VaisseauRoute
                     NomVaisseauAlias = x.NomVaisseau,
                     NomVaisseau = x.Vaisseau.Nom,
                     
-                    ListeStockage = [..x.Vaisseau.ListeStockage.Select(y => new StockageVaisseauPossederReponse
+                    ListeStockage = [..x.Vaisseau.ListeStockage.Where(y => y.TypeStockage.Id == _idTypeStockage).Select(y => new StockageVaisseauPossederReponse
                     {
                          Id = y.Id,
                          IdTypeStockage = y.TypeStockage.Id,
@@ -221,8 +221,7 @@ public static class VaisseauRoute
                          Occuper = x.ListeStockage
                               .Where(z => x.ListeStockage != null && z.Stockage.Id == y.Id)
                               .Sum(z => z.Quantite)
-                    })
-                    .Where(y => y.IdTypeStockage == _idTypeStockage)]
+                    })]
                });
 
         return Results.Extensions.Ok(liste, StockageCompatibleVaisseauPossederReponseContext.Default);

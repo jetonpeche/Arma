@@ -6,6 +6,7 @@ using back.ModelsImport;
 using back.Services;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using InfoPropositionAchat = (int Prix, string Nom, int TailleUnitaireInventaire, int IdTypeStockage);
 
 namespace back.Routes;
@@ -60,6 +61,7 @@ public static class PropositionAchatRoute
                          IdVaisseau = y.IdVaisseau,
                         PrixUnitaire = y.PrixUnitaire,
                         NomVaisseau = y.NomVaisseau,
+                        NomStockage = y.NomStockage,
                         Quantite = y.Quantite,
                          Type = y.Type
                     }).ToArray()
@@ -129,32 +131,34 @@ public static class PropositionAchatRoute
                               element.Nom = infoLogisitique.Nom;
                          
                               // recuperer le stockage choisi
-                              var stockageVaisseau = db.GetCollection<VaisseauPosseder>()
+                              var vaisseauPosseder = db.GetCollection<VaisseauPosseder>()
                                    .Query()
                                    .Include(x => x.Vaisseau)
                                    .Include(x => x.Vaisseau.ListeStockage)
                                    .Where(x =>
-                                        x.Vaisseau.Id == element.IdVaisseau
+                                        x.Id == element.IdVaisseau
                                         && x.Vaisseau.ListeStockage.Select(y => y.Id).Any(y => y == element.IdStockage!.Value)
                                    )
-                                   .FirstOrDefault()?
-                                   .Vaisseau.ListeStockage
+                                   .FirstOrDefault();
+
+                              if (vaisseauPosseder is null)
+                                   return Results.NotFound("Le stockage ou le vaisseau n'existe pas");
+
+                              var stockageVaisseau = vaisseauPosseder.Vaisseau.ListeStockage
                                    .FirstOrDefault(x => x.Id == element.IdStockage!.Value && x.TypeStockage.Id == infoLogisitique.IdTypeStockage);
 
                               if (stockageVaisseau is null)
                                    return Results.NotFound("Le stockage ou le vaisseau n'existe pas");
 
                               var stockageVaisseauPosseder = db.GetCollection<StockageVaisseauPosseder>()
-                                   .Include(x => x.VaisseauPosseder)
                                    .Query()
                                    .ToList()
                                    .Where(x => x.Stockage.Id == element.IdStockage!.Value)
                                    .Select(x => new
                                    {
                                         x.Id,
-                                        x.VaisseauPosseder.NomVaisseau,
-                                        IdLogistique = x.Logistique.Id,
-                                        x.Quantite
+                                       IdLogistique = x.Logistique.Id,
+                                       x.Quantite
                                    })
                                    .ToList();
 
@@ -162,12 +166,9 @@ public static class PropositionAchatRoute
                               var tailleTotalOccuper = stockageVaisseauPosseder.Sum(x => x.Quantite);
                               var placeRestante = tailleMax - tailleTotalOccuper;
 
-                              if (stockageVaisseauPosseder.Count > 0)
-                              {
-                                   element.IdStockagePosseder = stockageVaisseauPosseder[0].Id;
-                                   element.NomVaisseau =  stockageVaisseauPosseder[0].NomVaisseau;
-                              }
-
+                              element.NomVaisseau = string.IsNullOrWhiteSpace(vaisseauPosseder.NomVaisseau) ? vaisseauPosseder.Vaisseau.Nom : vaisseauPosseder.NomVaisseau;
+                              element.NomStockage = stockageVaisseau.Nom;
+                        
                               if (element.Quantite * infoLogisitique.TailleUnitaireInventaire > placeRestante)
                                    return Results.BadRequest($"{element.Nom}, place dispo: {placeRestante}, place demandée: {element.Quantite * infoLogisitique.TailleUnitaireInventaire}");
                          }
@@ -187,12 +188,13 @@ public static class PropositionAchatRoute
                {
                     IdType = x.IdType,
                     IdStockage = x.IdStockage,
-                   IdVaisseau = x.IdVaisseau,
-                   Type = x.Type,
-                   Nom = x.Nom,
-                   NomVaisseau = x.Type is ETypeObjetProposer.Logistique ? x.NomVaisseau : null,
-                   Quantite = x.Quantite,
-                   PrixUnitaire = x.PrixUnitaire
+                    IdVaisseau = x.IdVaisseau,
+                    Type = x.Type,
+                    Nom = x.Nom,
+                    NomVaisseau = x.Type is ETypeObjetProposer.Logistique ? x.NomVaisseau : null,
+                    NomStockage = x.NomStockage,
+                    Quantite = x.Quantite,
+                    PrixUnitaire = x.PrixUnitaire
               })
           };
 
@@ -203,22 +205,30 @@ public static class PropositionAchatRoute
 
      async static Task<IResult> AcheterAsync(
           HttpContext _httpContext,
+          [FromServices] IMemoryCache _cache,
           [FromServices] PropositionAchatService _propositionServ,
           [FromBody] List<ObjetProposerRequete> _requete
      )
      {
           if (_requete.Count == 0)
-               return Results.BadRequest("Liste vide");
+               return Results.BadRequest("Liste vide");     
 
-        int idPersonnage = _httpContext.RecupererIdPersonnage();
+          int idPersonnage = _httpContext.RecupererIdPersonnage();
 
-        var message = await _propositionServ.AcheterAsync(idPersonnage, _requete);
+          var message = await _propositionServ.AcheterAsync(idPersonnage, _requete);
 
-        return message == "OK" ? Results.NoContent() : Results.BadRequest(message);
+          if (message is "OK")
+          {
+               _cache.Remove("logistique");
+               return  Results.NoContent();
+          }
+          
+          return Results.BadRequest(message);
     }
 
      async static Task<IResult> DecisionAchat(
           HttpContext _httpContext,
+          [FromServices] IMemoryCache _cache,
           [FromServices] PropositionAchatService _propositionServ,
           [FromBody] DecisionAchatRequete _requete
      )
@@ -276,6 +286,9 @@ public static class PropositionAchatRoute
 
                     var retour = await _propositionServ.AcheterAsync(_httpContext.RecupererIdPersonnage(), liste);
 
+                    if (retour is not "OK")
+                         return Results.BadRequest(retour);
+
                     var nomPersonnageAuteurProposition = db.GetCollection<PropositionAchat>()
                          .Include(x => x.Personnage)
                          .FindById(_requete.IdPropositionAchat)
@@ -288,6 +301,8 @@ public static class PropositionAchatRoute
                          Information = $"{nomPersonnage} a validé la proposition de {nomPersonnageAuteurProposition}",
                          Date = DateTime.UtcNow
                     });
+
+                    _cache.Remove("logistique");
                }
           }
 
@@ -320,11 +335,16 @@ public static class PropositionAchatRoute
                {
                     var retour = await _propositionServ.AcheterAsync(_httpContext.RecupererIdPersonnage(), [objet]);
 
+                    if (retour is not "OK")
+                         return Results.BadRequest(retour);
+
                     historiqueAchatCol.Insert(new Historique
                     {
                          Information = $"{nomPersonnage} a validé l'achat de {element.Nom} pour un prix de {objet.PrixUnitaire * objet.Quantite}",
                          Date = DateTime.UtcNow
                     });
+
+                    _cache.Remove("logistique");
                }
                else
                {
@@ -337,7 +357,7 @@ public static class PropositionAchatRoute
 
                propositionAchat.Liste.Remove(element);
 
-               if(propositionAchat.Liste.Count == 0)
+               if(propositionAchat.Liste.Count is 0)
                     db.GetCollection<PropositionAchat>().Delete(_requete.IdPropositionAchat);
 
                else
