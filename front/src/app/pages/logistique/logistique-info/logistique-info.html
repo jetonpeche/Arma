@@ -78,13 +78,18 @@
                         <span class="stat-value text-neutral">[{{ element.typeStockage.nom | uppercase }}]</span>
                     </div>
                 </div>
+
+                @if (element.description) 
+                {
+                    <div class="asset-description">
+                        <div class="desc-label">NOTES TECHNIQUES :</div>
+                        <div class="desc-text">{{ element.description }}</div>
+                    </div>
+                }
             </div>
 
             <!-- Pied : Commandes Tactiques -->
             <div class="asset-actions">
-                <button [disabled]="!element.description" mat-icon-button (click)="OuvrirModalInformation(element)" matTooltip="Manuel d'information">
-                    <mat-icon>info</mat-icon>
-                </button>
 
                 <div class="spacer"></div> 
 

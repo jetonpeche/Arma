@@ -90,13 +90,6 @@ export class LogistiqueInfo implements OnInit
         this.pageIndex.set(event.pageIndex);
         this.pageSize.set(event.pageSize);
     }
-
-    protected OuvrirModalInformation(_logistique: Logistique): void 
-    { 
-        this.dialog.open(ModalInformation, { 
-            data: { message: _logistique.description, titre: `Info ${_logistique.nom}` } 
-        }); 
-    }
     
     protected OuvrirModalPanierQuantite(_logistique: Logistique): void { this.dialog.open(ModalInputQuantite, { width: "60%", maxWidth: "100vw", data: _logistique }); }
     protected OuvrirModalConfirmationSupprimer(_logistique: Logistique): void { const TITRE = `Suppression de ${_logistique.nom}`; const MESSAGE = `Confirmez-vous la suppression definitif de ${_logistique.nom} ?`; this.dialogConfirmationServ.Ouvrir(TITRE, MESSAGE).subscribe({ next: (retour) => { if(retour) this.Supprimer(_logistique.id); } }); }
