@@ -6,34 +6,178 @@
 }
 
 /* =========================================================
-   LE CONTENEUR DATAPAD
+   CONSOLE DE SÉCURITÉ HUD (TERMINAL ONI)
    ========================================================= */
 .unsc-datapad {
-    width: 80%;
-    background-color: var(--mat-sys-surface-container-high); 
-    border: 2px solid var(--mat-sys-outline); 
+    width: 90%;
+    max-width: 420px; /* Légèrement plus étroit pour un aspect "Console de porte" */
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 85%, transparent);
+    border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 0 60px color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent);
     border-radius: 4px;
-    box-shadow: 0 8px 32px var(--mat-sys-shadow);
     position: relative;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(16px);
     transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    padding: 2px; /* Marges pour la barre supérieure */
 
+    /* Triggers d'animation conservés */
     &.access-granted {
         border-color: var(--mat-sys-primary);
         box-shadow: 0 0 40px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
         animation: unsc-warp-jump 0.8s ease-in 3.5s forwards; 
         pointer-events: none; 
+        .hud-corner { border-color: var(--mat-sys-primary); filter: drop-shadow(0 0 8px var(--mat-sys-primary)); }
     }
 
     &.access-denied {
         border-color: var(--mat-sys-error) !important;
         pointer-events: none;
         animation: unsc-datapad-shake 0.4s cubic-bezier(.36,.07,.19,.97) forwards;
+        .hud-corner { border-color: var(--mat-sys-error); }
+    }
+}
+
+/* --- DÉCORS TACTIQUES : LES 4 COINS --- */
+.hud-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--mat-sys-primary);
+    opacity: 0.6;
+    z-index: 10;
+    pointer-events: none;
+    transition: border-color 0.3s ease;
+}
+.top-left { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.top-right { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+.bottom-left { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+.bottom-right { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+/* --- BARRE D'ÉTAT SYSTÈME --- */
+.terminal-top-bar {
+    background-color: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 12px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    border-radius: 2px 2px 0 0;
+}
+
+/* =========================================================
+   EN-TÊTE CENTRÉ DU TERMINAL
+   ========================================================= */
+.unsc-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 32px 24px 24px 24px;
+
+    .header-logo {
+        font-size: 56px;
+        width: 56px;
+        height: 56px;
+        color: var(--mat-sys-primary);
+        filter: drop-shadow(0 0 12px color-mix(in srgb, var(--mat-sys-primary) 60%, transparent));
+        margin-bottom: 16px;
+    }
+        
+    .unsc-title {
+        margin: 0;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.4rem;
+        font-weight: 900;
+        letter-spacing: 4px;
+        color: var(--mat-sys-on-surface);
+    }
+
+    .unsc-subtitle {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        opacity: 0.7;
+        color: var(--mat-sys-tertiary);
+        margin-top: 8px;
     }
 }
 
 /* =========================================================
-   L'OVERLAY CENTRAL DE SÉCURITÉ
+   CONTENU & ACTIONS
+   ========================================================= */
+.unsc-content {
+    padding: 0 32px 24px 32px;
+}
+
+.unsc-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 32px;
+    background: linear-gradient(to top, color-mix(in srgb, var(--mat-sys-surface-container-highest) 60%, transparent), transparent);
+    border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+
+    .auth-divider {
+        width: 2px;
+        height: 30px;
+        background-color: var(--mat-sys-outline-variant);
+        opacity: 0.4;
+    }
+
+    /* Rendu des boutons JetonPeche plus "Tactiques" */
+    ::ng-deep jp-button-loader {
+        flex: 1; /* Les boutons se partagent l'espace à parts égales */
+        button {
+            width: 100%;
+            font-family: 'Courier New', Courier, monospace !important;
+            font-weight: 900 !important;
+            letter-spacing: 1px !important;
+            border-radius: 2px !important;
+            text-transform: uppercase !important;
+        }
+    }
+}
+
+/* =========================================================
+   COMPATIBILITÉ MOBILE DU DESIGN
+   ========================================================= */
+@media screen and (max-width: 480px) {
+    .unsc-datapad { 
+        width: 100%; 
+        border-radius: 0; 
+        border-left: none; border-right: none;
+        .hud-corner { display: none; } /* On cache les équerres sur téléphone */
+    }
+    
+    .unsc-actions {
+        flex-direction: column-reverse; /* Empile les boutons */
+        gap: 16px;
+        .auth-divider { display: none; }
+    }
+}
+
+/* =========================================================
+   THÈME CLAIR (LIGHT MODE)
+   ========================================================= */
+:host-context(html.light-mode) {
+    .unsc-datapad {
+        background-color: #ffffff;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        border-color: var(--mat-sys-outline-variant);
+        
+        .terminal-top-bar { background-color: var(--mat-sys-surface-container-highest); color: var(--mat-sys-on-surface); }
+        .unsc-actions { background: #f9fbfb; }
+    }
+}
+
+/* =========================================================
+   L'OVERLAY CENTRAL DE SÉCURITÉ (INCHANGÉ)
    ========================================================= */
 .success-overlay {
     position: absolute;
@@ -114,10 +258,8 @@
 }
 
 /* =========================================================
-   PILOTAGE DES ÉTATS (SCANNING / SUCCESS / ERROR)
+   PILOTAGE DES ÉTATS (SCANNING / SUCCESS / ERROR) (INCHANGÉ)
    ========================================================= */
-
-/* --- ÉTAT 1 : EN COURS DE SCAN --- */
 .success-overlay.scanning {
     .bracket { border-color: var(--mat-sys-primary); opacity: 0.5; }
     .fingerprint-icon { animation: unsc-fingerprint-pulse-infinite 1s infinite alternate; }
@@ -128,7 +270,6 @@
     }
 }
 
-/* --- ÉTAT 2 : SÉCURITÉ APPROUVÉE (SUCCÈS) --- */
 .success-overlay.success {
     .bracket { border-color: var(--mat-sys-primary); opacity: 0.8; }
     .scanner-line { display: none; }
@@ -139,7 +280,6 @@
     }
 }
 
-/* --- ÉTAT 3 : ALERTE SÉCURITÉ (ERREUR) --- */
 .success-overlay.error {
     .bracket { animation: unsc-bracket-error-instant 2.5s forwards; }
     .scanner-line { display: none; }
@@ -151,7 +291,7 @@
 }
 
 /* =========================================================
-   LES FLASHS ENVIRONNEMENTAUX (PLURALS & SÉCURISÉS)
+   LES FLASHS ENVIRONNEMENTAUX (INCHANGÉ)
    ========================================================= */
 .global-grid-flash {
     position: fixed;
@@ -162,13 +302,11 @@
     background-position: center center;
     opacity: 0;
 
-    // Configuration par défaut (VERT)
     background-image:
         linear-gradient(color-mix(in srgb, var(--mat-sys-primary) 60%, transparent) 1px, transparent 1px),
         linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-primary) 60%, transparent) 1px, transparent 1px);
     animation: unsc-grid-pulse 2.8s forwards;
 
-    // Surcharge d'urgence (ROUGE) - Placé en dessous pour gagner la cascade !
     &.error {
         background-image:
             linear-gradient(color-mix(in srgb, var(--mat-sys-error) 60%, transparent) 1px, transparent 1px),
@@ -192,11 +330,9 @@
     mask-size: 50svh;
     opacity: 0;
 
-    // Remplissage par défaut (VERT)
     background-color: var(--mat-sys-primary);
     animation: unsc-logo-ignite 2.8s forwards;
 
-    // Surcharge d'urgence (ROUGE) - Placé en dessous pour gagner la cascade !
     &.error {
         background-color: var(--mat-sys-error) !important;
         animation: unsc-logo-error-ignite 1.3s forwards !important;
@@ -204,168 +340,20 @@
 }
 
 /* =========================================================
-   ÉLÉMENTS STUBBORN DU FORMULAIRE STANDARD
+   KEYFRAMES LOGIQUES COMPACTES (INCHANGÉES)
    ========================================================= */
-.datapad-header-accent {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 4px;
-    background-color: var(--mat-sys-tertiary); 
-}
-
-.unsc-header {
-    border-bottom: 1px solid var(--mat-sys-outline-variant);
-    padding: 20px 20px 10px 20px;
-    margin-bottom: 20px;
-    background-color: var(--mat-sys-surface-container-highest);
-}
-
-.unsc-title {
-    color: var(--mat-sys-primary);
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    font-size: 1.5rem;
-}
-
-.unsc-subtitle {
-    color: var(--mat-sys-tertiary);
-    font-size: 0.85rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-top: 5px;
-}
-
-.unsc-content {
-    padding: 0 20px;
-    padding-bottom: 10px;
-    color: var(--mat-sys-on-surface);
-}
-
-.unsc-actions {
-    padding: 20px;
-    background-color: var(--mat-sys-surface-container);
-    border-top: 1px solid var(--mat-sys-outline-variant);
-    justify-content: end;
-}
-
-/* =========================================================
-   KEYFRAMES LOGIQUES COMPACTES
-   ========================================================= */
-@keyframes unsc-scan-sweep-infinite {
-    0% { top: -15%; opacity: 0; transform: scaleX(0.8); }
-    15% { opacity: 1; transform: scaleX(1); }
-    85% { opacity: 1; transform: scaleX(1); }
-    100% { top: 115%; opacity: 0; transform: scaleX(0.8); }
-}
-
-@keyframes unsc-fingerprint-pulse-infinite {
-    0% { opacity: 0.5; color: var(--mat-sys-on-surface-variant); filter: none; }
-    100% { opacity: 0.8; color: var(--mat-sys-primary-container); filter: drop-shadow(0 0 8px var(--mat-sys-primary)); }
-}
-
-@keyframes unsc-fingerprint-success-instant {
-    0% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 15px var(--mat-sys-primary)); transform: scale(1.1); }
-    5% { transform: scale(1); }
-    15% { opacity: 0.2; }
-    30% { opacity: 1; }
-    45% { opacity: 0.2; }
-    60% { opacity: 1; }
-    80%, 100% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 20px var(--mat-sys-primary)); }
-}
-
-@keyframes unsc-fingerprint-error-instant {
-    0% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 20px var(--mat-sys-error)); transform: scale(1.15) translate3d(-5px, 0, 0); }
-    2% { transform: scale(1.1) translate3d(5px, 0, 0); }
-    4% { transform: scale(1.12) translate3d(-2px, 0, 0); }
-    6% { transform: scale(1.1) translate3d(0, 0, 0); }
-    10% { opacity: 0.1; }
-    20% { opacity: 1; filter: drop-shadow(0 0 15px var(--mat-sys-error)); }
-    30% { opacity: 0.1; }
-    40% { opacity: 1; }
-    70%, 100% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 20px var(--mat-sys-error)); }
-}
-
-@keyframes unsc-bracket-error-instant {
-    0% { border-color: var(--mat-sys-error); opacity: 0.8; filter: drop-shadow(0 0 8px var(--mat-sys-error)); }
-    15% { opacity: 0.2; }
-    30% { opacity: 0.8; }
-    45% { opacity: 0.2; }
-    60%, 100% { border-color: var(--mat-sys-error); opacity: 0.6; filter: none; }
-}
-
-@keyframes unsc-datapad-shake {
-    10%, 90% { transform: translate3d(-2px, 0, 0); }
-    20%, 80% { transform: translate3d(4px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-    40%, 60% { transform: translate3d(6px, 0, 0); }
-}
-
-@keyframes unsc-logo-error-ignite {
-    0% { opacity: 0; filter: drop-shadow(0 0 0 transparent); }
-    5% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-error)); }
-    10% { opacity: 0.2; filter: none; }
-    15% { opacity: 1; filter: drop-shadow(0 0 30px var(--mat-sys-error)); }
-    20% { opacity: 0.3; filter: none; }
-    25%, 100% { opacity: 0.45; filter: drop-shadow(0 0 35px var(--mat-sys-error)); }
-}
-
-@keyframes unsc-grid-error-pulse {
-    0% { opacity: 0; }
-    5%, 25%, 45% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-error) 50%, transparent); }
-    15%, 35% { opacity: 0.1; box-shadow: none; }
-    55%, 100% { opacity: 0.7; box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-error) 30%, transparent); }
-}
-
+@keyframes unsc-scan-sweep-infinite { 0% { top: -15%; opacity: 0; transform: scaleX(0.8); } 15% { opacity: 1; transform: scaleX(1); } 85% { opacity: 1; transform: scaleX(1); } 100% { top: 115%; opacity: 0; transform: scaleX(0.8); } }
+@keyframes unsc-fingerprint-pulse-infinite { 0% { opacity: 0.5; color: var(--mat-sys-on-surface-variant); filter: none; } 100% { opacity: 0.8; color: var(--mat-sys-primary-container); filter: drop-shadow(0 0 8px var(--mat-sys-primary)); } }
+@keyframes unsc-fingerprint-success-instant { 0% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 15px var(--mat-sys-primary)); transform: scale(1.1); } 5% { transform: scale(1); } 15% { opacity: 0.2; } 30% { opacity: 1; } 45% { opacity: 0.2; } 60% { opacity: 1; } 80%, 100% { opacity: 1; color: var(--mat-sys-primary); filter: drop-shadow(0 0 20px var(--mat-sys-primary)); } }
+@keyframes unsc-fingerprint-error-instant { 0% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 20px var(--mat-sys-error)); transform: scale(1.15) translate3d(-5px, 0, 0); } 2% { transform: scale(1.1) translate3d(5px, 0, 0); } 4% { transform: scale(1.12) translate3d(-2px, 0, 0); } 6% { transform: scale(1.1) translate3d(0, 0, 0); } 10% { opacity: 0.1; } 20% { opacity: 1; filter: drop-shadow(0 0 15px var(--mat-sys-error)); } 30% { opacity: 0.1; } 40% { opacity: 1; } 70%, 100% { opacity: 1; color: var(--mat-sys-error); filter: drop-shadow(0 0 20px var(--mat-sys-error)); } }
+@keyframes unsc-bracket-error-instant { 0% { border-color: var(--mat-sys-error); opacity: 0.8; filter: drop-shadow(0 0 8px var(--mat-sys-error)); } 15% { opacity: 0.2; } 30% { opacity: 0.8; } 45% { opacity: 0.2; } 60%, 100% { border-color: var(--mat-sys-error); opacity: 0.6; filter: none; } }
+@keyframes unsc-datapad-shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+@keyframes unsc-logo-error-ignite { 0% { opacity: 0; filter: drop-shadow(0 0 0 transparent); } 5% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-error)); } 10% { opacity: 0.2; filter: none; } 15% { opacity: 1; filter: drop-shadow(0 0 30px var(--mat-sys-error)); } 20% { opacity: 0.3; filter: none; } 25%, 100% { opacity: 0.45; filter: drop-shadow(0 0 35px var(--mat-sys-error)); } }
+@keyframes unsc-grid-error-pulse { 0% { opacity: 0; } 5%, 25%, 45% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-error) 50%, transparent); } 15%, 35% { opacity: 0.1; box-shadow: none; } 55%, 100% { opacity: 0.7; box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-error) 30%, transparent); } }
 @keyframes unsc-overlay-boot { 0% { opacity: 0; } 100% { opacity: 1; } }
-@keyframes unsc-auth-text {
-    0% { opacity: 0; transform: translateY(15px); filter: blur(4px); }
-    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
+@keyframes unsc-auth-text { 0% { opacity: 0; transform: translateY(15px); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } }
 @keyframes unsc-pulse-text { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-@keyframes unsc-warp-jump {
-    0% { transform: scale(1); opacity: 1; }
-    30% { transform: scale(1.02); opacity: 1; filter: blur(0px); }
-    100% { transform: scale(0.8) perspective(500px) rotateX(5deg); opacity: 0; filter: blur(10px); }
-}
-
-@keyframes unsc-grid-pulse {
-    0%, 53% { opacity: 0; }
-    54% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
-    58% { opacity: 0.1; box-shadow: none; }
-    62% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
-    66% { opacity: 0.1; box-shadow: none; }
-    70% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); }
-    74% { opacity: 0.1; box-shadow: none; }
-    78%, 100% { opacity: 0.6; box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent); }
-}
-
-@keyframes unsc-logo-ignite {
-    0%, 65% { opacity: 0; filter: drop-shadow(0 0 0 transparent); }
-    66% { opacity: 0.5; filter: drop-shadow(0 0 10px var(--mat-sys-primary)); }
-    68% { opacity: 0.1; filter: none; }
-    70% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-primary)); }
-    72% { opacity: 0.2; filter: none; }
-    75%, 100% { opacity: 0.45; filter: drop-shadow(0 0 30px var(--mat-sys-primary)); }
-}
-
-@keyframes unsc-scan-sweep-once {
-    0% { top: -15%; opacity: 0; transform: scaleX(0.8); }
-    15% { opacity: 1; transform: scaleX(1); }
-    85% { opacity: 1; transform: scaleX(1); }
-    100% { top: 115%; opacity: 0; transform: scaleX(0.8); } /* Il reste figé en bas, invisible */
-}
-
-/* =========================================================
-   MEDIA QUERIES DE SÉCURITÉ TACTIQUE
-   ========================================================= */
-@media screen and (max-width: 425px) {
-    .unsc-datapad { width: 100%; border-radius: 0; border-left: none; border-right: none; }
-    .unsc-actions {
-        flex-direction: column;
-        jp-button-loader { width: 100%; ::ng-deep button { width: 100%; } }
-    }
-}
-
-@media screen and (min-width: 769px) {
-    .unsc-datapad { width: 40%; max-width: 500px; }
-}
+@keyframes unsc-warp-jump { 0% { transform: scale(1); opacity: 1; } 30% { transform: scale(1.02); opacity: 1; filter: blur(0px); } 100% { transform: scale(0.8) perspective(500px) rotateX(5deg); opacity: 0; filter: blur(10px); } }
+@keyframes unsc-grid-pulse { 0%, 53% { opacity: 0; } 54% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); } 58% { opacity: 0.1; box-shadow: none; } 62% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); } 66% { opacity: 0.1; box-shadow: none; } 70% { opacity: 1; box-shadow: inset 0 0 150px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent); } 74% { opacity: 0.1; box-shadow: none; } 78%, 100% { opacity: 0.6; box-shadow: inset 0 0 80px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent); } }
+@keyframes unsc-logo-ignite { 0%, 65% { opacity: 0; filter: drop-shadow(0 0 0 transparent); } 66% { opacity: 0.5; filter: drop-shadow(0 0 10px var(--mat-sys-primary)); } 68% { opacity: 0.1; filter: none; } 70% { opacity: 0.8; filter: drop-shadow(0 0 20px var(--mat-sys-primary)); } 72% { opacity: 0.2; filter: none; } 75%, 100% { opacity: 0.45; filter: drop-shadow(0 0 30px var(--mat-sys-primary)); } }
+@keyframes unsc-scan-sweep-once { 0% { top: -15%; opacity: 0; transform: scaleX(0.8); } 15% { opacity: 1; transform: scaleX(1); } 85% { opacity: 1; transform: scaleX(1); } 100% { top: 115%; opacity: 0; transform: scaleX(0.8); } }

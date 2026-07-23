@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
 import { InputText, InputPassword, ButtonLoader } from "@jetonpeche/angular-mat-input";
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { AuthentificationService } from '@services/AuthentificationService';
@@ -12,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-connexion',
-  imports: [MatCardModule, MatIconModule, InputText, ReactiveFormsModule, InputPassword, ButtonLoader, GridContainer, GridElement],
+  imports: [MatIconModule, InputText, ReactiveFormsModule, InputPassword, ButtonLoader, GridContainer, GridElement],
   templateUrl: './connexion.html',
   styleUrl: './connexion.scss',
 })

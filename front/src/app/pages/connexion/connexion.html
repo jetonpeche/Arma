@@ -10,8 +10,12 @@
     <div class="global-logo-flash error"></div> 
 }
 
-<mat-card class="unsc-datapad" [class.access-granted]="accesAutorise()" [class.access-denied]="accesRefuse()" appearance="outlined">
+<!-- Nouveau Châssis : Console Symétrique HUD -->
+<div class="unsc-datapad" [class.access-granted]="accesAutorise()" [class.access-denied]="accesRefuse()">
 
+    <!-- ============================================== -->
+    <!-- OVERLAY DE SÉCURITÉ (ANIMATIONS INCHANGÉES)    -->
+    <!-- ============================================== -->
     @if(enCoursDeScan() || accesAutorise() || accesRefuse()) 
     {
         <div class="success-overlay" 
@@ -25,15 +29,8 @@
                 <div class="bracket bl"></div>
                 <div class="bracket br"></div>
 
-                @if(enCoursDeScan() || accesAutorise()) 
-                {
-                    <mat-icon class="fingerprint-icon">fingerprint</mat-icon>
-                }
-
-                @if(accesRefuse()) 
-                {
-                    <mat-icon class="fingerprint-icon error-mode">gpp_bad</mat-icon>
-                }
+                @if(enCoursDeScan() || accesAutorise()) { <mat-icon class="fingerprint-icon">fingerprint</mat-icon> }
+                @if(accesRefuse()) { <mat-icon class="fingerprint-icon error-mode">gpp_bad</mat-icon> }
 
                 <div class="scanner-line"></div>
             </div>
@@ -42,7 +39,7 @@
                 @if(enCoursDeScan()) 
                 {
                     <h2>ANALYSE EN COURS</h2>
-                    <p>Interrogation des serveurs de l'ONI...</p>
+                    <p>Interrogation des serveurs du Corps des Marines...</p>
                 }
                 @if(accesAutorise()) 
                 {
@@ -58,19 +55,34 @@
         </div>
     }
 
-    <!-- Barre décorative supérieure -->
-    <div class="datapad-header-accent"></div>
+    <!-- ============================================== -->
+    <!-- DESIGN DU TERMINAL SÉCURISÉ                    -->
+    <!-- ============================================== -->
+    
+    <!-- Coins Tactiques (HUD) -->
+    <div class="hud-corner top-left"></div>
+    <div class="hud-corner top-right"></div>
+    <div class="hud-corner bottom-left"></div>
+    <div class="hud-corner bottom-right"></div>
 
-    <mat-card-header class="unsc-header">
-        <mat-card-title class="unsc-title">Terminal UNSC</mat-card-title>
-        <mat-card-subtitle class="unsc-subtitle">Identification requise // Réseau sécurisé</mat-card-subtitle>
-    </mat-card-header>
+    <!-- Barre d'état système -->
+    <div class="terminal-top-bar">
+        <span class="sys-status">SYS.ON // SECURE.LINK</span>
+        <span class="sys-id">NODE-734</span>
+    </div>
 
-    <mat-card-content class="unsc-content">
+    <!-- En-tête Centré -->
+    <div class="unsc-header">
+        <mat-icon class="header-logo">military_tech</mat-icon>
+        <h1 class="unsc-title">UNSC MARINE CORPS</h1>
+        <div class="unsc-subtitle">AUTHENTIFICATION RÉSEAU REQUISE</div>
+    </div>
+
+    <div class="unsc-content">
         <form [formGroup]="form">
-            <jp-grid-container [gap]="15">
+            <jp-grid-container [gap]="20">
                 <jp-grid-element [colDefault]="12">
-                    <jp-input-text label="Identifiant réseau" formControlName="login" />
+                    <jp-input-text label="Identifiant" formControlName="login" />
                 </jp-grid-element>
 
                 <jp-grid-element [colDefault]="12">
@@ -78,10 +90,11 @@
                 </jp-grid-element>
             </jp-grid-container>
         </form>
-    </mat-card-content>
+    </div>
 
-    <mat-card-actions class="unsc-actions">
-        <jp-button-loader label="Enrôlement" (clicked)="OuvrirModalInscription()" />&nbsp;
-        <jp-button-loader label="Authentification" [loading]="btnClick()" (clicked)="Valider()" />
-    </mat-card-actions>
-</mat-card>
+    <div class="unsc-actions">
+        <jp-button-loader class="btn-enroll" label="Enrôlement" (clicked)="OuvrirModalInscription()" />
+        <div class="auth-divider"></div>
+        <jp-button-loader class="btn-auth" label="Connexion" [loading]="btnClick()" (clicked)="Valider()" />
+    </div>
+</div>
