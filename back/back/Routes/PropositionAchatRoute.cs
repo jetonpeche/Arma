@@ -280,6 +280,7 @@ public static class PropositionAchatRoute
                          Quantite = x.Quantite,
                          PrixUnitaire = x.PrixUnitaire,
                          NomVaisseau = x.NomVaisseau,
+                         NomStockage = x.NomStockage,
                          IdVaisseau = x.IdVaisseau,
                          Nom = x.Nom
                     });

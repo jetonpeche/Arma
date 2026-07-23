@@ -14,6 +14,7 @@ import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import {MatListModule} from '@angular/material/list';
 import { Panier } from '@models/Panier';
 import { ETypeObjetProposer } from '@enums/ETypeObjetProposer';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface Stockage extends VaisseauPossederStockage
 {
@@ -39,7 +40,7 @@ type RepartitionValider =
 
 @Component({
   selector: 'app-modal-input-quantite',
-  imports: [MatListModule, MatFormFieldModule, MatIcon, MatButtonModule, MatDialogModule, ReactiveFormsModule, MatIcon, MatSelectModule, MatInput, GridContainer, GridElement],
+  imports: [MatListModule, MatTooltipModule, MatFormFieldModule, MatIcon, MatButtonModule, MatDialogModule, ReactiveFormsModule, MatIcon, MatSelectModule, MatInput, GridContainer, GridElement],
   templateUrl: './modal-input-quantite.html',
   styleUrl: './modal-input-quantite.scss'
 })

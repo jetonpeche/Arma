@@ -1,3 +1,4 @@
+<h2 mat-dialog-title>Réquisitions</h2>
 <mat-dialog-content style="margin-top: 20px;">
     <form [formGroup]="form">
         @if(matDialogData?.kind == "Logistique" || matDialogData?.type == 1)
@@ -27,7 +28,7 @@
                     <mat-form-field>
                         <mat-label>Stockage compatible</mat-label>
                         <mat-select formControlName="idStockage">
-                            @for (element of listeStockage(); track element.id)
+                            @for (element of listeStockage(); track $index)
                             {
                                 <mat-option [value]="element.id" [class.cacher]="element.cacher">{{ element.nom }} reste: {{ element.disponible }}</mat-option>
                             }
@@ -56,25 +57,45 @@
 
     @if(!modalModeModifier()  && matDialogData.kind == "Logistique")
     {
-        <mat-list role="list">
-            @for (element of listeValider(); track $index) 
-            {
-                <mat-list-item role="listitem">
+        <div class="tactical-list-container">
+            <!-- En-tête du Manifeste -->
+            <div class="list-header">
+                <mat-icon>inventory_2</mat-icon>
+                <span>MANIFESTE DE RÉPARTITION</span>
+            </div>
 
-                    <div style="display: flex; gap: 5px; align-items: center;">
-                        <button matIconButton (click)="ModifierRepartition(element)">
-                            <mat-icon>edit</mat-icon>
-                        </button>
+            <mat-list role="list" class="unsc-manifest-list">
+                @for (element of listeValider(); track $index) 
+                {
+                    <mat-list-item role="listitem">
+                        <div class="repartition-row">
+                            
+                            <!-- Boutons d'action (Gauche) -->
+                            <div class="repartition-actions">
+                                <button mat-icon-button (click)="ModifierRepartition(element)" matTooltip="Modifier l'affectation">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
 
-                        <button matIconButton (click)="SupprimerRepartition(element.id)">
-                            <mat-icon>delete</mat-icon>
-                        </button>
+                                <button mat-icon-button (click)="SupprimerRepartition(element.id)" matTooltip="Retirer de la soute">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
 
-                        <span>{{ element.vaisseau.nomVaisseau }} - x{{ element.quantite }} (volume: {{ element.volume }})</span>
-                    </div>
-                </mat-list-item>
-            }
-        </mat-list>
+                            <!-- Données de logistique (Droite) -->
+                            <div class="repartition-data">
+                                <span class="vessel-name">
+                                    <mat-icon>rocket_launch</mat-icon>
+                                    {{ element.vaisseau.nomVaisseau }}
+                                </span>
+                                <span class="qty-badge">x{{ element.quantite }}</span>
+                                <span class="vol-badge">VOL: {{ element.volume }}</span>
+                            </div>
+
+                        </div>
+                    </mat-list-item>
+                }
+            </mat-list>
+        </div>
     }
 
 </mat-dialog-content>

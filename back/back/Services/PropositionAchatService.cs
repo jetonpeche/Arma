@@ -80,8 +80,7 @@ public sealed class PropositionAchatService
 
                               var stockageVaisseauPosseder = db.GetCollection<StockageVaisseauPosseder>()
                                    .Query()
-                                   .ToList()
-                                   .Where(x => x.Stockage.Id == element.IdStockage!.Value && x.Logistique.Id == element.IdType)
+                                   .Where(x => x.VaisseauPosseder.Id == element.IdVaisseau && x.Logistique.Id == element.IdType && x.Stockage.Id == element.IdStockage!.Value)
                                    .Select(x => new
                                    {
                                        x.Id,

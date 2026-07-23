@@ -1,9 +1,6 @@
-import { AfterViewInit, Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DecisionAchatRequete, ObjetProposer, PropositionAchat } from '@models/PropositionAchat';
 import { PropositionAchatService } from '@services/PropositionAchatService';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
 import { SnackBarService } from '@services/SnackBarService';
 import { MatSelectModule } from "@angular/material/select";
 import { AutocompleteDataSource, InputAutocomplete, ButtonLoader } from '@jetonpeche/angular-mat-input';
@@ -13,26 +10,32 @@ import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { Droit } from '@models/DroitGroupe';
 import { EUrl } from '@enums/EUrl';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-proposition-achat',
-  imports: [MatSelectModule, MatSortModule, MatPaginatorModule, MatTableModule, InputAutocomplete, ReactiveFormsModule, ButtonLoader],
+  imports: [MatSelectModule, InputAutocomplete, ReactiveFormsModule, ButtonLoader, MatIconModule, MatButtonModule, MatTooltipModule, NgTemplateOutlet],
   templateUrl: './proposition-achat.html',
   styleUrl: './proposition-achat.scss',
 })
-export class PropositionAchatPage implements OnInit, AfterViewInit
+export class PropositionAchatPage implements OnInit
 {
     protected formControl = new FormControl();
-    protected matSort = viewChild.required(MatSort);
-    protected matPaginator = viewChild.required(MatPaginator);
-
     protected listePropositionAutoCompleteAuteur = signal<AutocompleteDataSource[]>([]);
-    protected displayedColumns = ["nom", "type", "quantite", "prixUnitaire", "prixTotal", "action"];
-    protected dataSource = signal(new MatTableDataSource<ObjetProposer>());
     protected btnClick = signal<boolean>(false);
     protected eTypeObjetProposer = ETypeObjetProposer;
     protected droit: Droit;
     protected idPropositionSelectionner = signal<number>(0);
+    
+    // Le signal liste contient directement les objets à afficher
+    protected liste = signal<ObjetProposer[]>([]);
+
+    protected listeMateriel = computed(() => this.liste().filter(x => x.type == this.eTypeObjetProposer.Materiel));
+    protected listeLogistique = computed(() => this.liste().filter(x => x.type == this.eTypeObjetProposer.Logistique));
+
     protected prixTotal = computed(() => 
         this.liste().reduce(
             (accumulateur, valeur) => accumulateur + (valeur.prixUnitaire * valeur.quantite), 0
@@ -45,42 +48,22 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
     private authServ = inject(AuthentificationService);
     private snackBarServ = inject(SnackBarService);
 
-    /** Utiliser pour declancher le prixTotal computed */
-    private liste = signal<ObjetProposer[]>([]);
-
     ngOnInit(): void
     {
-        this.Lister();
         this.droit = this.authServ.RecupererDroit(EUrl.PropositionAchat);
-    }
+        this.Lister();
 
-    ngAfterViewInit(): void 
-    {
-        this.matPaginator()._intl.itemsPerPageLabel = "Objet proposé par page";
-
-        this.dataSource.update(x => {
-            x.sort = this.matSort();
-            x.paginator = this.matPaginator();
-
-            return x;
-        });
-
+        // Écoute des changements de sélection dans l'autocomplete
         this.formControl.valueChanges.subscribe({
             next: (id) =>
             {
-                if(id == 0)
-                    return;
+                if(id == 0 || !id) return;
 
                 const PROPOSITION = this.listePropositionAchat().find(y => y.id == id);
-
-                this.idPropositionSelectionner.set(PROPOSITION.id)
-                this.liste.set(PROPOSITION.liste);
-
-                this.dataSource.update(x => {
-                    x.data = PROPOSITION.liste
-
-                    return x;
-                });
+                if (PROPOSITION) {
+                    this.idPropositionSelectionner.set(PROPOSITION.id);
+                    this.liste.set(PROPOSITION.liste);
+                }
             }
         });
     }
@@ -156,9 +139,9 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
         {
             this.listePropositionAchat.update(x => {
                 const ELEMENT = x.find(y => y.id == this.idPropositionSelectionner());
-
-                ELEMENT.liste = ELEMENT.liste.filter(y => !(y.idType == _objet.idType && y.type == _objet.type));
-
+                if (ELEMENT) {
+                    ELEMENT.liste = ELEMENT.liste.filter(y => !(y.idType == _objet.idType && y.type == _objet.type));
+                }
                 return x;
             });
 
@@ -168,11 +151,6 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
 
             if(this.liste().length == 0)
                 this.MiseAjourListePropositionAchat(null);
-
-            this.dataSource.update(x => {
-                x.data = this.liste()
-                return x;
-            });
         }
         else
         {  
@@ -183,13 +161,9 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
             if(this.listePropositionAchat().length == 0)
             {
                 this.liste.set([]);
-                this.formControl.setValue(0);
+                this.formControl.setValue(0, {emitEvent: false});
                 this.idPropositionSelectionner.set(0);
                 this.listePropositionAutoCompleteAuteur.set([]);
-                this.dataSource.update(x => {
-                    x.data = []
-                    return x;
-                });
             }
             else
             {
@@ -209,8 +183,7 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
         this.propositionAchatServ.Lister().subscribe({
             next: (retour) =>
             {
-                if(retour.length == 0)
-                    return;
+                if(retour.length == 0) return;
 
                 this.listePropositionAchat.set(retour);
 
@@ -223,12 +196,6 @@ export class PropositionAchatPage implements OnInit, AfterViewInit
                 );
 
                 this.formControl.setValue(this.listePropositionAutoCompleteAuteur()[0].value);
-
-                this.dataSource.update(x => {
-                    x.data = PROPOSITION.liste
-
-                    return x;
-                });
             }
         });
     }

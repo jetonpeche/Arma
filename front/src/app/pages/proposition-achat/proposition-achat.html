@@ -7,93 +7,119 @@
 
 <div class="tactical-filters">
     <jp-autocomplete [dataSource]="listePropositionAutoCompleteAuteur()"
-                                label="Proposition de:" 
-                                [formControl]="formControl"
-                                requireSelection />
+                     label="SÉLECTION DU MANIFESTE (Auteur) :" 
+                     [formControl]="formControl"
+                     requireSelection />
 </div>
 
-<div class="mat-elevation-z8 unsc-table-container">
-    <table mat-table [dataSource]="dataSource()" matSort>
+@if (idPropositionSelectionner() != 0 && liste().length > 0) 
+{
+    <!-- PANNEAU DE COMMANDEMENT GLOBAL -->
+    <div class="global-command-panel">
+        <div class="total-display">
+            <span class="label">COÛT TOTAL ESTIMÉ :</span>
+            <span class="value">{{ prixTotal() }} CR</span>
+        </div>
 
-        <ng-container matColumnDef="nom">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
-            <td mat-cell *matCellDef="let element"> 
-                <span class="unsc-badge badge-primary">{{ element.nom }}</span>
-            </td>
-            <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
+        @if (droit.peutEcrire)
+        {
+            <div class="bulk-actions">
+                <button matButton="filled" (click)="OuvrirModalConfirmation(true)">
+                    <mat-icon>playlist_add_check</mat-icon> TOUT APPROUVER
+                </button>
+                <button matButton="outlined" (click)="OuvrirModalConfirmation(false)">
+                    <mat-icon>block</mat-icon> TOUT REFUSER
+                </button>
+            </div>
+        }
+    </div>
 
-        <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
-            <td mat-cell *matCellDef="let element"> 
-                <span class="unsc-badge badge-neutral">{{ element.type == eTypeObjetProposer.Materiel ? "Mat" : "Logi" }}</span>
-            </td>
-            <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
+    <!-- GRILLE DES FICHES DE RÉQUISITION -->
 
-        <ng-container matColumnDef="quantite">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Quantité </th>
-            <td mat-cell *matCellDef="let element"> 
-                <span class="unsc-badge badge-secondary">{{ element.quantite }}</span>
-            </td>
-            <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
+    <!-- SECTION LOGISTIQUE -->
+    @if (listeLogistique().length > 0) 
+    {
+        <div class="category-header header-logistique">
+            <mat-icon>local_shipping</mat-icon>
+            <h2>APPROVISIONNEMENT LOGISTIQUE</h2>
+        </div>
+        <div class="requisition-grid">
+            @for (element of listeLogistique(); track $index) 
+            {
+                <ng-container *ngTemplateOutlet="reqCardTemplate; context: { $implicit: element }"></ng-container>
+            }
+        </div>
+    }
 
-        <ng-container matColumnDef="prixUnitaire">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Prix unitaire </th>
-            <td mat-cell *matCellDef="let element"> 
-                <span class="unsc-badge badge-tertiary">{{ element.prixUnitaire }} CR</span>
-            </td>
-            <td mat-footer-cell *matFooterCellDef><b>TOTAL</b></td>
-        </ng-container>
+    <!-- SECTION MATÉRIEL -->
+    @if (listeMateriel().length > 0) 
+    {
+        <div class="category-header header-materiel">
+            <mat-icon>military_tech</mat-icon>
+            <h2>DOTATION MATÉRIEL</h2>
+        </div>
+        <div class="requisition-grid">
+            @for (element of listeMateriel(); track $index) 
+            {
+                <ng-container *ngTemplateOutlet="reqCardTemplate; context: { $implicit: element }"></ng-container>
+            }
+        </div>
+    }
 
-        <ng-container matColumnDef="prixTotal">
-            <th mat-header-cell *matHeaderCellDef> Total </th>
-            <td mat-cell *matCellDef="let element"> 
-                <span class="unsc-badge badge-error">{{ element.prixUnitaire * element.quantite }} CR</span>
-            </td>
-            <td mat-footer-cell *matFooterCellDef>
-                <span class="unsc-badge badge-error">{{ prixTotal() }} CR</span></td>
-        </ng-container>
+    <ng-template #reqCardTemplate let-element>
+        <div class="req-card">
+            <!-- En-tête de la carte -->
+            <div class="req-header" [class.is-logistique]="element.type == eTypeObjetProposer.Logistique">
+                <div class="req-title-wrapper">
+                    <mat-icon>{{ element.type == eTypeObjetProposer.Logistique ? 'widgets' : 'inventory_2' }}</mat-icon>
+                    <h3 class="req-title">{{ element.nom }}</h3>
+                </div>
+                <div class="req-qty">x{{ element.quantite }}</div>
+            </div>
 
-        <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Commandes </th>
-            <td mat-cell *matCellDef="let element">
+            <!-- Données Logistiques -->
+            <div class="req-body">
+                <div class="data-row">
+                    <span class="data-label">VAISSEAU :</span>
+                    <span class="data-value">{{ element.nomVaisseau ?? "NON ASSIGNÉ" }}</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">SOUTE :</span>
+                    <span class="data-value">{{ element.nomStockage ?? "NON ASSIGNÉE" }}</span>
+                </div>
+                <div class="data-divider"></div>
+                <div class="data-row price-row">
+                    <span class="data-label">PRIX UNITAIRE :</span>
+                    <span class="data-value">{{ element.prixUnitaire }} CR</span>
+                </div>
+                <div class="data-row total-row">
+                    <span class="data-label">SOUS-TOTAL :</span>
+                    <span class="data-value highlight">{{ element.prixUnitaire * element.quantite }} CR</span>
+                </div>
+            </div>
 
-                @if (droit.peutEcrire)
-                {
+            <!-- Actions Individuelles -->
+            @if (droit.peutEcrire) 
+            {
+                <div class="req-actions">
                     <jp-button-loader matMiniFab
-                                                matTooltip="Valider l'achat de l'objet" 
-                                                icon="check"
-                                                (clicked)="OuvrirModalConfirmationObjet(element, true)" />&nbsp;
+                                      matTooltip="Approuver cet article" 
+                                      icon="check"
+                                      (clicked)="OuvrirModalConfirmationObjet(element, true)" />
 
                     <jp-button-loader matMiniFab
-                                                matTooltip="Refuser l'achat de l'objet" 
-                                                icon="delete"
-                                                (clicked)="OuvrirModalConfirmationObjet(element, false)" />
-                }
-            </td>
-
-            <td mat-footer-cell *matFooterCellDef>
-                @if (idPropositionSelectionner() != 0 && droit.peutEcrire)
-                {
-                    <jp-button-loader matMiniFab
-                                                matTooltip="Valider tout les objets" 
-                                                icon="playlist_add_check"
-                                                (clicked)="OuvrirModalConfirmation(true)" />&nbsp;
-
-                    <jp-button-loader matMiniFab 
-                                                matTooltip="Refuser tout les objets" 
-                                                icon="close"
-                                                (clicked)="OuvrirModalConfirmation(false)" />
-                }
-            </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
-    </table>
-
-    <mat-paginator [pageSizeOptions]="[25, 50, 100]" aria-label="Objet proposé par page"></mat-paginator>
-</div>
+                                      matTooltip="Refuser cet article" 
+                                      icon="close"
+                                      (clicked)="OuvrirModalConfirmationObjet(element, false)" />
+                </div>
+            }
+        </div>
+    </ng-template>
+} 
+@else 
+{
+    <div class="empty-state">
+        <mat-icon>radar</mat-icon>
+        <p>AUCUNE RÉQUISITION EN ATTENTE</p>
+    </div>
+}
