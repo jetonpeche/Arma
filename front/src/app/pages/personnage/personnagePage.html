@@ -37,57 +37,104 @@
 </div>
 
 <!-- GRILLE DES CARTES D'IDENTITÉ -->
-<div class="flexContainer">
+<div class="dossier-grid">
 
     @for (element of Rechercher(inputRecherche.value); track element.id) 
     {
-        <mat-card class="unsc-id-card" appearance="outlined">
+        <!-- CHÂSSIS DU DOSSIER -->
+        <div class="dossier-card" [class.is-navy]="element.estNavy" [class.is-marines]="!element.estNavy">
             
-            <!-- EN-TÊTE DE LA CARTE -->
-            <div class="id-header" [class.is-navy]="element.estNavy" [class.is-marines]="!element.estNavy">
-                <div class="id-title">UNITED NATIONS SPACE COMMAND</div>
-                <div class="id-subtitle">IDENTIFICATION AND PRIVILEGE CARD</div>
-            </div>
+            <!-- EN-TÊTE OFFICIEL UNSC & COMMANDES TACTIQUES -->
+            <div class="dossier-header">
+                <div class="header-titles">
+                    <div class="id-title">UNITED NATIONS SPACE COMMAND</div>
+                    <div class="id-subtitle">IDENTIFICATION AND PRIVILEGE CARD</div>
+                </div>
 
-            <!-- CONTENU PRINCIPAL -->
-            <mat-card-content class="id-content">
-                <section class="main-section">
-                    
-                    <!-- Colonne Photo -->
-                    <div class="divPhoto">
-                        <div class="photo-frame">
-                            <img [src]="element.urlPhotoIdentite" alt="Photo identité personnage">
-                            <div class="scanline"></div>
-                        </div>
-                        <p class="matricule-text">MATRICULE // {{ element.matricule }}</p>
+                <div class="header-right-panel">
+                    <!-- Barre d'outils d'action rapatriée en haut -->
+                    <div class="dossier-actions">
+                        @if (droitFichier.peutEcrire) 
+                        {
+                            <jp-input-file-btn matIconButton class="btn-icon" matTooltip="Photo" icon="photo_camera" (fileChange)="UploadFichier(element.id, $any($event))" accept=".png, .jpg, .webp, .jpeg" />
+                        }
+                        
+                        <button mat-icon-button class="btn-icon text-info" matTooltip="État de service" (click)="OuvrirModalInformation(element)">
+                            <mat-icon>info</mat-icon>
+                        </button>
+
+                        @if (droit.peutEcrire) 
+                        {
+                            <button mat-icon-button class="btn-icon text-edit" matTooltip="Modifier" (click)="OuvrirModalAjouterPersonne(element)">
+                                <mat-icon>edit_document</mat-icon>
+                            </button>
+
+                            <button mat-icon-button class="btn-icon text-kia" matTooltip="Déclarer KIA" (click)="OuvrirModalDeclarerMort(element)">
+                                <mat-icon><svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="M240-80v-170q-39-17-68.5-45.5t-50-64.5q-20.5-36-31-77T80-520q0-158 112-259t288-101q176 0 288 101t112 259q0 42-10.5 83t-31 77q-20.5 36-50 64.5T720-250v170H240Zm80-80h40v-80h80v80h80v-80h80v80h40v-142q38-9 67.5-30t50-50q20.5-29 31.5-64t11-74q0-125-88.5-202.5T480-800q-143 0-231.5 77.5T160-520q0 39 11 74t31.5 64q20.5 29 50.5 50t67 30v142Zm100-200h120l-60-120-60 120Zm-80-80q33 0 56.5-23.5T420-520q0-33-23.5-56.5T340-600q-33 0-56.5 23.5T260-520q0 33 23.5 56.5T340-440Zm280 0q33 0 56.5-23.5T700-520q0-33-23.5-56.5T620-600q-33 0-56.5 23.5T540-520q0 33 23.5 56.5T620-440ZM480-160Z"/></svg></mat-icon>
+                            </button>
+                        }
+
+                        @if (droit.peutSupprimer) 
+                        {
+                            <button mat-icon-button class="btn-icon text-danger" matTooltip="Purge" (click)="OuvrirModalSupprimer(element)">
+                                <mat-icon>delete_forever</mat-icon>
+                            </button>
+                        }
                     </div>
 
-                    <!-- Colonne Infos -->
-                    <div class="info-section">
-                        <div class="info-grid">
-                            <span class="info-label">NOM:</span>
-                            <span class="info-value primary-text">{{ element.grade?.nomRaccourci }} {{ element.nom }}</span>
+                    <div class="branch-logo">
+                        <img [src]="element.estNavy ? 'logoDroiteNavy.png' : 'logoDroiteMarines.png'" alt="Logo Branche">
+                    </div>
+                </div>
+            </div>
 
-                            <span class="info-label">DISCORD:</span>
-                            <span class="info-value">{{ element.nomDiscord }}</span>
+            <!-- CORPS : Photo et Télémétrie -->
+            <div class="dossier-body">
+                
+                <!-- Colonne de gauche (Visuel) -->
+                <div class="visual-col">
+                    <div class="photo-frame">
+                        <img [src]="element.urlPhotoIdentite" alt="Photo de {{ element.nom }}">
+                        <div class="scanline"></div>
+                    </div>
+                    <div class="matricule-text">MATRICULE // {{ element.matricule }}</div>
+                </div>
 
-                            <span class="info-label">SPÉCIALITE:</span>
-                            <span class="info-value">{{ element.specialite?.nom ?? "N/A" }}</span>
-                            
-                            <span class="info-label">NÉ LE:</span>
-                            <span class="info-value">{{ element.dateNaissance }}</span>
-                            
-                            <span class="info-label">ORIGINE:</span>
-                            <span class="info-value">{{ element.planeteOrigine?.nom ?? "N/A" }}</span>
+                <!-- Colonne de droite (Données) -->
+                <div class="data-col">
+                    
+                    <!-- Identité -->
+                    <div class="character-identity">
+                        <span class="rank-text">{{ element.grade?.nom }} ({{ element.grade?.nomRaccourci }})</span>
+                        <h2 class="name-text">{{ element.nom }}</h2>
+                        <span class="discord-tag">DISCORD: {{ element.nomDiscord }}</span>
+                    </div>
 
-                            <span class="info-label">SANG:</span>
-                            <span class="info-value warning-text">{{ element.groupeSanguin }}</span>
-
-                            <span class="info-label mt-2">OPÉRATIONS:</span>
-                            <span class="info-value mt-2">{{ element.nbOperation }}</span>
-
-                            <span class="info-label mt-2" style="align-self: center;">FORMATIONS:</span>
-                            <div class="formation-tags-list mt-2">
+                    <!-- Grille d'attributs -->
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <span class="data-label">SPÉCIALITÉ</span>
+                            <span class="data-value">{{ element.specialite?.nom ?? "N/A" }}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">NÉ LE</span>
+                            <span class="data-value">{{ element.dateNaissance }}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">ORIGINE</span>
+                            <span class="data-value">{{ element.planeteOrigine?.nom ?? "N/A" }}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">SANG</span>
+                            <span class="data-value text-danger">{{ element.groupeSanguin }}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">OPÉRATIONS</span>
+                            <span class="data-value">{{ element.nbOperation }}</span>
+                        </div>
+                        <div class="data-item full-width">
+                            <span class="data-label">FORMATIONS</span>
+                            <div class="tags-container">
                                 @for (formation of element.listeFormation; track formation) 
                                 {
                                     <span class="formation-tag">{{ formation }}</span>
@@ -99,59 +146,48 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Logo Dynamique -->
-                    <div class="divLogoDroite" [class.logo-navy]="element.estNavy" [class.logo-marines]="!element.estNavy">
-                        <img [src]="element.estNavy ? 'logoDroiteNavy.png' : 'logoDroiteMarines.png'" alt="Logo Section">
+            <!-- SECTION MILITAIRE : Affectation & Décorations -->
+            <div class="dossier-military">
+                
+                <div class="assignment-block">
+                    <div class="assignment-title">SECTOR 1 COMMAND</div>
+                    <div class="assignment-unit">
+                        ELEMENT UNSCMC <br>
+                        <span class="unit-sub">88th MEU 21st Company</span>
                     </div>
-                </section>
-
-                <!-- LIGNE DU BAS PLEINE LARGEUR (Sous la photo et les infos) -->
-                <div class="info-bottom-row">
-                    
-                    <!-- Bloc de Gauche : Affectation -->
-                    <div class="assignment-block">
-                        <div class="assignment-title">SECTOR 1 COMMAND</div>
-                        <div class="assignment-unit">
-                            ELEMENT UNSCMC <br>
-                            <span class="unit-sub">88th MEU 21st Company</span>
-                        </div>
-                    </div>
-
-                    @if (element.listeMedaille && element.listeMedaille.length > 0)
-                    {
-                        <div class="ribbon-rack-container">
-                            <div class="ribbon-rack">
-                                <!-- On autorise jusqu'à 15 rubans (3 lignes de 5) -->
-                                @for (medaille of element.listeMedaille | slice:0:15; track medaille.id) 
-                                {
-                                    <img class="mini-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
-                                }
-                                
-                                @if (element.listeMedaille.length > 15) 
-                                {
-                                    <div class="ribbon-more" matTooltip="Voir le dossier complet pour le reste">
-                                        +{{ element.listeMedaille.length - 15 }}
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
                 </div>
 
-                <mat-divider class="id-divider"></mat-divider>
+                @if (element.listeMedaille && element.listeMedaille.length > 0)
+                {
+                    <div class="ribbon-rack-container">
+                        <div class="ribbon-rack">
+                            @for (medaille of element.listeMedaille | slice:0:15; track medaille.id) 
+                            {
+                                <img class="mini-medal" [src]="medaille.urlImage" [matTooltip]="medaille.nom">
+                            }
+                            
+                            @if (element.listeMedaille.length > 15) 
+                            {
+                                <div class="ribbon-more" matTooltip="Voir le dossier complet pour le reste">
+                                    +{{ element.listeMedaille.length - 15 }}
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
 
-                <!-- SECTION LÉGALE ET CODE BARRE -->
-                <section class="footer-section">
+            <mat-divider class="id-divider"></mat-divider>
+
+           <!-- PIED DE FICHE : Textes Légaux  -->
+            <div class="dossier-footer">
+                <div class="footer-legal">
                     <div class="legal-text">
-                        <p>
-                            Attempted use by non-authorized individual is a violation of<br>
-                            Unified Earth Government Law Chapter 9, Section 31
-                        </p>
-                        <p class="mt-1">
-                            If lost or damaged proceed immediately to authorized personnel<br>
-                            for reissuance.
-                        </p>
+                        <p>Attempted use by non-authorized individual is a violation of<br>Unified Earth Government Law Chapter 9, Section 31</p>
+                        <p class="mt-1">If lost or damaged proceed immediately to authorized personnel for reissuance.</p>
                     </div>
 
                     <div class="divCodeBar">
@@ -161,51 +197,9 @@
                         </div>
                         <img src="codeBar.webp" class="barcode-img" alt="logo UNSC code barre">
                     </div>
-                </section>
-            </mat-card-content>
-
-            <!-- OVERLAY D'ACTIONS TACTIQUES (Au survol) -->
-            <div class="tactical-overlay enfant">
-                
-                <div class="overlay-title">// PANNEAU DE CONTRÔLE //</div>
-                
-                <div class="action-buttons">
-                    @if (droitFichier.peutEcrire) 
-                    {
-                        <div class="action-item" matTooltip="Mettre à jour la photo">
-                            <jp-input-file-btn matFab
-                                                    icon="photo_camera" 
-                                                    (fileChange)="UploadFichier(element.id, $any($event))"
-                                                    accept=".png, .jpg, .webp, .jpeg" />
-                        </div>
-                    }
-                    
-                    <button matFab matTooltip="Etat de service" (click)="OuvrirModalInformation(element)">
-                        <mat-icon>info</mat-icon>
-                    </button>
-
-                    @if (droit.peutEcrire) 
-                    {
-                        <button matFab matTooltip="Modifier le dossier" (click)="OuvrirModalAjouterPersonne(element)">
-                            <mat-icon>edit_document</mat-icon>
-                        </button>
-
-                        <button matFab matTooltip="Déclarer KIA (Mort au combat)" (click)="OuvrirModalDeclarerMort(element)">
-                            <mat-icon>
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M240-80v-170q-39-17-68.5-45.5t-50-64.5q-20.5-36-31-77T80-520q0-158 112-259t288-101q176 0 288 101t112 259q0 42-10.5 83t-31 77q-20.5 36-50 64.5T720-250v170H240Zm80-80h40v-80h80v80h80v-80h80v80h40v-142q38-9 67.5-30t50-50q20.5-29 31.5-64t11-74q0-125-88.5-202.5T480-800q-143 0-231.5 77.5T160-520q0 39 11 74t31.5 64q20.5 29 50.5 50t67 30v142Zm100-200h120l-60-120-60 120Zm-80-80q33 0 56.5-23.5T420-520q0-33-23.5-56.5T340-600q-33 0-56.5 23.5T260-520q0 33 23.5 56.5T340-440Zm280 0q33 0 56.5-23.5T700-520q0-33-23.5-56.5T620-600q-33 0-56.5 23.5T540-520q0 33 23.5 56.5T620-440ZM480-160Z"/></svg>
-                            </mat-icon>
-                        </button>
-                    }
-
-                    @if (droit.peutSupprimer) 
-                    {
-                        <button mat-fab matTooltip="Suppression définitive" (click)="OuvrirModalSupprimer(element)">
-                            <mat-icon>delete_forever</mat-icon>
-                        </button>
-                    }
                 </div>
             </div>
-
-        </mat-card>
+            
+        </div>
     }
 </div>
