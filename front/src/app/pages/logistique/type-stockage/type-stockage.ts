@@ -1,32 +1,36 @@
-import { Component, inject, input, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from "@angular/material/icon";
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { TypeStockageLogistique } from '@models/Logistique';
-import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
+import { MatIconModule } from "@angular/material/icon";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
+import { TypeStockageLogistique } from '@models/Logistique';
 import { TypeStockageLogistiqueService } from '@services/TypeStockageLogistiqueService';
 import { AjouterModifierTypeStockageLogistique } from '@modals/ajouter-modifier-type-stockage-logistique/ajouter-modifier-type-logistique';
 import { Droit } from '@models/DroitGroupe';
 
 @Component({
   selector: 'app-type-stockage',
-  imports: [MatTableModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon, MatSortModule, MatPaginatorModule],
+  imports: [MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatTooltipModule],
   templateUrl: './type-stockage.html',
   styleUrl: './type-stockage.scss',
 })
-export class TypeStockagePage
+export class TypeStockagePage implements OnInit
 {
     droit = input.required<Droit>();
 
-    protected displayedColumns = ["nom", "action"];
-    protected dataSource = signal<MatTableDataSource<TypeStockageLogistique>>(new MatTableDataSource());
+    protected listeTypes = signal<TypeStockageLogistique[]>([]);
+    protected rechercheRequete = signal<string>('');
 
-    protected paginator = viewChild.required(MatPaginator);
-    protected sort = viewChild.required(MatSort);
+    protected typesFiltres = computed(() => {
+        const VALEUR = this.rechercheRequete();
+        if (!VALEUR) return this.listeTypes();
+        
+        return this.listeTypes().filter(x => 
+            x.nom.toLowerCase().includes(VALEUR)
+        );
+    });
 
     private dialog = inject(MatDialog);
     private typeStockageLogistiqueServ = inject(TypeStockageLogistiqueService);
@@ -36,26 +40,10 @@ export class TypeStockagePage
         this.Lister();    
     }
     
-    ngAfterViewInit(): void
-    {
-        this.paginator()._intl.itemsPerPageLabel = "Type de stockage par page";
-
-        this.dataSource.update(x => {
-            x.paginator = this.paginator();
-            x.sort = this.sort();
-
-            return x;
-        });
-    }
-    
     protected Recherche(_event: Event): void
     {
         const VALEUR = (_event.target as HTMLInputElement).value;
-
-        this.dataSource.update(x => {
-            x.filter = VALEUR.trim().toLowerCase()
-            return x;
-        });
+        this.rechercheRequete.set(VALEUR.trim().toLowerCase());
     }
     
     protected OuvrirModalAjouterModifierTypeStockageLogistique(_typeStockageLogistique?: TypeStockageLogistique): void
@@ -78,11 +66,7 @@ export class TypeStockagePage
         this.typeStockageLogistiqueServ.Lister().subscribe({
             next: (retour: TypeStockageLogistique[]) => 
             {
-                this.dataSource.update(x => {
-                    x.data = retour;
-
-                    return x;
-                });
+                this.listeTypes.set(retour);
             }
         });
     }

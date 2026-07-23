@@ -1,11 +1,10 @@
-import { AfterViewInit, Component, inject, input, OnInit, signal, viewChild } from '@angular/core';
-import { MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
-import { MatSort, MatSortModule} from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule} from '@angular/material/table';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { MatInputModule} from '@angular/material/input';
 import { MatFormFieldModule} from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator'; 
 import { Logistique, TypeLogistique } from '@models/Logistique';
 import { LogistiqueService } from '@services/LogistiqueService';
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
@@ -29,23 +28,52 @@ interface LogistiqueTable extends Logistique
 
 @Component({
   selector: 'app-logistique-info',
-  imports: [UpperCasePipe, MatFormFieldModule, MatInputModule, MatSortModule, MatPaginatorModule, MatButtonModule, MatTableModule, MatIcon, GridContainer, GridElement, MatSelectModule, ButtonLoader],
+  imports: [UpperCasePipe, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatTooltipModule, GridContainer, GridElement, MatSelectModule, ButtonLoader, MatPaginatorModule],
   templateUrl: './logistique-info.html',
   styleUrl: './logistique-info.scss',
 })
-export class LogistiqueInfo implements OnInit, AfterViewInit
+export class LogistiqueInfo implements OnInit
 {
     droit = input.required<Droit>();
 
-    protected displayedColumns = ["nom", "prix", "stock", "nbDetruit", "tailleUnitaireInventaire", "typeStockage", "action"];
-    protected dataSource = signal<MatTableDataSource<LogistiqueTable>>(new MatTableDataSource());
+    protected listeComplete = signal<LogistiqueTable[]>([]);
     protected listeType = signal<TypeLogistique[]>([]);
     protected btnClick = signal(false);
+    
+    protected rechercheRequete = signal<string>('');
+    protected filtreType = signal<number | null>(null);
+
+    protected pageSize = signal<number>(20);
+    protected pageIndex = signal<number>(0);
+
+    protected listeFiltree = computed(() => {
+        let resultat = this.listeComplete();
+        const RECHERCHE = this.rechercheRequete();
+        const TYPE_ID = this.filtreType();
+
+        if (TYPE_ID !== null) {
+            resultat = resultat.filter(x => x.type.id === TYPE_ID);
+        }
+
+        if (RECHERCHE) {
+            resultat = resultat.filter(x => 
+                x.nom.toLowerCase().includes(RECHERCHE) || 
+                x.description?.toLowerCase().includes(RECHERCHE)
+            );
+        }
+
+        return resultat;
+    });
+
+    protected listePaginee = computed(() => {
+        const index = this.pageIndex();
+        const size = this.pageSize();
+        const debut = index * size;
+        return this.listeFiltree().slice(debut, debut + size);
+    });
+
     protected peutProposer = environment.utilisateur.droit.peutProposerLogistiqueMateriel;
     protected peutAcheter = environment.utilisateur.droit.peutAcheterLogistiqueMateriel;
-
-    protected paginator = viewChild.required(MatPaginator);
-    protected sort = viewChild.required(MatSort);
 
     private dialog = inject(MatDialog);
     private logistiqueServ = inject(LogistiqueService);
@@ -57,108 +85,35 @@ export class LogistiqueInfo implements OnInit, AfterViewInit
         this.Lister();    
     }
 
-    ngAfterViewInit(): void
+    protected onPageChange(event: PageEvent): void 
     {
-        this.paginator()._intl.itemsPerPageLabel = "Objet par page";
-
-        this.dataSource.update(x => {
-            x.paginator = this.paginator();
-            x.sort = this.sort();
-            x.filterPredicate = (data: Logistique, filter: string) => 
-            {
-                const INFO = JSON.parse(filter);
-
-                if(INFO.idType != null)
-                    return data.type.id == INFO.idType;
-
-                if(INFO.valeur == "")
-                    return true;
-
-                const dataStr = JSON.stringify(data).toLowerCase();
-
-                return dataStr.includes(INFO.valeur);
-            }
-
-            return x;
-        });
+        this.pageIndex.set(event.pageIndex);
+        this.pageSize.set(event.pageSize);
     }
 
-    protected OuvrirModalInformation(_logistique: Logistique): void
-    {
-        this.dialog.open(ModalInformation, {
-            data: {
-                message: _logistique.description,
-                titre: `Info ${_logistique.nom}`
-            }
-        });
+    protected OuvrirModalInformation(_logistique: Logistique): void 
+    { 
+        this.dialog.open(ModalInformation, { 
+            data: { message: _logistique.description, titre: `Info ${_logistique.nom}` } 
+        }); 
     }
-
-    protected OuvrirModalPanierQuantite(_logistique: Logistique): void
-    {
-        this.dialog.open(ModalInputQuantite, {
-            width: "60%", 
-            maxWidth: "100vw",
-            data: _logistique
-        });
-    }
-
-    protected OuvrirModalConfirmationSupprimer(_logistique: Logistique): void
-    {
-        const TITRE = `Suppression de ${_logistique.nom}`;
-        const MESSAGE = `Confirmez-vous la suppression definitif de ${_logistique.nom} ?`;
-
-        this.dialogConfirmationServ.Ouvrir(TITRE, MESSAGE).subscribe({
-            next: (retour) => 
-            {
-                if(retour)
-                    this.Supprimer(_logistique.id);
-            }
-        });
-    }
-
-    protected OuvrirModalAjouterModifierLogistique(_logistique?: Logistique): void
-    {
-        const DIALOG_REF = this.dialog.open(AjouterModifierLogistique, {
-            width: "50%", 
-            maxWidth: "100vw",
-            data: _logistique
-        });
-
-        DIALOG_REF.afterClosed().subscribe({
-            next: (retour) => 
-            {
-                if(retour)
-                    this.Lister();
-            }
-        });
-    }
-
-    protected OuvrirModalStockageLogistique(_logistique: Logistique): void
-    {
-        this.dialog.open(ModalLogistiqueStockage, {
-            width: "50%", 
-            maxWidth: "100vw",
-            data: _logistique
-        });
-    }
+    
+    protected OuvrirModalPanierQuantite(_logistique: Logistique): void { this.dialog.open(ModalInputQuantite, { width: "60%", maxWidth: "100vw", data: _logistique }); }
+    protected OuvrirModalConfirmationSupprimer(_logistique: Logistique): void { const TITRE = `Suppression de ${_logistique.nom}`; const MESSAGE = `Confirmez-vous la suppression definitif de ${_logistique.nom} ?`; this.dialogConfirmationServ.Ouvrir(TITRE, MESSAGE).subscribe({ next: (retour) => { if(retour) this.Supprimer(_logistique.id); } }); }
+    protected OuvrirModalAjouterModifierLogistique(_logistique?: Logistique): void { const DIALOG_REF = this.dialog.open(AjouterModifierLogistique, { width: "50%", maxWidth: "100vw", data: _logistique }); DIALOG_REF.afterClosed().subscribe({ next: (retour) => { if(retour) this.Lister(); } }); }
+    protected OuvrirModalStockageLogistique(_logistique: Logistique): void { this.dialog.open(ModalLogistiqueStockage, { width: "50%", maxWidth: "100vw", data: _logistique }); }
 
     protected FiltrerLogistiqueType(_event: MatSelectChange): void
     {   
-        this.dataSource.update(x => {
-            x.filter = JSON.stringify({ idType: _event.value, valeur: "" })
-
-            return x;
-        });
+        this.filtreType.set(_event.value);
+        this.pageIndex.set(0);
     }
 
     protected Recherche(_event: Event): void
     {
         const VALEUR = (_event.target as HTMLInputElement).value;
-
-        this.dataSource.update(x => {
-            x.filter = JSON.stringify({ idType: null, valeur: VALEUR.trim().toLowerCase() }) 
-            return x;
-        });
+        this.rechercheRequete.set(VALEUR.trim().toLowerCase());
+        this.pageIndex.set(0);
     }
 
     private Supprimer(_idLogistique: number): void
@@ -170,6 +125,7 @@ export class LogistiqueInfo implements OnInit, AfterViewInit
             {
                 this.btnClick.set(false);
                 this.snackBarServ.Ok("L'objet a été supprimé");
+                this.Lister(); 
             }, 
             error: () => this.btnClick.set(false)
         });
@@ -187,11 +143,7 @@ export class LogistiqueInfo implements OnInit, AfterViewInit
                 for (const element of retour)
                     (element as LogistiqueTable).stock = element.listeStockageVaisseau.reduce((acc, valeurCourante) => acc + valeurCourante.quantite, 0);
 
-                this.dataSource.update(x => {
-                    x.data = retour as LogistiqueTable[];
-
-                    return x;
-                });
+                this.listeComplete.set(retour as LogistiqueTable[]);
             }
         });
     }

@@ -1,5 +1,4 @@
 <div class="unsc-logistics-dashboard">
-    <!-- Encart Info Tactique -->
     <div class="logistics-info-card">
         <div class="info-header">
             <mat-icon>terminal</mat-icon>
@@ -14,7 +13,6 @@
         </div>
     </div>
 
-    <!-- Action Principale -->
     <div class="actions-zone">
         @if (droit().peutEcrire) 
         {
@@ -27,44 +25,44 @@
 </div>
 
 <div class="tactical-filters">
-    <mat-form-field>
-        <mat-label>Recherche</mat-label>
+    <mat-form-field appearance="outline">
+        <mat-label>Rechercher un type logistique</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
         <input matInput (keyup)="Recherche($event)" #input>
     </mat-form-field>
 </div>
 
+<div class="tactical-list-container">
+    <div class="list-header">
+        <mat-icon>category</mat-icon>
+        <span>INDEX DES CATÉGORIES LOGISTIQUES</span>
+    </div>
 
-<div class="mat-elevation-z8 unsc-table-container">
-    <table mat-table [dataSource]="dataSource()" matSort>
-
-        <ng-container matColumnDef="nom">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
-            <td mat-cell *matCellDef="let element"> 
-                <span class="unsc-badge badge-primary">{{ element.nom }}</span>
-            </td>
-        </ng-container>
-
-        <ng-container matColumnDef="action">
-            <th mat-header-cell *matHeaderCellDef> Commande</th>
-            <td mat-cell *matCellDef="let element">
-
-                @if (droit().peutEcrire) 
-                {
-                    <button matMiniFab (click)="OuvrirModalAjouterModifierTypeLogistique(element)">
-                        <mat-icon>edit</mat-icon>
-                    </button>
-                }
-            </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="tactical-row"></tr>
-
-        <!-- Row shown when there is no matching data. -->
-        <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" colspan="4">Aucune donnée pour "{{input.value}}"</td>
-        </tr>
-    </table>
-
-    <mat-paginator [pageSizeOptions]="[10, 25, 100]" aria-label="Objet par page"></mat-paginator>
+    <div class="list-body">
+        @for (element of typesFiltres(); track element.id) 
+        {
+            <div class="type-row">
+                <div class="type-info">
+                    <mat-icon class="bullet-icon">label_important</mat-icon>
+                    <span class="unsc-badge badge-primary">{{ element.nom }}</span>
+                </div>
+                
+                <div class="type-actions">
+                    @if (droit().peutEcrire) 
+                    {
+                        <button mat-icon-button class="btn-edit" (click)="OuvrirModalAjouterModifierTypeLogistique(element)" matTooltip="Modifier la catégorie">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+        @empty 
+        {
+            <div class="empty-state">
+                <mat-icon>radar</mat-icon>
+                <p>Aucune catégorie logistique ne correspond à "{{ input.value }}"</p>
+            </div>
+        }
+    </div>
 </div>

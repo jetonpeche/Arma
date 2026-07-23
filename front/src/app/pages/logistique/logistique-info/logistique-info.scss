@@ -1,10 +1,319 @@
 /* =========================================================
-   SÉCURISATION DES BOUTONS D'ACTION
+   GRILLE D'INVENTAIRE LOGISTIQUE (FENÊTRE DE DÉFILEMENT)
    ========================================================= */
-.action-buttons-container {
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(650px, 1fr)); 
+    gap: 16px; 
+    margin-bottom: 24px;
+    
+    max-height: calc(100vh - 380px); 
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px 16px 24px 8px; 
+
+    &::-webkit-scrollbar { width: 8px; }
+    
+    &::-webkit-scrollbar-track {
+        background-color: color-mix(in srgb, var(--mat-sys-outline-variant) 20%, transparent);
+        border-radius: 4px;
+        margin-block: 4px; 
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+        border-radius: 4px;
+        &:hover { background-color: var(--mat-sys-primary); }
+    }
+}
+
+/* =========================================================
+   DESIGN LAME DE SERVEUR (PAYSAGE)
+   ========================================================= */
+.asset-card {
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 60%, transparent);
+    border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+    border-left: 6px solid var(--mat-sys-outline-variant); 
+    position: relative;
+    
+    /* GRILLE HORIZONTALE DE LA CARTE */
+    display: grid;
+    grid-template-columns: 240px 1fr auto;
+    align-items: stretch;
+    
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    
+    /* Découpe asymétrique tactique */
+    clip-path: polygon(
+        16px 0, 
+        100% 0, 
+        100% calc(100% - 16px), 
+        calc(100% - 16px) 100%, 
+        0 100%, 
+        0 16px
+    );
+
+    &:hover {
+        transform: translateX(6px); /* Tire la lame de serveur vers la droite */
+        border-left-color: var(--mat-sys-primary);
+        border-top-color: color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+        border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+        box-shadow: -10px 10px 20px rgba(0, 0, 0, 0.3);
+        z-index: 2;
+
+        .asset-header {
+            background: linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) 0%, transparent 100%);
+        }
+    }
+}
+
+/* --- Colonne 1 : En-tête de la Fiche --- */
+.asset-header {
     display: flex;
-    justify-content: start;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 24px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent) 0%, transparent 100%);
+    border-right: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 20%, transparent);
+    transition: background 0.3s ease;
+
+    .asset-title-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        mat-icon {
+            color: var(--mat-sys-primary);
+            font-size: 22px; width: 22px; height: 22px;
+            filter: drop-shadow(0 0 4px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent));
+        }
+
+        h3 {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: var(--mat-sys-on-surface);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    }
+
+    .category-badge {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.7rem;
+        font-weight: 900;
+        background-color: transparent;
+        color: var(--mat-sys-outline);
+        border: 1px solid var(--mat-sys-outline);
+        padding: 3px 8px;
+        border-radius: 8px 0 8px 0; 
+        letter-spacing: 1px;
+    }
+}
+
+/* --- Colonne 2 : Corps de la Fiche (Statistiques) --- */
+.asset-body {
+    padding: 16px 24px;
+    display: flex;
     align-items: center;
+
+    .stat-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        width: 100%;
+        font-family: 'Courier New', Courier, monospace;
+
+        .stat-item {
+            flex: 1 1 130px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: color-mix(in srgb, var(--mat-sys-surface-container) 40%, transparent);
+            padding: 10px 12px;
+            border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 15%, transparent);
+            border-radius: 2px;
+            position: relative;
+            
+            /* Curseur de visée */
+            &::before {
+                content: '';
+                position: absolute;
+                top: -1px; left: -1px;
+                width: 6px; height: 6px;
+                border-top: 2px solid var(--mat-sys-outline-variant);
+                border-left: 2px solid var(--mat-sys-outline-variant);
+                transition: border-color 0.2s ease;
+            }
+
+            &.full-width { 
+                flex: 1 1 200px; /* S'étire davantage pour le type de soute */
+            }
+
+            &.clickable {
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+                &:hover {
+                    background-color: color-mix(in srgb, var(--mat-sys-secondary) 10%, transparent);
+                    border-color: color-mix(in srgb, var(--mat-sys-secondary) 30%, transparent);
+                    &::before { border-color: var(--mat-sys-secondary); }
+                }
+            }
+
+            .stat-label { font-size: 0.7rem; color: var(--mat-sys-outline); font-weight: bold; margin-bottom: 4px; }
+            .stat-value {
+                font-size: 1.05rem; font-weight: 900; color: var(--mat-sys-on-surface);
+                &.text-tertiary { color: var(--mat-sys-tertiary); }
+                &.text-secondary { color: var(--mat-sys-secondary); }
+                &.text-error { color: var(--mat-sys-error); }
+                &.text-neutral { color: var(--mat-sys-on-surface-variant); font-size: 0.95rem; }
+            }
+        }
+    }
+}
+
+/* --- Colonne 3 : Commandes Tactiques --- */
+.asset-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap; /* Permet aux boutons de former une grille 2x2 ou une ligne */
     gap: 8px;
-    flex-wrap: nowrap;
+    padding: 16px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 30%, transparent);
+    border-left: 2px solid color-mix(in srgb, var(--mat-sys-outline-variant) 10%, transparent);
+    width: 140px; /* Largeur fixe pour la zone d'action */
+
+    .spacer { display: none; } /* Inutile en mode paysage */
+
+    /* Forçage du style des boutons pour un look "Terminal" */
+    button { 
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 80%, transparent) !important;
+        border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent) !important;
+        border-radius: 4px !important;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        
+        &:hover { transform: translateY(-2px); }
+    }
+    
+    .btn-cart { color: var(--mat-sys-secondary); &:hover { border-color: var(--mat-sys-secondary) !important; box-shadow: 0 4px 8px color-mix(in srgb, var(--mat-sys-secondary) 20%, transparent); } }
+    .btn-edit { color: var(--mat-sys-tertiary); &:hover { border-color: var(--mat-sys-tertiary) !important; box-shadow: 0 4px 8px color-mix(in srgb, var(--mat-sys-tertiary) 20%, transparent); } }
+    
+    ::ng-deep .btn-delete button { 
+        color: var(--mat-sys-error) !important; 
+        &:hover { border-color: var(--mat-sys-error) !important; box-shadow: 0 4px 8px color-mix(in srgb, var(--mat-sys-error) 20%, transparent); } 
+    }
+}
+
+/* =========================================================
+   COMPATIBILITÉ ÉCRANS MOBILES (RETOUR VERTICAL)
+   ========================================================= */
+@media screen and (max-width: 1000px) 
+{
+    .asset-card {
+        display: flex;
+        flex-direction: column; /* Retour à l'empilement vertical */
+    }
+
+    .asset-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-right: none;
+        border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 20%, transparent);
+    }
+
+    .asset-actions {
+        flex-direction: row;
+        width: auto;
+        border-left: none;
+        border-top: 2px solid color-mix(in srgb, var(--mat-sys-outline-variant) 10%, transparent);
+        justify-content: flex-start;
+        box-sizing: border-box;
+        
+        .spacer { display: block; flex-grow: 1; }
+    }
+}
+
+@media screen and (max-width: 550px)
+{
+    .inventory-grid { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
+   ÉTAT VIDE & PAGINATION
+   ========================================================= */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 24px;
+    background-color: var(--mat-sys-surface-container);
+    border: 1px dashed var(--mat-sys-outline-variant);
+    color: var(--mat-sys-outline);
+    border-radius: 2px;
+    margin-top: 24px;
+
+    mat-icon { font-size: 64px; width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; animation: pulse-radar 2s infinite ease-in-out; }
+    p { font-family: 'Courier New', Courier, monospace; font-weight: bold; letter-spacing: 2px; margin: 0; }
+}
+
+@keyframes pulse-radar {
+    0%, 100% { opacity: 0.3; transform: scale(0.95); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+.tactical-paginator {
+    margin-bottom: 40px;
+    border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+    background-color: var(--mat-sys-surface-container);
+    border-radius: 4px;
+    overflow: hidden;
+
+    ::ng-deep .mat-mdc-paginator {
+        background-color: transparent;
+        color: var(--mat-sys-on-surface);
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+    }
+}
+
+/* =========================================================
+   ADAPTATION THEME CLAIR (LIGHT MODE)
+   ========================================================= */
+:host-context(html.light-mode) {
+    .asset-card {
+        background-color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-color: var(--mat-sys-outline-variant);
+        
+        /* Couleurs au repos */
+        .asset-header { background: linear-gradient(90deg, #f4f7f6 0%, transparent 100%); }
+        .asset-actions { background-color: #f9fbfb; }
+        .stat-grid .stat-item { background-color: #fdfdfd; }
+
+        /* Rétablissement des couleurs tactiques au survol */
+        &:hover { 
+            box-shadow: -8px 8px 16px rgba(0, 0, 0, 0.08); 
+            border-left-color: var(--mat-sys-primary);
+            border-top-color: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+            border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+
+            .asset-header { 
+                background: linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) 0%, transparent 100%); 
+            }
+        }
+    }
+    
+    .empty-state { background-color: #f4f7f6; }
+    
+    .tactical-paginator {
+        background-color: #ffffff;
+        border-color: var(--mat-sys-outline-variant);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
 }
