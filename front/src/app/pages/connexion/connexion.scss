@@ -147,17 +147,21 @@
 /* =========================================================
    COMPATIBILITÉ MOBILE DU DESIGN
    ========================================================= */
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 480px) 
+{
     .unsc-datapad { 
         width: 100%; 
         border-radius: 0; 
         border-left: none; border-right: none;
-        .hud-corner { display: none; } /* On cache les équerres sur téléphone */
+        .hud-corner { display: none; }
+    }
+
+    .unsc-content {
+        padding: 0 24px 12px 16px;
     }
     
     .unsc-actions {
-        flex-direction: column-reverse; /* Empile les boutons */
-        gap: 16px;
+        padding: 12px 16px;
         .auth-divider { display: none; }
     }
 }
