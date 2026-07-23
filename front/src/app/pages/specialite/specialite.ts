@@ -41,6 +41,12 @@ export class SpecialitePage implements OnInit
     protected texteRecherche = signal<string>('');
     protected droit: Droit | null;
 
+    // Signal tactique pour le ciblage simultané
+    protected hoveredNodeId = signal<number | null>(null);
+
+    protected OnNodeMouseEnter(nodeId: number): void { this.hoveredNodeId.set(nodeId); }
+    protected OnNodeMouseLeave(): void { this.hoveredNodeId.set(null); }
+
     private isDown = false;
     private startX = 0;
     private scrollLeftInit = 0;
