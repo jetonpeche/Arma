@@ -37,6 +37,11 @@ export class App implements OnInit
     protected currentTrack = signal<string>('');
     protected volume = signal<number>(0.3);
 
+    protected menuPersonnel = signal<boolean>(false);
+    protected menuOperations = signal<boolean>(false);
+    protected menuLogistique = signal<boolean>(false);
+    protected menuFleetcom = signal<boolean>(false);
+
     private playlist: string[] = [
         '/music/theme1.mp3',
         '/music/theme2.mp3',
@@ -115,6 +120,14 @@ export class App implements OnInit
                 this.Deconnexion();
             }
         }
+    }
+
+    protected ToggleMenu(menu: string): void 
+    {
+        if (menu === 'personnel') this.menuPersonnel.update(v => !v);
+        if (menu === 'operations') this.menuOperations.update(v => !v);
+        if (menu === 'logistique') this.menuLogistique.update(v => !v);
+        if (menu === 'fleetcom') this.menuFleetcom.update(v => !v);
     }
 
     protected ChangerVolume(event: any): void 
@@ -244,10 +257,12 @@ export class App implements OnInit
     protected OuvrirModalModifierPoint(): void
     {
         if(this.peutModifierBanque())
+        {
             this.dialog.open(ModalPointBanque, {
                 width: this.estMobile ? "95%" : "30%",
                 maxWidth: "100vw"
-        });
+            });
+        }
     }
 
     protected OuvrirModalPreset(): void

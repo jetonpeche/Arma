@@ -1,81 +1,81 @@
 <mat-toolbar id="navbar" class="unsc-navbar">
+    
+    <div class="nav-left-zone">
+        <button matIconButton class="btn-menu-toggle" (click)="drawer.toggle()" aria-label="Menu vertical">
+            <mat-icon>menu_open</mat-icon>
+        </button>
 
-    <button matIconButton (click)="drawer.toggle()" aria-label="Menu vertical">
-        <mat-icon>menu</mat-icon>
-    </button>
-
-    <div class="unsc-brand">
-        <mat-icon class="brand-icon">dns</mat-icon>
-        <span>RÉSEAU UNSC // NETCOM</span>
+        <div class="unsc-brand">
+            <div class="brand-logo"><mat-icon>military_tech</mat-icon></div>
+            <div class="brand-text">
+                <span class="title">RÉSEAU NETCOM</span>
+                <span class="subtitle">// COMMANDEMENT CENTRAL</span>
+            </div>
+        </div>
     </div>
     
     <span class="spacer"></span>
 
-    @if (estConnecter())
-    {
-        <!-- Bouton des points de campagne façon compteur tactique -->
-        <button mat-button id="btn-credits-nav" (click)="OuvrirModalModifierPoint()">
-            <mat-icon>military_tech</mat-icon>
-            <span class="credit-value">{{ pointCampagne() | number }} CR</span>
-        </button>
-    }
-
-    <div class="action-group">
-        <button matIconButton [matMenuTriggerFor]="settingsMenu" matTooltip="Paramètres système">
-            <mat-icon>settings</mat-icon>
-        </button>
-
-        <mat-menu #settingsMenu="matMenu" class="unsc-mat-menu">
-            @if (estConnecter())
-            {
-                <button mat-menu-item (click)="OuvrirModalPreset()">
-                    <mat-icon>memory</mat-icon>
-                    <span>Preset</span>
-                </button>
-            }
-
-            <button mat-menu-item (click)="toggleTheme()">
-                <mat-icon>{{ estLightMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
-                <span>{{ estLightMode() ? 'Basculer en Vision Nocturne' : 'Basculer en Vision Standard' }}</span>
-            </button>
-            
-            <div class="volume-container" (click)="$event.stopPropagation()">
-                <button mat-icon-button (click)="toggleAudio()" [matTooltip]="sonEstActiver() ? 'Couper les transmissions' : 'Ouvrir le canal audio'">
-                    <mat-icon>{{ sonEstActiver() ? 'volume_up' : 'volume_off' }}</mat-icon>
-                </button>
-                
-                <mat-slider min="0" max="1" step="0.05" class="unsc-volume-slider">
-                    <input matSliderThumb [value]="volume()" (input)="ChangerVolume($event)" (change)="SauvegarderVolume()">
-                </mat-slider>
-            </div>
-        </mat-menu>
-
+    <div class="nav-right-zone">
         @if (estConnecter())
         {
-            <button matIconButton 
-                        aria-label="Panier d'achat" 
-                        matTooltip="Ravitaillement en attente" 
-                        (click)="OuvrirModalPanier()">
-                <mat-icon>shopping_cart</mat-icon>
-            </button>
-
-            <button matIconButton class="btn-logout"
-                        aria-label="Déconnexion" 
-                        matTooltip="Fermer la session" 
-                        (click)="Deconnexion()">
-                <mat-icon>power_settings_new</mat-icon>
-            </button>
+            <div class="company-treasury-btn" (click)="OuvrirModalModifierPoint()" [matTooltip]="this.peutModifierBanque() ? 'Accéder à la trésorerie de la compagnie' : 'Trésorerie de la compagnie'">
+                <div class="treasury-icon-wrapper">
+                    <mat-icon>account_balance</mat-icon>
+                </div>
+                <div class="treasury-data">
+                    <span class="t-label">TRÉSORERIE GLOBALE</span>
+                    <span class="t-value">{{ pointCampagne() | number }} CR</span>
+                </div>
+            </div>
         }
 
-        @if (!estConnecter())
-        {
-            <button matIconButton 
-                        aria-label="Connexion" 
-                        matTooltip="S'identifier" 
-                        (click)="Connexion()">
-                <mat-icon>login</mat-icon>
-            </button>
-        }
+        <!-- Actions encadrées par des crochets de ciblage -->
+        <div class="action-brackets">
+            <div class="bracket-l"></div>
+            
+            <div class="action-group">
+                <button matIconButton [matMenuTriggerFor]="settingsMenu" matTooltip="Paramètres système">
+                    <mat-icon>tune</mat-icon>
+                </button>
+
+                <mat-menu #settingsMenu="matMenu" class="unsc-mat-menu">
+                    @if (estConnecter()) {
+                        <button mat-menu-item (click)="OuvrirModalPreset()">
+                            <mat-icon>memory</mat-icon>
+                            <span>Preset</span>
+                        </button>
+                    }
+                    <button mat-menu-item (click)="toggleTheme()">
+                        <mat-icon>{{ estLightMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
+                        <span>{{ estLightMode() ? 'Vision Nocturne' : 'Vision Standard' }}</span>
+                    </button>
+                    <div class="volume-container" (click)="$event.stopPropagation()">
+                        <button mat-icon-button (click)="toggleAudio()" [matTooltip]="sonEstActiver() ? 'Couper les transmissions' : 'Ouvrir le canal audio'">
+                            <mat-icon>{{ sonEstActiver() ? 'volume_up' : 'volume_off' }}</mat-icon>
+                        </button>
+                        <mat-slider min="0" max="1" step="0.05" class="unsc-volume-slider">
+                            <input matSliderThumb [value]="volume()" (input)="ChangerVolume($event)" (change)="SauvegarderVolume()">
+                        </mat-slider>
+                    </div>
+                </mat-menu>
+
+                @if (estConnecter()) {
+                    <button matIconButton matTooltip="Ravitaillement" (click)="OuvrirModalPanier()">
+                        <mat-icon>shopping_cart</mat-icon>
+                    </button>
+                    <button matIconButton class="btn-logout" matTooltip="Fermer la session" (click)="Deconnexion()">
+                        <mat-icon>power_settings_new</mat-icon>
+                    </button>
+                } @else {
+                    <button matIconButton class="btn-login" matTooltip="S'identifier" (click)="Connexion()">
+                        <mat-icon>login</mat-icon>
+                    </button>
+                }
+            </div>
+
+            <div class="bracket-r"></div>
+        </div>
     </div>
 </mat-toolbar>
 
@@ -94,31 +94,84 @@
 
             @if (estConnecter()) 
             {
-                <a mat-list-item routerLink="personnage" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dossier Personnel</a>
-                <a mat-list-item routerLink="cimetiere" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mur des Disparus</a>
-                <a mat-list-item routerLink="formation" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Centre d'Entraînement</a>
-                <a mat-list-item routerLink="grade" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Grades</a>
-                <a mat-list-item routerLink="planete-origine" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Planètes</a>
-                <a mat-list-item routerLink="specialite" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Spécialités</a>
-                <a mat-list-item routerLink="boutique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Armurerie</a>
+                <!-- GROUPE : PERSONNEL & RH -->
+                <div class="nav-group">
+                    <button class="nav-group-header" (click)="ToggleMenu('personnel')" [class.open]="menuPersonnel()">
+                        <mat-icon class="folder-icon">{{ menuPersonnel() ? 'folder_open' : 'folder' }}</mat-icon>
+                        <span>PERSONNEL & RH</span>
+                        <mat-icon class="chevron">expand_more</mat-icon>
+                    </button>
+                    <div class="nav-group-content" [class.expanded]="menuPersonnel()">
+                        <div class="nav-inner">
+                            <a mat-list-item routerLink="personnage" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dossier Personnel</a>
+                            <a mat-list-item routerLink="grade" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Grades</a>
+                            <a mat-list-item routerLink="specialite" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Spécialités</a>
+                            <a mat-list-item routerLink="medaille" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Médailles</a>
+                            <a mat-list-item routerLink="cimetiere" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Mur des Disparus</a>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- GROUPE : OPÉRATIONS -->
+                <div class="nav-group">
+                    <button class="nav-group-header" (click)="ToggleMenu('operations')" [class.open]="menuOperations()">
+                        <mat-icon class="folder-icon">{{ menuOperations() ? 'folder_open' : 'folder' }}</mat-icon>
+                        <span>OPÉRATIONS</span>
+                        <mat-icon class="chevron">expand_more</mat-icon>
+                    </button>
+                    <div class="nav-group-content" [class.expanded]="menuOperations()">
+                        <div class="nav-inner">
+                            <a mat-list-item routerLink="formation" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Centre d'Entraînement</a>
+                            <a mat-list-item routerLink="planete-origine" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Planètes</a>
+                            <a mat-list-item routerLink="historique-campagne" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Historique Campagne</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GROUPE : LOGISTIQUE & MATÉRIEL -->
+                <div class="nav-group">
+                    <button class="nav-group-header" (click)="ToggleMenu('logistique')" [class.open]="menuLogistique()">
+                        <mat-icon class="folder-icon">{{ menuLogistique() ? 'folder_open' : 'folder' }}</mat-icon>
+                        <span>LOGISTIQUE</span>
+                        <mat-icon class="chevron">expand_more</mat-icon>
+                    </button>
+                    <div class="nav-group-content" [class.expanded]="menuLogistique()">
+                        <div class="nav-inner">
+                            <a mat-list-item routerLink="boutique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Armurerie</a>
+                            <a mat-list-item routerLink="logistique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Logistique Globale</a>
+                            <a mat-list-item routerLink="materiel" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Gestion Matériel</a>
+                            @if (droitPropositionAchat())
+                            {
+                                <a mat-list-item routerLink="proposition-achat" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Réquisitions</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GROUPE : FLEETCOM (FLOTTE) -->
+                <div class="nav-group">
+                    <button class="nav-group-header" (click)="ToggleMenu('fleetcom')" [class.open]="menuFleetcom()">
+                        <mat-icon class="folder-icon">{{ menuFleetcom() ? 'folder_open' : 'folder' }}</mat-icon>
+                        <span>FLEETCOM</span>
+                        <mat-icon class="chevron">expand_more</mat-icon>
+                    </button>
+                    <div class="nav-group-content" [class.expanded]="menuFleetcom()">
+                        <div class="nav-inner">
+                            <a mat-list-item routerLink="vaisseau" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Chantier Naval</a>
+                            <a mat-list-item routerLink="flotte" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Flotte Tactique</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACCÈS ADMINISTRATEUR (Hors dossier) -->
                 @if(droit())
                 {
-                    <a mat-list-item routerLink="droit-groupe" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Habilitations</a>
+                    <div class="admin-divider"></div>
+                    <a mat-list-item class="standalone-item" routerLink="droit-groupe" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                        <mat-icon matListItemIcon class="admin-icon">security</mat-icon> 
+                        <span matListItemTitle>Habilitations</span>
+                    </a>
                 }
-
-                <a mat-list-item routerLink="logistique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Logistique</a>
-                <a mat-list-item routerLink="materiel" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Matériel</a>
-                <a mat-list-item routerLink="vaisseau" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Chantier naval</a>
-                <a mat-list-item routerLink="flotte" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Flotte</a>
-
-                @if (droitPropositionAchat())
-                {
-                    <a mat-list-item routerLink="proposition-achat" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Réquisitions</a>
-                }
-
-                <a mat-list-item routerLink="historique-campagne" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Historique de campagne</a>
-                <a mat-list-item routerLink="medaille" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Médailles</a>
             }
             @else 
             {

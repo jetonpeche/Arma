@@ -111,12 +111,23 @@
     50% { opacity: 0; }
 }
 
-@media screen and (max-width: 768px) 
-{
-    .unsc-logout-overlay .shutdown-sequence {
-        h2 { font-size: 1.2rem; letter-spacing: 2px; }
-        .log-container { font-size: 0.8rem; width: 305px; }
-        .warning-icon { font-size: 60px; width: 60px; height: 60px; }
+/* --- RESPONSIVE TACTIQUE --- */
+@media screen and (max-width: 768px) {
+    .unsc-brand {
+        border-left: none; padding-left: 0;
+        .brand-text { display: none; }
+    }
+    
+    .nav-left-zone, .nav-right-zone { gap: 8px; }
+    
+    .action-brackets {
+        padding: 0;
+        .bracket-l, .bracket-r { display: none; }
+    }
+    
+    .marginTopDrawer {
+        padding-left: 12px;
+        padding-right: 12px;
     }
 }
 
@@ -280,34 +291,182 @@
     100% { background-position: 0 200%; }
 }
 
-/* --- BARRE DE NAVIGATION (HUD) --- */
+/* --- BARRE DE NAVIGATION (HUD TACTIQUE) --- */
 #navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100; /* Augmenté pour rester au-dessus des cartes avec effet de survol */
-    background: var(--mat-sys-surface-container-highest); /* Fond plus sombre et solide */
-    color: var(--mat-sys-primary);
-    border-bottom: 2px solid var(--mat-sys-primary); /* Liseré tactique */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-    padding: 0 16px;
-}
-
-/* Marque UNSC textuelle */
-.unsc-brand {
+    position: fixed; 
+    top: 0; left: 0; right: 0; 
+    z-index: 100;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--mat-sys-surface-container-highest) 95%, transparent), color-mix(in srgb, var(--mat-sys-surface-container) 95%, transparent));
+    backdrop-filter: blur(12px);
+    color: var(--mat-sys-on-surface);
+    border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    padding: 0 16px 0 8px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-left: 8px;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: 900;
-    letter-spacing: 2px;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    
-    .brand-icon {
+    height: 64px;
+
+    /* Ligne de balayage lumineuse en bordure basse */
+    &::after {
+        content: ''; position: absolute; bottom: -2px; left: 0; width: 25%; height: 2px;
+        background-color: var(--mat-sys-primary);
+        box-shadow: 0 0 12px var(--mat-sys-primary);
+        animation: nav-scanline 8s ease-in-out infinite alternate;
+    }
+}
+
+@keyframes nav-scanline {
+    0% { left: 0; width: 10%; }
+    50% { width: 30%; }
+    100% { left: 90%; width: 10%; }
+}
+
+.nav-left-zone, .nav-right-zone {
+    display: flex; align-items: center; gap: 16px; height: 100%;
+}
+
+.btn-menu-toggle {
+    color: var(--mat-sys-primary) !important;
+}
+
+/* --- LOGO & MARQUE --- */
+.unsc-brand {
+    display: flex; align-items: center; gap: 12px;
+    border-left: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+    padding-left: 12px;
+
+    .brand-logo mat-icon {
+        font-size: 32px; width: 32px; height: 32px;
         color: var(--mat-sys-tertiary);
+        filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mat-sys-tertiary) 50%, transparent));
+    }
+
+    .brand-text {
+        display: flex; flex-direction: column; justify-content: center;
+        
+        .title { 
+            font-family: 'Courier New', Courier, monospace; font-size: 1.15rem; 
+            font-weight: 900; letter-spacing: 3px; color: var(--mat-sys-on-surface); line-height: 1.1;
+        }
+        .subtitle { 
+            font-family: 'Courier New', Courier, monospace; font-size: 0.65rem; 
+            color: var(--mat-sys-outline); letter-spacing: 2px; 
+        }
+    }
+}
+
+/* --- MODULE DE TRÉSORERIE DE COMPAGNIE --- */
+.company-treasury-btn {
+    display: flex;
+    align-items: center;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 60%, transparent);
+    border-radius: 4px;
+    cursor: pointer;
+    overflow: hidden; /* Permet de contenir le fond de l'icône */
+    height: 40px;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+    /* Le bloc de l'icône à gauche */
+    .treasury-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        height: 100%;
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+        color: var(--mat-sys-tertiary);
+        border-right: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+        transition: all 0.2s ease;
+
+        mat-icon { 
+            font-size: 20px; width: 20px; height: 20px; 
+        }
+    }
+
+    /* Le bloc des textes à droite */
+    .treasury-data {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 12px 0 10px;
+    }
+
+    .t-label {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.55rem;
+        font-weight: bold;
+        color: var(--mat-sys-outline);
+        letter-spacing: 1px;
+    }
+
+    .t-value {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.05rem;
+        font-weight: 900;
+        color: var(--mat-sys-on-surface);
+        margin-top: -2px;
+        transition: color 0.2s ease;
+    }
+
+    /* Animation au survol */
+    &:hover {
+        border-color: var(--mat-sys-tertiary);
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--mat-sys-tertiary) 20%, transparent);
+        transform: translateY(-2px);
+        
+        /* L'icône se remplit de la couleur tertiaire */
+        .treasury-icon-wrapper {
+            background-color: var(--mat-sys-tertiary);
+            color: var(--mat-sys-on-tertiary);
+            border-right-color: var(--mat-sys-tertiary);
+        }
+
+        .t-value {
+            color: var(--mat-sys-tertiary);
+        }
+    }
+}
+
+/* --- BOUTONS D'ACTION ENCADRÉS --- */
+.action-brackets {
+    display: flex; align-items: center; position: relative;
+    padding: 0 8px;
+    
+    .bracket-l, .bracket-r {
+        width: 6px; height: 32px; border: 2px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+        transition: border-color 0.3s ease;
+    }
+    .bracket-l { border-right: none; margin-right: 4px; }
+    .bracket-r { border-left: none; margin-left: 4px; }
+
+    &:hover .bracket-l, &:hover .bracket-r {
+        border-color: var(--mat-sys-primary);
+        filter: drop-shadow(0 0 4px var(--mat-sys-primary));
+    }
+}
+
+.action-group {
+    display: flex; align-items: center; gap: 4px;
+    
+    button {
+        color: var(--mat-sys-on-surface-variant) !important;
+        transition: all 0.2s ease !important;
+        
+        &:hover { 
+            color: var(--mat-sys-primary) !important; 
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) !important; 
+        }
+    }
+    
+    .btn-logout { 
+        color: var(--mat-sys-error) !important; 
+        &:hover { background-color: color-mix(in srgb, var(--mat-sys-error) 10%, transparent) !important; } 
+    }
+    
+    .btn-login { 
+        color: var(--mat-sys-tertiary) !important; 
     }
 }
 
@@ -373,7 +532,7 @@
 }
 
 .btn-logout {
-    color: var(--mat-sys-error) !important; /* Rouge pour déconnexion */
+    color: var(--mat-sys-error) !important;
 }
 
 /* --- MENU LATÉRAL (Terminal de données) --- */
@@ -385,9 +544,9 @@ mat-drawer-container {
 }
 
 .drawer {
-    width: 260px; /* Légèrement élargi pour les textes */
+    width: 260px;
     background: linear-gradient(90deg, var(--mat-sys-surface-container-lowest) 0%, var(--mat-sys-surface-container) 100%);
-    border-right: 2px solid var(--mat-sys-primary); /* Liseré droit */
+    border-right: 2px solid var(--mat-sys-primary);
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
     box-sizing: border-box;
 
@@ -421,26 +580,128 @@ mat-drawer-container {
     /* Style des liens de navigation */
     .tactical-nav-list {
         padding-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
 
+        /* Les boutons d'en-tête de chaque dossier */
+        .nav-group-header {
+            background: transparent;
+            border: none;
+            border-left: 4px solid transparent;
+            color: var(--mat-sys-on-surface-variant);
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            .folder-icon {
+                margin-right: 12px;
+                transform: scale(0.9);
+                color: var(--mat-sys-tertiary);
+                transition: color 0.2s ease;
+            }
+
+            .chevron {
+                margin-left: auto;
+                margin-right: 0;
+                transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            }
+
+            &:hover {
+                background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+                color: var(--mat-sys-primary);
+                .folder-icon { color: var(--mat-sys-primary); }
+            }
+
+            &.open {
+                border-left-color: var(--mat-sys-tertiary);
+                color: var(--mat-sys-on-surface);
+                background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 40%, transparent);
+                
+                .folder-icon { color: var(--mat-sys-tertiary); filter: drop-shadow(0 0 5px var(--mat-sys-tertiary)); }
+                .chevron { transform: rotate(180deg); color: var(--mat-sys-tertiary); }
+            }
+        }
+
+        .nav-group-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            overflow: hidden;
+
+            &.expanded {
+                grid-template-rows: 1fr;
+            }
+
+            .nav-inner {
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                margin-left: 26px;
+                padding-left: 8px;
+                border-left: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+                padding-top: 4px;
+                padding-bottom: 4px;
+            }
+        }
+
+        /* Style global des liens (dans les dossiers ET hors dossiers) */
         ::ng-deep .mdc-list-item__primary-text {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: bold;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        a[mat-list-item] 
-        {
-            border-left: 4px solid transparent;
+        a[mat-list-item] {
+            border-left: 2px solid transparent;
             border-radius: 0 4px 4px 0;
             transition: all 0.2s ease;
             color: var(--mat-sys-on-surface-variant);
+            height: 40px !important; /* Liens plus compacts dans les dossiers */
+
+            /* Ligne horizontale de l'arborescence */
+            &::before {
+                content: '';
+                position: absolute;
+                left: -8px;
+                top: 50%;
+                width: 8px;
+                height: 1px;
+                background-color: color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+            }
 
             &:hover {
                 background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
                 border-left-color: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
                 color: var(--mat-sys-primary);
+                transform: translateX(4px);
+            }
+        }
+
+        /* Liens indépendants (Menu déconnecté ou Habilitations) */
+        .standalone-item {
+            height: 48px !important;
+            border-left-width: 4px !important;
+            &::before { display: none; }
+
+            ::ng-deep .mdc-list-item__content {
+                display: flex !important;
+                align-items: center !important;
+            }
+            
+            .admin-icon {
+                margin-right: 8px;
+                transform: scale(0.8);
+                color: var(--mat-sys-error);
             }
         }
 
@@ -452,7 +713,15 @@ mat-drawer-container {
             ::ng-deep .mdc-list-item__primary-text {
                 color: var(--mat-sys-primary) !important;
                 font-weight: 900;
+                text-shadow: 0 0 8px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
             }
+        }
+
+        /* Séparateur pour l'accès administrateur */
+        .admin-divider {
+            height: 1px;
+            background-color: color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+            margin: 8px 16px;
         }
     }
 }
@@ -483,16 +752,47 @@ mat-drawer-container {
     .unsc-brand span {
         display: none; /* Cache le texte du logo sur petit écran */
     }
+
+    .company-treasury-btn {
+        .t-label { display: none; }
+        .t-value { font-size: 1rem; margin-top: 0; }
+        .treasury-icon-wrapper { padding: 0 8px; }
+    }
     
     .btn-credits {
         padding: 0 8px !important;
         span:not(.credit-value) {
-            display: none; /* Ne garde que le chiffre sur mobile */
+            display: none;
         }
     }
     
     .marginTopDrawer {
         padding-left: 12px;
         padding-right: 12px;
+    }
+}
+
+:host-context(html.light-mode)
+{
+    .company-treasury-btn {
+        background-color: var(--mat-sys-surface-container);
+        border-color: var(--mat-sys-outline-variant);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+        .treasury-icon-wrapper {
+            background-color: color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent);
+            border-right-color: var(--mat-sys-outline-variant);
+        }
+        
+        &:hover {
+            background-color: var(--mat-sys-surface-container-high);
+            border-color: var(--mat-sys-tertiary);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            
+            .treasury-icon-wrapper {
+                background-color: var(--mat-sys-tertiary);
+                color: var(--mat-sys-on-tertiary);
+            }
+        }
     }
 }

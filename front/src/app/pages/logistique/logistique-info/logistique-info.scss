@@ -311,17 +311,36 @@
         /* Couleurs au repos */
         .asset-header { background: linear-gradient(90deg, #f4f7f6 0%, transparent 100%); }
         .asset-actions { background-color: #f9fbfb; }
-        .stat-grid .stat-item { background-color: #fdfdfd; }
+        
+        /* Contraste pour les carrés de statistiques */
+        .stat-grid .stat-item { 
+            background-color: var(--mat-sys-surface-container);
+            border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 25%, transparent);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+            
+            &::before {
+                border-color: color-mix(in srgb, var(--mat-sys-outline) 40%, transparent);
+            }
 
-        /* Rétablissement des couleurs tactiques au survol */
+            /* Intensification du survol sur les modules cliquables (mode clair) */
+            &.clickable:hover {
+                background-color: color-mix(in srgb, var(--mat-sys-secondary) 15%, transparent);
+                border-color: var(--mat-sys-secondary);
+                
+                &::before { border-color: var(--mat-sys-secondary); }
+            }
+        }
+
+        /* --- INTENSIFICATION DU SURVOL DE LA CARTE --- */
         &:hover { 
-            box-shadow: -8px 8px 16px rgba(0, 0, 0, 0.08); 
+            box-shadow: -8px 8px 16px rgba(0, 0, 0, 0.12);
             border-left-color: var(--mat-sys-primary);
-            border-top-color: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
-            border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+            
+            border-top-color: color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+            border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
 
             .asset-header { 
-                background: linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) 0%, transparent 100%); 
+                background: linear-gradient(90deg, color-mix(in srgb, var(--mat-sys-primary) 25%, transparent) 0%, transparent 100%); 
             }
         }
     }
@@ -335,7 +354,7 @@
     }
 
     .asset-body .asset-description {
-            background-color: #f4f7f6;
-            border-left-color: var(--mat-sys-outline-variant);
-        }
+        background-color: #f4f7f6;
+        border-left-color: var(--mat-sys-outline-variant);
+    }
 }
