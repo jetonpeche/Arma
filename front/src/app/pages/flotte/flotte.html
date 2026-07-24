@@ -29,100 +29,145 @@
     </div>
 </div>
 
+<!-- GRILLE DE LA FLOTTE -->
 <div class="fleet-grid">
   @for (vaisseau of listeVaisseau(); track vaisseau.id) 
   {
-    <mat-card class="ship-card">
+    <!-- Le Châssis principal (qui aura les coins tronqués) -->
+    <div class="fleet-dashboard">
       
-      <mat-card-header>
-        <div mat-card-avatar class="ship-avatar">
-          <mat-icon>rocket</mat-icon>
+      <!-- EN-TÊTE DU VAISSEAU -->
+      <div class="fc-header">
+        <div class="fc-id-block">
+            <mat-icon class="ship-icon">rocket_launch</mat-icon>
+            <div class="ship-titles">
+              <div class="ship-class">{{ vaisseau.nomVaisseau }}</div>
+              <div class="ship-name">{{ vaisseau.nomVaisseauAlias || 'CLASSIFICATION INCONNUE' }}</div>
+            </div>
         </div>
-        <mat-card-title>{{ vaisseau.nomVaisseau }}</mat-card-title>
-        <mat-card-subtitle>
-          @if (vaisseau.nomVaisseauAlias) 
-          { 
-            {{ vaisseau.nomVaisseauAlias }} - 
-          }
-          CMDT: {{ vaisseau.nomCommandant || 'IA de bord' }}
-        </mat-card-subtitle>
-      </mat-card-header>
+        <div class="fc-cmd-block">
+            <div class="cmd-label">COMMANDEMENT</div>
+            <div class="cmd-value">{{ vaisseau.nomCommandant || 'IA TACTIQUE DE BORD' }}</div>
+        </div>
+      </div>
 
-      <mat-card-content>
-        @if (vaisseau.information) 
-        {
-          <div class="ship-status-box">
-            <mat-icon class="warning-icon">report_problem</mat-icon>
-            <p>{{ vaisseau.information }}</p>
-          </div>
-        }
+      <!-- INFORMATIONS / ÉTAT DU VAISSEAU -->
+      @if (vaisseau.information) 
+      {
+        <div class="fc-alert">
+          <mat-icon class="alert-icon">report_problem</mat-icon>
+          <div class="alert-text">{{ vaisseau.information }}</div>
+        </div>
+      }
 
-        <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+      <!-- TÉLÉMÉTRIE (ONGLETS SÉPARÉS) -->
+      <div class="fc-tabs-container">
+        <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" animationDuration="0ms">
           
-          <mat-tab label="Armement">
-            <div class="tab-content">
-              @for (arme of vaisseau.listeArmement; track arme.id) 
-              {
-                <div class="weapon-item">
-                  <div class="weapon-header">
-                    <span class="weapon-name"><strong>{{ arme.nom }}</strong> ({{ arme.nombreDisponible }}/{{ arme.nombreMax }})</span>
-                    @if (arme.nbTourReload > 0) {
-                      <span class="reload-badge">Recharge: {{ arme.nbTourReload }} tr(s)</span>
-                    }
-                  </div>
-                  
-                  @if (!arme.munitionInfini) {
-                    <div class="progress-section">
-                      <div class="progress-labels">
-                        <small>Munitions</small>
-                        <small>{{ arme.munitionDisponible }} / {{ arme.munitionMax }}</small>
+          <!-- ONGLET 1 : ARMEMENT -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">track_changes</mat-icon> ARMEMENT
+            </ng-template>
+            
+            <div class="tab-content weapon-grid">
+               @for (arme of vaisseau.listeArmement; track arme.id) 
+               {
+                  <div class="tactical-item">
+                      <div class="ti-header">
+                          <span class="ti-name">{{ arme.nom }}</span>
+                          @if (arme.estUsageUnique) {
+                              <span class="ti-badge unique-use">USAGE UNIQUE</span>
+                          }
                       </div>
-                      <mat-progress-bar 
-                        mode="determinate" 
-                        [value]="(arme.munitionDisponible / arme.munitionMax) * 100"
-                        [color]="arme.munitionDisponible < (arme.munitionMax * 0.2) ? 'warn' : 'primary'">
-                      </mat-progress-bar>
-                    </div>
-                  } @else {
-                    <small class="infinite-ammo">Munitions illimitées</small>
-                  }
-                  
-                  @if (arme.information) {
-                    <p class="weapon-info">Note: {{ arme.information }}</p>
-                  }
-                  <mat-divider></mat-divider>
-                </div>
-              }
+                      
+                      <div class="ti-progress-zone">
+                          <div class="progress-labels">
+                              <span>DISPONIBLE</span>
+                              <span>{{ arme.nombreDisponible }} / {{ arme.nombreMax }}</span>
+                          </div>
+                          
+                          <mat-progress-bar 
+                              mode="determinate" 
+                              [value]="(arme.nombreDisponible / arme.nombreMax) * 100" 
+                              [color]="arme.nombreDisponible < (arme.nombreMax * 0.2) ? 'warn' : 'primary'">
+                          </mat-progress-bar>
+                          
+                          <!-- Affichage conditionnel de l'attribut illimité -->
+                          @if (arme.munitionInfini) 
+                          {
+                              <div class="infinite-ammo">MUNITIONS ILLIMITÉES</div>
+                          }
+                      </div>
+
+                      <div class="ti-footer">
+                          @if (arme.nbTourReload > 0 && arme.nbNombreReloadParNbTour > 0) 
+                          {
+                              <span class="reload-status">
+                                RECHARGE : +{{ arme.nbNombreReloadParNbTour }} TOUS LES {{ arme.nbTourReload }} TR(S)
+                              </span>
+                          }
+                      </div>
+
+                      @if (arme.information) 
+                      {
+                          <div class="info-text">// {{ arme.information }}</div>
+                      }
+                  </div>
+               }
+               @empty 
+               {
+                   <div class="no-data">AUCUN ARMEMENT DÉTECTÉ</div>
+               }
             </div>
           </mat-tab>
 
-          <mat-tab label="Hangar & Stockage">
-            <div class="tab-content">
-              @for (stock of vaisseau.listeStockage; track stock.id) 
-              {
-                <div class="storage-item">
-                  <div class="progress-labels">
-                    <strong>{{ stock.nom }}</strong>
-                    <small>Libre: {{ stock.disponible }} / {{ stock.taille }}</small>
+          <!-- ONGLET 2 : STOCKAGE -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">inventory_2</mat-icon> STOCKAGE
+            </ng-template>
+            
+            <div class="tab-content storage-grid">
+               @for (stock of vaisseau.listeStockage; track stock.id) 
+               {
+                  <div class="storage-block">
+                      <div class="sb-header">
+                          <span class="sb-type">{{ stock.nomTypeStockage }}</span>
+                          <span class="sb-name">{{ stock.nom }}</span>
+                      </div>
+                      <mat-progress-bar 
+                          mode="determinate" 
+                          [value]="(stock.occuper / stock.taille) * 100" 
+                          color="accent">
+                      </mat-progress-bar>
+                      <div class="sb-footer">
+                          <span>OCCUPÉ: {{ stock.occuper }}</span>
+                          <span>MAX: {{ stock.taille }}</span>
+                      </div>
                   </div>
-                  <mat-progress-bar 
-                    mode="determinate" 
-                    [value]="(stock.occuper / stock.taille) * 100"
-                    color="accent">
-                  </mat-progress-bar>
-                </div>
-              }
+               }
+               @empty 
+               {
+                   <div class="no-data">AUCUNE SOUTE DÉTECTÉE</div>
+               }
             </div>
           </mat-tab>
 
         </mat-tab-group>
-      </mat-card-content>
-      
-      <mat-card-actions align="end">
-        <button matButton="text">Modifier</button>
-        <button matButton="text">Rapport de tir</button>
-      </mat-card-actions>
-    </mat-card>
+      </div>
+
+      <!-- ACTIONS DE COMMANDEMENT -->
+      <div class="fc-footer">
+        <button mat-button class="btn-tactical">
+            <mat-icon>edit</mat-icon> MODIFIER
+        </button>
+        <button mat-button class="btn-tactical text-accent">
+            <mat-icon>my_location</mat-icon> RAPPORT DE TIR
+        </button>
+      </div>
+
+    </div>
   }
 </div>
 

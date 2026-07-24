@@ -30,10 +30,10 @@ export type VaisseauArmement =
     nom: string,
     information: string | null,
     nombre: number,
-    munition: number,
     nbTourReload: number
     munitionInfini: boolean,
     estUsageUnique: boolean,
+    nbNombreReloadParNbTour: number
 }
 
 export type VaisseauStockage = 

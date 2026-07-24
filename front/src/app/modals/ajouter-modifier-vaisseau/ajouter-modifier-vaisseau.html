@@ -95,17 +95,14 @@
                                 <jp-input-number label="Nombre" formControlName="nombre" />
                             </jp-grid-element>
 
-                            @if(!element.get("munitionInfini").value)
-                            {
-                                <jp-grid-element [colXs]="12" [colMd]="element.get('estUsageUnique').value ? 12 : 6">
-                                    <jp-input-number label="Munition" formControlName="munition" />
-                                </jp-grid-element>
-                            }
-
                             @if(!element.get("estUsageUnique").value)
                             {
-                                <jp-grid-element [colXs]="12" [colMd]="element.get('munitionInfini').value ? 12 : 6">
+                                <jp-grid-element [colXs]="12" [colMd]="6">
                                     <jp-input-number label="Nombre de tours" formControlName="nbTourReload" />
+                                </jp-grid-element>
+
+                                <jp-grid-element [colXs]="12" [colMd]="6">
+                                    <jp-input-number label="Nombre recharger par nombre de tours" formControlName="nbNombreReloadParNbTour" />
                                 </jp-grid-element>
                             }
 

@@ -16,17 +16,17 @@ export type VaisseauPossederArmement =
     information: string | null,
     nombreMax: number,
     nombreDisponible: number,
-    munitionMax: number,
-    munitionDisponible: number,
-    nbTourReload: number
+    nbTourReload: number,
+    nbNombreReloadParNbTour: number,
     munitionInfini: boolean,
-    estUsageUnique: boolean,
+    estUsageUnique: boolean
 }
 
 export type VaisseauPossederStockage = 
 {
     id: number,
     nom: string,
+    nomTypeStockage: string,
     taille: number,
     occuper: number,
     disponible: number

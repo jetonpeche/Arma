@@ -53,10 +53,10 @@ public sealed class ArmementVaisseauReponse
      public required string Nom { get; set; } = null!;
      public required string? Information { get; set; }
      public required int Nombre { get; set; }
-     public required int Munition { get; set; }
      public required bool MunitionInfini { get; set; }
      public required bool EstUsageUnique { get; set; }
-     public required int NbTourReload { get; set; }
+    public required int NbTourReload { get; set; }
+     public int NbNombreReloadParNbTour { get; set; }
 }
 
 [JsonSerializable(typeof(VaisseauReponse[]))]

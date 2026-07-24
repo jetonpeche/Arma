@@ -103,8 +103,8 @@ export class AjouterModifierVaisseau implements OnInit
             nom: new FormControl(_armement?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
             information: new FormControl(_armement?.information, [Validators.maxLength(1000)]),
             nombre: new FormControl(_armement?.nombre ?? 1, [Validators.required, Validators.min(1)]),
-            munition: new FormControl(_armement?.munition ?? 0, [Validators.required, Validators.min(0)]),
             nbTourReload: new FormControl(_armement?.nbTourReload ?? 0, [Validators.required, Validators.min(0)]),
+            nbNombreReloadParNbTour: new FormControl(_armement?.nbNombreReloadParNbTour ?? 0, [Validators.required, Validators.min(0)]),
             munitionInfini: new FormControl(_armement?.munitionInfini ?? false, [Validators.required]),
             estUsageUnique: new FormControl(_armement?.estUsageUnique ?? false, [Validators.required])
         }));

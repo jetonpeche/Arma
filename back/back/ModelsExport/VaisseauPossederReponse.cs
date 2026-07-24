@@ -21,18 +21,17 @@ public sealed class ArmementVaisseauPossederReponse
     public required int NombreMax { get; set; }
     public required int NombreDisponible { get; set; }
 
-    public required int MunitionMax { get; set; }
-    public required int MunitionDisponible { get; set; }
-
     public required bool MunitionInfini { get; set; }
     public required bool EstUsageUnique { get; set; }
     public required int NbTourReload { get; set; }
+    public required int NbNombreReloadParNbTour { get; set; }
 }
 
 public sealed class StockageVaisseauPossederReponse
 {
     public required int Id { get; set; }
     public int IdTypeStockage { get; set; }
+    public required string NomTypeStockage { get; set; }
     public required string Nom { get; set; }
     public required int Taille { get; set; }
     public required int Occuper { get; set; }

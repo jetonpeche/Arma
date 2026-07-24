@@ -27,7 +27,7 @@ public static class VaisseauRoute
                .ProducesNotFound()
                .Produces<StockageCompatibleVaisseauPossederReponse[]>();
 
-        builder.MapPost("ajouter", AjouterAsync)
+          builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter un nouveau vaisseau")
                .ProducesBadRequest()
                .ProducesCreated<int>();
@@ -95,9 +95,9 @@ public static class VaisseauRoute
                          Information = y.Information,
                          Nombre = y.Nombre,
                          MunitionInfini = y.MunitionInfini,
-                         Munition = y.Munition,
                          NbTourReload = y.NbTourReload,
-                         EstUsageUnique = y.EstUsageUnique
+                         EstUsageUnique = y.EstUsageUnique,
+                         NbNombreReloadParNbTour = y.NbNombreReloadParNbTour
                     })],
 
                     ListeStockage = [.. x.ListeStockage.Select(y => new StockageVaisseauReponse
@@ -148,6 +148,7 @@ public static class VaisseauRoute
           var listeBrute = db.GetCollection<VaisseauPosseder>()
                .Include(v => v.Vaisseau)
                .Include(v => v.Vaisseau.ListeStockage)
+               .Include(v => v.Vaisseau.ListeStockage.Select(y => y.TypeStockage))
                .Include(x => x.ListeStockage)
                .Include(x => x.ListeStockage.Select(y => y.Stockage))
                .Query()
@@ -167,19 +168,19 @@ public static class VaisseauRoute
                               Id = y.Id,
                               Nom = y.Nom,
                               Information = y.Information,
-                              MunitionMax = y.Munition,
-                              MunitionDisponible = armement?.MunitionDisponible ?? y.Munition,
                               NombreMax = y.Nombre,
                               NombreDisponible = armement?.NombreDisponible ?? y.Nombre,
                               EstUsageUnique = y.EstUsageUnique,
                               MunitionInfini = y.MunitionInfini,
-                              NbTourReload = y.NbTourReload
+                              NbTourReload = y.NbTourReload,
+                              NbNombreReloadParNbTour = y.NbNombreReloadParNbTour
                          };
                    })],
                    ListeStockage = [.. x.Vaisseau.ListeStockage.Select(y => new StockageVaisseauPossederReponse
                     {
                          Id = y.Id,
                          IdTypeStockage = y.TypeStockage.Id,
+                         NomTypeStockage = y.TypeStockage.Nom,
                          Nom = y.Nom,
                          Taille = y.Taille,
                          Occuper = x.ListeStockage
@@ -198,9 +199,9 @@ public static class VaisseauRoute
           if(_idTypeStockage <= 0)
                return Results.NotFound();
 
-        using var db = new LiteDatabase(Constant.BDD_NOM);
+          using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        var liste = db.GetCollection<VaisseauPosseder>()
+          var liste = db.GetCollection<VaisseauPosseder>()
                .Include(v => v.Vaisseau)
                .Include(v => v.Vaisseau.ListeStockage)
                .Include(x => x.ListeStockage)
@@ -211,11 +212,11 @@ public static class VaisseauRoute
                     Id = x.Id,
                     NomVaisseauAlias = x.NomVaisseau,
                     NomVaisseau = x.Vaisseau.Nom,
-                    
                     ListeStockage = [..x.Vaisseau.ListeStockage.Where(y => y.TypeStockage.Id == _idTypeStockage).Select(y => new StockageVaisseauPossederReponse
                     {
                          Id = y.Id,
                          IdTypeStockage = y.TypeStockage.Id,
+                         NomTypeStockage = "",
                          Nom = y.Nom,
                          Taille = y.Taille,
                          Occuper = x.ListeStockage
@@ -265,9 +266,9 @@ public static class VaisseauRoute
                if (element.Nombre <= 0)
                     return Results.BadRequest($"Le nombre de {element.Nom} ne peut pas être inférieur à zéro");
 
-               if (!element.MunitionInfini && element.Munition <= 0)
-                    return Results.BadRequest($"Le nombre de munitions de {element.Nom} ne peut pas être inférieur à zéro");
-          }
+               if (element.NbNombreReloadParNbTour < 0)
+                    return Results.BadRequest("Le nombre de munition recharger ne peut pas être inférieur à zéro");
+        }
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
@@ -348,10 +349,10 @@ public static class VaisseauRoute
                     Nom = element.Nom.XSS(),
                     Information = string.IsNullOrWhiteSpace(element.Information) ? null : element.Information.XSS(),
                     Nombre = element.Nombre,
-                    Munition = element.MunitionInfini ? 0 : element.Munition,
                     MunitionInfini = element.MunitionInfini,
                     NbTourReload = element.NbTourReload,
-                    EstUsageUnique = element.EstUsageUnique
+                   EstUsageUnique = element.EstUsageUnique,
+                   NbNombreReloadParNbTour = element.NbNombreReloadParNbTour
                });
           }
 
@@ -574,9 +575,9 @@ public static class VaisseauRoute
                if (element.Nombre <= 0)
                     return Results.BadRequest($"Le nombre de {element.Nom} ne peut pas être inférieur à zéro");
 
-               if (!element.MunitionInfini && element.Munition <= 0)
-                    return Results.BadRequest($"Le nombre de munitions de {element.Nom} ne peut pas être inférieur à zéro");
-          }
+               if (element.NbNombreReloadParNbTour < 0)
+                    return Results.BadRequest("Le nombre de munition recharger ne peut pas être inférieur à zéro");
+        }
 
           for (int i = 0; i < _requete.ListeStockage.Length; i++)
           {
@@ -667,7 +668,7 @@ public static class VaisseauRoute
                          EstUsageUnique = x.EstUsageUnique,
                          Information = string.IsNullOrWhiteSpace(x.Information) ? null : x.Information.XSS(),
                          MunitionInfini = x.MunitionInfini,
-                         Munition = x.MunitionInfini ? 0 : x.Munition
+                         NbNombreReloadParNbTour = x.NbNombreReloadParNbTour
                     };
                }
 
@@ -680,7 +681,7 @@ public static class VaisseauRoute
                     EstUsageUnique = x.EstUsageUnique,
                     Information = string.IsNullOrWhiteSpace(x.Information) ? null : x.Information.XSS(),
                     MunitionInfini = x.MunitionInfini,
-                    Munition = x.MunitionInfini ? 0 : x.Munition
+                    NbNombreReloadParNbTour = x.NbNombreReloadParNbTour
                };
           })];
 
