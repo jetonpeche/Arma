@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Vaisseau, VaisseauAchaterRequete, VaisseauLeger, VaisseauRequete } from "@models/Vaisseau";
-import { VaisseauPosseder, VaisseauPossederStockageCompatible } from "@models/VaisseauPosseder";
+import { VaisseauPosseder, VaisseauPossederContenuStockage, VaisseauPossederStockageCompatible } from "@models/VaisseauPosseder";
 
 export class VaisseauService
 {
@@ -31,6 +31,11 @@ export class VaisseauService
     ListerStockageCompatible(_idTypeStockage: number): Observable<VaisseauPossederStockageCompatible[]>
     {
         return this.http.get<VaisseauPossederStockageCompatible[]>(`${this.BASE_API}/lister-stockage-compatible/${_idTypeStockage}`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ListerContenuStockage(_idVaisseauPosseder: number, _idStockage: number): Observable<VaisseauPossederContenuStockage[]>
+    {
+        return this.http.get<VaisseauPossederContenuStockage[]>(`${this.BASE_API}/${_idVaisseauPosseder}/lister-contenu-stockage/${_idStockage}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Ajouter(_vaisseau: VaisseauRequete): Observable<void>

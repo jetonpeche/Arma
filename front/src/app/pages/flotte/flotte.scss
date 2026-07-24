@@ -108,7 +108,7 @@
     display: flex;
     flex-direction: column;
     gap: 40px;
-    padding: 0 16px 40px 16px;
+    padding: 0 0 40px 0;
     max-width: 1400px; 
     margin: 0 auto;
 }
@@ -295,6 +295,7 @@
 
 /* --- DÉTAILS STOCKAGE --- */
 .storage-block {
+    cursor: pointer;
     padding: 12px;
 
     .sb-header {

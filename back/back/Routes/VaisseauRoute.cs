@@ -27,7 +27,11 @@ public static class VaisseauRoute
                .ProducesNotFound()
                .Produces<StockageCompatibleVaisseauPossederReponse[]>();
 
-          builder.MapPost("ajouter", AjouterAsync)
+          builder.MapGet("{idVaisseauPosseder}/lister-contenu-stockage/{idStockage}", ListerContenuStockageAsync)
+               .ProducesNotFound()
+               .Produces<ContenuStockagePossederReponse[]>();
+
+        builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter un nouveau vaisseau")
                .ProducesBadRequest()
                .ProducesCreated<int>();
@@ -183,14 +187,37 @@ public static class VaisseauRoute
                          NomTypeStockage = y.TypeStockage.Nom,
                          Nom = y.Nom,
                          Taille = y.Taille,
-                         Occuper = x.ListeStockage
+                         Occuper = x.ListeStockage?
                               .Where(z => x.ListeStockage != null && z.Stockage.Id == y.Id)
-                              .Sum(z => z.Quantite)
+                              .Sum(z => z.Quantite) ?? 0
                     })]
                });
 
         return Results.Extensions.Ok(listeBrute, VaisseauPossederReponseContext.Default);
      }
+
+    static async Task<IResult> ListerContenuStockageAsync(
+          [FromRoute(Name = "idVaisseauPosseder")] int _idVaisseauPosseder, 
+          [FromRoute(Name = "idStockage")] int _idStockage 
+    )
+    {
+          if (_idVaisseauPosseder <= 0 || _idStockage <= 0)
+               return Results.NotFound();
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var liste = db.GetCollection<StockageVaisseauPosseder>().Query()
+               .Include(x => x.Logistique)
+               .Where(x => x.VaisseauPosseder.Id == _idVaisseauPosseder && x.Stockage.Id == _idStockage)
+               .Select(x => new ContenuStockagePossederReponse
+               {
+                    Id = x.Id,
+                    Nom = x.Logistique.Nom,
+                    Quantite = x.Quantite
+               }).ToArray();
+
+          return Results.Extensions.Ok(liste, ContenuStockagePossederReponseContext.Default);
+    }
 
     static async Task<IResult> ListerStockageCompatibleAsync(
           [FromRoute(Name = "idTypeStockage")] int _idTypeStockage

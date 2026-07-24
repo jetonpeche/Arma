@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>MANIFESTE DE SOUTE</h2>
+
+<mat-dialog-content class="modal-body">
+    <div class="cargo-manifest">
+        @for (item of dialogData; track item.id) 
+        {
+            <div class="cargo-item">
+                <div class="ci-icon">
+                    <mat-icon>widgets</mat-icon>
+                </div>
+                
+                <div class="ci-details">
+                    <span class="ci-name">{{ item.nom }}</span>
+                </div>
+                
+                <div class="ci-quantity">
+                    <span class="qty-label">QTÉ</span>
+                    <span class="qty-value">{{ item.quantite }}</span>
+                </div>
+            </div>
+        }
+        @empty 
+        {
+            <div class="empty-manifest">
+                <mat-icon>scan_delete</mat-icon>
+                <span>LA SOUTE EST TOTALEMENT VIDE</span>
+            </div>
+        }
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>FERMER LA SOUTE</button>
+</mat-dialog-actions>

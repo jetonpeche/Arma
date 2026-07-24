@@ -131,15 +131,14 @@
             <div class="tab-content storage-grid">
                @for (stock of vaisseau.listeStockage; track stock.id) 
                {
-                  <div class="storage-block">
+                  <div class="storage-block" (click)="OuvrirModalContenuStockage(vaisseau.id, stock.id)">
                       <div class="sb-header">
                           <span class="sb-type">{{ stock.nomTypeStockage }}</span>
                           <span class="sb-name">{{ stock.nom }}</span>
                       </div>
                       <mat-progress-bar 
                           mode="determinate" 
-                          [value]="(stock.occuper / stock.taille) * 100" 
-                          color="accent">
+                          [value]="(stock.occuper / stock.taille) * 100">
                       </mat-progress-bar>
                       <div class="sb-footer">
                           <span>OCCUPÉ: {{ stock.occuper }}</span>

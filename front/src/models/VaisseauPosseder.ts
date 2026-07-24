@@ -39,3 +39,10 @@ export type VaisseauPossederStockageCompatible =
     nomVaisseauAlias: string,
     listeStockage: VaisseauPossederStockage[]
 }
+
+export type VaisseauPossederContenuStockage =
+{
+    id: number,
+    nom: string,
+    quantite: number
+}
