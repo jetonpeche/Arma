@@ -310,15 +310,14 @@ mat-option {
    ========================================================= */
 :host-context(html.light-mode) {
     .asset-card {
-        background-color: #ffffff;
+        background-color: #f5f8f6; 
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         border-color: var(--mat-sys-outline-variant);
         
         /* Couleurs au repos */
-        .asset-header { background: linear-gradient(90deg, #f4f7f6 0%, transparent 100%); }
-        .asset-actions { background-color: #f9fbfb; }
+        .asset-header { background: linear-gradient(90deg, #eaefed 0%, transparent 100%); }
+        .asset-actions { background-color: #f0f3f2; }
         
-        /* Contraste pour les carrés de statistiques */
         .stat-grid .stat-item { 
             background-color: var(--mat-sys-surface-container);
             border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 25%, transparent);
@@ -328,19 +327,19 @@ mat-option {
                 border-color: color-mix(in srgb, var(--mat-sys-outline) 40%, transparent);
             }
 
-            /* Sécurité pour le survol si des éléments cliquables sont ajoutés plus tard */
+            /* Sécurité pour le survol */
             &.clickable:hover {
                 background-color: color-mix(in srgb, var(--mat-sys-secondary) 15%, transparent);
                 border-color: var(--mat-sys-secondary);
-                
                 &::before { border-color: var(--mat-sys-secondary); }
             }
         }
 
         /* --- INTENSIFICATION DU SURVOL DE LA CARTE --- */
         &:hover { 
-            box-shadow: -8px 8px 16px rgba(0, 0, 0, 0.12); /* Ombre légèrement renforcée */
+            box-shadow: -8px 8px 16px rgba(0, 0, 0, 0.12);
             border-left-color: var(--mat-sys-primary);
+            
             border-top-color: color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
             border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
 
@@ -350,16 +349,16 @@ mat-option {
         }
     }
     
-    .empty-state { background-color: #f4f7f6; }
+    .empty-state { background-color: #f5f8f6; }
     
     .tactical-paginator {
-        background-color: #ffffff;
+        background-color: #f5f8f6;
         border-color: var(--mat-sys-outline-variant);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     .asset-body .asset-description {
-        background-color: #f4f7f6;
+        background-color: #eaefed;
         border-left-color: var(--mat-sys-outline-variant);
     }
 }
