@@ -1,4 +1,6 @@
-﻿namespace back.Models;
+﻿using LiteDB;
+
+namespace back.Models;
 
 public sealed class ArmementVaisseau
 {
