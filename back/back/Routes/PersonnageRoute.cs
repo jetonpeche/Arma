@@ -413,10 +413,7 @@ public static class PersonnageRoute
 
           var personnageCol = db.GetCollection<Personnage>();
 
-          var predicatBuilder = PredicateBuilder.True<Personnage>();
-
-          for (int i = 0; i < _listeIdPersonnage.Length; i++)
-               predicatBuilder.Or(x => x.Id == _listeIdPersonnage[i]);
+          var listeBsonIdPersonnage = _listeIdPersonnage.Select(x => new BsonValue(x)).ToArray();
 
           var listeGrade = db.GetCollection<Grade>().Query()
                .Where(x => x.NbOperationRequis > 0)
@@ -425,7 +422,7 @@ public static class PersonnageRoute
 
           var listePersonnage = personnageCol.Query()
                .Include(x => x.Grade)
-               .Where(predicatBuilder)
+               .Where(Query.In("_id", listeBsonIdPersonnage))
                .ToArray();
 
           if (listePersonnage.Length is 0)
