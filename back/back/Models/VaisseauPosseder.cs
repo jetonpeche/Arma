@@ -23,7 +23,7 @@ public sealed class VaisseauPosseder
 
 public sealed class ArmementVaisseauPosseder
 {
-    public Guid IdArmement { get; set; }
-    public int MunitionDisponible { get; set; }
-    public int NombreDisponible { get; set; }
+     public Guid IdArmement { get; set; }
+     public int NombreDetruit { get; set; }
+     public int NombreDisponible { get; set; }
 }

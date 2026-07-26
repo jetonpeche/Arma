@@ -174,6 +174,7 @@ public static class VaisseauRoute
                               Information = y.Information,
                               NombreMax = y.Nombre,
                               NombreDisponible = armement?.NombreDisponible ?? y.Nombre,
+                              NombreDetruit = armement?.NombreDetruit ?? 0,
                               EstUsageUnique = y.EstUsageUnique,
                               MunitionInfini = y.MunitionInfini,
                               NbTourReload = y.NbTourReload,

@@ -73,7 +73,7 @@
             <div class="tab-content weapon-grid">
                @for (arme of vaisseau.listeArmement; track arme.id) 
                {
-                  <div class="tactical-item">
+                  <div class="tactical-item" (click)="OuvrirModalModifierArmement(vaisseau.id, arme)">
                       <div class="ti-header">
                           <span class="ti-name">{{ arme.nom }}</span>
                           @if (arme.estUsageUnique) {

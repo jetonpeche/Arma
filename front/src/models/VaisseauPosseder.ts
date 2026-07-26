@@ -16,6 +16,7 @@ export type VaisseauPossederArmement =
     information: string | null,
     nombreMax: number,
     nombreDisponible: number,
+    nombreDetruit: number,
     nbTourReload: number,
     nbNombreReloadParNbTour: number,
     munitionInfini: boolean,

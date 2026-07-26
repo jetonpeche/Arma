@@ -6,9 +6,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
-import { VaisseauPosseder } from '@models/VaisseauPosseder';
+import { VaisseauPosseder, VaisseauPossederArmement } from '@models/VaisseauPosseder';
 import { VaisseauService } from '@services/VaisseauService';
 import { ModalContenuStockage } from './modal-contenu-stockage/modal-contenu-stockage';
+import { ModalModifierArmement } from './modal-modifier-armement/modal-modifier-armement';
 
 @Component({
   selector: 'app-flotte',
@@ -18,38 +19,50 @@ import { ModalContenuStockage } from './modal-contenu-stockage/modal-contenu-sto
 })
 export class Flotte implements OnInit
 {
-  protected listeVaisseau = signal<VaisseauPosseder[]>([]);
+    protected listeVaisseau = signal<VaisseauPosseder[]>([]);
 
-  private vaisseauServ = inject(VaisseauService);
-  private dialog = inject(MatDialog);
-  private readonly estMobile = window.innerWidth <= 800;
+    private vaisseauServ = inject(VaisseauService);
+    private dialog = inject(MatDialog);
+    private readonly estMobile = window.innerWidth <= 800;
 
-  ngOnInit(): void 
-  {
-    this.Lister();
-  }
+    ngOnInit(): void 
+    {
+        this.Lister();
+    }
 
-  protected OuvrirModalContenuStockage(_idVaisseau: number, _idStockage): void
-  {
-    this.vaisseauServ.ListerContenuStockage(_idVaisseau, _idStockage).subscribe({
-      next: (retour) =>
-      {
-        this.dialog.open(ModalContenuStockage, {
-          width: this.estMobile ? "95%" : "30%", 
-          maxWidth: "100vw",
-          data: retour
+    protected OuvrirModalModifierArmement(_idVaisseauPosseder: number, _armement: VaisseauPossederArmement): void
+    {
+        this.dialog.open(ModalModifierArmement, {
+            width: this.estMobile ? "95%" : "50%", 
+            maxWidth: "100vw",
+            data: {
+                idVaisseauPosseder: _idVaisseauPosseder,
+                armement: _armement
+            }
         });
-      }
-    });
-  }
+    }
 
-  private Lister(): void
-  {
-    this.vaisseauServ.ListerPosseder().subscribe({
-      next: (retour) =>
-      {
-        this.listeVaisseau.set(retour);
-      }
-    });
-  }
+    protected OuvrirModalContenuStockage(_idVaisseau: number, _idStockage): void
+    {
+        this.vaisseauServ.ListerContenuStockage(_idVaisseau, _idStockage).subscribe({
+        next: (retour) =>
+        {
+            this.dialog.open(ModalContenuStockage, {
+            width: this.estMobile ? "95%" : "30%", 
+            maxWidth: "100vw",
+            data: retour
+            });
+        }
+        });
+    }
+
+    private Lister(): void
+    {
+        this.vaisseauServ.ListerPosseder().subscribe({
+        next: (retour) =>
+        {
+            this.listeVaisseau.set(retour);
+        }
+        });
+    }
 }

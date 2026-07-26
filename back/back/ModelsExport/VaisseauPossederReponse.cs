@@ -20,8 +20,8 @@ public sealed class ArmementVaisseauPossederReponse
     public required string? Information { get; set; }
     public required int NombreMax { get; set; }
     public required int NombreDisponible { get; set; }
-
-    public required bool MunitionInfini { get; set; }
+     public required int NombreDetruit { get; set; }
+     public required bool MunitionInfini { get; set; }
     public required bool EstUsageUnique { get; set; }
     public required int NbTourReload { get; set; }
     public required int NbNombreReloadParNbTour { get; set; }
