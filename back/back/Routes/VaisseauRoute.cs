@@ -183,14 +183,14 @@ public static class VaisseauRoute
                          ListeArmement = [.. x.Vaisseau.ListeArmement.Select(y =>
                          {
                               dictArmement.TryGetValue(y.Id, out var armement);
-                              
+
                               return new ArmementVaisseauPossederReponse
                               {
                                    Id = y.Id,
                                    Nom = y.Nom,
                                    Information = y.Information,
                                    NombreMax = y.Nombre,
-                                   NombreDisponible = armement?.NombreDisponible ?? y.Nombre,
+                                   NombreDisponible = armement is not null ? y.Nombre - armement.NombreDetruit : y.Nombre,
                                    NombreDetruit = armement?.NombreDetruit ?? 0,
                                    EstUsageUnique = y.EstUsageUnique,
                                    MunitionInfini = y.MunitionInfini,
@@ -317,9 +317,20 @@ public static class VaisseauRoute
 
                if (element.NbNombreReloadParNbTour < 0)
                     return Results.BadRequest("Le nombre de munition recharger ne peut pas être inférieur à zéro");
-        }
+          }
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          for (int i = 0; i < _requete.ListeAeronef.Length; i++)
+          {
+               var element = _requete.ListeAeronef[i];
+
+               if (element.Nombre < 0)
+                    return Results.BadRequest("Le nombre d'aéronef ne peut pas être négatif");
+
+               if (element.Id <= 0 || !db.GetCollection<Aeronef>().Exists(x => x.Id == element.Id))
+                    return Results.BadRequest($"L'aéronef {element.Id} existe pas");
+          }
 
           for (int i = 0; i < _requete.ListeStockage.Length; i++)
           {
@@ -365,6 +376,11 @@ public static class VaisseauRoute
                Prix = _requete.Prix,
                Stock = 0,
                BloquerAchat = _requete.BloquerAchat,
+               ListeAeronef = [.. _requete.ListeAeronef.Select(x => new VaisseauAeronef
+               {
+                    Aeronef = new() { Id = x.Id },
+                    Nombre = x.Nombre
+               })],
                Equipage = new()
                {
                     NbPlaceMarines = _requete.Equipage.NbPlaceMarines,
@@ -386,9 +402,9 @@ public static class VaisseauRoute
                vaisseau.ListeVaisseauEnPlus = [.. _requete.ListeIdVaisseauEnfant.Select(x => new Vaisseau { Id = x })];
           }
           else
-               vaisseau.ListeVaisseauEnPlus = [];
+            vaisseau.ListeVaisseauEnPlus = [];
 
-          for (int i = 0; i < _requete.ListeArmement.Length; i++)
+        for (int i = 0; i < _requete.ListeArmement.Length; i++)
           {
                var element = _requete.ListeArmement[i];
 
@@ -611,6 +627,17 @@ public static class VaisseauRoute
           if (_requete.Equipage.NbPlacePassager < 0)
                return Results.BadRequest("Le nombre de passager ne peut pas être inférieur à zéro");
 
+          for (int i = 0; i < _requete.ListeAeronef.Length; i++)
+          {
+               var element = _requete.ListeAeronef[i];
+
+               if (element.Nombre < 0)
+                    return Results.BadRequest("Le nombre d'aéronef ne peut pas être négatif");
+
+               if (element.Id <= 0 || !db.GetCollection<Aeronef>().Exists(x => x.Id == element.Id))
+                    return Results.BadRequest($"L'aéronef {element.Id} existe pas");
+          }
+        
           for (int i = 0; i < _requete.ListeArmement.Length; i++)
           {
                var element = _requete.ListeArmement[i];
@@ -753,11 +780,35 @@ public static class VaisseauRoute
                     db.GetCollection<VaisseauStockageContenuDefaut>().DeleteMany(Query.In("_id", listeIdBson));
                }
           }
-          
-        var dictStockage = vaisseau.ListeStockage
+
+        var listeIdAeronef = _requete.ListeAeronef.Select(x => x.Id);
+
+          // supprimer les aeronefs dans vaisseaux possedé qui ne sont pas dans la requete
+          var listeIdAeronefSupprimer = vaisseau.ListeAeronef
+                    .Where(x => !_requete.ListeAeronef.Any(y => y.Id == x.Aeronef.Id))
+                    .Select(x => x.Aeronef.Id)
+                    .ToArray();
+
+          if (listeIdAeronefSupprimer.Length > 0)
+          {
+               var listeVaisseauPosseder = db.GetCollection<VaisseauPosseder>().Query().Where(x => x.Vaisseau.Id == vaisseau.Id).ToArray();
+
+               foreach (var element in listeVaisseauPosseder)
+                    element.ListeAeronef.RemoveAll(x => listeIdAeronefSupprimer.Contains(x.Aeronef.Id));
+
+               db.GetCollection<VaisseauPosseder>().Update(listeVaisseauPosseder);
+          }
+
+          var dictStockage = vaisseau.ListeStockage
               .ToDictionary(x => x.Id);
 
-          vaisseau.ListeStockage = [.. _requete.ListeStockage.Select(x =>
+          vaisseau.ListeAeronef = [.. _requete.ListeAeronef.Select(x => new VaisseauAeronef
+          {
+               Aeronef = new() { Id = x.Id },
+               Nombre = x.Nombre
+          })];
+
+        vaisseau.ListeStockage = [.. _requete.ListeStockage.Select(x =>
           {
                if(x.Id.HasValue && dictStockage.TryGetValue(x.Id.Value, out var stockage))
                {
@@ -862,8 +913,6 @@ public static class VaisseauRoute
           if (armement is not null)
           {
                armement.NombreDetruit = _requete.NombreDetruit;
-               armement.NombreDisponible = _requete.NombreDisponible;
-
                db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
           }
           else
@@ -871,7 +920,6 @@ public static class VaisseauRoute
                vaisseauPosseder.ListeCapaciteArmement.Add(new ArmementVaisseauPosseder
                {
                    IdArmement = _requete.IdArmement,
-                   NombreDisponible = _requete.NombreDisponible,
                    NombreDetruit = _requete.NombreDetruit
                });
                

@@ -21,10 +21,19 @@ public sealed class Vaisseau
      public List<StockageVaisseau> ListeStockage { get; set; } = [];
 
      [BsonRef]
-     public List<Vaisseau> ListeVaisseauEnPlus { get; set; } = [];
+    public List<Vaisseau> ListeVaisseauEnPlus { get; set; } = [];
 
-     public EquipageVaisseau Equipage { get; set; } = null!;
+    public List<VaisseauAeronef> ListeAeronef { get; set; } = [];
+
+    public EquipageVaisseau Equipage { get; set; } = null!;
 
      public string Vitesse { get; set; } = null!;
      public string Blindage { get; set; } = null!;
+}
+
+public sealed class VaisseauAeronef
+{
+     [BsonRef]
+    public Aeronef Aeronef { get; set; } = null!;
+    public int Nombre { get; set; }
 }
