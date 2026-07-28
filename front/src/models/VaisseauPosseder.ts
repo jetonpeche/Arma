@@ -23,6 +23,13 @@ export type VaisseauPossederArmement =
     estUsageUnique: boolean
 }
 
+export type VaisseauPossederArmementRequete =
+{
+    idArmement: string,
+    nombreDisponible: number,
+    nombreDetruit: number,
+}
+
 export type VaisseauPossederStockage = 
 {
     id: number,

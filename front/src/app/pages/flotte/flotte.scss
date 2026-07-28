@@ -226,6 +226,7 @@
    MODULES INTERNES (Avec petite découpe de blindage)
    ========================================================= */
 .tactical-item, .storage-block {
+    cursor: pointer;
     background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 30%, transparent);
     padding: 16px;
     display: flex; flex-direction: column; gap: 8px;

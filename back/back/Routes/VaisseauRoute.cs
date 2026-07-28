@@ -46,6 +46,11 @@ public static class VaisseauRoute
                .ProducesBadRequest()
                .ProducesNoContent();
 
+          builder.MapPatch("modifier-armement-posseder/{idVaisseauPosseder:int}", ModifierArmementPossederAsync)
+               .WithDescription("Modifier un vaisseau")
+               .ProducesBadRequest()
+               .ProducesNoContent();
+
           builder.MapDelete("supprimer/{idVaisseau:int}", SupprimerAsync)
                .WithDescription("Supprimer un vaisseau")
                .ProducesNotFound()
@@ -157,41 +162,57 @@ public static class VaisseauRoute
                .Include(x => x.ListeStockage.Select(y => y.Stockage))
                .Query()
                .ToList()
-               .ConvertAll(x => new VaisseauPossederReponse
+               .ConvertAll(x =>
                {
-                    Id = x.Id,
-                    Information = x.Information,
-                    NomVaisseauAlias = x.NomVaisseau,
-                    NomVaisseau = x.Vaisseau.Nom,
-                    NomCommandant = x.NomCommandant,
-                    ListeArmement = [.. x.Vaisseau.ListeArmement.Select(y =>
+                    var dictArmement = x.ListeCapaciteArmement?
+                         .GroupBy(a => a.IdArmement)
+                         .ToDictionary(g => g.Key, g => g.First()) ?? [];
+
+                    var dictStockageOccupe = x.ListeStockage?
+                         .Where(s => s.Stockage != null)
+                         .GroupBy(s => s.Stockage.Id)
+                         .ToDictionary(g => g.Key, g => g.Sum(s => s.Quantite)) ?? [];
+
+                    return new VaisseauPossederReponse
                     {
-                         var armement = x.ListeCapaciteArmement.FirstOrDefault(z => z.IdArmement == y.Id);
-                         return new ArmementVaisseauPossederReponse
+                         Id = x.Id,
+                         Information = x.Information,
+                         NomVaisseauAlias = x.NomVaisseau,
+                         NomVaisseau = x.Vaisseau.Nom,
+                         NomCommandant = x.NomCommandant,
+                         ListeArmement = [.. x.Vaisseau.ListeArmement.Select(y =>
                          {
-                              Id = y.Id,
-                              Nom = y.Nom,
-                              Information = y.Information,
-                              NombreMax = y.Nombre,
-                              NombreDisponible = armement?.NombreDisponible ?? y.Nombre,
-                              NombreDetruit = armement?.NombreDetruit ?? 0,
-                              EstUsageUnique = y.EstUsageUnique,
-                              MunitionInfini = y.MunitionInfini,
-                              NbTourReload = y.NbTourReload,
-                              NbNombreReloadParNbTour = y.NbNombreReloadParNbTour
-                         };
-                   })],
-                   ListeStockage = [.. x.Vaisseau.ListeStockage.Select(y => new StockageVaisseauPossederReponse
-                    {
-                         Id = y.Id,
-                         IdTypeStockage = y.TypeStockage.Id,
-                         NomTypeStockage = y.TypeStockage.Nom,
-                         Nom = y.Nom,
-                         Taille = y.Taille,
-                         Occuper = x.ListeStockage?
-                              .Where(z => x.ListeStockage != null && z.Stockage.Id == y.Id)
-                              .Sum(z => z.Quantite) ?? 0
-                    })]
+                              dictArmement.TryGetValue(y.Id, out var armement);
+                              
+                              return new ArmementVaisseauPossederReponse
+                              {
+                                   Id = y.Id,
+                                   Nom = y.Nom,
+                                   Information = y.Information,
+                                   NombreMax = y.Nombre,
+                                   NombreDisponible = armement?.NombreDisponible ?? y.Nombre,
+                                   NombreDetruit = armement?.NombreDetruit ?? 0,
+                                   EstUsageUnique = y.EstUsageUnique,
+                                   MunitionInfini = y.MunitionInfini,
+                                   NbTourReload = y.NbTourReload,
+                                   NbNombreReloadParNbTour = y.NbNombreReloadParNbTour
+                              };
+                         })],
+                         ListeStockage = [.. x.Vaisseau.ListeStockage.Select(y => 
+                         {
+                              dictStockageOccupe.TryGetValue(y.Id, out int occuper);
+
+                              return new StockageVaisseauPossederReponse
+                              {
+                                   Id = y.Id,
+                                   IdTypeStockage = y.TypeStockage.Id,
+                                   NomTypeStockage = y.TypeStockage.Nom,
+                                   Nom = y.Nom,
+                                   Taille = y.Taille,
+                                   Occuper = occuper
+                              };
+                         })]
+                    };
                });
 
         return Results.Extensions.Ok(listeBrute, VaisseauPossederReponseContext.Default);
@@ -816,9 +837,51 @@ public static class VaisseauRoute
           var ok = db.GetCollection<Vaisseau>().Update(vaisseau);
 
           return ok ? Results.NoContent() : Results.NotFound("Le vaisseau n'existe pas");
-     }
+    }
 
-     static async Task<IResult> SupprimerAsync(
+    static async Task<IResult> ModifierArmementPossederAsync(
+          [FromRoute(Name = "idVaisseauPosseder")] int _idVaisseauPosseder,
+          [FromBody] ArmementPossederRequete _requete
+    )
+    {
+          if (_idVaisseauPosseder <= 0)
+               return Results.NotFound("Le vaisseau n'existe pas");
+            
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var vaisseauPosseder = db.GetCollection<VaisseauPosseder>()
+               .Query()
+               .Where(x => x.Id ==  _idVaisseauPosseder)
+               .FirstOrDefault();
+
+          if (vaisseauPosseder is null)
+               return Results.NotFound("Le vaisseau n'existe pas");
+
+          var armement = vaisseauPosseder.ListeCapaciteArmement.FirstOrDefault(x => x.IdArmement == _requete.IdArmement);
+
+          if (armement is not null)
+          {
+               armement.NombreDetruit = _requete.NombreDetruit;
+               armement.NombreDisponible = _requete.NombreDisponible;
+
+               db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
+          }
+          else
+          {
+               vaisseauPosseder.ListeCapaciteArmement.Add(new ArmementVaisseauPosseder
+               {
+                   IdArmement = _requete.IdArmement,
+                   NombreDisponible = _requete.NombreDisponible,
+                   NombreDetruit = _requete.NombreDetruit
+               });
+               
+               db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
+          }
+
+          return Results.NoContent();
+    }
+
+    static async Task<IResult> SupprimerAsync(
           [FromRoute(Name = "idVaisseau")] int _idVaisseau
      )
      {

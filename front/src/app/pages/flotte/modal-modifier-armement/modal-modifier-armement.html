@@ -1,1 +1,18 @@
-<p>modal-modifier-armement works!</p>
+<h2 mat-dialog-title>Modifier {{ dialogData.armement.nom }}</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-number label="Nombre disponible" formControlName="nombreDisponible" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-number label="Nombre détruit" formControlName="nombreDetruit" />
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>Fermer</button>&nbsp;
+    <jp-button-loader matButton="filled" [loading]="btnClick()" (clicked)="Valider()" label="Valider" />
+</mat-dialog-actions>
