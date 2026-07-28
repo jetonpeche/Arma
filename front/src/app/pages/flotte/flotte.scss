@@ -244,6 +244,49 @@
     }
 
     &:hover::before { background-color: var(--mat-sys-primary); }
+
+    &.is-destroyed {
+        background-color: color-mix(in srgb, var(--mat-sys-error) 10%, transparent);
+        border: 1px solid color-mix(in srgb, var(--mat-sys-error) 30%, transparent);
+        
+        /* Hachures de zone condamnée */
+        background-image: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            color-mix(in srgb, var(--mat-sys-error) 3%, transparent) 10px,
+            color-mix(in srgb, var(--mat-sys-error) 3%, transparent) 20px
+        );
+
+        &::before {
+            background-color: var(--mat-sys-error);
+        }
+
+        /* Barre le nom de l'arme */
+        .ti-name {
+            color: var(--mat-sys-error);
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+
+        /* Modifie l'affichage du statut disponible */
+        .progress-labels > span:first-child,
+        .progress-labels .status-group > span:first-child {
+            color: var(--mat-sys-error);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .info-text {
+            color: color-mix(in srgb, var(--mat-sys-error) 70%, transparent);
+            border-top-color: color-mix(in srgb, var(--mat-sys-error) 30%, transparent);
+        }
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--mat-sys-error) 15%, transparent);
+            border-color: var(--mat-sys-error);
+        }
+    }
 }
 
 /* --- DÉTAILS ARMEMENT --- */
@@ -262,10 +305,33 @@
 
 .ti-progress-zone {
     padding-left: 8px;
+
+    .mat-mdc-progress-bar { height: 6px !important; border-radius: 0 !important; }
     
     .progress-labels {
-        display: flex; justify-content: space-between; font-family: 'Courier New', Courier, monospace;
-        font-size: 0.75rem; color: var(--mat-sys-outline); margin-bottom: 4px;
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.75rem; 
+        color: var(--mat-sys-outline); 
+        margin-bottom: 4px;
+
+        .status-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .detruit-badge {
+                color: var(--mat-sys-error);
+                font-weight: 900;
+                background-color: color-mix(in srgb, var(--mat-sys-error) 15%, transparent);
+                padding: 2px 6px;
+                border-radius: 2px;
+                font-size: 0.7rem;
+                letter-spacing: 0.5px;
+            }
+        }
     }
 
     /* Le texte illimité s'affiche désormais sous la barre */
@@ -279,7 +345,6 @@
         text-align: right;
     }
 }
-::ng-deep .mat-mdc-progress-bar { height: 6px !important; border-radius: 0 !important; }
 
 .ti-footer {
     display: flex; justify-content: flex-end; align-items: center; padding-left: 8px;
@@ -296,7 +361,6 @@
 
 /* --- DÉTAILS STOCKAGE --- */
 .storage-block {
-    cursor: pointer;
     padding: 12px;
 
     .sb-header {
@@ -441,7 +505,7 @@
         background-color: transparent;
     }
 
-    /* Modules internes (Armes & Stockage) : Contraste maintenu */
+    /* Modules internes (Armes & Stockage) */
     .tactical-item, .storage-block {
         background-color: var(--mat-sys-surface-container);
         border: 1px solid var(--mat-sys-outline);
@@ -457,6 +521,23 @@
             
             &::before {
                 background-color: var(--mat-sys-primary);
+            }
+        }
+
+        &.is-destroyed {
+            background-color: color-mix(in srgb, var(--mat-sys-error) 5%, #ffffff);
+            border-color: color-mix(in srgb, var(--mat-sys-error) 40%, transparent);
+            
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                color-mix(in srgb, var(--mat-sys-error) 5%, transparent) 10px,
+                color-mix(in srgb, var(--mat-sys-error) 5%, transparent) 20px
+            );
+
+            &:hover {
+                background-color: color-mix(in srgb, var(--mat-sys-error) 10%, #ffffff);
             }
         }
     }
