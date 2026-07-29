@@ -16,10 +16,18 @@ public sealed class VaisseauReponse
      public required StockageVaisseauReponse[] ListeStockage { get; set; }
      public required ArmementVaisseauReponse[] ListeArmement { get; set; }
      public required VaisseauLegerReponse[] ListeVaisseauEnfant { get; set; }
+     public required VaisseauAeronefReponse[] ListeAeronef { get; set; }
      public required EquipageVaisseauReponse Equipage { get; set; }
 
      public string Vitesse { get; set; } = null!;
      public string Blindage { get; set; } = null!;
+}
+
+public sealed class VaisseauAeronefReponse
+{
+     public required int Id { get; set; }
+     public required string Nom { get; set; }
+     public required int Nombre { get; set; }
 }
 
 public sealed class StockageVaisseauReponse

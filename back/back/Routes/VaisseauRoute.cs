@@ -70,6 +70,7 @@ public static class VaisseauRoute
                .Include(x => x.ListeStockage.Select(y => y.TypeStockage))
                .Include(x => x.ListeStockage.Select(y => y.ListeContenuDefaut))
                .Include(x => x.ListeStockage.Select(y => y.ListeContenuDefaut.Select(z => z.Logistique)))
+               .Include(x => x.ListeAeronef.Select(y => y.Aeronef))
                .Where(x => !x.EstSupprimer)
                .ToList()
                .Select(x => new VaisseauReponse
@@ -126,6 +127,11 @@ public static class VaisseauRoute
                               Nom = z.Logistique.Nom,
                               Quantite = z.Quantite
                          })]
+                    })],
+
+                   ListeAeronef = [.. x.ListeAeronef.Select(y => new VaisseauAeronefReponse
+                    {
+                         
                     })]
                })
                .ToArray();
