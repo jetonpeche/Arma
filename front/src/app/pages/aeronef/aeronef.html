@@ -1,0 +1,108 @@
+<div class="page-header">
+  <div class="header-titles">
+        <h1>Flotte de Combat Spatial</h1>
+        <div class="unsc-subtitle">// CATALOGUE D'ACQUISITION - INTERCEPTEURS EXO-ATMOSPHÉRIQUES</div>
+  </div>
+
+  <div class="header-actions">
+      @if(droit.peutEcrire)
+      {
+        <button matButton="filled" (click)="OuvrirModalAjouterModifierAeronef()">
+          <mat-icon>add</mat-icon>
+          AJOUTER UN AÉRONEF
+        </button>
+      }
+  </div>
+</div>
+
+<!-- FILTRES DE RECHERCHE -->
+<div class="tactical-filters">
+    <mat-form-field appearance="outline">
+        <mat-label>Recherche dans le hangar...</mat-label>
+        <input matInput #input (keyup)="Rechercher(input.value)">
+        <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+</div>
+
+<!-- GRILLE DES AÉRONEFS -->
+<div class="aeronef-grid">
+    @for (aeronef of listeAeronef(); track aeronef.id) 
+    {
+        <div class="aeronef-card">
+            
+            <!-- Visuel Stratégique (Image) -->
+            <div class="ac-visual">
+                @if (aeronef.urlImage) 
+                {
+                    <img [src]="aeronef.urlImage" [alt]="aeronef.nom" class="schematic-img">
+                } 
+                @else 
+                {
+                    <div class="no-schematic">
+                        <mat-icon>satellite_alt</mat-icon>
+                        <span>VISUEL INDISPONIBLE</span>
+                    </div>
+                }
+                
+                <!-- Overlay d'Upload (Personnel autorisé uniquement) -->
+                @if (droit.peutEcrire) 
+                {
+                    <div class="upload-overlay">
+                       <jp-input-file-btn matIconButton
+                                           icon="photo"    
+                                           (fileChange)="UploadFichier(aeronef.id, $any($event))"            
+                                           accept=".png, .jpg, .webp, .jpeg" />
+                    </div>
+                }
+            </div>
+
+            <!-- En-tête de l'Aéronef (Nom, Rôle, Prix) -->
+            <div class="ac-header">
+                <div class="ac-header-info">
+                    <mat-icon class="ac-icon">flight_takeoff</mat-icon>
+                    <div class="ac-titles">
+                        <h3>{{ aeronef.nom }}</h3>
+                        <span class="role-badge">{{ aeronef.role }}</span>
+                    </div>
+                </div>
+                
+                <!-- Bloc de coût -->
+                <div class="ac-price">
+                    <span class="price-label">COÛT UNITAIRE</span>
+                    <span class="price-value">{{ aeronef.prix | number }} CR</span>
+                </div>
+            </div>
+
+            <!-- Notes techniques / Description -->
+            <div class="ac-body">
+                @if (aeronef.description) 
+                {
+                    <div class="ac-desc">{{ aeronef.description }}</div>
+                } 
+                @else 
+                {
+                    <div class="ac-desc empty-desc">// AUCUNE DONNÉE TECHNIQUE FOURNIE</div>
+                }
+            </div>
+
+            <!-- Commandes de l'Aéronef -->
+            <div class="ac-footer">
+                <div class="spacer"></div>
+                @if (droit.peutEcrire) 
+                {
+                    <button mat-icon-button class="btn-edit" (click)="OuvrirModalAjouterModifierAeronef(aeronef)" matTooltip="Modifier les spécifications">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                }
+            </div>
+
+        </div>
+    }
+    @empty 
+    {
+        <div class="empty-state">
+            <mat-icon>radar</mat-icon>
+            <p>AUCUN AÉRONEF DÉTECTÉ DANS LE SECTEUR</p>
+        </div>
+    }
+</div>

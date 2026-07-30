@@ -1,0 +1,26 @@
+<h2 mat-dialog-title>{{ labelBtn() }} un aéronef</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colDefault]="12">
+                <jp-input-text label="Nom" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-input-text label="Rôle" formControlName="role" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-input-number label="Prix" formControlName="prix" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Description" [rows]="5" formControlName="description" showMaxLength />
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>Fermer</button>&nbsp;
+    <jp-button-loader matButton="filled" [loading]="btnClick()" (clicked)="Valider()" [label]="labelBtn()" />
+</mat-dialog-actions>

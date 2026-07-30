@@ -17,5 +17,6 @@ export enum EUrl
     Medaille = "/medaille",
     HistoriqueCampagne = "/historique-campagne",
     Preset = "/preset",
-    Formation = "/formation"
+    Formation = "/formation",
+    Aeronef = "/aeronef"
 }

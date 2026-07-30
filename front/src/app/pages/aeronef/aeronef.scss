@@ -1,0 +1,266 @@
+/* =========================================================
+   GRILLE DU HANGAR (CARTES AÉRONEFS)
+   ========================================================= */
+.aeronef-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    padding-bottom: 32px;
+}
+
+.aeronef-card {
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+    border-left: 4px solid var(--mat-sys-outline-variant);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    
+    /* Découpe tactique en bas à droite */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+
+    &:hover {
+        transform: translateY(-4px);
+        border-left-color: var(--mat-sys-primary);
+        box-shadow: -6px 8px 15px rgba(0, 0, 0, 0.25);
+        
+        .ac-header {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) 0%, transparent 100%);
+        }
+    }
+}
+
+/* --- EN-TÊTE : NOM & RÔLE --- */
+.ac-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 20%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent) 0%, transparent 100%);
+    transition: background 0.3s ease;
+
+    .ac-icon {
+        color: var(--mat-sys-primary);
+        font-size: 32px; width: 32px; height: 32px;
+        filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent));
+    }
+
+    .ac-titles {
+        display: flex;
+        flex-direction: column;
+        
+        h3 {
+            margin: 0; font-family: 'Courier New', Courier, monospace;
+            font-size: 1.15rem; font-weight: 900;
+            color: var(--mat-sys-on-surface); text-transform: uppercase;
+        }
+
+        .role-badge {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.7rem; font-weight: bold;
+            color: var(--mat-sys-tertiary); text-transform: uppercase; letter-spacing: 1px;
+            margin-top: 2px;
+        }
+    }
+}
+
+/* --- VISUEL TACTIQUE (IMAGE) --- */
+.ac-visual {
+    position: relative;
+    height: 180px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 50%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+    overflow: hidden;
+
+    .schematic-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.85;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .no-schematic {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--mat-sys-outline);
+        /* Effet de hachure pour signaler l'absence de données */
+        background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--mat-sys-surface-container) 40%, transparent), color-mix(in srgb, var(--mat-sys-surface-container) 40%, transparent) 10px, transparent 10px, transparent 20px);
+        
+        mat-icon { font-size: 32px; width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5; }
+        span { font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; letter-spacing: 1px; font-weight: bold; opacity: 0.7;}
+    }
+
+    .upload-overlay 
+    {
+        position: absolute;
+        inset: 0; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        /* Voile sombre tactique pour faire ressortir le bouton */
+        background-color: rgba(0, 0, 0, 0.4); 
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        
+        button {
+            background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 90%, transparent) !important;
+            border: 1px solid var(--mat-sys-primary) !important;
+            color: var(--mat-sys-primary) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+            
+            /* On agrandit légèrement le bouton puisqu'il est au centre */
+            transform: scale(1.3); 
+            transition: all 0.2s ease;
+            
+            &:hover {
+                background-color: var(--mat-sys-primary) !important;
+                color: var(--mat-sys-on-primary) !important;
+                box-shadow: 0 0 15px var(--mat-sys-primary) !important;
+                transform: scale(1.4);
+            }
+        }
+    }
+
+    /* Animation au survol de la carte (Zoom léger + Apparition du bouton d'upload) */
+    &:hover {
+        .schematic-img { opacity: 1; transform: scale(1.03); }
+        .upload-overlay { opacity: 1; }
+    }
+}
+
+/* --- EN-TÊTE : NOM, RÔLE & PRIX --- */
+.ac-header {
+    display: flex;
+    justify-content: space-between; /* Sépare les infos du prix */
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 20%, transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent) 0%, transparent 100%);
+    transition: background 0.3s ease;
+
+    .ac-header-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .ac-icon {
+        color: var(--mat-sys-primary);
+        font-size: 32px; width: 32px; height: 32px;
+        filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent));
+    }
+
+    .ac-titles {
+        display: flex; flex-direction: column;
+        
+        h3 {
+            margin: 0; font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem; font-weight: 900;
+            color: var(--mat-sys-on-surface); text-transform: uppercase;
+        }
+
+        .role-badge {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.7rem; font-weight: bold;
+            color: var(--mat-sys-tertiary); text-transform: uppercase; letter-spacing: 1px;
+            margin-top: 2px;
+        }
+    }
+
+    /* Style du Prix */
+    .ac-price {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        
+        .price-label { 
+            font-family: 'Courier New', Courier, monospace; font-size: 0.55rem; 
+            color: var(--mat-sys-outline); font-weight: bold; letter-spacing: 1px; 
+        }
+        .price-value { 
+            font-family: 'Courier New', Courier, monospace; font-size: 1.1rem; 
+            color: var(--mat-sys-tertiary); font-weight: 900; margin-top: -2px;
+        }
+    }
+}
+
+/* --- CORPS : DESCRIPTION --- */
+.ac-body {
+    padding: 16px;
+    flex-grow: 1; /* Pousse le footer vers le bas si les descriptions ont des tailles différentes */
+
+    .ac-desc {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.85rem; color: var(--mat-sys-on-surface-variant);
+        line-height: 1.5; white-space: pre-wrap;
+    }
+
+    .empty-desc {
+        color: var(--mat-sys-outline); font-style: italic; font-size: 0.8rem;
+    }
+}
+
+/* --- PIED DE CARTE --- */
+.ac-footer {
+    display: flex; justify-content: flex-end;
+    padding: 8px 16px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container) 40%, transparent);
+    border-top: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+
+    .spacer { flex-grow: 1; }
+
+    .btn-edit { 
+        color: var(--mat-sys-tertiary);
+        transition: all 0.2s ease;
+        &:hover { color: var(--mat-sys-on-tertiary); background-color: var(--mat-sys-tertiary); box-shadow: 0 0 10px var(--mat-sys-tertiary); }
+    }
+}
+
+/* --- ÉTAT VIDE (AUCUN AÉRONEF) --- */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 64px 24px; margin-top: 24px;
+    background-color: var(--mat-sys-surface-container); border: 1px dashed var(--mat-sys-outline-variant);
+    color: var(--mat-sys-outline); border-radius: 2px;
+
+    mat-icon { font-size: 64px; width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; animation: pulse-radar 2s infinite ease-in-out; }
+    p { font-family: 'Courier New', Courier, monospace; font-weight: bold; letter-spacing: 2px; margin: 0; }
+}
+
+@keyframes pulse-radar {
+    0%, 100% { opacity: 0.3; transform: scale(0.95); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+/* =========================================================
+   ADAPTATION THEME CLAIR (LIGHT MODE)
+   ========================================================= */
+:host-context(html.light-mode) {
+    .aeronef-card {
+        background-color: #f5f8f6; /* Blanc assombri (anti-fatigue) */
+        border-color: var(--mat-sys-outline-variant);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+        .ac-header { background: linear-gradient(135deg, #eaefed 0%, transparent 100%); }
+        .ac-footer { background-color: #eaefed; }
+
+        &:hover {
+            box-shadow: -8px 8px 16px rgba(0, 0, 0, 0.12);
+            border-left-color: var(--mat-sys-primary);
+            
+            .ac-header {
+                background: linear-gradient(135deg, color-mix(in srgb, var(--mat-sys-primary) 20%, transparent) 0%, transparent 100%);
+            }
+        }
+    }
+
+    .empty-state { background-color: #f5f8f6; }
+}

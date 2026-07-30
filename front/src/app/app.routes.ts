@@ -37,6 +37,12 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
+        path: "aeronef",
+        loadComponent: () => import("./pages/aeronef/aeronef").then(x => x.AeronefPage),
+        title: "Aeronefs spaciaux",
+        canActivate: [connecterGuard]
+    },
+    { 
         path: "gestion-grade",
         loadComponent: () => import("./pages/gestion-grade/gestion-grade-page").then(x => x.GestionGradePage),
         title: "Gestion grade",

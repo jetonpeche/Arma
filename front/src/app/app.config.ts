@@ -37,6 +37,7 @@ import { ParametreService } from '@services/ParametreService';
 import { PresetService } from '@services/PresetService';
 import { LogService } from '@services/LogService';
 import { FormationService } from '@services/FormationService';
+import { AeronefService } from '@services/AeronefService';
 
 // 2. Enregistrez la langue française dans le système
 registerLocaleData(localeFr);
@@ -104,6 +105,7 @@ export const appConfig: ApplicationConfig = {
     { provide: PresetService, useClass: PresetService },
     { provide: LogService, useClass: LogService },
     { provide: FormationService, useClass: FormationService },
+    { provide: AeronefService, useClass: AeronefService },
     { provide: HistoriqueCampagneService, useClass: HistoriqueCampagneService },
 
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matInput },

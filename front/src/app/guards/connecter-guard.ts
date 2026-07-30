@@ -13,42 +13,17 @@ export const connecterGuard: CanActivateFn = (route, state) =>
         state.url == EUrl.Specialite || state.url == EUrl.Medaille || 
         state.url == EUrl.HistoriqueCampagne || state.url == EUrl.Grade ||
         state.url == EUrl.PlaneteOrigine || state.url == "/cimetiere" || 
-        state.url == "/flotte" || state.url == EUrl.Vaisseau || state.url == EUrl.Formation
+        state.url == "/flotte" || state.url == EUrl.Vaisseau || state.url == EUrl.Formation ||
+        state.url == EUrl.Aeronef
     )
         return true;
 
     let utilisateurDroit = (environment.utilisateur as Authentifier).droit;
-
-    if(state.url == EUrl.Materiel)
-    {
-        let liste = utilisateurDroit.listeDroit
-            .filter(x => 
-                "/" + x.routeGroupe == EUrl.Materiel || 
-                "/" + x.routeGroupe == EUrl.TypeMateriel
-            );
-
-        return liste.some(x => x.peutLire);
-    }
-
-    if(state.url == EUrl.Logistique)
-    {
-        let liste = utilisateurDroit.listeDroit
-            .filter(x => 
-                "/" + x.routeGroupe == EUrl.Logistique || 
-                "/" + x.routeGroupe == EUrl.TypeLogistique || 
-                "/" + x.routeGroupe == EUrl.TypeStockageLogistique
-            );
-
-        return liste.some(x => x.peutLire);
-    }
-
+    
     let url = state.url;
 
     if(state.url == "/gestion-boutique")
         url = EUrl.Boutique;
-
-    if(state.url == "/gestion-grade")
-        url = EUrl.Grade;
 
     let droit = utilisateurDroit
         .listeDroit
