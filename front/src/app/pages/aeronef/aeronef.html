@@ -29,9 +29,10 @@
     @for (aeronef of listeAeronef(); track aeronef.id) 
     {
         <div class="aeronef-card">
-            
-            <!-- Visuel Stratégique (Image) -->
             <div class="ac-visual">
+
+                <div class="price-badge">{{ aeronef.prix | number }} CR</div>
+
                 @if (aeronef.urlImage) 
                 {
                     <img [src]="aeronef.urlImage" [alt]="aeronef.nom" class="schematic-img">
@@ -44,19 +45,18 @@
                     </div>
                 }
                 
-                <!-- Overlay d'Upload (Personnel autorisé uniquement) -->
                 @if (droit.peutEcrire) 
                 {
                     <div class="upload-overlay">
-                       <jp-input-file-btn matIconButton
-                                           icon="photo"    
-                                           (fileChange)="UploadFichier(aeronef.id, $any($event))"            
-                                           accept=".png, .jpg, .webp, .jpeg" />
+                        <jp-input-file-btn matIconButton
+                                                    icon="photo"    
+                                                    (fileChange)="UploadFichier(aeronef.id, $any($event))"            
+                                                    accept=".png, .jpg, .webp, .jpeg" />
                     </div>
                 }
             </div>
 
-            <!-- En-tête de l'Aéronef (Nom, Rôle, Prix) -->
+            <!-- En-tête de l'Aéronef (Nom & Rôle) -->
             <div class="ac-header">
                 <div class="ac-header-info">
                     <mat-icon class="ac-icon">flight_takeoff</mat-icon>
@@ -64,12 +64,6 @@
                         <h3>{{ aeronef.nom }}</h3>
                         <span class="role-badge">{{ aeronef.role }}</span>
                     </div>
-                </div>
-                
-                <!-- Bloc de coût -->
-                <div class="ac-price">
-                    <span class="price-label">COÛT UNITAIRE</span>
-                    <span class="price-value">{{ aeronef.prix | number }} CR</span>
                 </div>
             </div>
 
@@ -95,7 +89,6 @@
                     </button>
                 }
             </div>
-
         </div>
     }
     @empty 

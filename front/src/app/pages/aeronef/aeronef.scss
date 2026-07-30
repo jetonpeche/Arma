@@ -74,6 +74,22 @@
     border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
     overflow: hidden;
 
+    .price-badge{
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, var(--mat-sys-surface));
+        color: var(--mat-sys-tertiary);
+        border: 1px solid var(--mat-sys-tertiary);
+        padding: 4px 12px;
+        border-radius: 2px;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        z-index: 2;
+    }
+
     .schematic-img {
         width: 100%;
         height: 100%;
@@ -89,22 +105,20 @@
         justify-content: center;
         height: 100%;
         color: var(--mat-sys-outline);
-        /* Effet de hachure pour signaler l'absence de données */
         background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--mat-sys-surface-container) 40%, transparent), color-mix(in srgb, var(--mat-sys-surface-container) 40%, transparent) 10px, transparent 10px, transparent 20px);
         
         mat-icon { font-size: 32px; width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5; }
         span { font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; letter-spacing: 1px; font-weight: bold; opacity: 0.7;}
     }
 
-    .upload-overlay 
-    {
+    .upload-overlay {
         position: absolute;
         inset: 0; 
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 1; /* Garde le voile en dessous du badge de prix */
         
-        /* Voile sombre tactique pour faire ressortir le bouton */
         background-color: rgba(0, 0, 0, 0.4); 
         opacity: 0;
         transition: opacity 0.2s ease;
@@ -114,8 +128,6 @@
             border: 1px solid var(--mat-sys-primary) !important;
             color: var(--mat-sys-primary) !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
-            
-            /* On agrandit légèrement le bouton puisqu'il est au centre */
             transform: scale(1.3); 
             transition: all 0.2s ease;
             
@@ -128,7 +140,6 @@
         }
     }
 
-    /* Animation au survol de la carte (Zoom léger + Apparition du bouton d'upload) */
     &:hover {
         .schematic-img { opacity: 1; transform: scale(1.03); }
         .upload-overlay { opacity: 1; }
