@@ -32,6 +32,7 @@ public static class WebApplicationExtension
           mapGroupe.MapGroup("log").AjouterRouteLog();
           mapGroupe.MapGroup("formation").AjouterRouteFormation();
           mapGroupe.MapGroup("historique-campagne").AjouterRouteHistoriqueCampagne();
+          mapGroupe.MapGroup("aeronef").AjouterRouteAeronef();
           mapGroupe.MapGroup("bot-discord").AjouterRouteBotDiscord().ExcludeFromDescription();
 
           return _app;

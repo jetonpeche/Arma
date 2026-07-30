@@ -149,7 +149,18 @@ public static class FichierRoute
                     );
 
                     return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_SPECIALITE + nouveauNomFichierSpecialite));
-          }
+
+               case ETypeRessource.Aeronef:
+                    var nouveauNomFichierAeronef = await UploadAsync<Aeronef>(
+                         _requete.idRessource,
+                         _requete.Fichier,
+                         Constant.CHEMIN_IMG_AERONEF,
+                         (x) => x.NomImage,
+                         (x, s) => x.NomImage = s
+                    );
+
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_AERONEF + nouveauNomFichierAeronef));
+        }
 
           return Results.BadRequest("Erreur type de ressource");
      }

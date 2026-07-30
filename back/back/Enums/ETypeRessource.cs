@@ -10,5 +10,6 @@ public enum ETypeRessource
     Medaille,
      HistoriqueCampagne,
      Planete,
-     Specialite
+    Specialite,
+    Aeronef
 }

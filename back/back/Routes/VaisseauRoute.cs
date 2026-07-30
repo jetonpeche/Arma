@@ -129,9 +129,11 @@ public static class VaisseauRoute
                          })]
                     })],
 
-                   ListeAeronef = [.. x.ListeAeronef.Select(y => new VaisseauAeronefReponse
+                    ListeAeronef = [.. x.ListeAeronef.Select(y => new VaisseauAeronefReponse
                     {
-                         
+                         Id = y.Aeronef.Id,
+                         Nom = y.Aeronef.Nom,
+                         Nombre = y.Nombre
                     })]
                })
                .ToArray();
