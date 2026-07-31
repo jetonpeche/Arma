@@ -16,6 +16,7 @@ import { SnackBarService } from '@services/SnackBarService';
 import { DecimalPipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { InputFile } from "@jetonpeche/angular-mat-input";
+import { environment } from '../../../environements/environement';
 
 @Component({
   selector: 'app-aeronef',
@@ -28,6 +29,7 @@ export class AeronefPage implements OnInit
   protected listeAeronef = signal<Aeronef[]>([]);
   protected listeAeronefClone = signal<Aeronef[]>([]);
   protected droit: Droit;
+  protected peutAcheterVaisseau: boolean;
 
   private authServ = inject(AuthentificationService);
   private aeronefServ = inject(AeronefService);
@@ -41,6 +43,7 @@ export class AeronefPage implements OnInit
   {
     this.Lister();
     this.droit = this.authServ.RecupererDroit(EUrl.Aeronef);
+    this.peutAcheterVaisseau = environment.utilisateur.droit.peutAcheterVaisseau;
   }
 
   protected Rechercher(_valeur: string): void

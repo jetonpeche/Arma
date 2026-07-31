@@ -4,31 +4,58 @@
 .aeronef-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
+    gap: 24px;
     padding-bottom: 32px;
 }
 
 .aeronef-card {
-    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 30%, transparent);
-    border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
-    border-left: 4px solid var(--mat-sys-outline-variant);
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 70%, #0a0b0a);
+    border-top: 4px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+    border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
     display: flex;
     flex-direction: column;
     position: relative;
-    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     
-    /* Découpe tactique en bas à droite */
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+    /* Double découpe tactique (Haut-Gauche et Bas-Droite) */
+    clip-path: polygon(
+        20px 0, 
+        100% 0, 
+        100% calc(100% - 20px), 
+        calc(100% - 20px) 100%, 
+        0 100%, 
+        0 20px
+    );
+
+    /* On utilise filter car le clip-path coupe le box-shadow normal */
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
 
     &:hover {
         transform: translateY(-4px);
-        border-left-color: var(--mat-sys-primary);
-        box-shadow: -6px 8px 15px rgba(0, 0, 0, 0.25);
+        border-top-color: var(--mat-sys-primary);
+        filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 8px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent));
         
         .ac-header {
             background: linear-gradient(135deg, color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) 0%, transparent 100%);
         }
     }
+}
+
+/* --- BARRE D'IDENTIFICATION DU DATAPAD --- */
+.datapad-serial-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 12px 4px 24px; /* Décalage à gauche pour éviter la coupe */
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 80%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.65rem;
+    color: var(--mat-sys-outline);
+    letter-spacing: 1px;
+
+    .barcode { opacity: 0.4; letter-spacing: 2px; font-weight: bold; }
+    .serial { font-weight: 900; color: color-mix(in srgb, var(--mat-sys-on-surface) 60%, transparent); }
 }
 
 /* --- EN-TÊTE : NOM & RÔLE --- */
@@ -66,15 +93,23 @@
     }
 }
 
-/* --- VISUEL TACTIQUE (IMAGE) --- */
+/* --- VISUEL TACTIQUE (STYLE CHANTIER NAVAL) --- */
 .ac-visual {
     position: relative;
     height: 180px;
-    background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 50%, transparent);
-    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+    
+    /* Halo radial dynamique (s'adapte tout seul au mode sombre/clair) */
+    background: radial-gradient(circle, var(--mat-sys-surface-container-highest) 0%, var(--mat-sys-surface-container) 100%);
+    
+    /* Centrage absolu du visuel */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
     overflow: hidden;
 
-    .price-badge{
+    /* Badge de prix incrusté */
+    .price-badge {
         position: absolute;
         top: 12px;
         right: 12px;
@@ -87,49 +122,39 @@
         font-weight: 900;
         letter-spacing: 1px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-        z-index: 2;
+        z-index: 4;
     }
 
     .schematic-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        opacity: 0.85;
-        transition: opacity 0.3s ease, transform 0.3s ease;
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain; /* Le vaisseau reste entier et centré */
+        filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.8)); /* Ombre portée du chantier naval */
+        transition: transform 0.4s ease;
     }
 
     .no-schematic {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: var(--mat-sys-outline);
-        background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--mat-sys-surface-container) 40%, transparent), color-mix(in srgb, var(--mat-sys-surface-container) 40%, transparent) 10px, transparent 10px, transparent 20px);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100%; width: 100%; color: var(--mat-sys-outline);
+        background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--mat-sys-surface-container) 20%, transparent), color-mix(in srgb, var(--mat-sys-surface-container) 20%, transparent) 10px, transparent 10px, transparent 20px);
         
         mat-icon { font-size: 32px; width: 32px; height: 32px; margin-bottom: 8px; opacity: 0.5; }
         span { font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; letter-spacing: 1px; font-weight: bold; opacity: 0.7;}
     }
 
     .upload-overlay {
-        position: absolute;
-        inset: 0; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1; /* Garde le voile en dessous du badge de prix */
-        
+        position: absolute; inset: 0; 
+        display: flex; align-items: center; justify-content: center;
+        z-index: 3;
         background-color: rgba(0, 0, 0, 0.4); 
-        opacity: 0;
-        transition: opacity 0.2s ease;
+        opacity: 0; transition: opacity 0.2s ease;
         
         button {
             background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 90%, transparent) !important;
             border: 1px solid var(--mat-sys-primary) !important;
             color: var(--mat-sys-primary) !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
-            transform: scale(1.3); 
-            transition: all 0.2s ease;
+            transform: scale(1.3); transition: all 0.2s ease;
             
             &:hover {
                 background-color: var(--mat-sys-primary) !important;
@@ -141,7 +166,7 @@
     }
 
     &:hover {
-        .schematic-img { opacity: 1; transform: scale(1.03); }
+        .schematic-img { transform: scale(1.05); } /* Léger zoom comme sur les vaisseaux */
         .upload-overlay { opacity: 1; }
     }
 }
@@ -226,12 +251,6 @@
     border-top: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
 
     .spacer { flex-grow: 1; }
-
-    .btn-edit { 
-        color: var(--mat-sys-tertiary);
-        transition: all 0.2s ease;
-        &:hover { color: var(--mat-sys-on-tertiary); background-color: var(--mat-sys-tertiary); box-shadow: 0 0 10px var(--mat-sys-tertiary); }
-    }
 }
 
 /* --- ÉTAT VIDE (AUCUN AÉRONEF) --- */
@@ -251,21 +270,49 @@
     50% { opacity: 0.7; transform: scale(1.05); }
 }
 
-/* =========================================================
-   ADAPTATION THEME CLAIR (LIGHT MODE)
-   ========================================================= */
 :host-context(html.light-mode) {
     .aeronef-card {
-        background-color: #f5f8f6; /* Blanc assombri (anti-fatigue) */
-        border-color: var(--mat-sys-outline-variant);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        background-color: #f5f8f6; 
+        border-top-color: var(--mat-sys-outline-variant);
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
+
+        .datapad-serial-bar {
+            background-color: #eaefed;
+            border-bottom-color: var(--mat-sys-outline-variant);
+        }
+
+        /* --- ÉCRAN DU DATAPAD EN MODE DIURNE --- */
+        .ac-visual { 
+            background-color: #e2e7e4;
+
+            /* Ajustement des scanlines pour la lumière du jour */
+            &::after {
+                background: linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
+            }
+
+            .schematic-img {
+                opacity: 0.95; /* Image plus vive sur fond clair */
+            }
+
+            /* État vide (sans image) adapté au thème clair */
+            .no-schematic {
+                color: var(--mat-sys-outline);
+                background: repeating-linear-gradient(
+                    45deg, 
+                    rgba(0, 0, 0, 0.03), 
+                    rgba(0, 0, 0, 0.03) 10px, 
+                    transparent 10px, 
+                    transparent 20px
+                );
+            }
+        }
 
         .ac-header { background: linear-gradient(135deg, #eaefed 0%, transparent 100%); }
-        .ac-footer { background-color: #eaefed; }
+        .ac-footer { background-color: #eaefed; border-top-color: var(--mat-sys-outline-variant); }
 
         &:hover {
-            box-shadow: -8px 8px 16px rgba(0, 0, 0, 0.12);
-            border-left-color: var(--mat-sys-primary);
+            border-top-color: var(--mat-sys-primary);
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15)) drop-shadow(0 0 6px color-mix(in srgb, var(--mat-sys-primary) 20%, transparent));
             
             .ac-header {
                 background: linear-gradient(135deg, color-mix(in srgb, var(--mat-sys-primary) 20%, transparent) 0%, transparent 100%);

@@ -24,6 +24,6 @@ export class AeronefService
 
     Modifier(_idAeronef: number, _aeronef: AeronefRequete): Observable<void>
     {
-        return this.http.post<void>(`${this.BASE_API}/modifier/${_idAeronef}`, _aeronef).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.put<void>(`${this.BASE_API}/modifier/${_idAeronef}`, _aeronef).pipe(takeUntilDestroyed(this.destroyRef));
     }
 }

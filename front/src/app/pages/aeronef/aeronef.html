@@ -15,9 +15,8 @@
   </div>
 </div>
 
-<!-- FILTRES DE RECHERCHE -->
 <div class="tactical-filters">
-    <mat-form-field appearance="outline">
+    <mat-form-field>
         <mat-label>Recherche dans le hangar...</mat-label>
         <input matInput #input (keyup)="Rechercher(input.value)">
         <mat-icon matSuffix>search</mat-icon>
@@ -28,9 +27,14 @@
 <div class="aeronef-grid">
     @for (aeronef of listeAeronef(); track aeronef.id) 
     {
-        <div class="aeronef-card">
-            <div class="ac-visual">
+        <div class="aeronef-card datapad-chassis">
+            
+            <div class="datapad-serial-bar">
+                <span class="barcode">|||||||||||||||</span>
+                <span class="serial">SN-{{ aeronef.id | number:'3.0-0' }}-X // CLASSIFIÉ</span>
+            </div>
 
+            <div class="ac-visual">
                 <div class="price-badge">{{ aeronef.prix | number }} CR</div>
 
                 @if (aeronef.urlImage) 
@@ -49,14 +53,13 @@
                 {
                     <div class="upload-overlay">
                         <jp-input-file-btn matIconButton
-                                                    icon="photo"    
-                                                    (fileChange)="UploadFichier(aeronef.id, $any($event))"            
-                                                    accept=".png, .jpg, .webp, .jpeg" />
+                                           icon="photo"    
+                                           (fileChange)="UploadFichier(aeronef.id, $any($event))"            
+                                           accept=".png, .jpg, .webp, .jpeg" />
                     </div>
                 }
             </div>
 
-            <!-- En-tête de l'Aéronef (Nom & Rôle) -->
             <div class="ac-header">
                 <div class="ac-header-info">
                     <mat-icon class="ac-icon">flight_takeoff</mat-icon>
@@ -79,16 +82,26 @@
                 }
             </div>
 
-            <!-- Commandes de l'Aéronef -->
-            <div class="ac-footer">
-                <div class="spacer"></div>
-                @if (droit.peutEcrire) 
-                {
-                    <button mat-icon-button class="btn-edit" (click)="OuvrirModalAjouterModifierAeronef(aeronef)" matTooltip="Modifier les spécifications">
-                        <mat-icon>edit</mat-icon>
-                    </button>
-                }
-            </div>
+            @if(peutAcheterVaisseau || droit.peutEcrire)
+            {
+                <div class="ac-footer">
+
+                    @if (peutAcheterVaisseau) 
+                    {
+                        <button matMiniFab (click)="OuvrirModalAjouterModifierAeronef(aeronef)" matTooltip="Acheter">
+                                <mat-icon>credit_card</mat-icon>
+                        </button>
+                    }
+
+                    <div class="spacer"></div>
+                    @if (droit.peutEcrire) 
+                    {
+                        <button matMiniFab (click)="OuvrirModalAjouterModifierAeronef(aeronef)" matTooltip="Modifier les spécifications">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    }
+                </div>
+            }
         </div>
     }
     @empty 
@@ -99,3 +112,5 @@
         </div>
     }
 </div>
+
+
