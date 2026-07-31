@@ -323,38 +323,48 @@
       display: inline-flex;
       align-items: center;
       gap: 12px;
-      margin-top: 12px;
-      padding: 12px 24px;
+      margin-top: 16px;
+      padding: 14px 28px;
       
-      background-color: color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent);
-      border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 40%, transparent);
-      border-left: 4px solid var(--mat-sys-tertiary);
+      background-color: var(--mat-sys-tertiary);
+      color: var(--mat-sys-on-tertiary);
       
-      color: var(--mat-sys-tertiary);
+      border: none;
+      border-right: 6px solid color-mix(in srgb, var(--mat-sys-on-tertiary) 40%, transparent);
+      
       font-family: 'Courier New', Courier, monospace;
       font-weight: 900;
+      font-size: 1.05rem;
       letter-spacing: 2px;
       text-decoration: none;
       
+      /* Halo de signalisation dynamique */
+      box-shadow: 0 6px 20px color-mix(in srgb, var(--mat-sys-tertiary) 40%, transparent);
       clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
       transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      
+      /* Animation de balise radio pour attirer l'œil */
+      animation: beacon-pulse 2s infinite alternate;
 
       mat-icon {
           flex-shrink: 0;
-          filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mat-sys-tertiary) 80%, transparent));
+          font-size: 28px; width: 28px; height: 28px;
+          color: var(--mat-sys-on-tertiary);
       }
 
       &:hover {
-          background-color: var(--mat-sys-tertiary);
+          /* Effet de surcharge au survol */
+          background-color: color-mix(in srgb, var(--mat-sys-tertiary) 80%, #ffffff);
           color: var(--mat-sys-on-tertiary);
-          box-shadow: 0 0 20px color-mix(in srgb, var(--mat-sys-tertiary) 60%, transparent);
-          transform: translateX(8px);
-          
-          mat-icon {
-              color: var(--mat-sys-on-tertiary);
-              filter: none;
-          }
+          box-shadow: 0 0 25px var(--mat-sys-tertiary);
+          transform: translateX(8px) scale(1.02);
+          animation: none; /* Stabilise le bouton pour le clic */
       }
+  }
+
+  @keyframes beacon-pulse {
+      0% { box-shadow: 0 4px 15px color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent); }
+      100% { box-shadow: 0 4px 25px color-mix(in srgb, var(--mat-sys-tertiary) 80%, transparent); }
   }
   .caution-tape { height: 6px; width: 100%; background: repeating-linear-gradient(45deg, #000, #000 10px, var(--mat-sys-error) 10px, var(--mat-sys-error) 20px); &.top { position: absolute; top: 0; left: 0; } &.bottom { position: absolute; bottom: 0; left: 0; } }
   ::ng-deep .mat-mdc-card-header { margin-bottom: 16px; padding-top: 32px; padding-left: 32px; }
@@ -423,6 +433,16 @@
   .manifesto-section { background-color: #f0f4f8; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
   .manifesto-body p { text-shadow: none; color: #333; }
   .features-grid .feature-card { background-color: #fff !important; border: 1px solid var(--mat-sys-outline) !important; &:hover { box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important; } .card-glint { background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.08), transparent); } }
+
+  .discord-tactical-btn {
+      /* Ombre plus sombre et physique plutôt qu'holographique */
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 0 0 2px color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent);
+      border-right-color: rgba(255, 255, 255, 0.6);
+      
+      &:hover {
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25), 0 0 15px color-mix(in srgb, var(--mat-sys-tertiary) 50%, transparent);
+      }
+  }
 
   .boot-sequence-overlay {
     /* Le voile de fond devient clair et légèrement transparent */
