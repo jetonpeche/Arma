@@ -3,7 +3,7 @@ import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Aeronef, AeronefRequete } from "@models/Aeronef";
+import { Aeronef, AeronefLeger, AeronefRequete } from "@models/Aeronef";
 
 export class AeronefService
 {
@@ -15,6 +15,11 @@ export class AeronefService
     Lister(): Observable<Aeronef[]>
     {
         return this.http.get<Aeronef[]>(`${this.BASE_API}/lister`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ListerLeger(): Observable<AeronefLeger[]>
+    {
+        return this.http.get<AeronefLeger[]>(`${this.BASE_API}/lister-leger`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Ajouter(_aeronef: AeronefRequete): Observable<void>

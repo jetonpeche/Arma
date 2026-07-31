@@ -132,33 +132,88 @@
             </div>
           </mat-tab>
 
-          <!-- ONGLET 2 : STOCKAGE -->
+            <!-- ONGLET 2 : STOCKAGE -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">inventory_2</mat-icon> STOCKAGE
+                </ng-template>
+                
+                <div class="tab-content storage-grid">
+                @for (stock of vaisseau.listeStockage; track stock.id) 
+                {
+                    <div class="storage-block" (click)="OuvrirModalContenuStockage(vaisseau.id, stock.id)">
+                        <div class="sb-header">
+                            <span class="sb-type">{{ stock.nomTypeStockage }}</span>
+                            <span class="sb-name">{{ stock.nom }}</span>
+                        </div>
+                        <mat-progress-bar 
+                            mode="determinate" 
+                            [value]="(stock.occuper / stock.taille) * 100">
+                        </mat-progress-bar>
+                        <div class="sb-footer">
+                            <span>OCCUPÉ: {{ stock.occuper }}</span>
+                            <span>MAX: {{ stock.taille }}</span>
+                        </div>
+                    </div>
+                }
+                @empty 
+                {
+                    <div class="no-data">AUCUNE SOUTE DÉTECTÉE</div>
+                }
+                </div>
+            </mat-tab>
+
+            <!-- ONGLET 3 : AÉRONEFS (ESCADRONS) -->
           <mat-tab>
             <ng-template mat-tab-label>
-              <mat-icon class="tab-icon">inventory_2</mat-icon> STOCKAGE
+              <mat-icon class="tab-icon">flight</mat-icon> AÉRONEFS
             </ng-template>
             
-            <div class="tab-content storage-grid">
-               @for (stock of vaisseau.listeStockage; track stock.id) 
+            <div class="tab-content weapon-grid">
+               @for (aero of vaisseau.listeAeronef; track aero.id) 
                {
-                  <div class="storage-block" (click)="OuvrirModalContenuStockage(vaisseau.id, stock.id)">
-                      <div class="sb-header">
-                          <span class="sb-type">{{ stock.nomTypeStockage }}</span>
-                          <span class="sb-name">{{ stock.nom }}</span>
-                      </div>
-                      <mat-progress-bar 
-                          mode="determinate" 
-                          [value]="(stock.occuper / stock.taille) * 100">
-                      </mat-progress-bar>
-                      <div class="sb-footer">
-                          <span>OCCUPÉ: {{ stock.occuper }}</span>
-                          <span>MAX: {{ stock.taille }}</span>
-                      </div>
+                    <!-- L'escadron est considéré détruit uniquement s'il n'y a ni dispo ni déployé -->
+                    <div class="tactical-item" 
+                          [class.is-destroyed]="aero.nombreDisponible === 0 && aero.nombreSortie === 0">
+                          
+                        <div class="ti-header">
+                            <span class="ti-name">{{ aero.nom }}</span>
+                        </div>
+                      
+                        <div class="ti-progress-zone">
+                            <div class="progress-labels" style="margin-bottom: 8px;">
+                                <div class="status-group">
+                                    <span>DISPO: {{ aero.nombreDisponible }}</span>
+                                    
+                                    @if (aero.nombreSortie > 0) 
+                                    {
+                                        <span class="deploy-badge">EN VOL: {{ aero.nombreSortie }}</span>
+                                    }
+                                    @if (aero.nombreDetruit > 0) 
+                                    {
+                                        <span class="detruit-badge">DÉTRUIT: {{ aero.nombreDetruit }}</span>
+                                    }
+                                </div>
+                              
+                                <span> MAX: {{ aero.nombreMax }}</span>
+                            </div>
+                          
+                            <mat-progress-bar 
+                                mode="determinate" 
+                                [value]="((aero.nombreDisponible + aero.nombreSortie) / aero.nombreMax) * 100" 
+                                [color]="(aero.nombreDisponible + aero.nombreSortie) < (aero.nombreMax * 0.3) ? 'warn' : 'primary'">
+                            </mat-progress-bar>
+                        </div>
+
+                      @if (aero.description) 
+                      {
+                          <div class="info-text">// {{ aero.description }}</div>
+                      }
                   </div>
                }
                @empty 
                {
-                   <div class="no-data">AUCUNE SOUTE DÉTECTÉE</div>
+                   <div class="no-data">AUCUN ESCADRON DÉTECTÉ</div>
                }
             </div>
           </mat-tab>

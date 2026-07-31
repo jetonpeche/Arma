@@ -13,7 +13,11 @@ public static class AeronefRoute
     {
         builder.MapGet("lister", (Delegate)ListerAsync)
             .WithDescription("Lister les aéronefs")
-            .Produces<ConnexionReponse>();
+            .Produces<AeronefReponse[]>();
+
+        builder.MapGet("lister-leger", ListerLegerAsync)
+            .WithDescription("Lister les aéronefs")
+            .Produces<AeronefLegerReponse[]>();
 
         builder.MapPost("ajouter", AjouterAsync)
             .WithDescription("Ajouter un aéronef")
@@ -42,6 +46,21 @@ public static class AeronefRoute
                 Role = x.Role,
                 Description = x.Description,
                 UrlImage = x.NomImage != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_AERONEF + x.NomImage : "",
+            }).ToArray();
+
+        return Results.Extensions.Ok(liste, AeronefReponseContext.Default);
+    }
+
+    static async Task<IResult> ListerLegerAsync()
+    {
+        using var db = new LiteDatabase(Constant.BDD_NOM);
+
+        var liste = db.GetCollection<Aeronef>().Query()
+            .OrderBy(x => x.Nom)
+            .Select(x => new AeronefLegerReponse
+            {
+                Id = x.Id,
+                Nom = x.Nom
             }).ToArray();
 
         return Results.Extensions.Ok(liste, AeronefReponseContext.Default);

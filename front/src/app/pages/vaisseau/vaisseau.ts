@@ -5,7 +5,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
-import { Vaisseau, VaisseauArmement, VaisseauLeger } from '@models/Vaisseau';
+import { Vaisseau, VaisseauAeronef, VaisseauArmement, VaisseauLeger } from '@models/Vaisseau';
 import { VaisseauService } from '@services/VaisseauService';
 import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
 import { MatDialog } from '@angular/material/dialog';
@@ -57,6 +57,12 @@ export class VaisseauPage implements OnInit
     {
         const VALEUR = _valeur.toLowerCase().trim();
         this.listeVaisseau.set(this.listeVaisseauClone().filter(x => x.nom.toLowerCase().includes(VALEUR)))
+    }
+
+    protected FormaterAeronefs(_listeAeronef: VaisseauAeronef[]): string[] 
+    {
+        if (!_listeAeronef) return [];
+        return _listeAeronef.map(x => `${x.nombre} x ${x.nom}`);
     }
 
     protected FormaterArmement(_listeArmement: VaisseauArmement[]): string[] 

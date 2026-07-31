@@ -6,7 +6,19 @@ export type VaisseauPosseder =
     nomVaisseauAlias: string | null,
     information: string | null,
     listeArmement: VaisseauPossederArmement[],
-    listeStockage: VaisseauPossederStockage[]
+    listeStockage: VaisseauPossederStockage[],
+    listeAeronef: VaisseauPossederAeronef[]
+}
+
+export type VaisseauPossederAeronef =
+{
+    id: string,
+    nom: string,
+    description: string | null,
+    nombreMax: number,
+    nombreDisponible: number,
+    nombreSortie: number,
+    nombreDetruit: number
 }
 
 export type VaisseauPossederArmement = 

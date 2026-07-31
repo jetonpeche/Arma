@@ -1,0 +1,119 @@
+/* =========================================================
+   ACCORDÉONS TACTIQUES (STYLE DATAPAD UNSC)
+   ========================================================= */
+mat-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+    
+    mat-expansion-panel {
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 70%, #0a0b0a) !important;
+        border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent) !important;
+        border-left: 4px solid var(--mat-sys-primary) !important;
+        border-radius: 0 !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+        
+        /* Double découpe tactique (Haut-Droite et Bas-Gauche) */
+        clip-path: polygon(
+            0 0, 
+            calc(100% - 16px) 0, 
+            100% 16px, 
+            100% 100%, 
+            16px 100%, 
+            0 calc(100% - 16px)
+        );
+        transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+        /* État actif (Panneau ouvert) */
+        &.mat-expanded {
+            border-color: var(--mat-sys-primary) !important;
+            background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 60%, #111) !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7), 
+                        inset 0 0 20px color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) !important;
+            margin-top: 16px !important;
+            margin-bottom: 16px !important;
+        }
+    }
+
+    /* En-tête du panneau (La barre cliquable) */
+    mat-expansion-panel-header {
+        padding: 0 24px !important;
+        height: 64px !important;
+        border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 20%, transparent);
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) !important;
+        }
+
+        /* Coloration de la flèche de déploiement */
+        .mat-expansion-indicator::after {
+            color: var(--mat-sys-primary); 
+        }
+    }
+
+    /* Titre de l'accordéon */
+    mat-panel-title {
+        color: var(--mat-sys-primary) !important;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.1rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        align-items: center;
+        
+        /* Mire de ciblage devant le titre */
+        &::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--mat-sys-primary);
+            margin-right: 16px;
+            box-shadow: 0 0 8px var(--mat-sys-primary);
+            clip-path: polygon(0 0, 100% 0, 50% 100%); /* Petit triangle pointant vers le bas */
+        }
+    }
+
+    /* Zone de contenu (L'intérieur du formulaire) */
+    .mat-expansion-panel-content {
+        padding-top: 16px;
+        
+        /* Légères lignes de balayage tactique pour simuler l'écran */
+        background-image: repeating-linear-gradient(
+            0deg,
+            color-mix(in srgb, var(--mat-sys-surface-container) 10%, transparent),
+            color-mix(in srgb, var(--mat-sys-surface-container) 10%, transparent) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+    }
+}
+
+/* =========================================================
+   ADAPTATION THEME CLAIR (LIGHT MODE)
+   ========================================================= */
+:host-context(html.light-mode) ::ng-deep mat-accordion {
+    mat-expansion-panel {
+        background-color: #f5f8f6 !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+        
+        &.mat-expanded {
+            background-color: #eaefed !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12), 
+                        inset 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
+        }
+
+        .mat-expansion-panel-content {
+            /* Scanlines plus discrètes en lumière du jour */
+            background-image: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.02),
+                rgba(0, 0, 0, 0.02) 1px,
+                transparent 1px,
+                transparent 4px
+            );
+        }
+    }
+}

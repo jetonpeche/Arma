@@ -8,4 +8,10 @@ export type Aeronef =
     urlImage: string
 }
 
+export type AeronefLeger =
+{
+    id: number,
+    nom: string
+}
+
 export type AeronefRequete = Omit<Aeronef, "id">;

@@ -142,6 +142,57 @@
                     </div>
                     </mat-expansion-panel>
 
+                    <!-- liste des aeronefs -->
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>Escadron(s) embarqué(s) ({{ listeAeronefFormArray.length }})</mat-panel-title>
+                            <jp-button-loader matIconButton 
+                                              icon="add" 
+                                              (clicked)="AjouterAeronef()"
+                                              matTooltip="Déployer un nouvel escadron" />
+                        </mat-expansion-panel-header>
+
+                        <div formArrayName="listeAeronef">
+                        @for (element of listeAeronefFormArray.controls; track element; let i = $index; let last = $last) 
+                        {
+                            <jp-grid-container [gap]="15" [formGroupName]="i" style="margin-top: 15px; align-items: center;">
+                                
+                                <jp-grid-element [colXs]="12" [colMd]="7">
+                                    <mat-form-field>
+                                        <mat-label>Modèle d'aéronef</mat-label>
+                                        <mat-select formControlName="id">
+                                            @for (aero of ListerAeronefsDisponibles(i); track aero.id) 
+                                            {
+                                                <mat-option [value]="aero.id">{{ aero.nom }}</mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                </jp-grid-element>
+
+                                <jp-grid-element [colXs]="12" [colMd]="3">
+                                    <jp-input-number label="Quantité affectée" formControlName="nombre" />
+                                </jp-grid-element>
+
+                                <jp-grid-element [colXs]="12" [colMd]="2">
+                                    <div style="text-align: end;">
+                                        <jp-button-loader matMiniFab 
+                                                          (clicked)="SupprimerAeronef(i)" 
+                                                          icon="delete" />
+                                    </div>
+                                </jp-grid-element>
+
+                                @if(!last)
+                                {
+                                    <jp-grid-element [colDefault]="12">
+                                        <hr>
+                                    </jp-grid-element>
+                                }
+
+                            </jp-grid-container>
+                        }
+                        </div>
+                    </mat-expansion-panel>
+
                     <!-- liste des stockages -->
                     <mat-expansion-panel>
                         <mat-expansion-panel-header>

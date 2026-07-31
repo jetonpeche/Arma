@@ -104,6 +104,21 @@
                             }
                         </div>
                     </div>
+
+                    <div class="spec-item full-width badge-list-box">
+                        <span class="spec-label">ESCADRONS EMBARQUÉS</span>
+                        <div class="badges-container">
+                            @for (aeronef of FormaterAeronefs(element.listeAeronef); track $index) 
+                            {
+                                <span class="unsc-badge badge-neutral">{{ aeronef }}</span>
+                            }
+                            
+                            @if (!element.listeAeronef || element.listeAeronef.length == 0) 
+                            {
+                                <span class="spec-value empty-value">AUCUN AÉRONEF</span>
+                            }
+                        </div>
+                    </div>
                 </div>
             </mat-card-content>
 

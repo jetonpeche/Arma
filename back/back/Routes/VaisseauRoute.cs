@@ -166,6 +166,7 @@ public static class VaisseauRoute
                .Include(v => v.Vaisseau)
                .Include(v => v.Vaisseau.ListeStockage)
                .Include(v => v.Vaisseau.ListeStockage.Select(y => y.TypeStockage))
+               .Include(v => v.Vaisseau.ListeAeronef.Select(y => y.Aeronef))
                .Include(x => x.ListeStockage)
                .Include(x => x.ListeStockage.Select(y => y.Stockage))
                .Query()
@@ -176,7 +177,11 @@ public static class VaisseauRoute
                          .GroupBy(a => a.IdArmement)
                          .ToDictionary(g => g.Key, g => g.First()) ?? [];
 
-                    var dictStockageOccupe = x.ListeStockage?
+                    var dictAeronef = x.ListeAeronef?
+                         .GroupBy(a => a.Aeronef.Id)
+                         .ToDictionary(g => g.Key, g => g.First()) ?? [];
+
+                   var dictStockageOccupe = x.ListeStockage?
                          .Where(s => s.Stockage != null)
                          .GroupBy(s => s.Stockage.Id)
                          .ToDictionary(g => g.Key, g => g.Sum(s => s.Quantite)) ?? [];
@@ -218,6 +223,22 @@ public static class VaisseauRoute
                                    Nom = y.Nom,
                                    Taille = y.Taille,
                                    Occuper = occuper
+                              };
+                         })],
+
+                        ListeAeronef = [.. x.Vaisseau.ListeAeronef.Select(y =>
+                        {
+                              dictAeronef.TryGetValue(y.Aeronef.Id, out var aeronef);
+
+                              return new AeronefVaisseauPossederReponse
+                              {
+                                   Id = y.Aeronef.Id,
+                                   Nom = y.Aeronef.Nom,
+                                   Description = y.Aeronef.Description,
+                                   NombreMax = y.Nombre,
+                                   NombreDisponible = aeronef is not null ? y.Nombre - aeronef.NombreDetruit : y.Nombre,
+                                   NombreSortie = aeronef?.NombreSortie ?? 0,
+                                   NombreDetruit = aeronef?.NombreDetruit ?? 0
                               };
                          })]
                     };

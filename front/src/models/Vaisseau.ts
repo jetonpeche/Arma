@@ -12,10 +12,18 @@ export type Vaisseau =
     listeArmement: VaisseauArmement[],
     listeStockage: VaisseauStockage[],
     listeVaisseauEnfant: VaisseauLeger[],
+    listeAeronef: VaisseauAeronef[],
     vitesse: string,
     blindage: string,
     capaciteSpeciale: string | null,
     equipage: VaisseauEquipage
+}
+
+export type VaisseauAeronef =
+{
+    id: number,
+    nom: string,
+    nombre: number
 }
 
 export type VaisseauLeger =
@@ -74,7 +82,14 @@ export type VaisseauRequete =
     capaciteSpeciale: string | null,
     equipage: VaisseauEquipage,
     listeArmement: VaisseauArmement[],
-    listeStockage: VaisseauStockageRequete[]
+    listeStockage: VaisseauStockageRequete[],
+    listeAeronef: VaisseauAeronefRequete[],
+}
+
+export type VaisseauAeronefRequete = 
+{
+    id: number,
+    nombre: number
 }
 
 export type VaisseauStockageRequete = 

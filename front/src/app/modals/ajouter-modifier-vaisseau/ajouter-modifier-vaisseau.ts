@@ -15,6 +15,8 @@ import { LogistiqueService } from '@services/LogistiqueService';
 import { Logistique } from '@models/Logistique';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from "@angular/material/button";
+import { AeronefService } from '@services/AeronefService';
+import { AeronefLeger } from '@models/Aeronef';
 
 @Component({
   selector: 'app-ajouter-modifier-vaisseau',
@@ -30,6 +32,7 @@ export class AjouterModifierVaisseau implements OnInit
     protected dataSourceTypeStockage = signal<AutocompleteDataSource[]>([]);
     protected listeVaisseauLeger = signal<VaisseauLeger[]>([]);
     protected listeLogistiqueGlobale = signal<Logistique[]>([]);
+    protected listeAeronef = signal<AeronefLeger[]>([]);
 
     private matDialogData: Vaisseau = inject(MAT_DIALOG_DATA);
 
@@ -37,6 +40,7 @@ export class AjouterModifierVaisseau implements OnInit
     private snackBarServ = inject(SnackBarService);
     private vaisseauServ = inject(VaisseauService);
     private logistiqueServ = inject(LogistiqueService);
+    private aeronefServ = inject(AeronefService);
     private dialogRef = inject(MatDialogRef<AjouterModifierVaisseau>);
 
     get listeArmement(): FormArray 
@@ -49,11 +53,17 @@ export class AjouterModifierVaisseau implements OnInit
         return this.form.get('listeStockage') as FormArray;
     }
 
+    get listeAeronefFormArray(): FormArray 
+    {
+        return this.form.get('listeAeronef') as FormArray;
+    }
+
     ngOnInit(): void
     {
         this.ListerTypeStockage();
         this.ListerLogistique();
         this.ListerVaisseauLeger();
+        this.ListerAeronef();
 
         this.form = new FormGroup({
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
@@ -76,7 +86,8 @@ export class AjouterModifierVaisseau implements OnInit
             }),
             listeIdVaisseauEnfant: new FormControl<number[]>(this.matDialogData?.listeVaisseauEnfant.map(x => x.id) ?? []),
             listeStockage: new FormArray([]),
-            listeArmement: new FormArray([])
+            listeArmement: new FormArray([]),
+            listeAeronef: new FormArray([])
         });
 
         if(this.matDialogData)
@@ -87,8 +98,24 @@ export class AjouterModifierVaisseau implements OnInit
                 this.AjouterArmement(element);    
             
             for (const element of this.matDialogData.listeStockage) 
-                this.AjouterStockage(element);  
+                this.AjouterStockage(element);
+
+            for (const element of this.matDialogData.listeAeronef)
+                this.AjouterAeronef(element);
         }
+    }
+
+    protected AjouterAeronef(_aeronef?: any): void
+    {
+        this.listeAeronefFormArray.push(new FormGroup({
+            id: new FormControl(_aeronef?.id, [Validators.required]),
+            nombre: new FormControl(_aeronef?.nombre ?? 1, [Validators.required, Validators.min(1)])
+        }));
+    }
+
+    protected SupprimerAeronef(_index: number): void
+    {
+        this.listeAeronefFormArray.removeAt(_index);
     }
 
     protected NomVaisseau(_idVaisseau: number): string
@@ -202,6 +229,23 @@ export class AjouterModifierVaisseau implements OnInit
         return this.listeStockage.at(indexSoute).get('contenuParDefaut') as FormArray;
     }
 
+    protected ListerAeronefsDisponibles(_indexActuel: number): AeronefLeger[]
+    {
+        // Récupère tous les identifiants d'aéronefs actuellement sélectionnés
+        const IDS_SELECTIONNES = this.listeAeronefFormArray.controls
+            .map(c => c.get('id')?.value)
+            .filter(id => id != null);
+
+        // Récupère l'identifiant de la ligne en cours de modification
+        const ID_ACTUEL = this.listeAeronefFormArray.at(_indexActuel).get('id')?.value;
+
+        // Filtre le catalogue global
+        return this.listeAeronef().filter(aero => {
+            // Affiche l'aéronef SI c'est celui de la ligne actuelle OU s'il n'est pas encore sélectionné ailleurs
+            return aero.id === ID_ACTUEL || !IDS_SELECTIONNES.includes(aero.id);
+        });
+    }
+
     protected ListerLogistiquesCompatible(_idTypeStockage: number): any[] 
     {
         if (!_idTypeStockage) 
@@ -282,6 +326,16 @@ export class AjouterModifierVaisseau implements OnInit
                 }
             }
         }
+    }
+
+    private ListerAeronef(): void
+    {
+        this.aeronefServ.ListerLeger().subscribe({
+            next: (retour) =>
+            {
+                this.listeAeronef.set(retour);
+            }
+        })
     }
 
     private ListerLogistique(): void 

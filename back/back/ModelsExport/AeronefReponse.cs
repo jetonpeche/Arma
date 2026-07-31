@@ -14,6 +14,13 @@ public sealed class AeronefReponse
     public required string UrlImage { get; set; }
 }
 
+public sealed class AeronefLegerReponse
+{
+    public int Id { get; set; }
+    public string Nom { get; set; } = null!;
+}
+
 [JsonSerializable(typeof(AeronefReponse[]))]
+[JsonSerializable(typeof(AeronefLegerReponse[]))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 public partial class AeronefReponseContext: JsonSerializerContext;
