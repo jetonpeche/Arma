@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Vaisseau, VaisseauAchaterRequete, VaisseauLeger, VaisseauRequete } from "@models/Vaisseau";
-import { VaisseauPosseder, VaisseauPossederArmementRequete, VaisseauPossederContenuStockage, VaisseauPossederStockageCompatible } from "@models/VaisseauPosseder";
+import { VaisseauPosseder, VaisseauPossederArmementRequete, VaisseauPossederContenuStockage, VaisseauPossederRequete, VaisseauPossederStockageCompatible } from "@models/VaisseauPosseder";
 
 export class VaisseauService
 {
@@ -46,6 +46,11 @@ export class VaisseauService
     Modifier(_idVaisseau: number, _vaisseau: VaisseauRequete): Observable<void>
     {
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idVaisseau}`, _vaisseau).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ModifierPosseder(_idVaisseauPosseder: number, _vaisseau: VaisseauPossederRequete): Observable<void>
+    {
+        return this.http.patch<void>(`${this.BASE_API}/modifier-posseder/${_idVaisseauPosseder}`, _vaisseau).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     ModifierArmementPosseder(_idVaisseauPosseder: number, _armement: VaisseauPossederArmementRequete): Observable<void>

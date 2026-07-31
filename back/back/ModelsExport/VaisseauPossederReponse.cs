@@ -9,9 +9,18 @@ public class VaisseauPossederReponse
     public required string NomVaisseau { get; set; }
     public required string? NomVaisseauAlias { get; set; }
     public required string? Information { get; set; }
+    public required EquipageVaisseauPossederReponse Equipage { get; set; }
     public required ArmementVaisseauPossederReponse[] ListeArmement { get; set; }
     public required StockageVaisseauPossederReponse[] ListeStockage { get; set; }
     public required AeronefVaisseauPossederReponse[] ListeAeronef { get; set; }
+}
+
+public sealed class EquipageVaisseauPossederReponse
+{
+    public required int NbPlacePassagerMax { get; set; }
+    public required int NbPlacePassager { get; set; }
+    public required int NbPlaceMarinesMax { get; set; }
+    public required int NbPlaceMarines { get; set; }
 }
 
 public sealed class AeronefVaisseauPossederReponse

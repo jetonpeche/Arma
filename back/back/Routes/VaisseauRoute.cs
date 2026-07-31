@@ -51,7 +51,12 @@ public static class VaisseauRoute
                .ProducesBadRequest()
                .ProducesNoContent();
 
-          builder.MapDelete("supprimer/{idVaisseau:int}", SupprimerAsync)
+          builder.MapPatch("modifier-posseder/{idVaisseauPosseder:int}", ModifierPossederAsync)
+               .WithDescription("Modifier un vaisseau posseder")
+               .ProducesBadRequest()
+               .ProducesNoContent();
+
+        builder.MapDelete("supprimer/{idVaisseau:int}", SupprimerAsync)
                .WithDescription("Supprimer un vaisseau")
                .ProducesNotFound()
                .ProducesNoContent();
@@ -186,6 +191,8 @@ public static class VaisseauRoute
                          .GroupBy(s => s.Stockage.Id)
                          .ToDictionary(g => g.Key, g => g.Sum(s => s.Quantite)) ?? [];
 
+                    var equipage = x.Equipage ?? x.Vaisseau.Equipage;
+
                     return new VaisseauPossederReponse
                     {
                          Id = x.Id,
@@ -193,6 +200,14 @@ public static class VaisseauRoute
                          NomVaisseauAlias = x.NomVaisseau,
                          NomVaisseau = x.Vaisseau.Nom,
                          NomCommandant = x.NomCommandant,
+                         Equipage = new EquipageVaisseauPossederReponse
+                         {
+                              NbPlaceMarinesMax = x.Vaisseau.Equipage.NbPlaceMarines,
+                              NbPlacePassagerMax = x.Vaisseau.Equipage.NbPlacePassager,
+                              NbPlacePassager = equipage.NbPlacePassager,
+                              NbPlaceMarines = equipage.NbPlaceMarines
+                         },
+
                          ListeArmement = [.. x.Vaisseau.ListeArmement.Select(y =>
                          {
                               dictArmement.TryGetValue(y.Id, out var armement);
@@ -956,6 +971,31 @@ public static class VaisseauRoute
           }
 
           return Results.NoContent();
+    }
+
+    static async Task<IResult> ModifierPossederAsync(
+          [FromRoute(Name = "idVaisseauPosseder")] int _idVaisseauPosseder,
+          [FromBody] VaisseauPossederRequete _requete
+     )
+     {
+          if (_idVaisseauPosseder <= 0)
+               return Results.NotFound("Le vaisseau n'existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var information = _requete.Information?.XSS();
+
+          var nb = db.GetCollection<VaisseauPosseder>().UpdateMany(_ => new VaisseauPosseder
+          {
+               Information = information,
+               Equipage = new()
+               {
+                    NbPlaceMarines = _requete.NbPlaceMarines,
+                    NbPlacePassager = _requete.NbPlacePassager
+               }
+          }, x => x.Id == _idVaisseauPosseder);
+
+          return nb is 0 ? Results.NotFound("Le vaisseau n'existe pas") : Results.NoContent();
     }
 
     static async Task<IResult> SupprimerAsync(

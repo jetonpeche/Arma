@@ -17,6 +17,8 @@ public sealed class VaisseauPosseder
 
     public List<AeronefVaisseauPosseder> ListeAeronef { get; set; } = [];
 
+    public EquipageVaisseau? Equipage { get; set; }
+
     public string? NomVaisseau { get; set; }
     public string? NomCommandant { get; set; }
     public string? Information { get; set; }

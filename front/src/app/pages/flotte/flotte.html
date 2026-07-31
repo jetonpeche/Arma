@@ -51,6 +51,23 @@
         </div>
       </div>
 
+            <div class="fc-crew-bar">
+                <div class="crew-stat">
+                    <mat-icon inline>security</mat-icon>
+                    <span class="crew-label">MARINES</span>
+                    <span class="crew-value" [class.text-warn]="vaisseau.equipage.nbPlaceMarinesMax > 0 && (vaisseau.equipage.nbPlaceMarines / vaisseau.equipage.nbPlaceMarinesMax) <= 0.9">
+                        {{ vaisseau.equipage.nbPlaceMarines }} / {{ vaisseau.equipage.nbPlaceMarinesMax }}
+                    </span>
+                </div>
+                <div class="crew-stat">
+                    <mat-icon inline>person</mat-icon>
+                    <span class="crew-label">PASSAGERS</span>
+                    <span class="crew-value" [class.text-warn]="vaisseau.equipage.nbPlacePassagerMax > 0 && (vaisseau.equipage.nbPlacePassager / vaisseau.equipage.nbPlacePassagerMax) >= 0.9">
+                        {{ vaisseau.equipage.nbPlacePassager }} / {{ vaisseau.equipage.nbPlacePassagerMax }}
+                    </span>
+                </div>
+            </div>
+
       <!-- INFORMATIONS / ÉTAT DU VAISSEAU -->
       @if (vaisseau.information) 
       {
@@ -89,7 +106,8 @@
                               <!-- Groupe de statuts : Disponible + Badge Détruit -->
                                 <div class="status-group">
                                     <span>DISPONIBLE</span>
-                                    @if (arme.nombreDetruit > 0) {
+                                    @if (arme.nombreDetruit > 0) 
+                                    {
                                         <span class="detruit-badge">DÉTRUIT: {{ arme.nombreDetruit }}</span>
                                     }
                                 </div>
@@ -174,7 +192,7 @@
                {
                     <!-- L'escadron est considéré détruit uniquement s'il n'y a ni dispo ni déployé -->
                     <div class="tactical-item" 
-                          [class.is-destroyed]="aero.nombreDisponible === 0 && aero.nombreSortie === 0">
+                          [class.is-destroyed]="aero.nombreDisponible == 0 && aero.nombreSortie == 0">
                           
                         <div class="ti-header">
                             <span class="ti-name">{{ aero.nom }}</span>
@@ -200,14 +218,13 @@
                           
                             <mat-progress-bar 
                                 mode="determinate" 
-                                [value]="((aero.nombreDisponible + aero.nombreSortie) / aero.nombreMax) * 100" 
-                                [color]="(aero.nombreDisponible + aero.nombreSortie) < (aero.nombreMax * 0.3) ? 'warn' : 'primary'">
+                                [value]="((aero.nombreDisponible + aero.nombreSortie) / aero.nombreMax) * 100">
                             </mat-progress-bar>
                         </div>
 
                       @if (aero.description) 
                       {
-                          <div class="info-text">// {{ aero.description }}</div>
+                            <div class="info-text">// {{ aero.description }}</div>
                       }
                   </div>
                }
@@ -223,10 +240,10 @@
 
       <!-- ACTIONS DE COMMANDEMENT -->
       <div class="fc-footer">
-        <button mat-button class="btn-tactical">
+        <button matButton="text" (click)="OuvrirModalModifier(vaisseau)">
             <mat-icon>edit</mat-icon> MODIFIER
         </button>
-        <button mat-button class="btn-tactical text-accent">
+        <button matButton="text">
             <mat-icon>my_location</mat-icon> RAPPORT DE TIR
         </button>
       </div>

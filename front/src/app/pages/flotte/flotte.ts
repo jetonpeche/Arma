@@ -10,6 +10,7 @@ import { VaisseauPosseder, VaisseauPossederArmement } from '@models/VaisseauPoss
 import { VaisseauService } from '@services/VaisseauService';
 import { ModalContenuStockage } from './modal-contenu-stockage/modal-contenu-stockage';
 import { ModalModifierArmement } from './modal-modifier-armement/modal-modifier-armement';
+import { ModalModifierVaisseauPosseder } from './modal-modifier-vaisseau-posseder/modal-modifier-vaisseau-posseder';
 
 @Component({
   selector: 'app-flotte',
@@ -30,9 +31,26 @@ export class Flotte implements OnInit
         this.Lister();
     }
 
+    protected OuvrirModalModifier(_vaisseau: VaisseauPosseder): void
+    {
+        const DIALOG_REF = this.dialog.open(ModalModifierVaisseauPosseder, {
+            width: this.estMobile ? "95%" : "50%", 
+            maxWidth: "100vw",
+            data: _vaisseau
+        });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (retour) =>
+            {
+                if(retour === true)
+                    this.Lister();
+            }
+        });
+    }
+
     protected OuvrirModalModifierArmement(_idVaisseauPosseder: number, _armement: VaisseauPossederArmement): void
     {
-        this.dialog.open(ModalModifierArmement, {
+        const DIALOG_REF = this.dialog.open(ModalModifierArmement, {
             width: this.estMobile ? "95%" : "50%", 
             maxWidth: "100vw",
             data: {
@@ -40,19 +58,29 @@ export class Flotte implements OnInit
                 armement: _armement
             }
         });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (retour) =>
+            {
+                console.log(retour);
+                
+                if(retour === true)
+                    this.Lister();
+            }
+        });
     }
 
     protected OuvrirModalContenuStockage(_idVaisseau: number, _idStockage): void
     {
         this.vaisseauServ.ListerContenuStockage(_idVaisseau, _idStockage).subscribe({
-        next: (retour) =>
-        {
-            this.dialog.open(ModalContenuStockage, {
-            width: this.estMobile ? "95%" : "30%", 
-            maxWidth: "100vw",
-            data: retour
-            });
-        }
+            next: (retour) =>
+            {
+                this.dialog.open(ModalContenuStockage, {
+                    width: this.estMobile ? "95%" : "30%", 
+                    maxWidth: "100vw",
+                    data: retour
+                });
+            }
         });
     }
 

@@ -1,13 +1,12 @@
 import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators, ɵInternalFormsSharedModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { VaisseauPossederArmement } from '@models/VaisseauPosseder';
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { InputNumber, ButtonLoader } from "@jetonpeche/angular-mat-input";
 import { VaisseauService } from '@services/VaisseauService';
 import { SnackBarService } from '@services/SnackBarService';
-import { DialogRef } from '@angular/cdk/dialog';
 import { Subject, takeUntil } from 'rxjs'; 
 
 type ArmementVaisseauModifier = 
@@ -30,7 +29,7 @@ export class ModalModifierArmement implements OnInit, OnDestroy
 
     private vaisseauServ = inject(VaisseauService);
     private snackBarServ = inject(SnackBarService);
-    private dialogRef = inject(DialogRef<ModalModifierArmement>);
+    private dialogRef = inject(MatDialogRef<ModalModifierArmement>);
     private destroy$ = new Subject<void>(); 
 
     ngOnInit(): void
@@ -103,7 +102,7 @@ export class ModalModifierArmement implements OnInit, OnDestroy
             {
                 this.btnClick.set(false);
                 this.snackBarServ.Ok("Télémétrie d'armement mise à jour");
-                this.dialogRef.close(this.form.value);
+                this.dialogRef.close(true);
             }, error: () => this.btnClick.set(false)
         });
     }

@@ -152,6 +152,46 @@
     border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
 }
 
+/* --- EFFECTIFS EMBARQUÉS (ÉQUIPAGE) --- */
+.fc-crew-bar {
+    display: flex;
+    gap: 32px;
+    padding: 8px 32px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 40%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+
+    .crew-stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Courier New', Courier, monospace;
+
+        mat-icon {
+            color: var(--mat-sys-primary);
+            font-size: 18px; width: 18px; height: 18px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .crew-label {
+            font-size: 0.75rem;
+            color: var(--mat-sys-outline);
+            letter-spacing: 1px;
+        }
+
+        .crew-value 
+        {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--mat-sys-on-surface);
+
+            &.text-warn {
+                color: var(--mat-sys-error);
+                animation: pulse-warn 2s infinite alternate;
+            }
+        }
+    }
+}
+
 .fc-id-block {
     display: flex;
     align-items: center;
@@ -432,13 +472,6 @@
     display: flex; justify-content: flex-end; gap: 8px; padding: 16px 32px;
     background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 60%, transparent);
     border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
-
-    .btn-tactical {
-        font-family: 'Courier New', Courier, monospace; font-weight: 900; letter-spacing: 1px; color: var(--mat-sys-on-surface-variant);
-        mat-icon { margin-right: 4px; transform: scale(0.85); }
-        &:hover { color: var(--mat-sys-primary); background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent); }
-        &.text-accent:hover { color: var(--mat-sys-accent); background-color: color-mix(in srgb, var(--mat-sys-accent) 10%, transparent); }
-    }
 }
 
 /* =========================================================

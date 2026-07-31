@@ -5,9 +5,18 @@ export type VaisseauPosseder =
     nomCommandant: string | null,
     nomVaisseauAlias: string | null,
     information: string | null,
+    equipage: VaisseauPossederEquipage,
     listeArmement: VaisseauPossederArmement[],
     listeStockage: VaisseauPossederStockage[],
     listeAeronef: VaisseauPossederAeronef[]
+}
+
+export type VaisseauPossederEquipage = 
+{
+    nbPlacePassagerMax: number,
+    nbPlaceMarinesMax: number,
+    nbPlaceMarines: number,
+    nbPlacePassager: number
 }
 
 export type VaisseauPossederAeronef =
@@ -65,4 +74,11 @@ export type VaisseauPossederContenuStockage =
     id: number,
     nom: string,
     quantite: number
+}
+
+export type VaisseauPossederRequete =
+{
+    information: string | null,
+    nbPlaceMarines: number,
+    nbPlacePassager: number
 }

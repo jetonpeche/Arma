@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>Modifier {{ dialogData.nomVaisseauAlias }}</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-number label="Nombre place équipage" formControlName="nbPlacePassager" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-number label="Nombre place marines" formControlName="nbPlaceMarines" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-textarea label="Information" [rows]="5" formControlName="information" showMaxLength />
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>Fermer</button>&nbsp;
+    <jp-button-loader matButton="filled" [loading]="btnClick()" (clicked)="Valider()" label="Valider" />
+</mat-dialog-actions>
