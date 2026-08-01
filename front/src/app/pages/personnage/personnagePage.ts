@@ -103,7 +103,7 @@ export class PersonnagePage implements OnInit
                 id: _personnage.id,
                 groupeSanguin: _personnage.groupeSanguin,
                 specialite: {
-                    id: _personnage.specialite.id
+                    id: _personnage.specialite?.id ?? 0
                 }
             } //as Personnage
         });
