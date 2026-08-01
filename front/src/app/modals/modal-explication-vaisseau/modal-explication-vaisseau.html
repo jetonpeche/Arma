@@ -1,0 +1,172 @@
+<h2 mat-dialog-title>MANUEL TACTIQUE</h2>
+
+<mat-dialog-content class="unsc-dialog-content">
+    <mat-tab-group animationDuration="0ms">
+
+        <!-- SYSTÈMES DE DÉTECTION -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">radar</mat-icon> SYSTÈMES DE DÉTECTION
+            </ng-template>
+            
+            <div class="tab-container">
+                <p class="intro-text">// RÉPERTOIRE DES SENSEURS DE BORD : Portée, identification et évaluation des risques de contre-détection spatiale.</p>
+                
+                <div class="radar-grid">
+                    
+                    <!-- 1. Radar Sonar -->
+                    <div class="radar-card">
+                        <div class="rc-header">
+                            <mat-icon>wifi_tethering</mat-icon>
+                            <div class="rc-title">SONAR OMNIDIRECTIONNEL</div>
+                        </div>
+                        <div class="rc-body">Balayage absolu sur 360°. Repère toutes les masses et signatures à portée, sans aucune distinction entre les objets ou les types de vaisseaux.</div>
+                        <div class="rc-footer">
+                            <span class="stealth-badge danger">COMPROMIS (REPÉRÉ AUTOMATIQUEMENT)</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Radar Actif -->
+                    <div class="radar-card">
+                        <div class="rc-header">
+                            <mat-icon>network_ping</mat-icon>
+                            <div class="rc-title">RADAR ACTIF (CÔNE FRONTAL)</div>
+                        </div>
+                        <div class="rc-body">Balayage directionnel concentré. Détecte avec précision tout ce qui se trouve directement dans l'axe de progression du vaisseau.</div>
+                        <div class="rc-footer">
+                            <span class="stealth-badge safe">INDÉTECTABLE</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Radar Thermique -->
+                    <div class="radar-card">
+                        <div class="rc-header">
+                            <mat-icon>thermostat</mat-icon>
+                            <div class="rc-title">SENSEURS THERMIQUES</div>
+                        </div>
+                        <div class="rc-body">Détection des sources de chaleur (réacteurs, plasma). Incapable de faire la distinction entre un vaisseau et un débris ou un astre chaud.</div>
+                        <div class="rc-footer">
+                            <div class="stealth-badge warn split-badge">
+                                <span class="badge-label">RISQUE DE DÉTECTION</span>
+                                <span class="badge-value">50%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Radar IFF -->
+                    <div class="radar-card">
+                        <div class="rc-header">
+                            <mat-icon>fingerprint</mat-icon>
+                            <div class="rc-title">TRANSPONDEUR IFF</div>
+                        </div>
+                        <div class="rc-body">Identification *Friend or Foe*. Cible exclusivement les balises de l'UNSC ou de vaisseaux militaires humains. Peut déclencher une réponse automatisée de la cible.</div>
+                        <div class="rc-footer">
+                            <span class="stealth-badge danger">REPÉRÉ PAR CIBLES HUMAINES IFF</span>
+                        </div>
+                    </div>
+
+                    <!-- 5. Radar Radio -->
+                    <div class="radar-card">
+                        <div class="rc-header">
+                            <mat-icon>settings_input_antenna</mat-icon>
+                            <div class="rc-title">ÉCOUTE RADIO (SIGINT)</div>
+                        </div>
+                        <div class="rc-body">Interception passive. Permet d'écouter les fréquences et transmissions environnantes sans émettre le moindre signal.</div>
+                        <div class="rc-footer">
+                            <span class="stealth-badge safe">INDÉTECTABLE</span>
+                        </div>
+                    </div>
+
+                    <!-- 6. Vue -->
+                    <div class="radar-card">
+                        <div class="rc-header">
+                            <mat-icon>visibility</mat-icon>
+                            <div class="rc-title">OBSERVATION OPTIQUE</div>
+                        </div>
+                        <div class="rc-body">Acquisition visuelle directe via les hublots et les caméras externes du bâtiment. Portée limitée au champ de vision.</div>
+                        <div class="rc-footer">
+                            <span class="stealth-badge safe">INDÉTECTABLE</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </mat-tab>
+
+        <!-- DOCTRINE TACTIQUE -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">security</mat-icon> DOCTRINE TACTIQUE
+            </ng-template>
+            
+            <div class="tab-container">
+                <p class="intro-text">// DIRECTIVES D'ENGAGEMENT : Protocoles d'alerte, manœuvres d'interception et gestion du stress de combat.</p>
+                
+                <div class="radar-grid">
+                    
+                    <!-- 1. État d'alerte (Prend toute la largeur) -->
+                    <div class="radar-card alert-card">
+                        <div class="rc-header">
+                            <mat-icon>warning</mat-icon>
+                            <div class="rc-title">NIVEAUX D'ALERTE DU BÂTIMENT</div>
+                        </div>
+                        <div class="rc-body rule-stack">
+                            <div class="rule-row">
+                                <span class="stealth-badge danger">ALERTE ZÉRO (AUCUN)</span>
+                                <span class="rule-desc">Bâtiment non préparé. Manœuvres d'évasion et contre-mesures impossibles en cas de ciblage ennemi. Vulnérabilité totale.</span>
+                            </div>
+                            <div class="rule-row">
+                                <span class="stealth-badge safe">ALERTE NIVEAU 1</span>
+                                <span class="rule-desc">Protocole de combat standard. Équipage à son poste. Aucun modificateur tactique appliqué.</span>
+                            </div>
+                            <div class="rule-row">
+                                <span class="stealth-badge warn">ALERTE NIVEAU 2 (SURCHARGE)</span>
+                                <span class="rule-desc">
+                                    <strong>Tours 1 & 2 :</strong> Capacités d'esquive maximisées, autorisation de riposte immédiate (soumis à la validation du MJ).<br>
+                                    <strong class="text-error">Tour 3+ :</strong> Épuisement critique de l'équipage. Malus drastique de 50% sur l'ensemble des manœuvres.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Interception -->
+                    <div class="radar-card">
+                        <div class="rc-header">
+                            <mat-icon>flight_takeoff</mat-icon>
+                            <div class="rc-title">INTERCEPTION BALISTIQUE</div>
+                        </div>
+                        <div class="rc-body">
+                            Probabilité pour un escadron de chasseurs en vol d'intercepter et de détruire un projectile ennemi en approche :
+                            <ul class="unsc-list">
+                                <li><strong>LONGSWORD :</strong> +25 points</li>
+                                <li><strong>NANDAO :</strong> +20 points</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 3. Effet Panique -->
+                    <div class="radar-card">
+                        <div class="rc-header">
+                            <mat-icon>psychology_alt</mat-icon>
+                            <div class="rc-title">CHOC PSYCHOLOGIQUE (PANIQUE)</div>
+                        </div>
+                        <div class="rc-body">
+                            Défaillance morale de l'équipage suite à des dégâts massifs, des pertes lourdes ou une situation tactique désespérée.
+                        </div>
+                        <div class="rc-footer">
+                            <div class="stealth-badge danger split-badge full-width">
+                                <span class="badge-label">MALUS PRÉCISION & EFFICACITÉ (1 TR)</span>
+                                <span class="badge-value">-50%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button matButton="filled" mat-dialog-close>FERMER LE TERMINAL</button>
+</mat-dialog-actions>

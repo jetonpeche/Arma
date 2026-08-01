@@ -1,0 +1,235 @@
+.unsc-dialog-content {
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container) 40%, transparent);
+    padding: 0 !important;
+    
+    ::ng-deep .mat-mdc-tab-header {
+        background-color: #1a1c1a;
+        padding: 0 16px;
+    }
+    ::ng-deep .mdc-tab__text-label {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        letter-spacing: 1px;
+    }
+    .tab-icon { margin-right: 8px; vertical-align: middle; transform: scale(0.9); }
+}
+
+/* --- CONTENU DE L'ONGLET --- */
+.tab-container {
+    padding: 24px;
+}
+
+.intro-text {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    color: var(--mat-sys-outline);
+    margin-top: 0;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+}
+
+/* --- GRILLE DES RADARS --- */
+.radar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.radar-card {
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    
+    /* Découpe de blindage UNSC (coin inférieur droit) */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 3px; height: 100%;
+        background-color: var(--mat-sys-primary);
+        opacity: 0.5;
+    }
+
+    &:hover {
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 60%, transparent);
+        border-color: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+        &::before { opacity: 1; }
+    }
+}
+
+.rc-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    
+    mat-icon {
+        color: var(--mat-sys-primary);
+    }
+    
+    .rc-title {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        font-size: 1rem;
+        letter-spacing: 1px;
+        color: var(--mat-sys-on-surface);
+    }
+}
+
+.rc-body {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--mat-sys-on-surface-variant);
+    margin-bottom: 16px;
+    flex-grow: 1;
+}
+
+/* --- STYLES SPÉCIFIQUES : DOCTRINE TACTIQUE --- */
+.alert-card {
+    grid-column: 1 / -1; /* Permet à la carte des niveaux d'alerte de prendre toute la largeur */
+}
+
+.rule-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rule-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .rule-desc {
+        color: var(--mat-sys-on-surface-variant);
+        font-size: 0.85rem;
+        line-height: 1.5;
+
+        strong {
+            color: var(--mat-sys-on-surface);
+        }
+        
+        .text-error {
+            color: var(--mat-sys-error);
+        }
+    }
+}
+
+.unsc-list {
+    margin: 12px 0 0 0;
+    padding-left: 20px;
+    color: var(--mat-sys-tertiary);
+
+    li {
+        margin-bottom: 6px;
+        
+        strong {
+            color: var(--mat-sys-on-surface);
+        }
+    }
+}
+
+.full-width {
+    width: 100%;
+    
+    .badge-label {
+        flex-grow: 1; /* Pousse la valeur sur le côté droit */
+    }
+}
+
+/* --- BADGES DE FURTIVITÉ --- */
+.rc-footer {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.stealth-badge {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+
+    
+    &.safe {
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+        color: var(--mat-sys-tertiary);
+        border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent);
+    }
+    
+    &.warn {
+        background-color: rgba(255, 179, 0, 0.15); 
+        color: #ffb300;
+        border: 1px solid rgba(255, 179, 0, 0.3);
+    }
+
+    &.danger {
+        background-color: color-mix(in srgb, var(--mat-sys-error) 15%, transparent);
+        color: var(--mat-sys-error);
+        border: 1px solid color-mix(in srgb, var(--mat-sys-error) 30%, transparent);
+    }
+}
+
+.split-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    border-radius: 2px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 179, 0, 0.5);
+
+    .badge-label {
+        padding: 4px 8px;
+        color: #ffb300;
+        background-color: rgba(255, 179, 0, 0.1);
+    }
+
+    .badge-value {
+        padding: 4px 8px;
+        background-color: #ffb300;
+        color: #1a1c1a; 
+        font-weight: 900;
+        font-size: 0.75rem;
+    }
+}
+
+/* =========================================================
+   THÈME CLAIR (LIGHT MODE)
+   ========================================================= */
+:host-context(html.light-mode) 
+{
+    .stealth-badge.warn {
+        background-color: rgba(230, 81, 0, 0.1); 
+        color: #e65100;
+        border-color: rgba(230, 81, 0, 0.4);
+    }
+
+    .split-badge {
+        border-color: rgba(230, 81, 0, 0.5);
+
+        .badge-label {
+            color: #e65100;
+            background-color: rgba(230, 81, 0, 0.05);
+        }
+
+        .badge-value {
+            background-color: #e65100;
+            color: #ffffff; /* Texte blanc sur le fond sombre du badge */
+        }
+    }
+}

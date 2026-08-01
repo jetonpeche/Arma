@@ -15,6 +15,7 @@ import { ModalModifierAeronef } from './modal-modifier-aeronef/modal-modifier-ae
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ModalExplicationVaisseau } from '@modals/modal-explication-vaisseau/modal-explication-vaisseau';
 
 @Component({
   selector: 'app-flotte',
@@ -47,6 +48,14 @@ export class Flotte implements OnInit
     ngOnInit(): void 
     {
         this.Lister();
+    }
+
+    protected OuvrirModalInformation(): void
+    {
+        this.dialog.open(ModalExplicationVaisseau, {
+            width: this.estMobile ? "95%" : "70%", 
+            maxWidth: "100vw"
+        });
     }
 
     protected OuvrirModalModifier(_vaisseau: VaisseauPosseder): void
