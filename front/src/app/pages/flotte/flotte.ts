@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,16 +12,33 @@ import { ModalContenuStockage } from './modal-contenu-stockage/modal-contenu-sto
 import { ModalModifierArmement } from './modal-modifier-armement/modal-modifier-armement';
 import { ModalModifierVaisseauPosseder } from './modal-modifier-vaisseau-posseder/modal-modifier-vaisseau-posseder';
 import { ModalModifierAeronef } from './modal-modifier-aeronef/modal-modifier-aeronef';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-flotte',
-  imports: [MatButtonModule, MatCardModule, MatTabsModule, MatDividerModule, MatProgressBarModule, MatIconModule],
+  imports: [FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatTabsModule, MatDividerModule, MatProgressBarModule, MatIconModule],
   templateUrl: './flotte.html',
   styleUrl: './flotte.scss',
 })
 export class Flotte implements OnInit
 {
     protected listeVaisseau = signal<VaisseauPosseder[]>([]);
+
+    protected rechercheAlias = signal<string>('');
+
+    protected listeVaisseauFiltree = computed(() => {
+        const terme = this.rechercheAlias().toLowerCase().trim();
+        const liste = this.listeVaisseau();
+        
+        if (!terme) 
+            return liste;
+        
+        return liste.filter(v => 
+            v.nomVaisseauAlias?.toLowerCase().includes(terme)
+        );
+    });
 
     private vaisseauServ = inject(VaisseauService);
     private dialog = inject(MatDialog);

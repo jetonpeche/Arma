@@ -4,10 +4,24 @@
         <div class="unsc-subtitle">// RÉSEAU DE COMMANDEMENT NAVAL - ACCÈS SÉCURISÉ</div>
     </div>
 
-    <button matButton="filled">
-            <mat-icon>hourglass_bottom</mat-icon>
-            Passer le tour (Reload)
-    </button>
+    <div class="header-actions">
+        <button matButton="filled">
+                <mat-icon>hourglass_bottom</mat-icon>
+                Passer le tour (Reload)
+        </button>
+
+        <mat-form-field class="unsc-search-bar">
+            <mat-label>Recherche de vaisseau</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [ngModel]="rechercheAlias()" (ngModelChange)="rechercheAlias.set($event)">
+            @if (rechercheAlias()) 
+            {
+                <button matSuffix mat-icon-button (click)="rechercheAlias.set('')">
+                    <mat-icon>close</mat-icon>
+                </button>
+            }
+        </mat-form-field>
+    </div>
 </div>
 
 <!-- TERMINAL VERROUILLÉ - ACCÈS RESTREINT UNSC -->
@@ -31,7 +45,7 @@
 
 <!-- GRILLE DE LA FLOTTE -->
 <div class="fleet-grid">
-  @for (vaisseau of listeVaisseau(); track vaisseau.id) 
+  @for (vaisseau of listeVaisseauFiltree(); track vaisseau.id) 
   {
     <!-- Le Châssis principal (qui aura les coins tronqués) -->
     <div class="fleet-dashboard">
