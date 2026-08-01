@@ -157,7 +157,6 @@ public static class AeronefRoute
           if (_requete.Sum(x => x.Quantite * prixUnitaireAeronef) < banque.Argent)
                return Results.BadRequest("Vous avez pas assez d'argent");
 
-          int total = 0;
           foreach (var element in _requete)
           {
                if(dictVaisseauPosseder.TryGetValue(element.IdVaisseauPosseder, out var vaisseauPosseder))
@@ -165,14 +164,11 @@ public static class AeronefRoute
                     var aeronefPosseder = vaisseauPosseder.ListeAeronef.FirstOrDefault(x => x.Aeronef.Id == _idAeronef);
                     if (aeronefPosseder is not null)
                     {
-                         total += element.Quantite * prixUnitaireAeronef;
+                         banque.Argent -= element.Quantite * prixUnitaireAeronef;
                          aeronefPosseder.NombreDetruit -= element.Quantite;
                     }
                }
           }
-
-          var banque = db.GetCollection<Banque>().Query().First();
-          banque.Argent -= total;
 
           db.GetCollection<VaisseauPosseder>().Update(dictVaisseauPosseder.Values);
           db.GetCollection<Banque>().Update(banque);
