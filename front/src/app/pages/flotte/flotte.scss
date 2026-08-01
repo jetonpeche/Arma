@@ -393,6 +393,11 @@
             transition: width 0.3s ease, background-color 0.3s ease;
         }
 
+        .segment-deployed {
+            background-color: var(--mat-sys-tertiary);
+            opacity: 0.85; /* Légèrement transparent pour le différencier des appareils parés au décollage */
+        }
+
         /* Le segment disponible est géré directement dans le HTML pour l'alerte de niveau bas */
 
         .segment-used {

@@ -6,11 +6,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
-import { VaisseauPosseder, VaisseauPossederArmement } from '@models/VaisseauPosseder';
+import { VaisseauPosseder, VaisseauPossederAeronef, VaisseauPossederArmement } from '@models/VaisseauPosseder';
 import { VaisseauService } from '@services/VaisseauService';
 import { ModalContenuStockage } from './modal-contenu-stockage/modal-contenu-stockage';
 import { ModalModifierArmement } from './modal-modifier-armement/modal-modifier-armement';
 import { ModalModifierVaisseauPosseder } from './modal-modifier-vaisseau-posseder/modal-modifier-vaisseau-posseder';
+import { ModalModifierAeronef } from './modal-modifier-aeronef/modal-modifier-aeronef';
 
 @Component({
   selector: 'app-flotte',
@@ -62,8 +63,26 @@ export class Flotte implements OnInit
         DIALOG_REF.afterClosed().subscribe({
             next: (retour) =>
             {
-                console.log(retour);
-                
+                if(retour === true)
+                    this.Lister();
+            }
+        });
+    }
+
+    protected OuvrirModalModifierAeronef(_idVaisseauPosseder: number, _aeronef: VaisseauPossederAeronef): void
+    {
+        const DIALOG_REF = this.dialog.open(ModalModifierAeronef, {
+            width: this.estMobile ? "95%" : "50%", 
+            maxWidth: "100vw",
+            data: {
+                idVaisseauPosseder: _idVaisseauPosseder,
+                aeronef: _aeronef
+            }
+        });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (retour) =>
+            {   
                 if(retour === true)
                     this.Lister();
             }
@@ -76,7 +95,7 @@ export class Flotte implements OnInit
             next: (retour) =>
             {
                 this.dialog.open(ModalContenuStockage, {
-                    width: this.estMobile ? "95%" : "30%", 
+                    width: this.estMobile ? "95%" : "40%", 
                     maxWidth: "100vw",
                     data: retour
                 });

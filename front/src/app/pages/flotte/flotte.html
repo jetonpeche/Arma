@@ -216,16 +216,17 @@
             <div class="tab-content weapon-grid">
                @for (aero of vaisseau.listeAeronef; track aero.id) 
                {
-                    <!-- L'escadron est considéré détruit uniquement s'il n'y a ni dispo ni déployé -->
                     <div class="tactical-item" 
-                          [class.is-destroyed]="aero.nombreDisponible == 0 && aero.nombreSortie == 0">
-                          
+                            [class.is-destroyed]="aero.nombreDetruit > 0 && aero.nombreDetruit === aero.nombreMax" 
+                            [class.is-empty]="aero.nombreDisponible === 0 && aero.nombreDetruit !== aero.nombreMax"
+                            (click)="OuvrirModalModifierAeronef(vaisseau.id, aero)">
+        
                         <div class="ti-header">
                             <span class="ti-name">{{ aero.nom }}</span>
                         </div>
-                      
+    
                         <div class="ti-progress-zone">
-                            <div class="progress-labels" style="margin-bottom: 8px;">
+                            <div class="progress-labels">
                                 <div class="status-group">
                                     <span>DISPO: {{ aero.nombreDisponible }}</span>
                                     
@@ -238,21 +239,35 @@
                                         <span class="detruit-badge">DÉTRUIT: {{ aero.nombreDetruit }}</span>
                                     }
                                 </div>
-                              
+                                
                                 <span> MAX: {{ aero.nombreMax }}</span>
                             </div>
-                          
-                            <mat-progress-bar 
-                                mode="determinate" 
-                                [value]="((aero.nombreDisponible + aero.nombreSortie) / aero.nombreMax) * 100">
-                            </mat-progress-bar>
+                            
+                            <!-- BARRE DE PROGRESSION TACTIQUE MULTI-SEGMENTS-->
+                            <div class="tactical-progress-bar">
+                                <!-- Segment 1 : Disponible au hangar -->
+                                <div class="segment-available" 
+                                    [style.width.%]="(aero.nombreDisponible / aero.nombreMax) * 100"
+                                    [style.backgroundColor]="aero.nombreDisponible < (aero.nombreMax * 0.2) ? 'var(--mat-sys-error)' : 'var(--mat-sys-primary)'">
+                                </div>
+                                
+                                <!-- Segment 2 : Déployé / En vol (Couleur Tertiaire) -->
+                                <div class="segment-deployed" 
+                                    [style.width.%]="(aero.nombreSortie / aero.nombreMax) * 100">
+                                </div>
+                                
+                                <!-- Segment 3 : Détruit -->
+                                <div class="segment-destroyed" 
+                                    [style.width.%]="(aero.nombreDetruit / aero.nombreMax) * 100">
+                                </div>
+                            </div>
                         </div>
 
-                      @if (aero.description) 
-                      {
+                        @if (aero.description) 
+                        {
                             <div class="info-text">// {{ aero.description }}</div>
-                      }
-                  </div>
+                        }
+                    </div>
                }
                @empty 
                {

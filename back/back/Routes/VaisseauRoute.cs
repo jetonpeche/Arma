@@ -47,7 +47,12 @@ public static class VaisseauRoute
                .ProducesNoContent();
 
           builder.MapPatch("modifier-armement-posseder/{idVaisseauPosseder:int}", ModifierArmementPossederAsync)
-               .WithDescription("Modifier un vaisseau")
+               .WithDescription("Modifier un armement d'un vaisseau")
+               .ProducesBadRequest()
+               .ProducesNoContent();
+
+          builder.MapPatch("modifier-aeronef-posseder/{idVaisseauPosseder:int}", ModifierAeronefPossederAsync)
+               .WithDescription("Modifier un aeronef d'un vaisseau")
                .ProducesBadRequest()
                .ProducesNoContent();
 
@@ -252,7 +257,7 @@ public static class VaisseauRoute
                                    Nom = y.Aeronef.Nom,
                                    Description = y.Aeronef.Description,
                                    NombreMax = y.Nombre,
-                                   NombreDisponible = aeronef is not null ? y.Nombre - aeronef.NombreDetruit : y.Nombre,
+                                   NombreDisponible = aeronef is not null ? y.Nombre - aeronef.NombreDetruit - aeronef.NombreSortie : y.Nombre,
                                    NombreSortie = aeronef?.NombreSortie ?? 0,
                                    NombreDetruit = aeronef?.NombreDetruit ?? 0
                               };
@@ -974,6 +979,46 @@ public static class VaisseauRoute
 
           return Results.NoContent();
     }
+
+     static async Task<IResult> ModifierAeronefPossederAsync(
+          [FromRoute(Name = "idVaisseauPosseder")] int _idVaisseauPosseder,
+          [FromBody] AeronefPossederRequete _requete
+     )
+     {
+          if (_idVaisseauPosseder <= 0)
+               return Results.NotFound("Le vaisseau n'existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var vaisseauPosseder = db.GetCollection<VaisseauPosseder>()
+               .Query()
+               .Where(x => x.Id == _idVaisseauPosseder)
+               .FirstOrDefault();
+
+          if (vaisseauPosseder is null)
+               return Results.NotFound("Le vaisseau n'existe pas");
+
+          var aeronef = vaisseauPosseder.ListeAeronef.FirstOrDefault(x => x.Aeronef.Id == _requete.IdAeronef);
+
+          if (aeronef is not null)
+          {
+               aeronef.NombreDetruit = _requete.NombreDetruit;
+               aeronef.NombreSortie = _requete.NombreSortie;
+          }
+          else
+          {
+               vaisseauPosseder.ListeAeronef.Add(new AeronefVaisseauPosseder
+               {
+                    Aeronef = new() { Id = _requete.IdAeronef },
+                    NombreDetruit = _requete.NombreDetruit,
+                    NombreSortie = _requete.NombreSortie
+               });
+          }
+
+          db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
+
+          return Results.NoContent();
+     }
 
     static async Task<IResult> ModifierPossederAsync(
           [FromRoute(Name = "idVaisseauPosseder")] int _idVaisseauPosseder,

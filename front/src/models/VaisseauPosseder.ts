@@ -53,6 +53,14 @@ export type VaisseauPossederArmementRequete =
     nombreUtiliser: number
 }
 
+export type VaisseauPossederAeronefRequete =
+{
+    idAeronef: number,
+    nombreDisponible: number,
+    nombreDetruit: number,
+    nombreSortie: number
+}
+
 export type VaisseauPossederStockage = 
 {
     id: number,

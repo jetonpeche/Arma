@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>Modifier l'escadron {{ dialogData.aeronef.nom }}</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-input-number label="Au hangar (Dispo)" formControlName="nombreDisponible" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-input-number label="En vol (Sortie)" formControlName="nombreSortie" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-input-number label="Détruit" formControlName="nombreDetruit" />
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" mat-dialog-close>Fermer</button>&nbsp;
+    <jp-button-loader matButton="filled" [loading]="btnClick()" (clicked)="Valider()" label="Valider" />
+</mat-dialog-actions>
