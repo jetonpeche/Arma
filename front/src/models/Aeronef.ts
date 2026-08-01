@@ -14,4 +14,17 @@ export type AeronefLeger =
     nom: string
 }
 
+export type VaisseauAeronefPlaceDisponible = 
+{
+    id: number,
+    nomVaisseau: string,
+    nombrePlace: number
+}
+
+export type AeronefAchatRequete =
+{
+    idVaisseauPosseder: number,
+    quantite: number
+}
+
 export type AeronefRequete = Omit<Aeronef, "id">;

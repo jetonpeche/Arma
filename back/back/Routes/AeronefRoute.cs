@@ -19,12 +19,22 @@ public static class AeronefRoute
             .WithDescription("Lister les aéronefs")
             .Produces<AeronefLegerReponse[]>();
 
-        builder.MapPost("ajouter", AjouterAsync)
-            .WithDescription("Ajouter un aéronef")
-            .ProducesBadRequest()
-            .ProducesCreated();
+          builder.MapGet("lister-vaisseau-compatible/{idAeronef:int}", ListerVaisseauCompatibleAsync)
+              .WithDescription("Lister les vaisseaux qui possède l'aéronef et qui ont de place")
+              .Produces<AeronefLegerReponse[]>();
 
-        builder.MapPut("modifier/{idAeronef:int}", ModifierAsync)
+          builder.MapPost("ajouter", AjouterAsync)
+               .WithDescription("Ajouter un aéronef")
+               .ProducesBadRequest()
+               .ProducesCreated();
+
+          builder.MapPost("acheter/{idAeronef:int}", AcheterAsync)
+               .WithDescription("Acheter des aéronefs")
+               .ProducesNotFound()
+               .ProducesBadRequest()
+               .ProducesCreated();
+
+          builder.MapPut("modifier/{idAeronef:int}", ModifierAsync)
             .WithDescription("Modifier un aéronef")
             .ProducesBadRequest()
             .ProducesNotFound()
@@ -66,6 +76,37 @@ public static class AeronefRoute
         return Results.Extensions.Ok(liste, AeronefReponseContext.Default);
     }
 
+     static async Task<IResult> ListerVaisseauCompatibleAsync(
+          [FromRoute(Name = "idAeronef")] int _idAeronef
+     )
+     {
+          if (_idAeronef <= 0)
+               return Results.NotFound("L'aeronef existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var liste = db.GetCollection<VaisseauPosseder>().Query()
+               .Include(x => x.Vaisseau)
+               .Where(x => x.Vaisseau.ListeAeronef.Select(y => y.Aeronef.Id).Any(y => y == _idAeronef))
+               .Select(x => new
+               {
+                    x.Id,
+                    x.NomVaisseau,
+                    AeronefPosseder = x.ListeAeronef.First(y => y.Aeronef.Id == _idAeronef)
+               })
+               .ToEnumerable()
+               .Where(x => x.AeronefPosseder?.NombreDetruit > 0)
+               .Select(x => new VaisseauAeronefPlaceDisponibleReponse
+               {
+                    Id = x.Id,
+                    NomVaisseau = x.NomVaisseau,
+                    NombrePlace = x.AeronefPosseder.NombreDetruit
+               })
+               .ToArray();
+
+          return Results.Extensions.Ok(liste, VaisseauAeronefPlaceDisponibleReponseContext.Default);
+     }
+
     static async Task<IResult> AjouterAsync(
         [FromBody] AeronefRequete _requete
     )
@@ -85,6 +126,54 @@ public static class AeronefRoute
 
         return Results.Created();
     }
+
+     static async Task<IResult> AcheterAsync(
+          [FromRoute(Name = "idAeronef")] int _idAeronef,
+          [FromBody] AeronefAchaterRequete[] _requete
+     )
+     {
+          if (_idAeronef <= 0)
+               return Results.NotFound("Aeronef existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var listeIdBson = _requete.Select(x => new BsonValue(x.IdVaisseauPosseder));
+
+          var prixUnitaireAeronef = db.GetCollection<Aeronef>().Query().Where(x => x.Id == _idAeronef).FirstOrDefault()?.Prix ?? 0;
+
+          if(prixUnitaireAeronef is 0)
+               return Results.NotFound("Aeronef existe pas");
+
+          var dictVaisseauPosseder = db.GetCollection<VaisseauPosseder>().Query()
+               .Where(Query.In("_id", listeIdBson))
+               .ToList()
+               .ToDictionary(x => x.Id);
+
+          if (dictVaisseauPosseder.Count is 0)
+               return Results.BadRequest("Aucun vaisseau n'a de place pour cette aeronef");
+
+          int total = 0;
+          foreach (var element in _requete)
+          {
+               if(dictVaisseauPosseder.TryGetValue(element.IdVaisseauPosseder, out var vaisseauPosseder))
+               {
+                    var aeronefPosseder = vaisseauPosseder.ListeAeronef.FirstOrDefault(x => x.Aeronef.Id == _idAeronef);
+                    if (aeronefPosseder is not null)
+                    {
+                         total += element.Quantite * prixUnitaireAeronef;
+                         aeronefPosseder.NombreDetruit -= element.Quantite;
+                    }
+               }
+          }
+
+          var banque = db.GetCollection<Banque>().Query().First();
+          banque.Argent -= total;
+
+          db.GetCollection<VaisseauPosseder>().Update(dictVaisseauPosseder.Values);
+          db.GetCollection<Banque>().Update(banque);
+
+          return Results.NoContent();
+     }
 
     static async Task<IResult> ModifierAsync(
         [FromRoute(Name = "idAeronef")] int _idAeronef,

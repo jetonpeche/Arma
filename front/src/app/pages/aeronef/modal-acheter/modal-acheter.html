@@ -1,0 +1,88 @@
+<h2 mat-dialog-title>RÉQUISITION : {{ dialogData.nom | uppercase }}</h2>
+
+<mat-dialog-content>
+    <div class="requisition-container">
+        
+        <!-- Informations sur l'appareil -->
+        <div class="aero-info-block">
+            <span class="aero-role">// RÔLE : {{ dialogData.role | uppercase }}</span>
+            <span class="aero-price">COÛT UNITAIRE : {{ dialogData.prix }} CR</span>
+        </div>
+
+        <!-- Zone d'affectation -->
+        <div class="assignment-panel">
+            <h3 class="panel-subtitle">AFFECTATION DES ESCADRONS</h3>
+            
+            <div class="assignment-controls">
+                <mat-form-field class="unsc-select">
+                    <mat-label>Sélectionner un Bâtiment</mat-label>
+                    <mat-select [(ngModel)]="vaisseauSelectionne">
+                        @for (v of listeVaisseauCompatible(); track v.id) 
+                        {
+                            <mat-option [value]="v">
+                                {{ v.nomVaisseau }} (Dispo: {{ v.nombrePlace }})
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="unsc-input">
+                    <mat-label>Quantité</mat-label>
+                    <input matInput type="number" min="1" [(ngModel)]="quantiteSaisie">
+                </mat-form-field>
+
+                <button matButton="filled" (click)="AjouterAuBordereau()" [disabled]="!vaisseauSelectionne || quantiteSaisie < 1">
+                    <mat-icon>add</mat-icon> AJOUTER
+                </button>
+            </div>
+        </div>
+
+        <!-- Bordereau / Panier -->
+        <div class="cart-panel">
+            <h3 class="panel-subtitle">BORDEREAU D'ORDRE</h3>
+            
+            <div class="cart-list">
+                @for (ligne of panier(); track ligne.vaisseau.id; let i = $index) 
+                {
+                    <div class="cart-item">
+                        <div class="item-name">
+                            <mat-icon>flight</mat-icon>
+                            <span>{{ ligne.vaisseau.nomVaisseau }}</span>
+                        </div>
+                        
+                        <div class="item-actions">
+                            <span class="max-info">Max: {{ ligne.vaisseau.nombrePlace }}</span>
+                            
+                            <!-- Modification directe de la quantité -->
+                            <input class="inline-qty-input" type="number" 
+                                   [(ngModel)]="ligne.quantite" 
+                                   (change)="ControlerModificationQuantite(ligne)" 
+                                   min="1" [max]="ligne.vaisseau.nombrePlace">
+                            
+                            <span class="item-subtotal">{{ ligne.quantite * dialogData.prix }} CR</span>
+                            
+                            <button mat-icon-button color="warn" (click)="SupprimerDuBordereau(i)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                }
+                @empty 
+                {
+                    <div class="no-data">// AUCUN ESCADRON EN ATTENTE D'AFFECTATION</div>
+                }
+            </div>
+        </div>
+
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="unsc-dialog-actions">
+    <div class="total-block">
+        TOTAL : <span class="total-value">{{ totalCommande() }} CR</span>
+    </div>
+    <div class="action-buttons">
+        <button matButton="text" mat-dialog-close>ANNULER</button>&nbsp;
+        <jp-button-loader label="CONFIRMER L'ACHAT" [loading]="btnClick()" (clicked)="ValiderCommande()" />
+    </div>
+</mat-dialog-actions>

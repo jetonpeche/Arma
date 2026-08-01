@@ -72,9 +72,9 @@ public class DroitMiddleware : IEndpointFilter
                }
 
                // regles pour les achats de vaisseau, boutique ou de materiel en direct
-               if (nomMapGroupe is "vaisseau" or "proposition-achat" or "boutique" && routeSplit.Length > 3 && routeSplit[3] == "acheter")
+               if (nomMapGroupe is "vaisseau" or "proposition-achat" or "boutique" or "aeronef" && routeSplit.Length > 3 && routeSplit[3] == "acheter")
                {
-                    if(nomMapGroupe == "vaisseau" && !droitGroupe.PeutAcheterVaisseau)
+                    if(nomMapGroupe is "vaisseau" or "aeronef" && !droitGroupe.PeutAcheterVaisseau)
                          return Results.Forbid();
 
                     if(nomMapGroupe == "proposition-achat" && !droitGroupe.PeutAcheterLogistiqueMateriel)

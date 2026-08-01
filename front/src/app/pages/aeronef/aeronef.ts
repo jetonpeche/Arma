@@ -17,6 +17,7 @@ import { DecimalPipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { InputFile } from "@jetonpeche/angular-mat-input";
 import { environment } from '../../../environements/environement';
+import { ModalAcheter } from './modal-acheter/modal-acheter';
 
 @Component({
   selector: 'app-aeronef',
@@ -70,6 +71,15 @@ export class AeronefPage implements OnInit
             });
           }
       });
+  }
+
+  protected OuvrirModalAchater(_aeronef: Aeronef): void
+  {
+    this.dialog.open(ModalAcheter, {
+      width: this.estMobile ? "95%" : "60%", 
+      maxWidth: "100vw",
+      data: _aeronef
+    });
   }
 
   protected OuvrirModalAjouterModifierAeronef(_aeronef?: Aeronef): void
