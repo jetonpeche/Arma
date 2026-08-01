@@ -18,6 +18,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { InputFile } from "@jetonpeche/angular-mat-input";
 import { environment } from '../../../environements/environement';
 import { ModalAcheter } from './modal-acheter/modal-acheter';
+import { EModeBanque } from '@enums/EModeBanque';
 
 @Component({
   selector: 'app-aeronef',
@@ -40,12 +41,12 @@ export class AeronefPage implements OnInit
 
   private readonly estMobile = window.innerWidth <= 800;
 
-  ngOnInit(): void 
-  {
-    this.Lister();
-    this.droit = this.authServ.RecupererDroit(EUrl.Aeronef);
-    this.peutAcheterVaisseau = environment.utilisateur.droit.peutAcheterVaisseau;
-  }
+    ngOnInit(): void 
+    {
+        this.Lister();
+        this.droit = this.authServ.RecupererDroit(EUrl.Aeronef);
+        this.peutAcheterVaisseau = environment.utilisateur.droit.peutAcheterVaisseau;
+    }
 
   protected Rechercher(_valeur: string): void
   {
@@ -75,10 +76,18 @@ export class AeronefPage implements OnInit
 
   protected OuvrirModalAchater(_aeronef: Aeronef): void
   {
-    this.dialog.open(ModalAcheter, {
+    const DIALOG_REF = this.dialog.open(ModalAcheter, {
       width: this.estMobile ? "95%" : "60%", 
       maxWidth: "100vw",
       data: _aeronef
+    });
+
+    DIALOG_REF.afterClosed().subscribe({
+        next: (total) =>
+        {
+            if(total && total > 0)
+                this.authServ.ModifierPointBanque(total, EModeBanque.Modifier);
+        }
     });
   }
 

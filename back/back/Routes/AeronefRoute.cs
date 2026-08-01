@@ -137,6 +137,8 @@ public static class AeronefRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
+          var banque = db.GetCollection<Banque>().Query().First();
+
           var listeIdBson = _requete.Select(x => new BsonValue(x.IdVaisseauPosseder));
 
           var prixUnitaireAeronef = db.GetCollection<Aeronef>().Query().Where(x => x.Id == _idAeronef).FirstOrDefault()?.Prix ?? 0;
@@ -151,6 +153,9 @@ public static class AeronefRoute
 
           if (dictVaisseauPosseder.Count is 0)
                return Results.BadRequest("Aucun vaisseau n'a de place pour cette aeronef");
+
+          if (_requete.Sum(x => x.Quantite * prixUnitaireAeronef) < banque.Argent)
+               return Results.BadRequest("Vous avez pas assez d'argent");
 
           int total = 0;
           foreach (var element in _requete)

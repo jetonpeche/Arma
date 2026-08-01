@@ -130,6 +130,9 @@ export class ModalAcheter implements OnInit
             next: () =>
             {
                 this.btnClick.set(false);
+                this.snackBarServ.Ok("Les aeronefs ont été achetés");
+                this.dialogRef.close(this.totalCommande());
+
             }, error: () => this.btnClick.set(false)
         });
     }
