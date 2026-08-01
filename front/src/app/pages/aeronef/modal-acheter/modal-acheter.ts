@@ -140,7 +140,13 @@ export class ModalAcheter implements OnInit
     private ListerVaisseauCompatible(): void
     {
         this.aeronefServ.ListerVaisseauCompatiblePlaceDisponible(this.dialogData.id).subscribe({
-            next: (retour) => this.listeVaisseauCompatible.set(retour)
+            next: (retour) => 
+            {
+                if(retour.length == 0)
+                    this.snackBarServ.Erreur("Tous les hangars sont pleins");
+                
+                this.listeVaisseauCompatible.set(retour);
+            }
         });
     }
 }
