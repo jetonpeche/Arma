@@ -2,12 +2,16 @@
 <mat-dialog-content>
     <form [formGroup]="form">
         <jp-grid-container [gap]="15">
-            <jp-grid-element [colXs]="12" [colMd]="6">
-                <jp-input-number label="Nombre disponible" formControlName="nombreDisponible" />
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-input-number label="Disponible" formControlName="nombreDisponible" />
             </jp-grid-element>
 
-            <jp-grid-element [colXs]="12" [colMd]="6">
-                <jp-input-number label="Nombre détruit" formControlName="nombreDetruit" />
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-input-number label="Utilisé" formControlName="nombreUtiliser" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="4">
+                <jp-input-number label="Détruit" formControlName="nombreDetruit" />
             </jp-grid-element>
         </jp-grid-container>
     </form>

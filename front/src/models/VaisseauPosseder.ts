@@ -38,6 +38,7 @@ export type VaisseauPossederArmement =
     nombreMax: number,
     nombreDisponible: number,
     nombreDetruit: number,
+    nombreUtiliser: number,
     nbTourReload: number,
     nbNombreReloadParNbTour: number,
     munitionInfini: boolean,
@@ -49,6 +50,7 @@ export type VaisseauPossederArmementRequete =
     idArmement: string,
     nombreDisponible: number,
     nombreDetruit: number,
+    nombreUtiliser: number
 }
 
 export type VaisseauPossederStockage = 

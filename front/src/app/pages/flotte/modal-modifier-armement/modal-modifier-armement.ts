@@ -35,9 +35,12 @@ export class ModalModifierArmement implements OnInit, OnDestroy
     ngOnInit(): void
     {
         const max = this.dialogData.armement.nombreMax;
+        
+        // Initialisation avec la nouvelle propriété nombreUtilise
         this.form = new FormGroup({
             idArmement: new FormControl(this.dialogData.armement.id),
             nombreDisponible: new FormControl(this.dialogData.armement.nombreDisponible, [Validators.min(0), Validators.max(max)]),
+            nombreUtiliser: new FormControl(this.dialogData.armement.nombreUtiliser || 0, [Validators.min(0), Validators.max(max)]),
             nombreDetruit: new FormControl(this.dialogData.armement.nombreDetruit, [Validators.min(0), Validators.max(max)])
         });
 
@@ -48,43 +51,60 @@ export class ModalModifierArmement implements OnInit, OnDestroy
     {
         const max = this.dialogData.armement.nombreMax;
         const ctrlDispo = this.form.get('nombreDisponible')!;
+        const ctrlUtilise = this.form.get('nombreUtiliser')!;
         const ctrlDetruit = this.form.get('nombreDetruit')!;
 
-        // Écoute des modifications sur le nombre DISPONIBLE
-        ctrlDetruit.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((detruit: number) => 
-        {
-            if (detruit !== null) 
+        // Fonction centralisée pour ajuster les valeurs logiquement sans dépasser le maximum
+        const ajusterValeurs = (source: 'dispo' | 'utilise' | 'detruit', valeur: number) => {
+            let dispo = ctrlDispo.value || 0;
+            let utilise = ctrlUtilise.value || 0;
+            let detruit = ctrlDetruit.value || 0;
+
+            if (valeur > max) valeur = max;
+
+            if (source === 'detruit') 
             {
-                let valeurSecurisee = detruit;
-
-                if (detruit > max) 
+                detruit = valeur;
+                // Si on déclare plus de détruits, on réduit les disponibles en priorité
+                dispo = max - detruit - utilise;
+                if (dispo < 0) 
                 {
-                    valeurSecurisee = max;
-                    ctrlDetruit.setValue(valeurSecurisee, { emitEvent: false });
+                    utilise += dispo; // 'dispo' est négatif, on réduit donc les 'utilisés'
+                    dispo = 0;
                 }
-
-                const nouveauDispo = Math.max(0, max - valeurSecurisee);
-                ctrlDispo.setValue(nouveauDispo, { emitEvent: false });
-            }
-        });
-
-        // Écoute des modifications sur le nombre DISPONIBLE
-        ctrlDispo.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((disponible: number) => 
-        {
-            if (disponible !== null) 
+            } 
+            else if (source === 'utilise') 
             {
-                let valeurSecurisee = disponible;
-
-                if (disponible > max) 
+                utilise = valeur;
+                // Si on déclare plus de tirs (utilisés), on réduit les disponibles en priorité
+                dispo = max - detruit - utilise;
+                if (dispo < 0) 
                 {
-                    valeurSecurisee = max;
-                    ctrlDispo.setValue(valeurSecurisee, { emitEvent: false });
+                    detruit += dispo;
+                    dispo = 0;
                 }
-
-                const nouveauDetruit = Math.max(0, max - valeurSecurisee);
-                ctrlDetruit.setValue(nouveauDetruit, { emitEvent: false });
+            } 
+            else if (source === 'dispo') 
+            {
+                dispo = valeur;
+                // Si on déclare plus de disponibles (rechargement), on restaure les "utilisés" en priorité
+                utilise = max - dispo - detruit;
+                if (utilise < 0) 
+                {
+                    detruit += utilise;
+                    utilise = 0;
+                }
             }
-        });
+
+            ctrlDispo.setValue(dispo, { emitEvent: false });
+            ctrlUtilise.setValue(utilise, { emitEvent: false });
+            ctrlDetruit.setValue(detruit, { emitEvent: false });
+        };
+
+        // Écoutes des changements
+        ctrlDetruit.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(val => ajusterValeurs('detruit', val));
+        ctrlUtilise.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(val => ajusterValeurs('utilise', val));
+        ctrlDispo.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(val => ajusterValeurs('dispo', val));
     }
 
     protected Valider(): void

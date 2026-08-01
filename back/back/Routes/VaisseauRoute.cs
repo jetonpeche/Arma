@@ -218,8 +218,9 @@ public static class VaisseauRoute
                                    Nom = y.Nom,
                                    Information = y.Information,
                                    NombreMax = y.Nombre,
-                                   NombreDisponible = armement is not null ? y.Nombre - armement.NombreDetruit : y.Nombre,
+                                   NombreDisponible = armement is not null ? y.Nombre - armement.NombreDetruit - armement.NombreUtiliser : y.Nombre,
                                    NombreDetruit = armement?.NombreDetruit ?? 0,
+                                   NombreUtiliser = armement?.NombreUtiliser ?? 0,
                                    EstUsageUnique = y.EstUsageUnique,
                                    MunitionInfini = y.MunitionInfini,
                                    NbTourReload = y.NbTourReload,
@@ -957,18 +958,19 @@ public static class VaisseauRoute
           if (armement is not null)
           {
                armement.NombreDetruit = _requete.NombreDetruit;
-               db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
+               armement.NombreUtiliser = _requete.NombreUtiliser;
           }
           else
           {
                vaisseauPosseder.ListeCapaciteArmement.Add(new ArmementVaisseauPosseder
                {
                    IdArmement = _requete.IdArmement,
-                   NombreDetruit = _requete.NombreDetruit
+                   NombreDetruit = _requete.NombreDetruit,
+                   NombreUtiliser = _requete.NombreUtiliser
                });
-               
-               db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
           }
+
+          db.GetCollection<VaisseauPosseder>().Update(vaisseauPosseder);
 
           return Results.NoContent();
     }
