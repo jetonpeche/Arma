@@ -99,25 +99,23 @@ export class ModalAcheter implements OnInit
     protected ValiderCommande(): void
     {
 
-        if (this.panier().length === 0)
+        if (this.panier().length == 0)
         {
             this.snackBarServ.Erreur("Le bordereau d'ordre est vide. Ajout annulé.");
             return;
         }
 
         for (const ligne of this.panier()) 
-        {
-            const maxPlace = Number(ligne.vaisseau.nombrePlace);
-            
+        {   
             if (ligne.quantite < 1) 
             {
                 this.snackBarServ.Erreur(`Télémétrie invalide : Quantité incorrecte pour le ${ligne.vaisseau.nomVaisseau}.`);
                 return;
             }
 
-            if (ligne.quantite > maxPlace) 
+            if (ligne.quantite > ligne.vaisseau.nombrePlace) 
             {
-                this.snackBarServ.Erreur(`Alerte Logistique : La commande excède la capacité du hangar du ${ligne.vaisseau.nomVaisseau} (Max: ${maxPlace}).`);
+                this.snackBarServ.Erreur(`Alerte Logistique : La commande excède la capacité du hangar du ${ligne.vaisseau.nomVaisseau} (Max: ${ligne.vaisseau.nombrePlace}).`);
                 return;
             }
         }
@@ -144,7 +142,7 @@ export class ModalAcheter implements OnInit
             {
                 if(retour.length == 0)
                     this.snackBarServ.Erreur("Tous les hangars sont pleins");
-                
+
                 this.listeVaisseauCompatible.set(retour);
             }
         });
