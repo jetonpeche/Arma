@@ -24,135 +24,144 @@
 <div class="shipyard-grid">
     @for (element of listeVaisseau(); track element.id) 
     {
-        <mat-card class="unsc-ship-card">
+        <div class="unsc-datapad">
             
-            <div class="card-image-wrapper">
-                <img [src]="element.nomFichier" class="ship-image" alt="Vaisseau">
-                
-                <div class="price-tag">{{ element.prix | number }} CR</div>
-
-                @if (droit.peutEcrire)
-                {
-                    <div class="upload-overlay">
-                        <jp-input-file-btn matIconButton
-                                           icon="photo"    
-                                           (fileChange)="UploadFichier(element.id, $any($event))"            
-                                           accept=".png, .jpg, .webp, .jpeg" />
-                    </div>
-                }
+            <!-- CADRE SUPÉRIEUR (Bezel du Datapad) -->
+            <div class="dp-bezel top">
+                <span class="dp-brand">UNSC // FLEETCOM DATALINK</span>
+                <div class="dp-camera"></div>
             </div>
 
-            <mat-card-header>
-                <mat-card-title>{{ element.nom | uppercase }}</mat-card-title>
-                <mat-card-subtitle class="role-subtitle">
-                    {{ element.role }} <br>
-                    @if(element.capaciteSpeciale)
-                    {
-                        <span class="special-capacity"> // {{ element.capaciteSpeciale }}</span>
-                    }
-                </mat-card-subtitle>
-            </mat-card-header>
-
-            <mat-card-content>
-                <div class="specs-grid">
-                    <div class="spec-item">
-                        <span class="spec-label">POSSÉDÉ</span>
-                        <span class="spec-value stock-value">{{ element.stock }}</span>
-                    </div>
-                    <div class="spec-item">
-                        <span class="spec-label">BLINDAGE</span>
-                        <span class="spec-value">{{ element.blindage }}</span>
-                    </div>
-                    <div class="spec-item">
-                        <span class="spec-label">VITESSE</span>
-                        <span class="spec-value">{{ element.vitesse }}</span>
-                    </div>
+            <!-- ÉCRAN DU DATAPAD -->
+            <div class="dp-screen">
+                <div class="dp-scanlines"></div>
+                
+                <div class="dp-image-bay">
+                    <img [src]="element.nomFichier" class="dp-vessel-img" alt="Vaisseau">
                     
-                    <div class="spec-item full-width">
-                        <span class="spec-label">ÉQUIPAGE</span>
-                        <span class="spec-value">
-                            <mat-icon inline>person</mat-icon> {{ element.equipage.nbPlacePassager }} | 
-                            <mat-icon inline>security</mat-icon> {{ element.equipage.nbPlaceMarines }}
-                        </span>
-                    </div>
-                    <div class="spec-item full-width badge-list-box">
-                        <span class="spec-label">ARMEMENT PRINCIPAL</span>
-                        <div class="badges-container">
-                            @for (arme of FormaterArmement(element.listeArmement); track $index) 
-                            {
-                                <span class="unsc-badge badge-neutral">{{ arme }}</span>
-                            }
-                            
-                            @if (element.listeArmement.length === 0) 
-                            {
-                                <span class="spec-value empty-value">NON ARMÉ</span>
-                            }
-                        </div>
-                    </div>
+                    <div class="dp-price">{{ element.prix | number }} CR</div>
 
-                    <div class="spec-item full-width badge-list-box">
-                        <span class="spec-label">FLOTTE EMBARQUÉE (HANGAR)</span>
-                        <div class="badges-container">
-                            @for (vaisseau of FormaterVaisseauxEmbarques(element.listeVaisseauEnfant); track $index) 
-                            {
-                                <span class="unsc-badge badge-primary">{{ vaisseau }}</span>
-                            }
-                            
-                            @if (element.listeVaisseauEnfant.length === 0) 
-                            {
-                                <span class="spec-value empty-value">AUCUN VAISSEAU</span>
-                            }
+                    @if (droit.peutEcrire)
+                    {
+                        <div class="upload-matrix">
+                            <jp-input-file-btn matIconButton
+                                               icon="photo"    
+                                               (fileChange)="UploadFichier(element.id, $any($event))"            
+                                               accept=".png, .jpg, .webp, .jpeg" />
                         </div>
-                    </div>
-
-                    <div class="spec-item full-width badge-list-box">
-                        <span class="spec-label">ESCADRONS EMBARQUÉS</span>
-                        <div class="badges-container">
-                            @for (aeronef of FormaterAeronefs(element.listeAeronef); track $index) 
-                            {
-                                <span class="unsc-badge badge-neutral">{{ aeronef }}</span>
-                            }
-                            
-                            @if (!element.listeAeronef || element.listeAeronef.length == 0) 
-                            {
-                                <span class="spec-value empty-value">AUCUN AÉRONEF</span>
-                            }
-                        </div>
-                    </div>
+                    }
                 </div>
-            </mat-card-content>
 
-            <mat-card-actions class="card-actions">
-                <jp-button-loader matMiniFab
+                <div class="dp-data-core">
+                    
+                    <div class="dp-header">
+                        <!-- Le Rôle est affiché ici comme un badge système -->
+                        <div class="dp-role-badge">{{ element.role | uppercase }}</div>
+                        <h3 class="dp-name">{{ element.nom | uppercase }}</h3>
+                        
+                        @if(element.capaciteSpeciale)
+                        {
+                            <div class="dp-special">// {{ element.capaciteSpeciale }}</div>
+                        }
+                    </div>
+
+                    <div class="dp-stats">
+                        <div class="stat-col">
+                            <span class="s-label">DISPO</span>
+                            <span class="s-value text-tertiary">{{ element.stock }}</span>
+                        </div>
+                        <div class="stat-col">
+                            <span class="s-label">BLINDAGE</span>
+                            <span class="s-value">{{ element.blindage }}</span>
+                        </div>
+                        <div class="stat-col">
+                            <span class="s-label">VITESSE</span>
+                            <span class="s-value">{{ element.vitesse }}</span>
+                        </div>
+                    </div>
+
+                    <div class="dp-loadout">
+                        <div class="l-row crew-row">
+                            <mat-icon>groups</mat-icon>
+                            <span class="c-data">PASSAGER: <strong>{{ element.equipage.nbPlacePassager }}</strong></span>
+                            <span class="c-sep">|</span>
+                            <span class="c-data">MARINES: <strong>{{ element.equipage.nbPlaceMarines }}</strong></span>
+                        </div>
+
+                        <div class="l-row">
+                            <span class="l-title">ARMEMENT</span>
+                            <div class="l-tags">
+                                @for (arme of FormaterArmement(element.listeArmement); track $index) 
+                                {
+                                    <span class="d-tag t-weapon">{{ arme }}</span>
+                                }
+                                @if (element.listeArmement.length === 0) 
+                                {
+                                    <span class="d-tag t-empty">AUCUN</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="l-row">
+                            <span class="l-title">SOUTES (HANGAR)</span>
+                            <div class="l-tags">
+                                @for (vaisseau of FormaterVaisseauxEmbarques(element.listeVaisseauEnfant); track $index) 
+                                {
+                                    <span class="d-tag t-ship">{{ vaisseau }}</span>
+                                }
+                                @for (aeronef of FormaterAeronefs(element.listeAeronef); track $index) 
+                                {
+                                    <span class="d-tag t-aero">{{ aeronef }}</span>
+                                }
+                                @if (element.listeVaisseauEnfant.length === 0 && (!element.listeAeronef || element.listeAeronef.length === 0)) 
+                                {
+                                    <span class="d-tag t-empty">VIDES</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- CADRE INFÉRIEUR (Boutons tactiles) -->
+            <div class="dp-bezel bottom dp-actions">
+                <jp-button-loader matIconButton
                                 icon="storage" 
-                                matTooltip="Stockage du vaisseau"
+                                matTooltip="Ouvrir les soutes"
                                 [disabled]="element.listeStockage.length == 0"
                                 (clicked)="OuvrirModalStockage(element)" />
 
                 @if (peutAcheterVaisseau && !element.bloquerAchat) 
                 {
-                    <jp-button-loader matMiniFab
-                                    icon="credit_card"
-                                    matTooltip="Acheter"
+                    <jp-button-loader matIconButton
+                                    color="primary"
+                                    icon="shopping_cart"
+                                    matTooltip="Réquisitionner"
                                     (clicked)="OuvrirModalConfirmationAcheterVaisseau(element)" />
                 }
 
-                <span class="spacer"></span> 
+                <div class="dp-spacer"></div> 
+                
                 @if(droit.peutEcrire)
                 {
-                    <jp-button-loader matMiniFab
-                                    icon="edit"
+                    <jp-button-loader matIconButton
+                                    icon="tune"
+                                    matTooltip="Modifier"
                                     (clicked)="OuvrirModalAjouterModifierVaisseau(element)" />
                 }
 
                 @if (droit.peutSupprimer)
                 {
-                    <jp-button-loader matMiniFab
-                                    icon="delete"
+                    <jp-button-loader matIconButton
+                                    icon="delete_forever"
+                                    color="warn"
+                                    matTooltip="Saborder"
                                     [loading]="btnClick()"
                                     (clicked)="OuvrirModalConfirmationSupprimerVaisseau(element)" />
                 }
-            </mat-card-actions>
-        </mat-card>
+            </div>
+            
+        </div>
     }
 </div>

@@ -1,5 +1,5 @@
 /* =========================================================
-   GRILLE DU CHANTIER NAVAL
+   GRILLE DU CHANTIER NAVAL (À CONSERVER)
    ========================================================= */
 .shipyard-grid {
     display: grid;
@@ -9,48 +9,98 @@
 }
 
 /* =========================================================
-   STYLE DE LA CARTE TACTIQUE
+   DATAPAD UNSC (CHÂSSIS AVEC COINS CORNÉS)
    ========================================================= */
-.unsc-ship-card {
-    background-color: var(--mat-sys-surface-container);
-    border: 1px solid var(--mat-sys-outline-variant);
-    border-radius: 2px !important; /* Coins carrés militaires */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    overflow: hidden;
+.unsc-datapad {
     display: flex;
     flex-direction: column;
+    background-color: #1e211f; 
+    
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.3s ease;
+    overflow: hidden;
 
+    /* EFFET HOVER TACTIQUE DU DATAPAD */
     &:hover {
-        transform: translateY(-4px);
-        border-color: var(--mat-sys-primary);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5), 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent) !important;
-        
-        .card-image-wrapper img {
-            transform: scale(1.05); /* Léger zoom de l'image au survol */
+        transform: translateY(-6px);
+        filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 6px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent));
+
+        /* Déclenchement du faisceau de balayage */
+        .dp-screen::after {
+            animation: tactical-scan 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .dp-vessel-img {
+            transform: scale(1.08);
         }
     }
 }
 
-/* --- ZONE IMAGE --- */
-.card-image-wrapper {
-    position: relative;
-    height: 180px; /* Grande zone pour admirer le vaisseau */
-    background: radial-gradient(circle, var(--mat-sys-surface-container-highest) 0%, var(--mat-sys-surface-container) 100%);
+/* --- CADRE MATÉRIEL (BEZEL) --- */
+.dp-bezel {
+    background-color: #1e211f;
     display: flex;
-    justify-content: center;
     align-items: center;
-    border-bottom: 1px solid var(--mat-sys-outline-variant);
-    overflow: hidden;
+    padding: 8px 16px;
 
-    .ship-image {
-        max-width: 90%;
-        max-height: 90%;
-        object-fit: contain;
-        filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.8));
-        transition: transform 0.4s ease;
+    &.top { justify-content: space-between; }
+    &.bottom { padding: 12px 16px; border-top: 1px solid #111; }
+
+    .dp-brand {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.65rem; color: #5a665d; letter-spacing: 1px;
     }
 
-    .price-tag {
+    .dp-camera {
+        width: 10px; height: 10px; border-radius: 50%;
+        background-color: #0a0c0a; border: 1px solid #333;
+        box-shadow: inset 0 0 3px rgba(0,0,0,1);
+    }
+}
+
+/* --- ÉCRAN DU DATAPAD --- */
+.dp-screen {
+    position: relative;
+    background-color: #080c09;
+    flex-grow: 1; display: flex; flex-direction: column;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+    border-left: 2px solid #000; border-right: 2px solid #000;
+    overflow: hidden; /* Empêche le faisceau de scan de sortir de l'écran */
+
+    .dp-scanlines {
+        position: absolute; inset: 0;
+        background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1) 1px, transparent 1px, transparent 2px);
+        pointer-events: none; z-index: 10;
+    }
+
+    /* Faisceau de balayage tactique (Invisible au repos) */
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 80px;
+        background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--mat-sys-primary) 20%, transparent), transparent);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 15;
+    }
+}
+
+/* --- BAIE IMAGE (180px STRICT) --- */
+.dp-image-bay {
+    height: 180px; position: relative; display: flex; justify-content: center; align-items: center;
+    background: radial-gradient(circle at center, color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) 0%, transparent 70%);
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+
+    .dp-vessel-img { 
+        max-width: 90%; max-height: 90%; object-fit: contain; 
+        filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.8)); 
+        z-index: 2; 
+        transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .dp-price {
         position: absolute;
         top: 12px;
         right: 12px;
@@ -65,161 +115,217 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         z-index: 4;
     }
-
-    /* Le scanner d'upload caché */
-    .upload-overlay {
-        position: absolute;
-        inset: 0;
-        background-color: rgba(0, 15, 0, 0.7);
-        backdrop-filter: blur(3px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        z-index: 3;
+    .upload-matrix {
+        position: absolute; inset: 0; background-color: rgba(0, 20, 0, 0.8);
+        display: flex; justify-content: center; align-items: center;
+        opacity: 0; transition: opacity 0.2s ease; z-index: 4;
     }
-
-    &:hover .upload-overlay {
-        opacity: 1;
-    }
+    &:hover .upload-matrix { opacity: 1; }
 }
 
-/* --- EN-TÊTE & TEXTES --- */
-mat-card-header {
-    padding: 16px 16px 0 16px !important;
+/* --- DONNÉES D'ÉCRAN --- */
+.dp-data-core {
+    padding: 16px; display: flex; flex-direction: column; gap: 16px;
+    position: relative; z-index: 2;
+}
 
-    mat-card-title {
-        color: var(--mat-sys-primary);
-        font-family: 'Courier New', Courier, monospace !important;
-        font-weight: 900 !important;
-        letter-spacing: 1.5px;
-        font-size: 1.3rem !important;
-    }
-
-    .role-subtitle {
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.9rem;
-        margin-top: 4px;
+.dp-header {
+    text-align: center;
+    
+    .dp-role-badge {
+        display: inline-block;
+        font-family: 'Courier New', Courier, monospace; font-size: 0.75rem;
         
-        .special-capacity {
-            color: var(--mat-sys-error);
-            font-weight: bold;
-        }
-    }
-}
-
-/* --- SPÉCIFICATIONS TECHNIQUES (Grille interne) --- */
-mat-card-content {
-    padding: 16px !important;
-    flex-grow: 1; /* Pousse les boutons tout en bas si la carte est plus grande */
-}
-
-.specs-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 colonnes pour les petites infos */
-    gap: 12px;
-    background-color: var(--mat-sys-surface-container-lowest);
-    border: 1px solid var(--mat-sys-outline-variant);
-    padding: 12px;
-    border-radius: 2px;
-
-    .spec-item {
-        display: flex;
-        flex-direction: column;
+        color: var(--mat-sys-primary); 
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+        border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
         
-        &.full-width {
-            grid-column: 1 / -1; /* Prend toute la largeur */
-            border-top: 1px dashed var(--mat-sys-outline-variant);
-            padding-top: 12px;
-        }
+        padding: 3px 10px; border-radius: 2px; font-weight: bold;
+        letter-spacing: 1px; margin-bottom: 8px;
     }
 
-    .spec-label {
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 0.75rem;
-        color: var(--mat-sys-outline);
-        margin-bottom: 4px;
-        letter-spacing: 1px;
+    .dp-name { margin: 0; font-family: 'Courier New', Courier, monospace; font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: 1px; }
+    .dp-special { margin-top: 4px; font-size: 0.8rem; color: var(--mat-sys-error); }
+}
+
+.dp-stats {
+    display: flex; justify-content: space-around;
+    background-color: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px; border-radius: 2px;
+
+    .stat-col {
+        display: flex; flex-direction: column; align-items: center; gap: 4px;
+        .s-label { font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; color: #aaa; }
+        .s-value { font-family: 'Courier New', Courier, monospace; font-size: 1.1rem; font-weight: 900; color: #fff; }
+        .text-tertiary { color: var(--mat-sys-tertiary); }
     }
+}
 
-.spec-value {
-        font-size: 0.9rem;
-        color: var(--mat-sys-on-surface);
-        font-weight: bold;
-
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 6px;
-
-        mat-icon {
-            font-size: 18px; 
-            width: 18px;
-            height: 18px;
-            color: var(--mat-sys-primary);
+/* --- CHARGE UTILE ET SOUS-CARTES --- */
+.dp-loadout {
+    display: flex; flex-direction: column; gap: 4px;
+    
+    .l-row { 
+        display: flex; flex-direction: column; gap: 8px; 
+        
+        /* DÉMARCATION : Format "Card" pour Armement et Soutes */
+        &:not(.crew-row) {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    }
+            /* Initialisation de la fluidité du mouvement */
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 
-    .stock-value {
-        color: var(--mat-sys-secondary);
+            &:hover {
+                transform: translateY(-2px);
+                background-color: rgba(255, 255, 255, 0.06);
+                border-color: color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            }
+        }
     }
     
-    .badge-list-box {
-        .badges-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 4px;
-        }
+    .crew-row {
+        flex-direction: row; align-items: center; justify-content: center;
+        background-color: rgba(255, 255, 255, 0.05); padding: 6px; border-radius: 2px;
+        mat-icon { font-size: 18px; width: 18px; height: 18px; color: #aaa; margin-right: 8px; }
+        .c-data { font-size: 0.85rem; color: #ccc; strong { color: #fff; font-family: 'Courier New', Courier, monospace; } }
+        .c-sep { margin: 0 8px; color: #555; }
+    }
 
-        .unsc-badge {
-            font-size: 0.8rem;
-            padding: 2px 8px;
-        }
+    .l-title { 
+        font-family: 'Courier New', Courier, monospace; 
+        font-size: 0.80rem; 
+        color: #aaa; 
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+        padding-bottom: 6px;
+        margin-bottom: 2px;
+    }
+    
+    .l-tags {
+        display: flex; flex-wrap: wrap; gap: 6px;
         
-        /* Style pour les mentions "NON ARMÉ" ou "AUCUN VAISSEAU" */
-        .empty-value {
-            color: var(--mat-sys-outline);
-            font-size: 0.85rem;
-            font-weight: normal;
-            font-style: italic;
-        }
+        .d-tag { font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 2px; border: 1px solid; }
+        
+        .t-weapon { color: var(--mat-sys-on-surface); background-color: color-mix(in srgb, var(--mat-sys-surface-variant) 80%, transparent); border-color: var(--mat-sys-outline); }
+        .t-ship { color: var(--mat-sys-primary); border-color: var(--mat-sys-primary); background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent); }
+        .t-aero { color: var(--mat-sys-tertiary); border-color: var(--mat-sys-tertiary); background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent); }
+        .t-empty { color: #555; border-color: #333; font-style: italic; background: transparent;}
     }
 }
 
-/* --- ACTIONS --- */
-.card-actions {
-    padding: 16px !important;
-    background-color: var(--mat-sys-surface-container-highest);
-    border-top: 1px solid var(--mat-sys-outline-variant);
-    display: flex;
-    gap: 8px;
+/* --- BOUTONS D'ACTION --- */
+.dp-actions {
+    display: flex; align-items: center; gap: 8px;
+    .dp-spacer { flex-grow: 1; }
 
-    .spacer {
-        flex: 1 1 auto;
+    .mat-mdc-icon-button {
+        background-color: transparent !important;
+        mat-icon { color: #888; }
+        &:hover { background-color: rgba(255,255,255,0.05) !important; mat-icon { color: var(--mat-sys-primary); } }
+        &[color="primary"] mat-icon { color: var(--mat-sys-primary); }
+        &[color="warn"] mat-icon { color: var(--mat-sys-error); }
+        &:disabled { opacity: 0.5; mat-icon { color: #444 !important; } }
     }
 }
 
-@media screen and (max-width: 600px) 
-{
-    .specs-grid {
-        grid-template-columns: repeat(2, 1fr); 
-    }
+/* =========================================================
+   ADAPTATION THÈME CLAIR (TITANE)
+   ========================================================= */
+:host-context(html.light-mode) {
+    .unsc-datapad {
+        background-color: #d1d8d4; 
+        filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
 
-    mat-card-header mat-card-title {
-        font-size: 1.1rem !important;
-    }
-
-    .card-actions {
-        flex-wrap: wrap;
-        
-        .spacer {
-            display: none;
+        &:hover {
+            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.2)) drop-shadow(0 0 6px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent));
         }
     }
+
+    .dp-bezel {
+        background-color: #d1d8d4;
+        border-top-color: #b5c2ba;
+        .dp-brand { color: #6a7a70; }
+        .dp-camera { background-color: #111; box-shadow: inset 0 0 3px rgba(0,0,0,1), 0 1px 1px rgba(255,255,255,0.5); }
+    }
+
+    .dp-screen {
+        background-color: #e4ebe7; 
+        border-left: 2px solid #a3b3a9;
+        border-right: 2px solid #a3b3a9;
+        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+        
+        .dp-scanlines {
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.03) 1px, transparent 1px, transparent 2px);
+        }
+    }
+
+    .dp-header {
+        .dp-name { color: #1a1c1a; }
+        
+        .dp-role-badge {
+            background-color: var(--mat-sys-primary);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+    }
+    
+    .dp-stats {
+        background-color: #dce3df; border-color: #b5c2ba;
+        .stat-col { .s-label { color: #666; } .s-value { color: #222; } }
+    }
+
+    .dp-loadout {
+        /* SOUS-CARTES EN LIGHT MODE */
+        .l-row:not(.crew-row) {
+            background-color: #ffffff; 
+            border: 1px solid #b5c2ba;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: 4px;
+
+            &:hover {
+                transform: translateY(-2px);
+                border-color: var(--mat-sys-primary);
+                box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            }
+        }
+
+        .crew-row { background-color: #dce3df; border: 1px solid #b5c2ba; .c-data strong { color: #222; } }
+        
+        .l-title { 
+            color: #555; 
+            border-bottom-color: #dce3df; /* Ligne pointillée claire */
+        }
+        
+        .t-weapon { color: #222; border-color: #999; background-color: #cfd8d3; }
+        .t-empty { color: #999; border-color: #b5c2ba; }
+    }
+}
+
+/* =========================================================
+   COMPATIBILITÉ MOBILE
+   ========================================================= */
+@media screen and (max-width: 600px) {
+    .dp-data-core { padding: 12px; }
+    .dp-stats { flex-wrap: wrap; gap: 8px; }
+    .dp-actions { 
+        flex-wrap: wrap; justify-content: center;
+        .dp-spacer { display: none; } 
+    }
+}
+
+/* =========================================================
+   ANIMATIONS SYSTÈME
+   ========================================================= */
+@keyframes tactical-scan {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translateY(400%); opacity: 0; }
 }
