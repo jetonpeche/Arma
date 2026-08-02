@@ -1,12 +1,8 @@
-.unsc-modal-content {
-    padding-top: 16px !important;
-}
-
 /* =========================================================
    TERMINAL D'AUDIT (HISTORIQUE EN LECTURE SEULE)
    ========================================================= */
 .audit-log-terminal {
-    background-color: #080c0a; /* Fond de terminal très sombre */
+    background-color: #080c0a; 
     border: 1px solid var(--mat-sys-outline-variant);
     border-left: 4px solid var(--mat-sys-tertiary);
     border-radius: 2px;
@@ -46,7 +42,7 @@
 
     .audit-row {
         display: flex;
-        align-items: flex-start; /* Important pour les longues listes de personnages */
+        align-items: flex-start; 
         font-family: 'Courier New', Courier, monospace;
         font-size: 0.85rem;
         line-height: 1.4;
@@ -64,7 +60,6 @@
         color: color-mix(in srgb, var(--mat-sys-primary) 80%, white);
         font-weight: bold;
         
-        /* Spécial pour la liste des personnages pour éviter qu'elle ne casse le design */
         &.personnel-list {
             color: var(--mat-sys-primary);
             text-shadow: 0 0 5px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
@@ -75,8 +70,7 @@
 /* =========================================================
    LE BRIEFING MILITAIRE
    ========================================================= */
-.tactical-briefing 
-{
+.tactical-briefing {
     display: flex;
     gap: 16px;
     background: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
@@ -93,12 +87,10 @@
         height: 28px;
     }
 
-    .briefing-text 
-    {
+    .briefing-text {
         font-family: 'Courier New', Courier, monospace;
         p { margin: 0; }
-        .primary-directive 
-        {
+        .primary-directive {
             font-weight: 900;
             color: var(--mat-sys-tertiary);
             margin-bottom: 4px;
@@ -112,10 +104,10 @@
 }
 
 /* =========================================================
-   BARRE DE RECHERCHE
+   CHAMPS DE RECHERCHE GLOBALE
    ========================================================= */
-.unsc-search-bar {
-    margin-bottom: 16px;
+mat-form-field {
+    width: 100%; /* Garantit que tous les champs prennent la largeur totale du modal */
 }
 
 /* =========================================================
@@ -128,26 +120,22 @@
     background-color: var(--mat-sys-surface-container-lowest);
     padding: 0 !important;
 
-    /* Le Wrapper de la Ligne */
     ::ng-deep .mdc-list-item {
         border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent) !important;
         transition: background-color 0.2s ease;
         padding-top: 8px !important;
         padding-bottom: 8px !important;
 
-        /* Effet de Cible au survol */
         &:hover {
             background-color: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent) !important;
         }
 
-        /* Si l'opérateur est sélectionné */
         &.mdc-list-item--selected {
             background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
             border-left: 4px solid var(--mat-sys-primary);
         }
     }
 
-    /* Le Contenu de la Ligne */
     .operator-row {
         display: flex;
         align-items: center;
@@ -155,13 +143,11 @@
         width: 100%;
     }
 
-    /* L'icône de statut (Cadenas ou Médaille) */
     .status-icon {
         &.locked { color: var(--mat-sys-error); }
         &.active { color: color-mix(in srgb, var(--mat-sys-on-surface-variant) 50%, transparent); }
     }
 
-    /* Infos Opérateur */
     .operator-info {
         flex: 1;
         display: flex;
@@ -181,7 +167,6 @@
         }
     }
 
-    /* Prime de Crédits */
     .operator-bounty {
         font-family: 'Courier New', Courier, monospace;
         font-weight: 900;
@@ -192,7 +177,6 @@
         font-size: 0.85rem;
     }
 
-    /* Surcharge si le compte est verrouillé */
     .is-locked {
         .operator-name { color: var(--mat-sys-error); }
         .operator-bounty { 
@@ -202,7 +186,6 @@
     }
 }
 
-/* Aucun résultat radar */
 .no-result-warning {
     display: flex;
     flex-direction: column;
@@ -223,29 +206,171 @@
     50% { opacity: 1; }
 }
 
+::ng-deep .mat-horizontal-content-container {
+    padding: 0 !important;
+}
+
 /* =========================================================
-   ACTIONS EN BAS DE MODALE
+   STYLE DU STEPPER UNSC
    ========================================================= */
-.unsc-modal-actions {
-    background-color: var(--mat-sys-surface-container-highest);
+::ng-deep .unsc-stepper {
+    background: transparent !important;
+    
+    .mat-step-header {
+        .mat-step-icon {
+            background-color: var(--mat-sys-surface-container-highest);
+            color: var(--mat-sys-on-surface);
+            border: 1px solid var(--mat-sys-outline);
+        }
+        &[aria-selected="true"] .mat-step-icon {
+            background-color: var(--mat-sys-primary);
+            color: #000;
+            border-color: var(--mat-sys-primary);
+            box-shadow: 0 0 10px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+        }
+
+        .mat-step-label {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.75rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: var(--mat-sys-outline);
+
+            &.mat-step-label-active { color: var(--mat-sys-primary); }
+        }
+    }
+}
+
+.step-container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Actions de navigation inter-étapes */
+.step-actions {
+    display: flex;
+    align-items: center;
+    padding-top: 16px;
     border-top: 1px solid var(--mat-sys-outline-variant);
-    padding: 16px 24px;
-    justify-content: flex-end;
+    margin-top: auto;
+    gap: 8px;
+
+    &.right { justify-content: flex-end; }
+    &.space-between { justify-content: space-between; }
+    
+    &.final-step {
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent);
+        padding: 16px;
+        margin: 16px -16px -16px -16px; 
+    }
+}
+
+/* =========================================================
+   SÉLECTEUR DE TRI (LOGISTIQUE)
+   ========================================================= */
+.logistics-controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+
+    .unsc-toggle {
+        background-color: var(--mat-sys-surface-container-lowest);
+        border: 1px solid var(--mat-sys-outline-variant);
+        
+        ::ng-deep .mat-button-toggle-label-content {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        ::ng-deep .mat-button-toggle-checked {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent);
+            color: var(--mat-sys-primary);
+        }
+    }
+}
+
+/* =========================================================
+   MANIFESTE (TABLEAUX DES ÉLÉMENTS SÉLECTIONNÉS)
+   ========================================================= */
+.manifest-container {
+    background-color: var(--mat-sys-surface-container-lowest);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+    
+    .manifest-header {
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent);
+        padding: 8px 12px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.8rem;
+        font-weight: 900;
+        color: var(--mat-sys-tertiary);
+        border-bottom: 1px solid var(--mat-sys-outline-variant);
+        letter-spacing: 1px;
+    }
+
+    .empty-manifest {
+        padding: 24px;
+        text-align: center;
+        font-family: 'Courier New', Courier, monospace;
+        font-style: italic;
+        color: var(--mat-sys-outline);
+    }
+
+    .manifest-row {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        gap: 16px;
+        border-bottom: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+        transition: background-color 0.2s ease;
+
+        &:last-child { border-bottom: none; }
+        &:hover { background-color: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent); }
+
+        .m-name {
+            flex-grow: 1;
+            font-weight: bold;
+            color: var(--mat-sys-on-surface);
+            text-transform: uppercase;
+        }
+
+        .m-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            .m-sub {
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 0.75rem;
+                color: var(--mat-sys-outline);
+            }
+        }
+
+        .m-qty {
+            width: 100px;
+        }
+    }
 }
 
 /* =========================================================
    ADAPTATION THEME CLAIR (LIGHT MODE)
    ========================================================= */
 :host-context(html.light-mode) 
-{    
+{
+    ::ng-deep .unsc-stepper .mat-step-header[aria-selected="true"] .mat-step-icon {
+        color: #ffffff;
+    }
+
     .audit-log-terminal {
         background-color: #f4f7f6;
         box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
         border-color: var(--mat-sys-outline);
 
-        .audit-header {
-            border-bottom-color: color-mix(in srgb, var(--mat-sys-outline) 50%, transparent);
-        }
+        .audit-header { border-bottom-color: color-mix(in srgb, var(--mat-sys-outline) 50%, transparent); }
 
         .audit-value {
             color: var(--mat-sys-on-surface); 
@@ -260,21 +385,78 @@
     
     .tactical-briefing {
         background: color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
-        
-        .briefing-text .primary-directive {
+        .briefing-text .primary-directive { color: var(--mat-sys-primary); }
+    }
+
+    .manifest-container {
+        background-color: #ffffff;
+        border-color: var(--mat-sys-outline-variant);
+
+        .manifest-header {
+            background-color: #f4f7f6;
             color: var(--mat-sys-primary);
+        }
+        
+        .manifest-row {
+            .m-name { color: #1a1a1a; }
         }
     }
 }
 
+/* =========================================================
+   COMPATIBILITÉ MOBILE (RESPONSIVE DESIGN)
+   ========================================================= */
 @media screen and (max-width: 600px) 
 {
+    mat-list-option {
+        padding-left: 5px !important;
+    }
+
+    ::ng-deep .mat-mdc-dialog-content {
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    ::ng-deep .unsc-stepper {
+        .mat-step-header {
+            padding: 16px 4px;
+            
+            .mat-step-label {
+                font-size: 0.65rem;
+                letter-spacing: 0.5px;
+            }
+        }
+    }
+
+    ::ng-deep .mat-stepper-horizontal-line {
+        margin: 0 !important;
+    }
+
+    .unsc-roster-list {
+        .operator-info {
+            .operator-grade {
+                font-size: 0.75rem;
+            }
+            
+            .operator-name {
+                font-size: 0.8rem;
+            }
+        }
+
+        .operator-bounty {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+        }
+    }
+
+    .status-icon.active {
+        display: none;
+    }
+
     .audit-log-terminal {
         padding: 10px 5px;
 
-        .audit-body {
-            gap: 8px;
-        }
+        .audit-body { gap: 8px; }
 
         .audit-row {
             flex-direction: column;
@@ -301,8 +483,33 @@
         text-align: center;
         padding: 12px;
         
-        .briefing-icon {
+        .briefing-icon { margin-bottom: 8px; }
+    }
+
+    /* Empilement des actions du Stepper */
+    .step-actions {
+        flex-direction: column;
+        align-items: stretch;
+        
+        button, ::ng-deep jp-button-loader button { width: 100%; }
+        
+        &.space-between { 
+            flex-direction: column-reverse; /* Le bouton retour passe en dessous */
+        }
+    }
+
+    /* Réorganisation des lignes du Manifeste pour petits écrans */
+    .manifest-container .manifest-row {
+        flex-wrap: wrap;
+        
+        .m-info {
+            width: 100%;
             margin-bottom: 8px;
+        }
+
+        .m-qty {
+            flex-grow: 1; /* Le champ de quantité s'étire */
+            margin-bottom: 0;
         }
     }
 }

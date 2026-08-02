@@ -129,7 +129,7 @@ export class PersonnagePage implements OnInit
     protected OuvrirModalPersonnageParticiper(): void
     {
         const DIALOG_REF = this.dialog.open(ModalPersonnageParticiperOperation, {
-            width: this.estMobile ? "95%" : "50%", 
+            width: this.estMobile ? "95%" : "70%", 
             maxWidth: "100vw",
             data: this.listePersonnage()
         });

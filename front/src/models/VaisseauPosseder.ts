@@ -79,6 +79,15 @@ export type VaisseauPossederStockageCompatible =
     listeStockage: VaisseauPossederStockage[]
 }
 
+export type VaisseauPossederContenuStockage2 = 
+{
+    idStockageVaisseauPosseder: number,
+    nomVaisseau: string,
+    nomLogistique: string,
+    nomStockage: string,
+    quantite: number
+}
+
 export type VaisseauPossederContenuStockage =
 {
     id: number,

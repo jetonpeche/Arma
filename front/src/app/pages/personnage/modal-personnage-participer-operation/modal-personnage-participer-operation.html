@@ -1,93 +1,196 @@
-<div class="unsc-modal-header">
-    <h2 mat-dialog-title class="unsc-title">RAPPORT DE DÉPLOIEMENT TACTIQUE</h2>
-    <div class="datapad-header-accent"></div>
-</div>
-
-<mat-dialog-content class="unsc-modal-content">
-    
-    <div class="tactical-briefing">
-        <mat-icon class="briefing-icon">verified_user</mat-icon>
-        <div class="briefing-text">
-            <p class="primary-directive">DIRECTIVE : Identifiez les opérateurs ayant participé à cette mission.</p>
-            <p class="secondary-directive">Le registre central mettra à jour leur dossier et allouera les crédits correspondants de manière automatique après validation du présent rapport.</p>
-        </div>
-    </div>
-
-    @if (historique(); as hist) 
-    {
-        <div class="audit-log-terminal">
-            <div class="audit-header">
-                <mat-icon>manage_search</mat-icon>
-                <span>DERNIÈRE ENTRÉE DANS LE REGISTRE</span>
-            </div>
-            <div class="audit-body">
-                <div class="audit-row">
-                    <span class="audit-label">OFFICIER TRAITANT :</span>
-                    <span class="audit-value">{{ hist.nomAuteur }}</span>
+<h2 mat-dialog-title>RAPPORT DE DÉPLOIEMENT TACTIQUE</h2>
+<mat-dialog-content>
+    <mat-stepper linear="false" #stepper class="unsc-stepper">
+        
+        <!-- ============================================== -->
+        <!-- ÉTAPE 1 : PERSONNEL                            -->
+        <!-- ============================================== -->
+        <mat-step label="PERSONNEL">
+            <div class="step-container">
+                <div class="tactical-briefing">
+                    <mat-icon class="briefing-icon">verified_user</mat-icon>
+                    <div class="briefing-text">
+                        <p class="primary-directive">DIRECTIVE : Identifiez les opérateurs ayant participé à cette mission.</p>
+                        <p class="secondary-directive">Le registre central allouera les crédits de manière automatique après validation.</p>
+                    </div>
                 </div>
-                <div class="audit-row">
-                    <span class="audit-label">HORODATAGE :</span>
-                    <span class="audit-value">{{ hist.dateString }}</span>
-                </div>
-                <div class="audit-row">
-                    <span class="audit-label">PERSONNEL DÉPLOYÉ :</span>
-                    <span class="audit-value personnel-list">{{ hist.listePersonnage.join(', ') }}</span>
-                </div>
-            </div>
-        </div>
-    }
 
-    <mat-form-field class="unsc-search-bar">
-        <mat-label>RECHERCHE D'OPÉRATEUR</mat-label>
-        <mat-icon matIconPrefix>person_search</mat-icon>
-        <input matInput (input)="ChangerRecherche($event)" placeholder="Entrez l'indicatif de la recrue...">
-    </mat-form-field>
+                @if (historique(); as hist) 
+                {
+                    <div class="audit-log-terminal">
+                        <div class="audit-header">
+                            <mat-icon>manage_search</mat-icon>
+                            <span>DERNIÈRE ENTRÉE DANS LE REGISTRE</span>
+                        </div>
+                        <div class="audit-body">
+                            <div class="audit-row"><span class="audit-label">OFFICIER TRAITANT :</span><span class="audit-value">{{ hist.nomAuteur }}</span></div>
+                            <div class="audit-row"><span class="audit-label">HORODATAGE :</span><span class="audit-value">{{ hist.dateString }}</span></div>
+                            <div class="audit-row"><span class="audit-label">PERSONNEL DÉPLOYÉ :</span><span class="audit-value personnel-list">{{ hist.listePersonnage.join(', ') }}</span></div>
+                        </div>
+                    </div>
+                }
 
-    <mat-selection-list #selectionPersonnage 
-                        class="unsc-roster-list"
-                        (selectionChange)="GererSelection($event)">
+                <mat-form-field>
+                    <mat-label>RECHERCHE D'OPÉRATEUR</mat-label>
+                    <input matInput (input)="ChangerRecherche($event)" placeholder="Entrez l'indicatif...">
+                </mat-form-field>
 
-        @for (element of listeFiltree(); track element.id)
-        {
-            <mat-list-option [value]="element.id" 
-                             [selected]="operateursSelectionnes.includes(element.id)"
-                             class="unsc-roster-item" 
-                             [class.is-locked]="element.estBloquer">
-                
-                <div class="operator-row">
-                    @if(element.estBloquer) 
+                <mat-selection-list #selectionPersonnage class="unsc-roster-list" (selectionChange)="GererSelection($event)">
+                    @for (element of listeFiltree(); track element.id)
                     {
-                        <mat-icon class="status-icon locked" matTooltip="Progression gelée par le Haut Commandement">lock</mat-icon>
-                    } 
-                    @else 
+                        <mat-list-option [value]="element.id" [selected]="operateursSelectionnes.includes(element.id)" class="unsc-roster-item" [class.is-locked]="element.estBloquer">
+                            <div class="operator-row">
+                                @if(element.estBloquer) 
+                                { 
+                                    <mat-icon class="status-icon locked" matTooltip="Progression gelée">lock</mat-icon> 
+                                }
+                                @else 
+                                { 
+                                    <mat-icon class="status-icon active">military_tech</mat-icon> 
+                                }
+                                <div class="operator-info">
+                                    <span class="operator-grade">[{{ element.nomGrade }}]</span>
+                                    <span class="operator-name">{{ element.nom }}</span>
+                                </div>
+                                <div class="operator-bounty"><span>+{{ element.nbPoint }} CR</span></div>
+                            </div>
+                        </mat-list-option>
+                    }
+                    @if(listeFiltree().length == 0) 
                     {
-                        <mat-icon class="status-icon active">military_tech</mat-icon>
+                        <div class="no-result-warning"><mat-icon>radar</mat-icon><p>Aucun signal détecté.</p></div>
+                    }
+                </mat-selection-list>
+
+                <div class="step-actions right">
+                    <button matButton="text" matDialogClose>ANNULER</button>
+                    <button matButton="filled" matStepperNext>SUIVANT : MATÉRIEL</button>
+                </div>
+            </div>
+        </mat-step>
+
+        <!-- ============================================== -->
+        <!-- ÉTAPE 2 : MATÉRIEL                             -->
+        <!-- ============================================== -->
+        <mat-step label="MATÉRIEL">
+            <div class="step-container">
+                <mat-form-field class="unsc-search-bar">
+                    <mat-label>Scanner le matériel déployé</mat-label>
+                    <input type="text" matInput [formControl]="materielControl" [matAutocomplete]="autoMat">
+                    <mat-autocomplete #autoMat="matAutocomplete" (optionSelected)="AjouterMateriel($event.option.value)">
+                        @for(mat of materielFiltre(); track mat.id) 
+                        {
+                            <mat-option [value]="mat">{{ mat.nom }}</mat-option>
+                        }
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <div class="manifest-container">
+                    <div class="manifest-header">MANIFESTE D'ÉQUIPEMENT</div>
+                    @for(item of materielSelectionne(); track item.materiel.id) 
+                    {
+                        <div class="manifest-row">
+                            <div class="m-info">
+                                <span class="m-name">{{ item.materiel.nom }}</span>
+                                <span class="m-sub">Max dispo : {{ item.materiel.stock + item.materiel.nbPlacer }}</span>
+                            </div>
+                            <mat-form-field class="m-qty">
+                                <input matInput type="number" (change)="AjusterQuantiteMateriel(item)" [(ngModel)]="item.quantite" min="1" [max]="item.materiel.stock + item.materiel.nbPlacer">
+                            </mat-form-field>
+                            <button mat-icon-button (click)="SupprimerMateriel(item.materiel.id)"><mat-icon>delete</mat-icon></button>
+                        </div>
                     }
 
-                    <div class="operator-info">
-                        <span class="operator-grade">[{{ element.nomGrade }}]</span>
-                        <span class="operator-name">{{ element.nom }}</span>
-                    </div>
-
-                    <div class="operator-bounty">
-                        <span>+{{ element.nbPoint }} CR</span>
-                    </div>
+                    @if(materielSelectionne().length == 0) 
+                    {
+                        <div class="empty-manifest">Aucun équipement utilisé pour cette opération.</div>
+                    }
                 </div>
-            </mat-list-option>
-        }
 
-        @if(listeFiltree().length == 0) 
-        {
-            <div class="no-result-warning">
-                <mat-icon>radar</mat-icon>
-                <p>Aucun signal détecté pour cet opérateur.</p>
+                <div class="step-actions space-between">
+                    <button matButton="text" matStepperPrevious>RETOUR</button>
+                    <button matButton="filled" matStepperNext>SUIVANT : LOGISTIQUE</button>
+                </div>
             </div>
-        }
+        </mat-step>
 
-    </mat-selection-list>
+        <!-- ============================================== -->
+        <!-- ÉTAPE 3 : LOGISTIQUE                           -->
+        <!-- ============================================== -->
+        <mat-step label="LOGISTIQUE">
+            <div class="step-container">
+                
+                <div class="logistics-controls">
+                    <mat-button-toggle-group [value]="modeGroupement()" (change)="ChangerModeGroupement($event.value)" class="unsc-toggle">
+                        <mat-button-toggle value="vaisseau">Trier par Vaisseau</mat-button-toggle>
+                        <mat-button-toggle value="logistique">Trier par Matériel</mat-button-toggle>
+                    </mat-button-toggle-group>
+                </div>
+
+                <mat-form-field class="unsc-search-bar">
+                    <mat-label>Scanner la logistique affectée</mat-label>
+                    <input type="text" matInput [formControl]="logistiqueControl" [matAutocomplete]="autoLog">
+                    <mat-autocomplete #autoLog="matAutocomplete" (optionSelected)="AjouterLogistique($event.option.value)">
+
+                        @for(groupe of logistiqueFiltreGroupe(); track groupe.groupName) 
+                        {
+                            <mat-optgroup [label]="groupe.groupName">
+                                @for(item of groupe.items; track item.idStockageVaisseauPosseder) 
+                                {
+                                    <mat-option [value]="item">
+                                        @if(modeGroupement() == "vaisseau") 
+                                        {
+                                            [{{ item.nomStockage }}] {{ item.nomLogistique }}
+                                        } 
+                                        @else 
+                                        {
+                                            [{{ item.nomVaisseau }}] {{ item.nomStockage }}
+                                        }
+                                    </mat-option>
+                                }
+                            </mat-optgroup>
+                        }
+                    </mat-autocomplete>
+                </mat-form-field>
+
+                <div class="manifest-container">
+                    <div class="manifest-header">MANIFESTE LOGISTIQUE</div>
+                    @for(item of logistiqueSelectionne(); track item.logistique.idStockageVaisseauPosseder) 
+                    {
+                        <div class="manifest-row">
+                            <div class="m-info">
+                                <span class="m-name">{{ item.logistique.nomLogistique }}</span>
+                                <span class="m-sub">
+                                    Emplacement : {{ item.logistique.nomVaisseau }} // {{ item.logistique.nomStockage }}<br>
+                                    Max dispo : {{ item.logistique.quantite }}
+                                </span>
+                            </div>
+                            <mat-form-field class="m-qty">
+                                <input matInput type="number" 
+                                          [(ngModel)]="item.quantite" 
+                                          (change)="AjusterQuantiteLogistique(item)"
+                                          min="1"
+                                          [max]="item.logistique.quantite">
+                            </mat-form-field>
+
+                            <button mat-icon-button (click)="SupprimerLogistique(item.logistique.idStockageVaisseauPosseder)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
+                    }
+                    
+                    @if(logistiqueSelectionne().length == 0) 
+                    {
+                        <div class="empty-manifest">Aucune logistique detruite à cette opération.</div>
+                    }
+                </div>
+
+                <div class="step-actions space-between final-step">
+                    <button mat-button matStepperPrevious>RETOUR</button>
+                    <jp-button-loader label="VALIDER LE RAPPORT" [loading]="btnClick()" (clicked)="Valider()" />
+                </div>
+            </div>
+        </mat-step>
+
+    </mat-stepper>
 </mat-dialog-content>
-
-<mat-dialog-actions class="unsc-modal-actions">
-    <jp-button-loader class="btn-secondary" matButton="text" label="ANNULER" matDialogClose />&nbsp;
-    <jp-button-loader class="btn-primary" label="VALIDER LE RAPPORT" [loading]="btnClick()" (clicked)="Valider()" />
-</mat-dialog-actions>

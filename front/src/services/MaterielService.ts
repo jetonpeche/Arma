@@ -3,7 +3,7 @@ import { DestroyRef, inject } from "@angular/core";
 import { map, Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Materiel, MaterielRequete } from "@models/Materiel";
+import { Materiel, MaterielRequete, MaterielStockRequete } from "@models/Materiel";
 
 export class MaterielService
 {
@@ -35,6 +35,11 @@ export class MaterielService
     Modifier(_idMateriel: number, _materiel: MaterielRequete): Observable<void>
     {
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idMateriel}`, _materiel).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ModifierStock(_materiel: MaterielStockRequete[]): Observable<void>
+    {
+        return this.http.patch<void>(`${this.BASE_API}/modifier-stock`, _materiel).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Supprimer(_idMateriel: number): Observable<void>

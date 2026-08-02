@@ -27,6 +27,8 @@ public static class VaisseauRoute
                .ProducesNotFound()
                .Produces<StockageCompatibleVaisseauPossederReponse[]>();
 
+          builder.MapGet("lister-contenu-stockage", ListerContenuStockage2Async);
+
           builder.MapGet("{idVaisseauPosseder}/lister-contenu-stockage/{idStockage}", ListerContenuStockageAsync)
                .ProducesNotFound()
                .Produces<ContenuStockagePossederReponse[]>();
@@ -266,6 +268,26 @@ public static class VaisseauRoute
                });
 
         return Results.Extensions.Ok(listeBrute, VaisseauPossederReponseContext.Default);
+     }
+
+     static async Task<IResult> ListerContenuStockage2Async()
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var liste = db.GetCollection<StockageVaisseauPosseder>().Query()
+               .Include(x => x.Logistique)
+               .Include(x => x.Stockage)
+               .Include(x => x.VaisseauPosseder)
+               .Select(x => new
+               {
+                    IdStockageVaisseauPosseder = x.Id,
+                    NomVaisseau = x.VaisseauPosseder.NomVaisseau,
+                    NomStockage = x.Stockage.Nom,
+                    NomLogistique = x.Logistique.Nom,
+                    x.Quantite
+               }).ToArray();
+
+          return Results.Ok(liste);
      }
 
     static async Task<IResult> ListerContenuStockageAsync(

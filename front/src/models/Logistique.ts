@@ -16,6 +16,12 @@ export type Logistique =
 
 export type LogistiqueRequete = Omit<Logistique, "id" | "listeStockageVaisseau">;
 
+export type LogistiqueStockRequete =
+{
+    idStockageVaisseauPosseder: number,
+    quantiteDetruite: number
+}
+
 export type LogistiqueStockageVaisseau =
 {
     nomVaisseau: string,

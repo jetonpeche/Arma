@@ -22,6 +22,12 @@ export type MaterielRequete =
     nbDetruit: number
 }
 
+export type MaterielStockRequete =
+{
+    id: number,
+    quantiteDetruite: number
+}
+
 export type TypeMateriel = 
 {
     id: number,

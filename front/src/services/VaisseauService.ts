@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Vaisseau, VaisseauAchaterRequete, VaisseauLeger, VaisseauRequete } from "@models/Vaisseau";
-import { VaisseauPosseder, VaisseauPossederAeronefRequete, VaisseauPossederArmementRequete, VaisseauPossederContenuStockage, VaisseauPossederRequete, VaisseauPossederStockageCompatible } from "@models/VaisseauPosseder";
+import { VaisseauPosseder, VaisseauPossederAeronefRequete, VaisseauPossederArmementRequete, VaisseauPossederContenuStockage, VaisseauPossederContenuStockage2, VaisseauPossederRequete, VaisseauPossederStockageCompatible } from "@models/VaisseauPosseder";
 
 export class VaisseauService
 {
@@ -26,6 +26,11 @@ export class VaisseauService
     ListerPosseder(): Observable<VaisseauPosseder[]>
     {
         return this.http.get<VaisseauPosseder[]>(`${this.BASE_API}/lister-posseder`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ListerStockagePosseder(): Observable<VaisseauPossederContenuStockage2[]>
+    {
+        return this.http.get<VaisseauPossederContenuStockage2[]>(`${this.BASE_API}/lister-contenu-stockage`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     ListerStockageCompatible(_idTypeStockage: number): Observable<VaisseauPossederStockageCompatible[]>

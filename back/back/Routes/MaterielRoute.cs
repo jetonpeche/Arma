@@ -27,6 +27,10 @@ public static class MaterielRoute
                .ProducesNotFound()
                .ProducesNoContent();
 
+          builder.MapPatch("modifier-stock", ModifierStockAsync)
+               .WithDescription("Modifier les stocks")
+               .ProducesNoContent();
+
           builder.MapDelete("supprimer/{idMateriel:int}", SupprimerAsync)
                .WithDescription("Supprimer un matériel")
                .ProducesNotFound()
@@ -153,6 +157,39 @@ public static class MaterielRoute
           bool ok = db.GetCollection<Materiel>().Update(materiel);
 
           return ok ? Results.NoContent() : Results.NotFound("Le matériel n'existe pas");
+     }
+
+     static async Task<IResult> ModifierStockAsync(
+          [FromBody] MaterielStockRequete[] _requete
+     )
+     {
+          var listeIdBson = _requete.Select(x => new BsonValue(x.Id));
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var liste = db.GetCollection<Materiel>().Query()
+               .Where(Query.In("_id", listeIdBson))
+               .ToArray();
+
+          foreach (var element in liste)
+          {
+               var quantite = _requete.FirstOrDefault(x => x.Id == element.Id)?.QuantiteDetruite;
+
+               if (quantite.HasValue && quantite.Value > 0)
+               {
+                    var nb = quantite.Value > element.NbPlacer ? element.NbPlacer : quantite.Value;
+
+                    if (element.NbPlacer > 0)
+                         element.NbPlacer -= nb;
+
+                    element.Stock -= quantite.Value - nb;
+                    element.NbDetruit += quantite.Value;
+               }
+          }
+
+          db.GetCollection<Materiel>().Update(liste);
+
+          return Results.NoContent();
      }
 
      static async Task<IResult> SupprimerAsync(

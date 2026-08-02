@@ -30,13 +30,17 @@ public static class LogistiqueRoute
                .ProducesNotFound()
                .ProducesNoContent();
 
+          builder.MapPatch("modifier-stock", ModifierStockAsync)
+               .WithDescription("Modifier les stocks")
+               .ProducesNoContent();
+
           builder.MapDelete("supprimer/{idLogistique:int}", SupprimerAsync)
                .WithDescription("Supprimer un objet de la logistique")
                .ProducesNotFound()
                .ProducesNoContent();
 
           return builder;
-     }
+    }
 
     async static Task<IResult> ListerAsync(
           [FromServices] IMemoryCache _cache
@@ -99,7 +103,7 @@ public static class LogistiqueRoute
     async static Task<IResult> AjouterAsync(
           [FromServices] IMemoryCache _cache,
          [FromBody] LogistiqueRequete _requete
-     )
+    )
      {
           if (string.IsNullOrWhiteSpace(_requete.Nom))
                return Results.BadRequest("Le nom ne peut pas être vide");
@@ -152,8 +156,8 @@ public static class LogistiqueRoute
           [FromServices] IMemoryCache _cache,
           [FromRoute(Name = "idLogistique")] int _idLogistique,
           [FromBody] LogistiqueRequete _requete
-     )
-     {
+    )
+    {
           if (_idLogistique <= 0)
                return Results.NotFound("L'objet n'existe pas");
 
@@ -209,11 +213,36 @@ public static class LogistiqueRoute
           return Results.NotFound("L'objet n'existe pas");
     }
 
+     static async Task<IResult> ModifierStockAsync(
+          [FromBody] LogistiqueStockRequete[] _requete
+     )
+     {
+          var listeIdBson = _requete.Select(x => new BsonValue(x.IdStockageVaisseauPosseder));
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var liste = db.GetCollection<StockageVaisseauPosseder>().Query()
+               .Where(Query.In("_id", listeIdBson))
+               .ToArray();
+
+          foreach (var element in liste)
+          {
+              var quantite = _requete.FirstOrDefault(x => x.IdStockageVaisseauPosseder == element.Id)?.QuantiteDetruite;
+
+               if(quantite.HasValue && quantite.Value > 0)
+                    element.Quantite -= quantite.Value;
+          }
+
+          db.GetCollection<StockageVaisseauPosseder>().Update(liste);
+
+          return Results.NoContent();
+     }
+
     async static Task<IResult> SupprimerAsync(
           [FromServices] IMemoryCache _cache,
          [FromRoute(Name = "idLogistique")] int _idLogistique
-     )
-     {
+    )
+    {
           if (_idLogistique <= 0)
                return Results.NotFound("l'objet n'existe pas");
 
