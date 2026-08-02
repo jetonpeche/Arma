@@ -113,10 +113,59 @@
     }
 }
 
+/* --- STYLES DU MODE ÉDITION --- */
+
+/* Sous-titre pour la limite maximum */
+.ci-sub {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.7rem;
+    color: var(--mat-sys-outline);
+    margin-top: 2px;
+}
+
+/* Champ de saisie pour l'édition */
+.ci-edit-qty {
+    width: 90px;
+    
+    ::ng-deep .mdc-text-field {
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 80%, transparent);
+        padding: 0 8px;
+        border-radius: 2px;
+    }
+    
+    input {
+        text-align: center;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: var(--mat-sys-primary);
+    }
+}
+
+/* Zone des boutons en bas de la modale */
+.unsc-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 24px;
+    background-color: var(--mat-sys-surface-container-highest);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+
+    .btn-primary {
+        background-color: var(--mat-sys-primary);
+        color: #000;
+        font-weight: bold;
+    }
+}
+
 /* =========================================================
    THÈME CLAIR (LIGHT MODE)
    ========================================================= */
 :host-context(html.light-mode) {
+    .ci-edit-qty ::ng-deep .mdc-text-field {
+        background-color: #f4f7f6;
+    }
+
     .cargo-item {
         background-color: var(--mat-sys-surface-container);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);

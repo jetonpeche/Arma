@@ -2,21 +2,43 @@
 
 <mat-dialog-content class="modal-body">
     <div class="cargo-manifest">
-        @for (item of dialogData; track item.id) 
+        
+        <!-- On boucle soit sur la copie d'édition, soit sur les données originales -->
+        @for (item of (estModeEdition() ? donneesEdition() : dialogData); track item.id) 
         {
-            <div class="cargo-item">
+            <div class="cargo-item" [class.is-editing]="estModeEdition()">
                 <div class="ci-icon">
                     <mat-icon>widgets</mat-icon>
                 </div>
                 
                 <div class="ci-details">
                     <span class="ci-name">{{ item.nom }}</span>
+                    @if (estModeEdition()) {
+                        <span class="ci-sub">Max: {{ GetQuantiteMax(item.id) }}</span>
+                    }
                 </div>
                 
-                <div class="ci-quantity">
-                    <span class="qty-label">QTÉ</span>
-                    <span class="qty-value">{{ item.quantite }}</span>
-                </div>
+                <!-- BASCULE LECTURE / ÉDITION -->
+                @if (!estModeEdition()) 
+                {
+                    <div class="ci-quantity">
+                        <span class="qty-label">QTÉ</span>
+                        <span class="qty-value">{{ item.quantite }}</span>
+                    </div>
+                } 
+                @else 
+                {
+                    <div class="ci-edit-qty">
+                        <mat-form-field>
+                            <mat-label>Détruit</mat-label>
+                            <input matInput type="number" 
+                                   [(ngModel)]="item.quantite" 
+                                   (change)="AjusterQuantite(item)"
+                                   min="0" 
+                                   [max]="GetQuantiteMax(item.id)">
+                        </mat-form-field>
+                    </div>
+                }
             </div>
         }
         @empty 
@@ -29,6 +51,20 @@
     </div>
 </mat-dialog-content>
 
-<mat-dialog-actions>
-    <button matButton="text" mat-dialog-close>FERMER LA SOUTE</button>
+<!-- BOUTONS D'ACTION DYNAMIQUES -->
+<mat-dialog-actions class="unsc-modal-actions">
+    @if (!estModeEdition()) 
+    {
+        <button matButton="text" mat-dialog-close>FERMER</button>
+        <button matButton="filled" (click)="ActiverEdition()">MODE ÉDITION</button>
+    } 
+    @else 
+    {
+        <button matButton="text" (click)="AnnulerEdition()">ANNULER</button>
+
+        @if (droit.peutEcrire)
+        {
+            <button matButton="filled" class="btn-primary" (click)="MettreAJour()">METTRE À JOUR</button>
+        }
+    }
 </mat-dialog-actions>
