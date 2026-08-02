@@ -9,7 +9,7 @@
 }
 
 /* =========================================================
-   CHÂSSIS DU DOSSIER PERSONNEL
+   CHÂSSIS DU DOSSIER PERSONNEL (COINS CORNÉS)
    ========================================================= */
 .dossier-card {
     --branch-color: var(--mat-sys-primary); 
@@ -18,56 +18,55 @@
     background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 70%, transparent);
     border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
     border-top: 4px solid var(--branch-color);
-    border-radius: 4px;
+    
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
     position: relative;
     display: flex;
     flex-direction: column;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    
+    /* Transition plus dynamique, effet "ressort" (cubic-bezier) */
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease, border-color 0.3s ease;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
 
     /* --- MODULE DE VERROUILLAGE TACTIQUE (4 COINS) --- */
     &::before {
         content: '';
         position: absolute;
-        /* Position initiale resserrée vers l'intérieur */
-        top: 16px; 
-        bottom: 16px; 
-        left: 16px; 
-        right: 16px;
+        top: 32px; bottom: 32px; left: 32px; right: 32px; /* Part de plus loin pour un effet d'impact */
         
-        /* Bordure complète */
-        border: 3px solid var(--branch-color);
-        border-radius: 6px; 
-        transition: all 0.3s ease-out;
+        border: 2px solid var(--branch-color);
+        border-radius: 2px; 
+        /* Animation plus rapide et sèche pour simuler un verrouillage d'arme */
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
         z-index: 10;
         opacity: 0;
 
-        /* Le masque magique : il ne laisse apparaître que 4 carrés de 32x32px dans les coins */
         -webkit-mask:
-            linear-gradient(#fff, #fff) top left / 32px 32px no-repeat,
-            linear-gradient(#fff, #fff) top right / 32px 32px no-repeat,
-            linear-gradient(#fff, #fff) bottom left / 32px 32px no-repeat,
-            linear-gradient(#fff, #fff) bottom right / 32px 32px no-repeat;
+            linear-gradient(#fff, #fff) top left / 24px 24px no-repeat,
+            linear-gradient(#fff, #fff) top right / 24px 24px no-repeat,
+            linear-gradient(#fff, #fff) bottom left / 24px 24px no-repeat,
+            linear-gradient(#fff, #fff) bottom right / 24px 24px no-repeat;
         mask:
-            linear-gradient(#fff, #fff) top left / 32px 32px no-repeat,
-            linear-gradient(#fff, #fff) top right / 32px 32px no-repeat,
-            linear-gradient(#fff, #fff) bottom left / 32px 32px no-repeat,
-            linear-gradient(#fff, #fff) bottom right / 32px 32px no-repeat;
+            linear-gradient(#fff, #fff) top left / 24px 24px no-repeat,
+            linear-gradient(#fff, #fff) top right / 24px 24px no-repeat,
+            linear-gradient(#fff, #fff) bottom left / 24px 24px no-repeat,
+            linear-gradient(#fff, #fff) bottom right / 24px 24px no-repeat;
     }
 
-    /* --- EFFET AU SURVOL --- */
+    /* --- NOUVEL EFFET AU SURVOL --- */
     &:hover {
-        transform: scale(1.02);
+        /* Élévation franche au lieu du zoom */
+        transform: translateY(-6px);
         background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 95%, transparent);
-        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6);
-        border-color: color-mix(in srgb, var(--mat-sys-outline-variant) 80%, transparent);
+        border-color: color-mix(in srgb, var(--branch-color) 40%, transparent);
+        
+        /* Ombre principale + léger halo lié à la branche du soldat */
+        filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 8px color-mix(in srgb, var(--branch-color) 20%, transparent));
 
-        /* Le module de visée s'écarte vers l'extérieur et s'illumine */
+        /* Le module "claque" sur les bords */
         &::before {
-            top: -4px; 
-            bottom: -4px; 
-            left: -4px; 
-            right: -4px;
+            top: 8px; bottom: 8px; left: 8px; right: 8px;
             opacity: 1;
             filter: drop-shadow(0 0 6px color-mix(in srgb, var(--branch-color) 80%, transparent));
         }
@@ -339,14 +338,21 @@
 :host-context(html.light-mode) {
     .dossier-card {
         background-color: #ffffff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         border-color: var(--mat-sys-outline-variant);
+        
+        /* Remplacement du box-shadow par drop-shadow pour le mode clair */
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
+        
+        &:hover {
+            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.15));
+        }
         
         .dossier-header { 
             background: linear-gradient(135deg, color-mix(in srgb, var(--branch-color) 30%, transparent) 0%, color-mix(in srgb, var(--branch-color) 5%, transparent) 100%); 
             border-bottom: 1px solid color-mix(in srgb, var(--branch-color) 40%, transparent);
         }
         
+        /* ... Le reste des règles (data-item, btn-icon, etc.) reste inchangé ... */
         .data-item { 
             background-color: #f4f7f6;
             border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 60%, transparent); 
