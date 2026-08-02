@@ -1,9 +1,8 @@
 <h2 mat-dialog-title>MANIFESTE DE SOUTE</h2>
 
-<mat-dialog-content class="modal-body">
+<mat-dialog-content>
     <div class="cargo-manifest">
         
-        <!-- On boucle soit sur la copie d'édition, soit sur les données originales -->
         @for (item of (estModeEdition() ? donneesEdition() : dialogData); track item.id) 
         {
             <div class="cargo-item" [class.is-editing]="estModeEdition()">
@@ -52,7 +51,7 @@
 </mat-dialog-content>
 
 <!-- BOUTONS D'ACTION DYNAMIQUES -->
-<mat-dialog-actions class="unsc-modal-actions">
+<mat-dialog-actions>
     @if (!estModeEdition()) 
     {
         <button matButton="text" mat-dialog-close>FERMER</button>
