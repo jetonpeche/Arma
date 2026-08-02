@@ -55,8 +55,8 @@
 
     .dp-camera {
         width: 10px; height: 10px; border-radius: 50%;
-        background-color: #0a0c0a; border: 1px solid #333;
-        box-shadow: inset 0 0 3px rgba(0,0,0,1);
+        border: 1px solid transparent;
+        animation: diode-blink 4s infinite;
     }
 }
 
@@ -235,80 +235,85 @@
 }
 
 /* =========================================================
-   ADAPTATION THÈME CLAIR (TITANE)
+   ADAPTATION THÈME CLAIR (NEUTRE / CADRE DÉLIMITÉ)
    ========================================================= */
 :host-context(html.light-mode) {
+    
+    /* --- ARMATURE MATÉRIELLE --- */
     .unsc-datapad {
-        background-color: #d1d8d4; 
-        filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
-
-        &:hover {
-            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.2)) drop-shadow(0 0 6px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent));
-        }
+        background-color: #dbdbdb; /* Gris structurel pour marquer le châssis */
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
     }
 
     .dp-bezel {
-        background-color: #d1d8d4;
-        border-top-color: #b5c2ba;
-        .dp-brand { color: #6a7a70; }
-        .dp-camera { background-color: #111; box-shadow: inset 0 0 3px rgba(0,0,0,1), 0 1px 1px rgba(255,255,255,0.5); }
+        background-color: #dbdbdb; 
+        border-top-color: #bcbcbc; 
+        
+        .dp-brand { color: #555555; font-weight: bold; }
+        /* On allège la règle pour laisser l'animation gérer le clignotement rouge */
+        .dp-camera { border-color: #999; } 
     }
 
+    /* --- ÉCRAN (Reste clair) --- */
     .dp-screen {
-        background-color: #e4ebe7; 
-        border-left: 2px solid #a3b3a9;
-        border-right: 2px solid #a3b3a9;
-        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+        background-color: #fafafa; 
+        border-left: 2px solid #bcbcbc;
+        border-right: 2px solid #bcbcbc;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
         
         .dp-scanlines {
-            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.03) 1px, transparent 1px, transparent 2px);
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.02) 1px, transparent 1px, transparent 2px);
         }
     }
 
+    .dp-image-bay {
+        border-bottom-color: #dddddd;
+        .dp-price { background-color: #ffffff; color: var(--mat-sys-tertiary); border-color: var(--mat-sys-tertiary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    }
+
     .dp-header {
-        .dp-name { color: #1a1c1a; }
+        .dp-name { color: #222222; }
         
         .dp-role-badge {
             background-color: var(--mat-sys-primary);
             color: #ffffff;
             border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: none; 
         }
     }
     
     .dp-stats {
-        background-color: #dce3df; border-color: #b5c2ba;
-        .stat-col { .s-label { color: #666; } .s-value { color: #222; } }
+        background-color: #ffffff; border-color: #e0e0e0;
+        .stat-col { .s-label { color: #777777; } .s-value { color: #222222; } }
     }
 
     .dp-loadout {
         /* SOUS-CARTES EN LIGHT MODE */
         .l-row:not(.crew-row) {
             background-color: #ffffff; 
-            border: 1px solid #b5c2ba;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
             border-radius: 4px;
 
             &:hover {
                 transform: translateY(-2px);
                 border-color: var(--mat-sys-primary);
-                box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.08);
             }
         }
 
-        .crew-row { background-color: #dce3df; border: 1px solid #b5c2ba; .c-data strong { color: #222; } }
+        .crew-row { background-color: #f5f5f5; border: 1px solid #e0e0e0; .c-data strong { color: #222222; } }
         
         .l-title { 
-            color: #555; 
-            border-bottom-color: #dce3df; /* Ligne pointillée claire */
+            color: #555555; 
+            border-bottom-color: #e0e0e0; 
         }
         
-        .t-weapon { color: #222; border-color: #999; background-color: #cfd8d3; }
-        .t-empty { color: #999; border-color: #b5c2ba; }
+        .t-weapon { color: #333333; border-color: #bbbbbb; background-color: #eeeeee; }
+        .t-empty { color: #888888; border-color: #cccccc; }
     }
 }
-
 /* =========================================================
    COMPATIBILITÉ MOBILE
    ========================================================= */
@@ -328,4 +333,15 @@
     0% { transform: translateY(-100%); opacity: 0; }
     10% { opacity: 1; }
     100% { transform: translateY(400%); opacity: 0; }
+}
+
+@keyframes diode-blink {
+    0%, 85%, 100% {
+        background-color: #1a0505; /* Diode au repos (rouge très sombre) */
+        box-shadow: inset 0 0 3px rgba(0, 0, 0, 1);
+    }
+    90%, 95% {
+        background-color: var(--mat-sys-error);
+        box-shadow: 0 0 8px var(--mat-sys-error);
+    }
 }
