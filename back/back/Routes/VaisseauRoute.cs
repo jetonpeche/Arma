@@ -63,7 +63,12 @@ public static class VaisseauRoute
                .ProducesBadRequest()
                .ProducesNoContent();
 
-        builder.MapDelete("supprimer/{idVaisseau:int}", SupprimerAsync)
+          builder.MapDelete("detruit/{idVaisseauPosseder:int}", DetruitAsync)
+               .WithDescription("Supprimer un vaisseau considéré détruit")
+               .ProducesNotFound()
+               .ProducesNoContent();
+
+          builder.MapDelete("supprimer/{idVaisseau:int}", SupprimerAsync)
                .WithDescription("Supprimer un vaisseau")
                .ProducesNotFound()
                .ProducesNoContent();
@@ -1069,7 +1074,7 @@ public static class VaisseauRoute
 
     static async Task<IResult> SupprimerAsync(
           [FromRoute(Name = "idVaisseau")] int _idVaisseau
-     )
+    )
      {
           if (_idVaisseau <= 0)
                return Results.NotFound("Le vaisseau n'existe pas");
@@ -1122,6 +1127,27 @@ public static class VaisseauRoute
                element.ListeVaisseauEnPlus.RemoveAll(x => x.Id == _idVaisseau);
 
           colVaisseau.Update(listeVaisseau);
+
+          return Results.NoContent();
+     }
+
+     static async Task<IResult> DetruitAsync(
+          [FromRoute(Name = "idVaisseauPosseder")] int _idVaisseauPosseder
+     )
+     {
+          if (_idVaisseauPosseder <= 0)
+               return Results.NotFound("Le vaisseau n'existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var colVaisseau = db.GetCollection<VaisseauPosseder>();
+
+          var ok = colVaisseau.Delete(_idVaisseauPosseder);
+
+          if(!ok)
+               return Results.NotFound("Le vaisseau n'existe pas");
+
+          db.GetCollection<StockageVaisseauPosseder>().DeleteMany(x => x.VaisseauPosseder.Id == _idVaisseauPosseder);
 
           return Results.NoContent();
      }

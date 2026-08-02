@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ModalExplicationVaisseau } from '@modals/modal-explication-vaisseau/modal-explication-vaisseau';
+import { DialogConfirmationService } from '@services/DialogConfirmationService';
 
 @Component({
   selector: 'app-flotte',
@@ -25,15 +26,19 @@ import { ModalExplicationVaisseau } from '@modals/modal-explication-vaisseau/mod
 })
 export class Flotte implements OnInit
 {
-    protected listeVaisseau = signal<VaisseauPosseder[]>([]);
+    protected vaisseauHeroique = signal<VaisseauPosseder | null>(null);
+    protected phaseDestruction = signal<'INACTIF' | 'TERMINAL' | 'MIA'>('INACTIF');
+    protected texteTerminal = signal<string>('');
 
+    protected listeVaisseau = signal<VaisseauPosseder[]>([]);
     protected rechercheAlias = signal<string>('');
 
-    protected listeVaisseauFiltree = computed(() => {
+    protected listeVaisseauFiltree = computed(() => 
+    {
         const terme = this.rechercheAlias().toLowerCase().trim();
         const liste = this.listeVaisseau();
         
-        if (!terme) 
+        if (!terme)
             return liste;
         
         return liste.filter(v => 
@@ -42,8 +47,16 @@ export class Flotte implements OnInit
     });
 
     private vaisseauServ = inject(VaisseauService);
+    private dialogConfirmationServ = inject(DialogConfirmationService);
     private dialog = inject(MatDialog);
     private readonly estMobile = window.innerWidth <= 800;
+    private phrasesDernierMessage = [
+        "A tout l'équipage ! Évacuer le vaisseau ! évacuer le vaisseau !",
+        "Dernière transmission : On les emmène avec nous, bonne chance à vous !",
+        "Surcharge du réacteur principal ! Rupture imminente !",
+        "Liaison perdue. Systèmes de survie hors-ligne. Que Dieu nous aide !",
+        "Alerte : Brèche massive dans la coque. Évacuation impossible..."
+    ];
 
     ngOnInit(): void 
     {
@@ -127,6 +140,68 @@ export class Flotte implements OnInit
                 });
             }
         });
+    }
+
+    protected OuvrirModalConfirmationDetruit(_vaisseau: VaisseauPosseder): void
+    {
+        const MESSAGE = `Veuillez confimez la destruction du ${_vaisseau.nomVaisseauAlias} commandant !`;
+        this.dialogConfirmationServ.Ouvrir("Vaisseau détruit", MESSAGE).subscribe({
+            next: (retour) =>
+            {
+                if(retour)
+                    this.Detruit(_vaisseau);
+            }
+        });
+    }
+
+private Detruit(_vaisseau: VaisseauPosseder): void
+    {
+        this.vaisseauServ.Detruit(_vaisseau.id).subscribe({
+            next: () =>
+            {
+                // 1. Initialise la Phase Terminal
+                this.vaisseauHeroique.set(_vaisseau);
+                this.phaseDestruction.set('TERMINAL');
+                this.texteTerminal.set('');
+
+                // 2. Sélectionne un dernier message au hasard
+                const phrase = this.phrasesDernierMessage[Math.floor(Math.random() * this.phrasesDernierMessage.length)];
+                
+                // 3. Déclenche l'effet "Machine à écrire"
+                let index = 0;
+                const typingInterval = setInterval(() => {
+                    this.texteTerminal.update(actuel => actuel + phrase.charAt(index));
+                    index++;
+                    
+                    if (index === phrase.length) 
+                    {
+                        clearInterval(typingInterval);
+                        
+                        // 4. Attend 1.5 seconde pour laisser l'officier lire le message...
+                        setTimeout(() => {
+                            
+                            // 5. BOUM ! Passage en phase d'hommage
+                            this.phaseDestruction.set('MIA');
+                            
+                            // Protocole Haptique (Onde de choc sur mobile)
+                            if ('vibrate' in navigator) {
+                                navigator.vibrate([200, 50, 100, 50, 500]);
+                            }
+
+                        }, 1500);
+                    }
+                }, 50); // 50ms par lettre (rythme d'un téléscripteur militaire)
+            }
+        });
+    }
+
+    protected TerminerHommage(_idVaisseau: number): void
+    {
+        // On purge tout pour revenir à la normale
+        this.vaisseauHeroique.set(null);
+        this.phaseDestruction.set('INACTIF');
+        this.texteTerminal.set('');
+        this.listeVaisseau.update(x => x.filter(v => v.id != _idVaisseau));
     }
 
     private Lister(): void

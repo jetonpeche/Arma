@@ -555,30 +555,6 @@
 }
 
 /* =========================================================
-   COMPATIBILITÉ MOBILE TACTIQUE
-   ========================================================= */
-@media screen and (max-width: 680px) {
-    .weapon-grid, .storage-grid { grid-template-columns: 1fr; }
-
-    .fc-tabs-container { padding: 0; }
-    .fc-header {
-        flex-direction: column; align-items: flex-start; gap: 0px; padding: 24px 12px;
-        .fc-cmd-block { text-align: left; width: 100%; border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent); padding-top: 12px; }
-    }
-
-    .fc-crew-bar {
-        justify-content: space-around;
-        gap: 8px;
-        padding: 12px;
-    }
-
-    .fc-footer { justify-content: space-around; flex-wrap: wrap; padding: 16px 12px; }
-    
-    /* Réduit l'angle de coupe sur petit écran */
-    .fleet-dashboard { clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
-}
-
-/* =========================================================
    THÈME CLAIR (LIGHT MODE)
    ========================================================= */
 :host-context(html.light-mode) {
@@ -697,4 +673,365 @@
         background-color: #eaefed;
         border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
     }
+}
+
+/* =========================================================
+   PHASE 1 : TERMINAL DE DERNIÈRE TRANSMISSION
+   ========================================================= */
+.terminal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 9998;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.terminal-box {
+    width: 600px;
+    max-width: 90vw;
+    background-color: #050a05;
+    border: 2px solid var(--mat-sys-tertiary);
+    border-radius: 4px;
+    box-shadow: 0 0 30px color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent), 
+                inset 0 0 20px rgba(0,0,0,0.9);
+    overflow: hidden;
+
+    background-image: repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.03), rgba(0, 255, 0, 0.03) 1px, transparent 1px, transparent 2px);
+
+    .term-header {
+        display: flex;
+        justify-content: space-between;
+        background-color: color-mix(in srgb, var(--mat-sys-tertiary) 20%, transparent);
+        padding: 8px 16px;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+        font-size: 0.85rem;
+        color: var(--mat-sys-tertiary);
+        border-bottom: 1px solid var(--mat-sys-tertiary);
+
+        .term-status {
+            color: var(--mat-sys-error);
+            animation: pulse-warn 1s infinite alternate;
+        }
+    }
+
+    .term-body {
+        padding: 32px 24px;
+        min-height: 120px;
+    }
+
+    .typewriter-text {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.1rem;
+        color: #44ff44; /* Vert terminal rétro */
+        text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+        line-height: 1.6;
+
+        /* Curseur clignotant à la fin du texte */
+        &::after {
+            content: '_';
+            animation: terminal-blink 1s infinite;
+        }
+    }
+}
+
+@keyframes terminal-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+/* =========================================================
+   CINÉMATIQUE DE DESTRUCTION (PROTOCOLE M.I.A)
+   ========================================================= */
+.mia-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: all;
+    cursor: pointer;
+    animation: 
+        mia-emp-flash 3s cubic-bezier(0.1, 0.9, 0.2, 1) forwards,
+        mia-impact-shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+
+    /* Effet balayage radar cassé */
+    .mia-scanline {
+        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .mia-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        max-width: 800px;
+        padding: 40px;
+        animation: mia-intermittent-shake 4s 0.8s infinite;
+    }
+
+    .mia-icon {
+        font-size: 120px; width: 120px; height: 120px;
+        color: #ff3333;
+        margin-bottom: 24px;
+        filter: drop-shadow(0 0 20px #ff0000);
+        animation: mia-glitch 0.3s 5 alternate; 
+    }
+
+    .mia-continue {
+        margin-top: 32px;
+        font-family: 'Courier New', Courier, monospace;
+        color: #777777;
+        font-size: 0.85rem;
+        letter-spacing: 2px;
+        opacity: 0;
+        animation: mia-text-reveal-delayed 1s 5s ease-out forwards, unsc-pulse-text 2s 6s infinite alternate;
+    }
+
+    .mia-alert-box {
+        border-top: 2px solid #ff3333;
+        border-bottom: 2px solid #ff3333;
+        padding: 24px 0;
+        margin-bottom: 32px;
+        opacity: 0;
+        animation: mia-text-reveal 0.5s 0.8s ease-out forwards;
+    }
+
+    .mia-warning {
+        font-family: 'Courier New', Courier, monospace;
+        color: #ff3333;
+        font-size: 1.2rem;
+        font-weight: 900;
+        letter-spacing: 8px;
+        margin-bottom: 16px;
+    }   
+
+    .mia-signal-lost {
+        font-family: 'Courier New', Courier, monospace;
+        color: #ffffff;
+        font-size: 2.5rem;
+        font-weight: 900;
+        letter-spacing: 4px;
+        text-shadow: 0 0 15px #ff0000;
+        animation: mia-glitch-text 2s infinite;
+    }
+
+    .mia-ship-name {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        margin-bottom: 8px;
+        opacity: 0;
+        animation: mia-text-reveal-delayed 1s 1s ease-out forwards; /* Apparaît après 1s */
+    }
+
+    .mia-ship-class {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.2rem;
+        color: #aaaaaa;
+        letter-spacing: 6px;
+        margin-bottom: 48px;
+        opacity: 0;
+        animation: mia-text-reveal-delayed 1s 1.5s ease-out forwards; /* Apparaît après 1.5s */
+    }
+
+    .mia-honor-section {
+        opacity: 0;
+        animation: mia-text-reveal-delayed 2s 2.5s ease-out forwards; /* Apparaît lentement après 2.5s */
+        
+        .mia-text-primary {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.5rem;
+            color: #ff3333;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .mia-text-secondary {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            color: #dddddd;
+            font-style: italic;
+            line-height: 1.6;
+            letter-spacing: 1px;
+        }
+    }
+
+    .mia-footer {
+        margin-top: 64px;
+        font-family: 'Courier New', Courier, monospace;
+        color: #555555;
+        font-size: 0.9rem;
+        letter-spacing: 4px;
+        opacity: 0;
+        animation: mia-text-reveal-delayed 1s 4s ease-out forwards;
+    }
+}
+
+/* --- CLÉS D'ANIMATION --- */
+@keyframes mia-impact-shake {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    10%, 30%, 50%, 70%, 90% { transform: translate3d(-15px, 10px, 0) scale(1.02); }
+    20%, 40%, 60%, 80% { transform: translate3d(15px, -10px, 0) scale(0.98); }
+}
+
+/* L'éclair EMP qui aveugle l'écran avant de sombrer dans le noir/rouge */
+@keyframes mia-emp-flash {
+    0% { background-color: transparent; }
+    10% { background-color: #3a0000; }
+    30% { background-color: #1a0505; }
+    100% { background-color: #080202; opacity: 1; }
+}
+
+/* Apparition brute des textes d'alerte */
+@keyframes mia-text-reveal {
+    0% { opacity: 0; transform: scale(1.1); filter: blur(5px); }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+/* Apparition lente et solennelle (avec délai) */
+@keyframes mia-text-reveal-delayed {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Disparition globale (pour l'icône) */
+@keyframes mia-fade-out {
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Distorsion physique de l'icône (tremblement EMP) */
+@keyframes mia-glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-5px, 5px); filter: hue-rotate(90deg); }
+    40% { transform: translate(-5px, -5px); }
+    60% { transform: translate(5px, 5px); }
+    80% { transform: translate(5px, -5px); filter: hue-rotate(-90deg); }
+    100% { transform: translate(0); }
+}
+
+/* Distorsion visuelle mineure sur le texte "PERTE DE SIGNAL" */
+@keyframes mia-glitch-text {
+    0%, 96%, 100% { opacity: 1; transform: skewX(0); }
+    97% { opacity: 0.8; transform: skewX(10deg); color: #ffffff; }
+    98% { opacity: 0.4; transform: skewX(-10deg); color: #ff3333; }
+    99% { opacity: 1; transform: skewX(5deg); }
+}
+
+/* Tremblement irrégulier (Simulation de faux-contact / terminal endommagé) */
+@keyframes mia-intermittent-shake {
+    /* Périodes de calme plat */
+    0%, 9%, 16%, 44%, 49%, 79%, 86%, 100% { transform: translate(0, 0); }
+
+    /* Salve de tremblement 1 */
+    10% { transform: translate(-1px, 1px); }
+    12% { transform: translate(2px, -1px); }
+    14% { transform: translate(-2px, 0); }
+    15% { transform: translate(1px, 1px); }
+
+    /* Salve de tremblement 2 (Plus courte et isolée) */
+    45% { transform: translate(1px, 0); }
+    46% { transform: translate(-2px, 1px); }
+    48% { transform: translate(1px, -1px); }
+
+    /* Salve de tremblement 3 (Rapide) */
+    80% { transform: translate(-1px, -1px); }
+    82% { transform: translate(2px, 1px); }
+    84% { transform: translate(-1px, 0); }
+    85% { transform: translate(1px, -1px); }
+}
+
+/* =========================================================
+   COMPATIBILITÉ MOBILE TACTIQUE
+   ========================================================= */
+@media screen and (max-width: 680px) 
+{
+    .mia-overlay {
+        .mia-content {
+            padding: 20px 12px;
+        }
+
+        .mia-icon {
+            font-size: 80px; width: 80px; height: 80px;
+            margin-bottom: 16px;
+        }
+
+        .mia-alert-box {
+            padding: 16px 0;
+            margin-bottom: 24px;
+        }
+
+        .mia-warning {
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+
+        .mia-signal-lost {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .mia-ship-name {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .mia-ship-class {
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            margin-bottom: 32px;
+        }
+
+        .mia-honor-section {
+            .mia-text-primary {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+            }
+
+            .mia-text-secondary {
+                font-size: 0.9rem;
+            }
+        }
+
+        .mia-footer {
+            margin-top: 40px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+        }
+
+        .mia-continue {
+            margin-top: 24px;
+            font-size: 0.75rem;
+        }
+    }
+
+    .weapon-grid, .storage-grid { grid-template-columns: 1fr; }
+
+    .fc-tabs-container { padding: 0; }
+    .fc-header {
+        flex-direction: column; align-items: flex-start; gap: 0px; padding: 24px 12px;
+        .fc-cmd-block { text-align: left; width: 100%; border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent); padding-top: 12px; }
+    }
+
+    .fc-crew-bar {
+        justify-content: space-around;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .fc-footer { justify-content: space-around; flex-wrap: wrap; padding: 16px 12px; }
+    
+    /* Réduit l'angle de coupe sur petit écran */
+    .fleet-dashboard { clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
 }

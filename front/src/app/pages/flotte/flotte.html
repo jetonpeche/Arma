@@ -303,8 +303,8 @@
         <button matButton="text" (click)="OuvrirModalModifier(vaisseau)">
             <mat-icon>edit</mat-icon> MODIFIER
         </button>
-        <button matButton="text">
-            <mat-icon>my_location</mat-icon> RAPPORT DE TIR
+        <button matButton="text" (click)="OuvrirModalConfirmationDetruit(vaisseau)">
+            <mat-icon>explosion</mat-icon> DETRUIT
         </button>
       </div>
 
@@ -312,3 +312,53 @@
   }
 </div>
 
+
+     <!-- =========================================================
+     PROTOCOLES DE DESTRUCTION (TERMINAL & M.I.A)
+     ========================================================= -->
+@if (vaisseauHeroique(); as hero) 
+{
+    <!-- PHASE 1 : LA DERNIÈRE TRANSMISSION (TERMINAL) -->
+    @if (phaseDestruction() === 'TERMINAL') 
+    {
+        <div class="terminal-overlay">
+            <div class="terminal-box">
+                <div class="term-header">
+                    <span>UNSC-COM-LINK // {{ hero.nomVaisseauAlias || hero.nomVaisseau }}</span>
+                    <span class="term-status">STATUT: CRITIQUE</span>
+                </div>
+                <div class="term-body">
+                    <span class="typewriter-text">> {{ texteTerminal() }}</span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- PHASE 2: ANIMATION FLASH  -->
+    @if (phaseDestruction() === 'MIA')
+    {
+        <div class="mia-overlay" (click)="TerminerHommage(hero.id)">
+            <div class="mia-scanline"></div>
+            <div class="mia-content">
+                <mat-icon class="mia-icon">explosion</mat-icon>
+                
+                <div class="mia-alert-box">
+                    <div class="mia-warning">ALERTE CRITIQUE FLEETCOM</div>
+                    <div class="mia-signal-lost">PERTE DE SIGNAL TÉLÉMÉTRIQUE</div>
+                </div>
+
+                <div class="mia-ship-name">UNSC {{ hero.nomVaisseauAlias || 'CLASSIFICATION INCONNUE' }}</div>
+                <div class="mia-ship-class">CLASSE : {{ hero.nomVaisseau }}</div>
+
+                <div class="mia-honor-section">
+                    <p class="mia-text-primary">LE BÂTIMENT A ÉTÉ DÉTRUIT AU COMBAT.</p>
+                    <p class="mia-text-secondary">Ils se sont battus jusqu'au bout pour protéger l'Humanité.<br>Leur sacrifice ne sera jamais oublié.</p>
+                </div>
+                
+                <div class="mia-footer">STATUT MIS À JOUR : M.I.A (MISSING IN ACTION)</div>
+
+                <div class="mia-continue">>> CLIQUEZ POUR CONTINUER LE COMBAT MARINES ! <<</div>
+            </div>
+        </div>
+    }
+}

@@ -73,6 +73,11 @@ export class VaisseauService
         return this.http.post<void>(`${this.BASE_API}/acheter`, _vaisseauAcheter).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
+    Detruit(_idVaisseauPosseder: number): Observable<void>
+    {
+        return this.http.delete<void>(`${this.BASE_API}/detruit/${_idVaisseauPosseder}`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
     Supprimer(_idVaisseau: number): Observable<void>
     {
         return this.http.delete<void>(`${this.BASE_API}/supprimer/${_idVaisseau}`).pipe(takeUntilDestroyed(this.destroyRef));
