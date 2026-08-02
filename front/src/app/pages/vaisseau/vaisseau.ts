@@ -20,12 +20,11 @@ import { environment } from '../../../environements/environement';
 import { ModalInitInfo } from './modal-init-info/modal-init-info';
 import { ETypeRessource } from '@enums/ETypeRessource';
 import { FichierService } from '@services/FichierService';
-import { MatCardModule } from '@angular/material/card';
 import { DecimalPipe, UpperCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-vaisseau',
-  imports: [DecimalPipe, MatIcon, MatCardModule, UpperCasePipe, MatButtonModule, MatFormFieldModule, MatInputModule, MatSortModule, MatPaginatorModule, ButtonLoader, InputFile],
+  imports: [DecimalPipe, MatIcon, UpperCasePipe, MatButtonModule, MatFormFieldModule, MatInputModule, MatSortModule, MatPaginatorModule, ButtonLoader, InputFile],
   templateUrl: './vaisseau.html',
   styleUrl: './vaisseau.scss',
 })
