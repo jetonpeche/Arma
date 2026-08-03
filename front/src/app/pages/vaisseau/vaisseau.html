@@ -91,9 +91,61 @@
                         <div class="l-row">
                             <span class="l-title">ARMEMENT</span>
                             <div class="l-tags">
-                                @for (arme of FormaterArmement(element.listeArmement); track $index) 
+                                <!-- On boucle directement sur l'objet armement pour garder ses infos -->
+                                @for (arme of element.listeArmement; track $index) 
                                 {
-                                    <span class="d-tag t-weapon">{{ arme }}</span>
+                                    <div class="d-tag-container">
+                                        <!-- tabindex="0" permet au badge de recevoir un "focus" lors d'un appui sur mobile -->
+                                        <span class="d-tag t-weapon" tabindex="0">
+                                            {{ arme.nombre }} x {{ arme.nom }}
+                                        </span>
+                                        
+                                        <!-- Le panneau d'information tactique -->
+                                        <div class="tag-tooltip">
+                                            <div class="tt-header">{{ arme.nom }}</div>
+                                            <div class="tt-body">
+                                                
+                                                <!-- Description optionnelle -->
+                                                @if(arme.information) {
+                                                    <div class="tt-desc">// {{ arme.information }}</div>
+                                                }
+                                                
+                                                <!-- Statistiques de combat -->
+                                                <div class="tt-stats">
+                                                    @if(arme.estUsageUnique) 
+                                                    {
+                                                        <div class="tt-badge tt-warn">USAGE UNIQUE</div>
+                                                    }
+                                                    
+                                                    @if(arme.munitionInfini) 
+                                                    {
+                                                        <div class="tt-badge tt-primary">MUNITIONS ILLIMITÉES</div>
+                                                    }
+                                                    
+                                                    @if(arme.nbTourReload > 0 && arme.nbNombreReloadParNbTour > 0) 
+                                                    {
+                                                        <div class="tt-stat-line">
+                                                            <mat-icon inline>autorenew</mat-icon>
+                                                            
+                                                            @if(arme.nbNombreReloadParNbTour == arme.nombre) 
+                                                            {
+                                                                <span>RECHARGE : {{ arme.nbTourReload }} TR(S)</span>
+                                                            } 
+                                                            @else 
+                                                            {
+                                                                <span>RECHARGE : +{{ arme.nbNombreReloadParNbTour }} / {{ arme.nbTourReload }} TR(S)</span>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+
+                                                <!-- Si l'arme n'a absolument aucune spécificité -->
+                                                @if(!arme.information && !arme.estUsageUnique && !arme.munitionInfini && arme.nbTourReload === 0) {
+                                                    <div class="tt-empty">// ARMEMENT STANDARD</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
                                 }
                                 @if (element.listeArmement.length === 0) 
                                 {

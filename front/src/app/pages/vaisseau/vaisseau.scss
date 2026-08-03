@@ -210,8 +210,128 @@
     .l-tags {
         display: flex; flex-wrap: wrap; gap: 6px;
         
-        .d-tag { font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 2px; border: 1px solid; }
+        /* ATTENTION : Aucun position: relative; ici */
         
+        .d-tag { 
+            font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; font-weight: bold; 
+            padding: 2px 6px; border-radius: 2px; border: 1px solid; 
+        }
+        
+        .d-tag-container {
+            position: static; /* Vital pour que l'infobulle remonte jusqu'au conteneur principal */
+            display: inline-flex; 
+            align-items: center;
+
+            .d-tag {
+                cursor: crosshair; 
+                outline: none; 
+                display: flex;
+                align-items: center;
+                white-space: nowrap; 
+            }
+
+            /* LE PANNEAU HUD (PROJETÉ SUR L'IMAGE DU VAISSEAU) */
+            .tag-tooltip {
+                visibility: hidden;
+                opacity: 0;
+                
+                /* ANCRAGE PARFAIT : Se fixe en haut de l'écran du Datapad */
+                position: absolute;
+                top: -181px; 
+                left: 0;
+                right: 0;
+                height: 180px;
+                
+                background-color: rgba(8, 12, 9, 0.95); 
+                backdrop-filter: blur(4px); 
+                
+                /* NOUVEAU : Découpe tactique à deux angles cornés (Haut-Gauche et Bas-Droit) */
+                clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+                
+                /* NOUVEAU : Simulation du contour (les bordures classiques étant coupées par le clip-path) */
+                box-shadow: inset 0 0 0 1px var(--mat-sys-primary), inset 0 0 20px rgba(0,0,0,0.8);
+                
+                padding: 16px;
+                z-index: 100;
+                
+                /* GESTION DU TEXTE LONG : Structure Flexbox */
+                display: flex;
+                flex-direction: column;
+                
+                transform: translateY(10px);
+                transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+                pointer-events: all; /* Permet le scroll tactile */
+                text-align: left;
+
+                .tt-header {
+                    flex-shrink: 0; /* Verrouille le titre en haut, il ne sera jamais écrasé */
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 0.85rem;
+                    font-weight: 900;
+                    color: var(--mat-sys-primary);
+                    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+                    padding-bottom: 6px;
+                    margin-bottom: 8px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+
+                .tt-body {
+                    flex-grow: 1;
+                    /* NOUVEAU : Autorise le défilement si la description est trop longue */
+                    overflow-y: auto; 
+                    padding-right: 6px; /* Dégage de l'espace pour la scrollbar */
+                    
+                    font-family: 'Courier New', Courier, monospace;
+                    font-size: 0.75rem;
+                    color: #d0d0d0;
+                    white-space: normal;
+                    line-height: 1.4;
+
+                    /* Esthétique de la barre de défilement holographique (Chrome/Safari) */
+                    &::-webkit-scrollbar { width: 4px; }
+                    &::-webkit-scrollbar-thumb { background: var(--mat-sys-primary); border-radius: 2px; }
+                    &::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+
+                    .tt-desc { margin-bottom: 8px; font-style: italic; }
+                    
+                    .tt-stats { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+
+                    .tt-badge {
+                        display: inline-block; width: fit-content; padding: 3px 8px; font-size: 0.7rem;
+                        font-weight: bold; border-radius: 2px; letter-spacing: 0.5px;
+                        
+                        &.tt-warn {
+                            color: var(--mat-sys-error); background-color: color-mix(in srgb, var(--mat-sys-error) 15%, transparent);
+                            border: 1px solid color-mix(in srgb, var(--mat-sys-error) 30%, transparent);
+                        }
+                        &.tt-primary {
+                            color: var(--mat-sys-primary); background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent);
+                            border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+                        }
+                    }
+
+                    .tt-stat-line {
+                        display: inline-flex; align-items: center; width: fit-content; gap: 6px; color: var(--mat-sys-tertiary); font-weight: bold;
+                        background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent);
+                        padding: 3px 8px; border-radius: 2px;
+                        mat-icon { font-size: 14px; width: 14px; height: 14px; }
+                    }
+
+                    .tt-empty { color: var(--mat-sys-outline); font-style: italic; }
+                }
+            }
+
+            /* DÉCLENCHEUR */
+            &:hover .tag-tooltip,
+            .d-tag:focus + .tag-tooltip {
+                visibility: visible;
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Vos couleurs de badges */
         .t-weapon { color: var(--mat-sys-on-surface); background-color: color-mix(in srgb, var(--mat-sys-surface-variant) 80%, transparent); border-color: var(--mat-sys-outline); }
         .t-ship { color: var(--mat-sys-primary); border-color: var(--mat-sys-primary); background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent); }
         .t-aero { color: var(--mat-sys-tertiary); border-color: var(--mat-sys-tertiary); background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent); }
@@ -311,6 +431,15 @@
         
         .t-weapon { color: #333333; border-color: #bbbbbb; background-color: #eeeeee; }
         .t-empty { color: #888888; border-color: #cccccc; }
+    }
+
+    .l-tags .d-tag-container .tag-tooltip {
+        background-color: rgba(255, 255, 255, 0.95);
+        
+        box-shadow: inset 0 0 0 1px var(--mat-sys-primary), inset 0 0 20px rgba(0, 0, 0, 0.05);
+        
+        .tt-body { color: #444444; }
+        .tt-header { border-bottom-color: #cccccc; }
     }
 }
 /* =========================================================
