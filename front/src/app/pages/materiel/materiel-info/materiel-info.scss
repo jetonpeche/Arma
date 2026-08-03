@@ -1,20 +1,32 @@
+/* --- FILTRE DE STOCK (INTERRUPTEUR) --- */
+.stock-filter-container {
+    display: flex;
+    align-items: center;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    
+    .stock-filter-label {
+        font-family: 'Courier New', Courier, monospace; 
+        font-weight: bold; 
+        color: var(--mat-sys-on-surface);
+        letter-spacing: 1px;
+    }
+}
+
 /* =========================================================
    GRILLE D'INVENTAIRE MATÉRIEL (FENÊTRE DE DÉFILEMENT)
    ========================================================= */
 .inventory-grid {
     display: grid;
-    /* Affichage 2 fiches par ligne sur écrans standards */
     grid-template-columns: repeat(auto-fit, minmax(650px, 1fr)); 
     gap: 16px; 
     margin-bottom: 24px;
     
-    /* ISOLATION DU SCROLL */
     max-height: calc(100vh - 380px); 
     overflow-y: auto;
     overflow-x: hidden;
     padding: 8px 16px 24px 8px; 
 
-    /* --- SCROLLBAR TACTIQUE (UNSC) --- */
     &::-webkit-scrollbar { width: 8px; }
     
     &::-webkit-scrollbar-track {

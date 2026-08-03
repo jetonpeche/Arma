@@ -14,14 +14,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ModalInformation } from '@modals/modal-information/modal-information';
 import { ModalInputQuantite } from '@modals/modal-input-quantite/modal-input-quantite';
 import { Droit } from '@models/DroitGroupe';
 import { environment } from '../../../../environements/environement';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-materiel-info',
-  imports: [MatButtonModule, MatSelectModule, MatInputModule, MatFormFieldModule, MatPaginatorModule, MatIconModule, MatTooltipModule, ButtonLoader, GridContainer, GridElement],
+  imports: [MatButtonModule, MatSlideToggleModule, MatSelectModule, MatInputModule, MatFormFieldModule, MatPaginatorModule, MatIconModule, MatTooltipModule, ButtonLoader, GridContainer, GridElement],
   templateUrl: './materiel-info.html',
   styleUrl: './materiel-info.scss'
 })
@@ -37,22 +37,27 @@ export class MaterielInfoPage implements OnInit
     // Signaux de filtrage
     protected rechercheRequete = signal<string>('');
     protected filtreType = signal<number | null>(null);
+    protected filtreEnStock = signal<boolean>(false);
 
     // Signaux de pagination
     protected pageSize = signal<number>(20);
     protected pageIndex = signal<number>(0);
 
-    // 1. Filtrage dynamique
-    protected listeFiltree = computed(() => {
+    protected listeFiltree = computed(() => 
+    {
         let resultat = this.listeComplete();
         const RECHERCHE = this.rechercheRequete();
         const TYPE_ID = this.filtreType();
+        const EN_STOCK = this.filtreEnStock();
 
-        if (TYPE_ID !== null) {
+        if (TYPE_ID !== null)
             resultat = resultat.filter(x => x.type.id === TYPE_ID);
-        }
 
-        if (RECHERCHE) {
+        if (EN_STOCK)
+            resultat = resultat.filter(x => x.stock > 0);
+
+        if (RECHERCHE) 
+        {
             resultat = resultat.filter(x => 
                 x.nom.toLowerCase().includes(RECHERCHE) || 
                 x.description?.toLowerCase().includes(RECHERCHE)

@@ -18,8 +18,8 @@ import { ModalInputQuantite } from '@modals/modal-input-quantite/modal-input-qua
 import { Droit } from '@models/DroitGroupe';
 import { environment } from '../../../../environements/environement';
 import { UpperCasePipe } from '@angular/common';
-import { ModalInformation } from '@modals/modal-information/modal-information';
 import { ModalLogistiqueStockage } from './modal-logistique-stockage/modal-logistique-stockage';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 interface LogistiqueTable extends Logistique
 {
@@ -28,7 +28,7 @@ interface LogistiqueTable extends Logistique
 
 @Component({
   selector: 'app-logistique-info',
-  imports: [UpperCasePipe, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatTooltipModule, GridContainer, GridElement, MatSelectModule, ButtonLoader, MatPaginatorModule],
+  imports: [UpperCasePipe, MatSlideToggleModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatTooltipModule, GridContainer, GridElement, MatSelectModule, ButtonLoader, MatPaginatorModule],
   templateUrl: './logistique-info.html',
   styleUrl: './logistique-info.scss',
 })
@@ -42,20 +42,26 @@ export class LogistiqueInfo implements OnInit
     
     protected rechercheRequete = signal<string>('');
     protected filtreType = signal<number | null>(null);
+    protected filtreEnStock = signal<boolean>(false);
 
     protected pageSize = signal<number>(20);
     protected pageIndex = signal<number>(0);
 
-    protected listeFiltree = computed(() => {
+    protected listeFiltree = computed(() => 
+    {
         let resultat = this.listeComplete();
         const RECHERCHE = this.rechercheRequete();
         const TYPE_ID = this.filtreType();
+        const EN_STOCK = this.filtreEnStock();
 
-        if (TYPE_ID !== null) {
+        if (TYPE_ID !== null)
             resultat = resultat.filter(x => x.type.id === TYPE_ID);
-        }
 
-        if (RECHERCHE) {
+        if (EN_STOCK)
+            resultat = resultat.filter(x => x.stock > 0);
+
+        if (RECHERCHE) 
+        {
             resultat = resultat.filter(x => 
                 x.nom.toLowerCase().includes(RECHERCHE) || 
                 x.description?.toLowerCase().includes(RECHERCHE)

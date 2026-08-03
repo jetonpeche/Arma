@@ -36,6 +36,19 @@
                 </mat-select>
             </mat-form-field>
         </jp-grid-element>
+
+        <jp-grid-element [colDefault]="12">
+            <div class="stock-filter-container">
+                <mat-slide-toggle 
+                    color="primary"
+                    [checked]="filtreEnStock()" 
+                    (change)="filtreEnStock.set($event.checked); pageIndex.set(0)">
+                    <span class="stock-filter-label">
+                        AFFICHER UNIQUEMENT LE MATÉRIEL EN STOCK
+                    </span>
+                </mat-slide-toggle>
+            </div>
+        </jp-grid-element>
     </jp-grid-container>
 </div>
 
