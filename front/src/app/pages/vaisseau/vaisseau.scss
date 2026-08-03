@@ -210,15 +210,13 @@
     .l-tags {
         display: flex; flex-wrap: wrap; gap: 6px;
         
-        /* ATTENTION : Aucun position: relative; ici */
-        
         .d-tag { 
             font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; font-weight: bold; 
             padding: 2px 6px; border-radius: 2px; border: 1px solid; 
         }
         
         .d-tag-container {
-            position: static; /* Vital pour que l'infobulle remonte jusqu'au conteneur principal */
+            position: static;
             display: inline-flex; 
             align-items: center;
 
@@ -235,7 +233,6 @@
                 visibility: hidden;
                 opacity: 0;
                 
-                /* ANCRAGE PARFAIT : Se fixe en haut de l'écran du Datapad */
                 position: absolute;
                 top: -181px; 
                 left: 0;
@@ -245,26 +242,22 @@
                 background-color: rgba(8, 12, 9, 0.95); 
                 backdrop-filter: blur(4px); 
                 
-                /* NOUVEAU : Découpe tactique à deux angles cornés (Haut-Gauche et Bas-Droit) */
                 clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
-                
-                /* NOUVEAU : Simulation du contour (les bordures classiques étant coupées par le clip-path) */
                 box-shadow: inset 0 0 0 1px var(--mat-sys-primary), inset 0 0 20px rgba(0,0,0,0.8);
                 
                 padding: 16px;
                 z-index: 100;
                 
-                /* GESTION DU TEXTE LONG : Structure Flexbox */
                 display: flex;
                 flex-direction: column;
                 
                 transform: translateY(10px);
                 transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-                pointer-events: all; /* Permet le scroll tactile */
+                pointer-events: all;
                 text-align: left;
 
                 .tt-header {
-                    flex-shrink: 0; /* Verrouille le titre en haut, il ne sera jamais écrasé */
+                    flex-shrink: 0;
                     font-family: 'Courier New', Courier, monospace;
                     font-size: 0.85rem;
                     font-weight: 900;
@@ -278,9 +271,8 @@
 
                 .tt-body {
                     flex-grow: 1;
-                    /* NOUVEAU : Autorise le défilement si la description est trop longue */
                     overflow-y: auto; 
-                    padding-right: 6px; /* Dégage de l'espace pour la scrollbar */
+                    padding-right: 6px;
                     
                     font-family: 'Courier New', Courier, monospace;
                     font-size: 0.75rem;
@@ -344,7 +336,8 @@
     display: flex; align-items: center; gap: 8px;
     .dp-spacer { flex-grow: 1; }
 
-    .mat-mdc-icon-button {
+    .mat-mdc-icon-button 
+    {
         background-color: transparent !important;
         mat-icon { color: #888; }
         &:hover { background-color: rgba(255,255,255,0.05) !important; mat-icon { color: var(--mat-sys-primary); } }
@@ -361,7 +354,7 @@
     
     /* --- ARMATURE MATÉRIELLE --- */
     .unsc-datapad {
-        background-color: #dbdbdb; /* Gris structurel pour marquer le châssis */
+        background-color: #dbdbdb;
         filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
     }
 
@@ -370,7 +363,6 @@
         border-top-color: #bcbcbc; 
         
         .dp-brand { color: #555555; font-weight: bold; }
-        /* On allège la règle pour laisser l'animation gérer le clignotement rouge */
         .dp-camera { border-color: #999; } 
     }
 
