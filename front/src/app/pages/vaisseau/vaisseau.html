@@ -155,6 +155,20 @@
                         </div>
 
                         <div class="l-row">
+                            <span class="l-title">CAPACITÉS LOGISTIQUES</span>
+                            <div class="l-tags">
+                                @for (stock of FormaterStockage(element.listeStockage); track $index) 
+                                {
+                                    <span class="d-tag t-storage">{{ stock }}</span>
+                                }
+                                @if (element.listeStockage.length == 0) 
+                                {
+                                    <span class="d-tag t-empty">AUCUNE SOUTE</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="l-row">
                             <span class="l-title">SOUTES (HANGAR)</span>
                             <div class="l-tags">
                                 @for (vaisseau of FormaterVaisseauxEmbarques(element.listeVaisseauEnfant); track $index) 

@@ -5,7 +5,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
-import { Vaisseau, VaisseauAeronef, VaisseauArmement, VaisseauLeger } from '@models/Vaisseau';
+import { Vaisseau, VaisseauAeronef, VaisseauArmement, VaisseauLeger, VaisseauStockage } from '@models/Vaisseau';
 import { VaisseauService } from '@services/VaisseauService';
 import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
 import { MatDialog } from '@angular/material/dialog';
@@ -72,6 +72,28 @@ export class VaisseauPage implements OnInit
     protected FormaterVaisseauxEmbarques(_listeVaisseauEnfant: VaisseauLeger[]): string[] 
     {
         return _listeVaisseauEnfant.map(x => x.nom);
+    }
+
+    protected FormaterStockage(_listeStockage: VaisseauStockage[]): string[] 
+    {
+        if (!_listeStockage || _listeStockage.length == 0) 
+            return [];
+
+        // Utilisation d'une Map pour regrouper par "taille-type"
+        const groupes = new Map<string, { compte: number, taille: number, typeNom: string }>();
+
+        for (const stock of _listeStockage) 
+        {
+            const cle = `${stock.taille}-${stock.typeStockage.nom}`;
+            
+            if (groupes.has(cle)) 
+                groupes.get(cle)!.compte++;
+            
+            else 
+                groupes.set(cle, { compte: 1, taille: stock.taille, typeNom: stock.typeStockage.nom });
+        }
+
+        return Array.from(groupes.values()).map(g => `${g.compte} x ${g.taille} ${g.typeNom.toUpperCase()}`);
     }
 
     protected UploadFichier(_idVaisseau: number, _fichier: File): void

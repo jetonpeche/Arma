@@ -327,6 +327,7 @@
         .t-weapon { color: var(--mat-sys-on-surface); background-color: color-mix(in srgb, var(--mat-sys-surface-variant) 80%, transparent); border-color: var(--mat-sys-outline); }
         .t-ship { color: var(--mat-sys-primary); border-color: var(--mat-sys-primary); background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent); }
         .t-aero { color: var(--mat-sys-tertiary); border-color: var(--mat-sys-tertiary); background-color: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent); }
+        .t-storage { color: #ffc107; border-color: #ffc107; background-color: color-mix(in srgb, #ffc107 15%, transparent); }
         .t-empty { color: #555; border-color: #333; font-style: italic; background: transparent;}
     }
 }
@@ -422,6 +423,7 @@
         }
         
         .t-weapon { color: #333333; border-color: #bbbbbb; background-color: #eeeeee; }
+        .t-storage { color: #995c00; border-color: #b36b00; background-color: color-mix(in srgb, #b36b00 12%, transparent); }
         .t-empty { color: #888888; border-color: #cccccc; }
     }
 
