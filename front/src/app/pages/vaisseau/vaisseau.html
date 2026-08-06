@@ -192,11 +192,6 @@
 
             <!-- CADRE INFÉRIEUR (Boutons tactiles) -->
             <div class="dp-bezel bottom dp-actions">
-                <jp-button-loader matIconButton
-                                icon="storage" 
-                                matTooltip="Ouvrir les soutes"
-                                [disabled]="element.listeStockage.length == 0"
-                                (clicked)="OuvrirModalStockage(element)" />
 
                 @if (peutAcheterVaisseau && !element.bloquerAchat) 
                 {

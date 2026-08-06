@@ -9,7 +9,6 @@ import { Vaisseau, VaisseauAeronef, VaisseauArmement, VaisseauLeger, VaisseauSto
 import { VaisseauService } from '@services/VaisseauService';
 import { ButtonLoader, InputFile } from "@jetonpeche/angular-mat-input";
 import { MatDialog } from '@angular/material/dialog';
-import { ModalStockage } from './modal-stockage/modal-stockage';
 import { AjouterModifierVaisseau } from '@modals/ajouter-modifier-vaisseau/ajouter-modifier-vaisseau';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { SnackBarService } from '@services/SnackBarService';
@@ -113,15 +112,6 @@ export class VaisseauPage implements OnInit
                     });
                 });
             }
-        });
-    }
-
-    protected OuvrirModalStockage(_vaisseau: Vaisseau): void
-    {
-        this.dialog.open(ModalStockage, {
-            width: this.estMobile ? "95%" : "50%", 
-            maxWidth: "100vw",
-            data: _vaisseau
         });
     }
 
