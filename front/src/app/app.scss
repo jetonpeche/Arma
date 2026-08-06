@@ -749,8 +749,8 @@ mat-drawer-container {
 
 /* --- RESPONSIVE --- */
 @media screen and (max-width: 600px) {
-    .unsc-brand span {
-        display: none; /* Cache le texte du logo sur petit écran */
+    .unsc-brand {
+        display: none; 
     }
 
     .company-treasury-btn {
