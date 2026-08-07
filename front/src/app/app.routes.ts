@@ -19,6 +19,12 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
+        path: "orbat",
+        loadComponent: () => import("./pages/orbat/orbat").then(x => x.OrbatPage),
+        title: "Orbat",
+        canActivate: [connecterGuard]
+    },
+    { 
         path: "formation",
         loadComponent: () => import("./pages/formation/formation").then(x => x.FormationPage),
         title: "Formation",

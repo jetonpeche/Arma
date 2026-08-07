@@ -1,9 +1,10 @@
+import { GradeLeger } from "./Grade"
 import { PersonnageLeger } from "./Personnage"
 
 export type Orbat =
 {
     id: number,
-    idParent: number,
+    idParent: number | null,
     titre: string,
     indicatif: string | null,
     frequenceRadio: string | null,
@@ -14,8 +15,9 @@ export type Orbat =
 export type OrbatSlot =
 {
     id: number,
-    gradeRequis: string | null,
+    gradeRequis: GradeLeger | null,
     personnage: PersonnageLeger | null,
     role: string,
-    ordreAffichage: number
+    ordreAffichage: number,
+    estOptionnel: boolean
 }

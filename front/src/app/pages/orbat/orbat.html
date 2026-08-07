@@ -1,1 +1,119 @@
-<p>orbat works!</p>
+<div class="page-header">
+    <div class="header-titles">
+        <h1>Orbat</h1>
+        <div class="unsc-subtitle">// ORDRE DE BATAILLE TACTIQUE</div>
+    </div>
+    <div class="header-actions">
+        <button matButton="filled" (click)="OuvrirModalAjouterModifierOrbat()">
+            <mat-icon>add</mat-icon>
+            Ajouter
+        </button>
+
+        <mat-form-field>
+            <mat-label>Recherche</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [ngModel]="recherche()" (ngModelChange)="recherche.set($event)">
+            @if (recherche()) 
+            {
+                <button matSuffix mat-icon-button (click)="recherche.set('')">
+                    <mat-icon>close</mat-icon>
+                </button>
+            }
+        </mat-form-field>
+    </div>
+</div>
+
+<div class="orbat-viewport" 
+     #viewport
+     [class.grabbing]="isDragging()"
+     (mousedown)="onMouseDown($event)"
+     (mouseleave)="onMouseLeave()"
+     (mouseup)="onMouseUp()"
+     (mousemove)="onMouseMove($event)"
+     (touchstart)="onMouseDown($event)"
+     (touchend)="onMouseUp()"
+     (touchcancel)="onMouseLeave()"
+     (touchmove)="onMouseMove($event)">
+    
+    <!-- L'ARBRE -->
+    <div class="orbat-tree-container">
+        @if (arbreFiltre()) 
+        {
+            <ng-container *ngTemplateOutlet="orbatNode; context: { $implicit: arbreFiltre() }"></ng-container>
+        }
+    </div>
+</div>
+
+<!-- TEMPLATE DU NŒUD -->
+<ng-template #orbatNode let-node>
+    <div class="orbat-node">
+        
+        <!-- LA CARTE DE L'UNITÉ -->
+        <div class="unit-card">
+            
+            <div class="unit-header">
+                <div class="u-info">
+                    <span class="u-title">{{ node.titre | uppercase }}</span>
+                    @if(node.indicatif) { <span class="u-indicatif">[{{ node.indicatif }}]</span> }
+                </div>
+
+                @if(node.urlImage) 
+                {
+                    <img [src]="node.urlImage" class="u-emblem" alt="Emblem">
+                }
+            </div>
+            
+            <div class="unit-body">
+                <div class="slot-list">
+                    @for (slot of node.listeSlot; track slot.id) 
+                    {
+                        <div class="slot-row" [class.is-optional]="slot.estOptionnel" [class.is-empty]="!slot.personnage">
+                            <div class="s-role">{{ slot.role }}</div>
+                            <div class="s-personnel">
+                                {{ slot.personnage ? slot.personnage.nom : 'VACANT' }}
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <div class="unit-footer">
+                    <span class="u-radio">SR: {{ node.frequenceRadio || 'N/A' }}</span>
+                </div>
+            </div>
+
+            <div class="unit-actions" (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
+                <button mat-icon-button matTooltip="Modifier l'unité">
+                    <mat-icon>edit</mat-icon>
+                </button>
+
+                <jp-input-file-btn matIconButton
+                                           icon="photo"
+                                           (fileChange)="UploadFichier(node.id, $any($event))"            
+                                           accept=".png, .jpg, .webp, .jpeg" />
+
+                <button mat-icon-button matTooltip="Ajouter une sous-unité">
+                    <mat-icon>add</mat-icon>
+                </button>
+
+                <span class="spacer"></span>
+
+                <button mat-icon-button matTooltip="Supprimer">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- LES ENFANTS -->
+        @if (node.enfants && node.enfants.length > 0) 
+        {
+            <div class="orbat-children">
+                @for (child of node.enfants; track child.id) 
+                {
+                    <div class="child-wrapper">
+                        <ng-container *ngTemplateOutlet="orbatNode; context: { $implicit: child }"></ng-container>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</ng-template>
