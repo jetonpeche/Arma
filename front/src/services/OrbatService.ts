@@ -3,7 +3,7 @@ import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Orbat } from "@models/Orbat";
+import { Orbat, OrbatRequete } from "@models/Orbat";
 
 export class OrbatService
 {
@@ -15,5 +15,15 @@ export class OrbatService
     Lister(): Observable<Orbat[]>
     {
         return this.http.get<Orbat[]>(`${this.BASE_API}/lister`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    Ajouter(_orbat: OrbatRequete): Observable<void>
+    {
+        return this.http.get<void>(`${this.BASE_API}/ajouter`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    Modifier(_idOrbat: number, _orbat: OrbatRequete): Observable<void>
+    {
+        return this.http.put<void>(`${this.BASE_API}/modifier/${_idOrbat}`, _orbat).pipe(takeUntilDestroyed(this.destroyRef));
     }
 }

@@ -82,7 +82,7 @@
             </div>
 
             <div class="unit-actions" (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
-                <button mat-icon-button matTooltip="Modifier l'unité">
+                <button mat-icon-button matTooltip="Modifier l'unité" (click)="OuvrirModalAjouterModifierOrbat(node)">
                     <mat-icon>edit</mat-icon>
                 </button>
 
@@ -92,7 +92,7 @@
                                            accept=".png, .jpg, .webp, .jpeg"
                                            matTooltip="Modifier l'écusson" />
 
-                <button mat-icon-button matTooltip="Ajouter une sous-unité">
+                <button mat-icon-button matTooltip="Ajouter une sous-unité" (click)="OuvrirModalAjouterModifierOrbat(null, node.id)">
                     <mat-icon>add</mat-icon>
                 </button>
 

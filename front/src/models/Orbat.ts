@@ -21,3 +21,24 @@ export type OrbatSlot =
     ordreAffichage: number,
     estOptionnel: boolean
 }
+
+export type OrbatSlotRequete =
+{
+    /* en cas d'ajout pas d'id */
+    id?: number,
+    idGradeRequis: number | null,
+    idPersonnage: number | null,
+    role: string,
+    ordreAffichage: number,
+    estOptionnel: boolean
+}
+
+export type OrbatRequete =
+{
+    idParent: number | null,
+    titre: string,
+    indicatif: string | null,
+    frequenceRadio: string | null,
+    urlImage: string,
+    listeSlot: OrbatSlot[]
+}

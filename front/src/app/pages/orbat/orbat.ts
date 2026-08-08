@@ -16,6 +16,8 @@ import { InputFile } from "@jetonpeche/angular-mat-input";
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { AjouterModifierOrbat } from '@modals/ajouter-modifier-orbat/ajouter-modifier-orbat';
 
 export interface OrbatNode extends Orbat {
   enfants?: OrbatNode[];
@@ -29,28 +31,28 @@ export interface OrbatNode extends Orbat {
 })
 export class OrbatPage implements OnInit
 {
-  viewport = viewChild.required<ElementRef>("viewport");
+    viewport = viewChild.required<ElementRef>("viewport");
 
-  protected listePersonnage = signal<Personnage[]>([]);
-  protected listeGrade = signal<Grade[]>([]);
+    protected listePersonnage = signal<Personnage[]>([]);
 
-  protected recherche = signal<string>("");
-  
-  // Le sommet de l'arbre
-  protected racineOrbat = signal<OrbatNode | null>(null);
-  protected isDragging = signal(false);
+    protected recherche = signal<string>("");
+    
+    // Le sommet de l'arbre
+    protected racineOrbat = signal<OrbatNode | null>(null);
+    protected isDragging = signal(false);
 
-  // Variables pour le cliquer-glisser (Drag & Pan)
-  private startX = 0;
-  private startY = 0;
-  private scrollLeft = 0;
-  private scrollTop = 0;
+    // Variables pour le cliquer-glisser (Drag & Pan)
+    private startX = 0;
+    private startY = 0;
+    private scrollLeft = 0;
+    private scrollTop = 0;
 
-  private orbatServ = inject(OrbatService);
-  private gradeServ = inject(GradeService);
-  private fichierServ = inject(FichierService);
-  private snackBarServ = inject(SnackBarService);
-  private personnageServ = inject(PersonnageService);
+    private orbatServ = inject(OrbatService);
+    private fichierServ = inject(FichierService);
+    private snackBarServ = inject(SnackBarService);
+    private dialog = inject(MatDialog);
+
+    private readonly estMobile = window.innerWidth <= 800;
 
     protected arbreFiltre = computed(() => {
         const terme = this.recherche().toLowerCase().trim();
@@ -83,42 +85,67 @@ export class OrbatPage implements OnInit
 
         chercher(racine);
         return resultats;
-  });
+    });
 
-  ngOnInit(): void 
-  {
-    this.ListerOrbat();
-    this.ListerGrade();
-    this.ListerPersonnage();
-  }
+    ngOnInit(): void 
+    {
+        this.ListerOrbat();
+    }
 
-  protected OuvrirModalAjouterModifierOrbat(): void
-  {
-
-  }
-
-  protected UploadFichier(_idOrbat: number, _fichier: File): void
-  {
-      this.fichierServ.Upload(_idOrbat, ETypeRessource.Orbat, _fichier).subscribe({
-          next: (url: string) => 
-          {
-            this.snackBarServ.Ok("Le fichier a été uploadé");
+    protected OuvrirModalAjouterModifierOrbat(_orbat?: Orbat, _idParent?: number): void
+    {
+        if(!_orbat && _idParent)
+        {
+            console.log("ok");
             
-            const MettreAJourNoeud = (noeud: OrbatNode): OrbatNode => 
-            {
-                if (noeud.id == _idOrbat)
-                    return { ...noeud, urlImage: `${url}?t=${new Date().getTime()}` };
-                
-                if (noeud.enfants && noeud.enfants.length > 0)
-                    return { ...noeud, enfants: noeud.enfants.map(enfant => MettreAJourNoeud(enfant)) };
-                
-                return noeud;
+            _orbat = {
+                id: null,
+                indicatif: null,
+                frequenceRadio: null,
+                titre: null,
+                listeSlot: null,
+                urlImage: null,
+                idParent: _idParent
             };
+        }
 
-            this.racineOrbat.update(racine => racine ? MettreAJourNoeud(racine) : null);
-          }
-      });
-  }
+        const DIALOG_REF = this.dialog.open(AjouterModifierOrbat, {
+            width: this.estMobile ? "95%" : "70%", 
+            maxWidth: "100vw",
+            data: _orbat
+        });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (retour) => 
+            {
+                if(retour === true)
+                    this.ListerOrbat();
+            }
+        });
+    }
+
+    protected UploadFichier(_idOrbat: number, _fichier: File): void
+    {
+        this.fichierServ.Upload(_idOrbat, ETypeRessource.Orbat, _fichier).subscribe({
+            next: (url: string) => 
+            {
+                this.snackBarServ.Ok("Le fichier a été uploadé");
+                
+                const MettreAJourNoeud = (noeud: OrbatNode): OrbatNode => 
+                {
+                    if (noeud.id == _idOrbat)
+                        return { ...noeud, urlImage: `${url}?t=${new Date().getTime()}` };
+                    
+                    if (noeud.enfants && noeud.enfants.length > 0)
+                        return { ...noeud, enfants: noeud.enfants.map(enfant => MettreAJourNoeud(enfant)) };
+                    
+                    return noeud;
+                };
+
+                this.racineOrbat.update(racine => racine ? MettreAJourNoeud(racine) : null);
+            }
+        });
+    }
 
     protected onMouseDown(event: MouseEvent | TouchEvent): void 
     {
@@ -145,8 +172,8 @@ export class OrbatPage implements OnInit
 
     protected onMouseMove(event: MouseEvent | TouchEvent): void 
     {
-        if (!this.isDragging()) 
-        return;
+        if (!this.isDragging())
+            return;
 
         event.preventDefault();
         
@@ -160,20 +187,6 @@ export class OrbatPage implements OnInit
         
         this.viewport().nativeElement.scrollLeft = this.scrollLeft - walkX;
         this.viewport().nativeElement.scrollTop = this.scrollTop - walkY;
-    }
-
-    private ListerPersonnage(): void
-    {
-        this.personnageServ.Lister().subscribe({
-            next: (retour) => this.listePersonnage.set(retour)
-        });
-    }
-
-    private ListerGrade(): void
-    {
-        this.gradeServ.Lister().subscribe({
-            next: (retour) => this.listeGrade.set(retour)
-        });
     }
 
   private ListerOrbat(): void

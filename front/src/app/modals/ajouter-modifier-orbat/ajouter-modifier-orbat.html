@@ -1,0 +1,100 @@
+<h2 mat-dialog-title>{{ btnLabel() }} un Orbat</h2>
+
+<mat-dialog-content [formGroup]="form">
+    
+    <!-- INFOS PRINCIPALES DE L'UNITÉ -->
+    <div class="orbat-infos">
+        <mat-form-field>
+            <mat-label>Titre de l'unité (Ex: Company-21)</mat-label>
+            <input matInput formControlName="titre">
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Indicatif (Ex: Aquila 0-1)</mat-label>
+            <input matInput formControlName="indicatif">
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Fréquence Radio</mat-label>
+            <input matInput formControlName="frequenceRadio" placeholder="Ex: 111">
+        </mat-form-field>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- GESTION DES POSTES (SLOTS) -->
+    <div class="slots-header">
+        <h3>Composition de l'unité</h3>
+        <button mat-button color="primary" (click)="AjouterSlot()">
+            <mat-icon>add</mat-icon> Ajouter un poste
+        </button>
+    </div>
+
+    <div formArrayName="listeSlot" class="slots-container">
+        @for (slotCtrl of ListeOrbatSlot.controls; track $index) 
+        {
+            <div [formGroupName]="$index" class="slot-row">
+                
+                <div class="slot-index">{{ $index + 1 }}</div>
+                
+                <!-- ZONE DE SAISIE -->
+                <div class="slot-fields">
+                    <mat-form-field class="field-role" subscriptSizing="dynamic">
+                        <mat-label>Rôle</mat-label>
+                        <input type="text" matInput formControlName="role" placeholder="Ex: Squad Leader" [matAutocomplete]="autoRole">
+                        <mat-autocomplete #autoRole="matAutocomplete">
+                            @for (roleSugg of FiltrerRoles(slotCtrl.get('role')?.value); track $index) 
+                            {
+                                <mat-option [value]="roleSugg">{{ roleSugg }}</mat-option>
+                            }
+                        </mat-autocomplete>
+                    </mat-form-field>
+
+                    <mat-form-field class="field-select" subscriptSizing="dynamic">
+                        <mat-label>Grade Requis</mat-label>
+                        <mat-select formControlName="idGradeRequis">
+                            <mat-option [value]="null">Aucun</mat-option>
+                            @for (grade of listeGrade(); track grade.id) {
+                                <mat-option [value]="grade.id">{{ grade.nom }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="field-select" subscriptSizing="dynamic">
+                        <mat-label>Assignation</mat-label>
+                        <mat-select formControlName="idPersonnage">
+                            <mat-option [value]="null">VACANT</mat-option>
+                            @for (perso of FiltrerPersonnages(slotCtrl.get('gradeRequisId')?.value); track perso.id) {
+                                <mat-option [value]="perso.id">
+                                    [{{ perso.grade.nomRaccourci }}] {{ perso.nom }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="slot-actions">
+                    <mat-slide-toggle formControlName="estOptionnel">
+                        Opt.
+                    </mat-slide-toggle>
+
+                    <button mat-icon-button (click)="SupprimerSlot($index)" matTooltip="Supprimer ce poste">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+                
+            </div>
+        }
+
+        @if (ListeOrbatSlot.length == 0) 
+        {
+            <p class="empty-msg">Aucun poste n'est assigné à cette unité pour le moment.</p>
+        }
+    </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-button mat-dialog-close>Annuler</button>&nbsp;
+    <jp-button-loader [loading]="btnClick()" [label]="btnLabel()" (clicked)="Valider()" />
+</mat-dialog-actions>

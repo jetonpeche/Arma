@@ -1,0 +1,198 @@
+mat-dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 16px !important;
+}
+
+.orbat-infos {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    mat-form-field {
+        flex: 1;
+        min-width: 200px;
+    }
+}
+
+mat-divider {
+    margin: 16px 0;
+}
+
+/* =========================================================
+   DESIGN DE LA LISTE DES POSTES
+   ========================================================= */
+.slots-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--mat-sys-primary);
+
+    h3 {
+        margin: 0;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--mat-sys-on-surface);
+
+        /* Chevrons d'interface militaire */
+        &::before {
+            content: '>> ';
+            color: var(--mat-sys-primary);
+        }
+    }
+}
+
+.slots-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.slot-row {
+    display: flex;
+    align-items: stretch;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container) 85%, #000);
+    
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    border-left: 4px solid color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+    
+    transition: transform 0.2s ease, filter 0.2s ease, border-color 0.2s ease;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); /* Ombre portée externe */
+
+    /* Effet d'engagement tactique (décalage vers la droite) */
+    &:hover {
+        border-left-color: var(--mat-sys-primary);
+        filter: drop-shadow(0 6px 12px rgba(0,0,0,0.7));
+        transform: translateX(4px); 
+    }
+
+    /* Numérotation avec crochets HUD */
+    .slot-index {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        background-color: rgba(0, 0, 0, 0.25);
+        border-right: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+        
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        font-size: 1.1rem;
+        color: var(--mat-sys-primary);
+        
+        /* Ajout des crochets de ciblage virtuels */
+        &::before { content: '['; opacity: 0.5; margin-right: 4px; }
+        &::after { content: ']'; opacity: 0.5; margin-left: 4px; }
+    }
+
+    /* Conteneur des champs Material */
+    .slot-fields {
+        display: flex;
+        flex-wrap: wrap;
+        flex-grow: 1;
+        gap: 16px;
+        padding: 12px 16px;
+        align-items: center;
+
+        mat-form-field {
+            flex: 1;
+            min-width: 160px;
+        }
+    }
+
+    /* Zone des paramètres et suppression */
+    .slot-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px 12px 0;
+        
+        /* Séparation hachurée type avertissement */
+        border-left: 2px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+        margin-left: 8px;
+        padding-left: 16px;
+
+        mat-slide-toggle {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+    }
+}
+
+.empty-msg {
+    color: var(--mat-sys-outline);
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    margin: 24px 0;
+    padding: 24px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-variant) 20%, transparent);
+    border: 1px dashed var(--mat-sys-outline-variant);
+    border-radius: 2px;
+}
+
+:host-context(html.dark-mode), :host-context(html.light-mode) {
+    .slot-row {
+        background-color: var(--mat-sys-surface-container-highest);
+        
+        .slot-index {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent);
+            
+            color: var(--mat-sys-primary);
+            
+            &::before, &::after {
+                opacity: 0.8;
+                color: var(--mat-sys-on-surface);
+            }
+        }
+    }
+}
+
+/* =========================================================
+   RESPONSIVE (CALIBRAGE POUR TERMINAUX MOBILES)
+   ========================================================= */
+@media screen and (max-width: 768px) 
+{
+    .orbat-infos {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .slot-row {
+        flex-direction: column;
+        clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+
+        .slot-index {
+            width: 100%;
+            padding: 8px 0;
+            border-right: none;
+            border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+            justify-content: flex-start;
+            padding-left: 16px;
+        }
+
+        .slot-fields {
+            flex-direction: column;
+            padding: 12px 16px;
+            gap: 12px;
+        }
+
+        /* La zone d'actions passe en bas avec une ligne de séparation horizontale */
+        .slot-actions {
+            justify-content: space-between;
+            border-left: none;
+            border-top: 2px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+            margin-left: 0;
+            padding: 8px 16px;
+        }
+    }
+}
