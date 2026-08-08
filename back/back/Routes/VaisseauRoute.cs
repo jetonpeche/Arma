@@ -1142,13 +1142,15 @@ public static class VaisseauRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var colVaisseau = db.GetCollection<VaisseauPosseder>();
+          var colVaisseauPosseder = db.GetCollection<VaisseauPosseder>();
 
-          var ok = colVaisseau.Delete(_idVaisseauPosseder);
+          var idVaisseau = colVaisseauPosseder.Query().Where(x => x.Id == _idVaisseauPosseder).Select(x => x.Vaisseau.Id).FirstOrDefault();
 
-          if(!ok)
+          if(idVaisseau is 0)
                return Results.NotFound("Le vaisseau n'existe pas");
 
+          colVaisseauPosseder.Delete(_idVaisseauPosseder);
+          db.GetCollection<Vaisseau>().UpdateMany(x => new Vaisseau { Stock = x.Stock - 1 }, x => x.Id == idVaisseau);
           db.GetCollection<StockageVaisseauPosseder>().DeleteMany(x => x.VaisseauPosseder.Id == _idVaisseauPosseder);
 
           return Results.NoContent();
