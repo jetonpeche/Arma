@@ -11,5 +11,6 @@ public enum ETypeRessource
      HistoriqueCampagne,
      Planete,
     Specialite,
-    Aeronef
+    Aeronef,
+    Orbat
 }

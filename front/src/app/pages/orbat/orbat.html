@@ -36,10 +36,10 @@
      (touchmove)="onMouseMove($event)">
     
     <!-- L'ARBRE -->
-    <div class="orbat-tree-container">
-        @if (arbreFiltre()) 
+    <div class="orbat-tree-container" [class.search-mode]="recherche().length > 0">
+        @for (noeud of arbreFiltre(); track noeud.id) 
         {
-            <ng-container *ngTemplateOutlet="orbatNode; context: { $implicit: arbreFiltre() }"></ng-container>
+            <ng-container *ngTemplateOutlet="orbatNode; context: { $implicit: noeud }"></ng-container>
         }
     </div>
 </div>
@@ -89,7 +89,8 @@
                 <jp-input-file-btn matIconButton
                                            icon="photo"
                                            (fileChange)="UploadFichier(node.id, $any($event))"            
-                                           accept=".png, .jpg, .webp, .jpeg" />
+                                           accept=".png, .jpg, .webp, .jpeg"
+                                           matTooltip="Modifier l'écusson" />
 
                 <button mat-icon-button matTooltip="Ajouter une sous-unité">
                     <mat-icon>add</mat-icon>

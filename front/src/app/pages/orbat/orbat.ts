@@ -23,7 +23,7 @@ export interface OrbatNode extends Orbat {
 
 @Component({
   selector: 'app-orbat',
-  imports: [FormsModule, MatFormFieldModule, MatInputModule, MatTooltipModule, MatButtonModule, MatIconModule, NgTemplateOutlet, UpperCasePipe, MatIcon, MatAnchor, InputFile],
+  imports: [MatTooltipModule, FormsModule, MatFormFieldModule, MatInputModule, MatTooltipModule, MatButtonModule, MatIconModule, NgTemplateOutlet, UpperCasePipe, MatIcon, MatAnchor, InputFile],
   templateUrl: './orbat.html',
   styleUrl: './orbat.scss',
 })
@@ -57,36 +57,32 @@ export class OrbatPage implements OnInit
         const racine = this.racineOrbat();
 
         if (!racine) 
-            return null;
+            return [];
 
         if (!terme) 
-            return racine;
+            return [racine];
 
-        const filtrer = (noeud: OrbatNode): OrbatNode | null => {
+        const resultats: OrbatNode[] = [];
+
+        // Fonction récursive de recherche
+        const chercher = (noeud: OrbatNode) => {
             
             const match = 
                 noeud.titre.toLowerCase().includes(terme) ||
                 (noeud.indicatif && noeud.indicatif.toLowerCase().includes(terme)) ||
                 noeud.listeSlot.some(s => s.personnage && s.personnage.nom.toLowerCase().includes(terme));
 
-            let enfantsFiltres: OrbatNode[] = [];
-            if (noeud.enfants && noeud.enfants.length > 0) 
-            {
-                enfantsFiltres = noeud.enfants
-                    .map(e => filtrer(e))
-                    .filter(e => e !== null) as OrbatNode[];
-            }
-                
-            // 3. On garde le nœud SEULEMENT s'il correspond, OU si l'un de ses enfants a survécu au filtre
-            if (match || enfantsFiltres.length > 0) 
-            {
-                return { ...noeud, enfants: enfantsFiltres };
-            }
-                
-            return null;
-        };
+                if (match)
+                    resultats.push({ ...noeud, enfants: [] });
 
-        return filtrer(racine);
+                // On continue de fouiller dans les sous-unités
+                if (noeud.enfants && noeud.enfants.length > 0) {
+                    noeud.enfants.forEach(e => chercher(e));
+                }
+            };
+
+        chercher(racine);
+        return resultats;
   });
 
   ngOnInit(): void 

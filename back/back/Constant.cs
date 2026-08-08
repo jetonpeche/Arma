@@ -16,5 +16,6 @@ public static class Constant
      public const string CHEMIN_IMG_GRADE = "/Photos/Grade/";
      public const string CHEMIN_IMG_MEDAILLE = "/Photos/Medaille/";
      public const string CHEMIN_IMG_CAMPAGNE = "/Photos/Campagne/";
+     public const string CHEMIN_IMG_ORBAT = "/Photos/Orbat/";
      public const string CHEMIN_FICHIER_PRESET = "/Photos/Preset/";
 }
