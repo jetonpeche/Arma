@@ -1061,6 +1061,8 @@ public static class VaisseauRoute
 
           var nb = db.GetCollection<VaisseauPosseder>().UpdateMany(_ => new VaisseauPosseder
           {
+               NomCommandant = string.IsNullOrWhiteSpace(_requete.NomCommandant) ? null : _requete.NomCommandant,
+               NomVaisseau = string.IsNullOrWhiteSpace(_requete.NomVaisseauAlias) ? null : _requete.NomVaisseauAlias,
                Information = information,
                Equipage = new()
                {

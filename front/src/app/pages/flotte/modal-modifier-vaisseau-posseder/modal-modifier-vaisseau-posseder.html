@@ -2,6 +2,15 @@
 <mat-dialog-content>
     <form [formGroup]="form">
         <jp-grid-container [gap]="15">
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Nom du vaisseau" formControlName="nomVaisseauAlias" />
+            </jp-grid-element>
+
+            <jp-grid-element [colXs]="12" [colMd]="6">
+                <jp-input-text label="Nom du commandant" formControlName="nomCommandant" />
+            </jp-grid-element>
+
             <jp-grid-element [colXs]="12" [colMd]="6">
                 <jp-input-number label="Nombre place équipage" formControlName="nbPlacePassager" />
             </jp-grid-element>

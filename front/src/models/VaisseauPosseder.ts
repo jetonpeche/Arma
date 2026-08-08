@@ -97,6 +97,8 @@ export type VaisseauPossederContenuStockage =
 
 export type VaisseauPossederRequete =
 {
+    nomVaisseauAlias: string | null,
+    nomCommandant: string | null,
     information: string | null,
     nbPlaceMarines: number,
     nbPlacePassager: number

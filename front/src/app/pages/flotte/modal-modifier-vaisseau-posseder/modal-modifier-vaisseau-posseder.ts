@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
-import { InputNumber, ButtonLoader, InputTextarea } from "@jetonpeche/angular-mat-input";
+import { InputNumber, ButtonLoader, InputTextarea, InputText } from "@jetonpeche/angular-mat-input";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { VaisseauPosseder } from '@models/VaisseauPosseder';
 import { VaisseauService } from '@services/VaisseauService';
@@ -10,7 +10,7 @@ import { SnackBarService } from '@services/SnackBarService';
 
 @Component({
   selector: 'app-modal-modifier-vaisseau-posseder',
-  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, GridContainer, GridElement, InputNumber, ButtonLoader, InputTextarea],
+  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, GridContainer, GridElement, InputNumber, ButtonLoader, InputTextarea, InputText],
   templateUrl: './modal-modifier-vaisseau-posseder.html',
   styleUrl: './modal-modifier-vaisseau-posseder.scss',
 })
@@ -25,8 +25,10 @@ export class ModalModifierVaisseauPosseder implements OnInit
   private dialogRef = inject(MatDialogRef<ModalModifierVaisseauPosseder>);
 
   ngOnInit(): void 
-  {
+  { 
     this.form = new FormGroup({
+      nomVaisseauAlias: new FormControl(this.dialogData.nomVaisseauAlias, [Validators.maxLength(100)]),
+      nomCommandant: new FormControl(this.dialogData.nomCommandant, [Validators.maxLength(100)]),
       information: new FormControl(this.dialogData.information, [Validators.maxLength(1000)]),
       nbPlaceMarines: new FormControl(this.dialogData.equipage.nbPlaceMarines, [Validators.min(0), Validators.max(this.dialogData.equipage.nbPlaceMarinesMax)]),
       nbPlacePassager: new FormControl(this.dialogData.equipage.nbPlacePassager, [Validators.min(0), Validators.max(this.dialogData.equipage.nbPlacePassagerMax)])
