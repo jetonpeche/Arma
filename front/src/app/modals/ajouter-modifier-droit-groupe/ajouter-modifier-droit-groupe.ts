@@ -26,7 +26,41 @@ export class AjouterModifierDroitGroupe implements OnInit
     private snackBarServ = inject(SnackBarService);
     private dialogRef = inject(MatDialogRef<AjouterModifierDroitGroupe>);
 
-    get listeDroit(): FormArray {
+    private readonly TOUTES_LES_ROUTES = [
+        EUrl.Boutique, EUrl.DroitGroupe, EUrl.Formation, EUrl.Grade, EUrl.Logistique, 
+        EUrl.Materiel, EUrl.Personnage, EUrl.Preset, EUrl.Medaille, EUrl.HistoriqueCampagne, 
+        EUrl.PlaneteOrigine, EUrl.PropositionAchat, EUrl.Specialite, EUrl.TypeLogistique, 
+        EUrl.TypeMateriel, EUrl.TypeStockageLogistique, EUrl.UploadFichier, EUrl.Vaisseau, EUrl.Orbat
+    ].map(url => url.replace("/", ""));
+
+    private readonly ROUTES_LECTURE_OBLIGATOIRE = [
+        EUrl.Orbat, EUrl.UploadFichier, EUrl.Aeronef, EUrl.Formation, 
+        EUrl.Vaisseau, EUrl.Medaille, EUrl.HistoriqueCampagne, 
+        EUrl.Personnage, EUrl.PlaneteOrigine, EUrl.Preset
+    ].map(url => url.replace("/", ""));
+
+    private readonly ROUTES_SANS_SUPPRESSION = [
+        EUrl.UploadFichier
+    ].map(url => url.replace("/", ""));
+
+    private readonly DICTIONNAIRE_LABELS: Record<string, string> = {
+        [EUrl.Boutique.replace("/", "")]: "Gestion boutique",
+        [EUrl.Specialite.replace("/", "")]: "Gestion spécialité",
+        [EUrl.Personnage.replace("/", "")]: "Gestion personnage",
+        [EUrl.Medaille.replace("/", "")]: "Gestion médaille",
+        [EUrl.Grade.replace("/", "")]: "Gestion grade",
+        [EUrl.PlaneteOrigine.replace("/", "")]: "Gestion planète",
+        [EUrl.Preset.replace("/", "")]: "Gestion preset",
+        [EUrl.Vaisseau.replace("/", "")]: "Gestion vaisseaux",
+        [EUrl.Formation.replace("/", "")]: "Gestion centre de formation",
+        [EUrl.Aeronef.replace("/", "")]: "Gestion aéronefs",
+        [EUrl.Orbat.replace("/", "")]: "Gestion de l'orbat",
+        [EUrl.UploadFichier.replace("/", "")]: "Upload Fichiers",
+        [EUrl.HistoriqueCampagne.replace("/", "")]: "Historique Campagne"
+    };
+
+    get listeDroit(): FormArray 
+    {
         return this.form.get("listeDroit") as FormArray;
     }
 
@@ -42,32 +76,35 @@ export class AjouterModifierDroitGroupe implements OnInit
             listeDroit: new FormArray([])
         });
 
-        if (this.matDialogData) 
-        {
+        if (this.matDialogData)
             this.labelBtn.set("Modifier");
-            for (const element of this.matDialogData.listeDroit) {
-                this.listeDroit.push(this.CreerLigneDroit(element.routeGroupe, element.peutLire, element.peutEcrire, element.peutSupprimer));
-            }
-        } 
-        else 
-        {
-            const LISTE_URLS = [
-                EUrl.Boutique, EUrl.DroitGroupe, EUrl.Formation, EUrl.Grade, EUrl.Logistique, 
-                EUrl.Materiel, EUrl.Personnage, EUrl.Preset, EUrl.Medaille, EUrl.HistoriqueCampagne, 
-                EUrl.PlaneteOrigine, EUrl.PropositionAchat, EUrl.Specialite, EUrl.TypeLogistique, 
-                EUrl.TypeMateriel, EUrl.TypeStockageLogistique, EUrl.UploadFichier, EUrl.Vaisseau, EUrl.Orbat
-            ];
 
-            for (const url of LISTE_URLS) {
-                const route = url.replace("/", "");
-                const lectureDefaut = !this.EstRouteSansLecture(route);
-                this.listeDroit.push(this.CreerLigneDroit(route, lectureDefaut, false, false));
+        for (const route of this.TOUTES_LES_ROUTES) 
+        {
+            // Valeur par défaut
+            let lecture = this.EstLectureObligatoire(route);
+            let ecriture = false;                            
+            let suppression = false;
+
+            if (this.matDialogData) 
+            {
+                const droitExistant = this.matDialogData.listeDroit.find(d => d.routeGroupe === route);
+                
+                if (droitExistant) 
+                {
+                    lecture = this.EstLectureObligatoire(route) ? true : droitExistant.peutLire;
+                    ecriture = droitExistant.peutEcrire;
+                    suppression = droitExistant.peutSupprimer;
+                }
             }
+
+            this.listeDroit.push(this.CreerLigneDroit(route, lecture, ecriture, suppression));
         }
     }
 
-    protected Valider(): void
+    protected Valider(): void 
     {
+        // Contrôle d'intégrité avant envoi
         if(this.form.invalid) 
         {
             this.form.markAllAsTouched();
@@ -118,31 +155,21 @@ export class AjouterModifierDroitGroupe implements OnInit
 
     protected ObtenirLabelRoute(route: string): string 
     {
-        const dictionnaire: Record<string, string> = {
-            "boutique": "Gestion boutique", "specialite": "Gestion spécialité",
-            "personnage": "Gestion personnage", "medaille": "Gestion médaille",
-            "grade": "Gestion grade", "planete-origine": "Gestion planète",
-            "preset": "Gestion preset", "vaisseau": "Gestion vaisseaux",
-            "formation": "Gestion centre de formation", "aeronef": "Gestion aéronefs",
-            "orbat": "Gestion de l'orbat", "upload-fichier": "Upload Fichiers",
-            "historique-campagne": "Historique Campagne"
-        };
-        return dictionnaire[route] || route;
+        return this.DICTIONNAIRE_LABELS[route] || route;
     }
 
-    protected EstRouteSansLecture(route: string): boolean 
+    protected EstLectureObligatoire(route: string): boolean 
     {
-        const routesSpecifiques = ["orbat", "upload-fichier", "aeronef", "formation", "vaisseau", "medaille", "historique-campagne", "personnage", "planete-origine", "preset"];
-        return routesSpecifiques.includes(route);
+        return this.ROUTES_LECTURE_OBLIGATOIRE.includes(route);
     }
 
     protected PeutAfficherLecture(route: string): boolean 
     {
-        return !this.EstRouteSansLecture(route);
+        return !this.EstLectureObligatoire(route);
     }
 
     protected PeutAfficherSuppression(route: string): boolean 
     {
-        return route !== "upload-fichier";
+        return !this.ROUTES_SANS_SUPPRESSION.includes(route);
     }
 }

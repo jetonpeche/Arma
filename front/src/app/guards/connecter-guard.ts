@@ -14,7 +14,7 @@ export const connecterGuard: CanActivateFn = (route, state) =>
         state.url == EUrl.HistoriqueCampagne || state.url == EUrl.Grade ||
         state.url == EUrl.PlaneteOrigine || state.url == "/cimetiere" || 
         state.url == "/flotte" || state.url == EUrl.Vaisseau || state.url == EUrl.Formation ||
-        state.url == EUrl.Aeronef || state.url == "/orbat"
+        state.url == EUrl.Aeronef || state.url == EUrl.Orbat
     )
         return true;
 
