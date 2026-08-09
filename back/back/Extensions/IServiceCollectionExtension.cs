@@ -2,7 +2,6 @@
 using System.Security.Cryptography;
 using back.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -26,34 +25,35 @@ namespace back.Extensions
             return _service;
         }
 
-        public static IServiceCollection AjouterSecuriteJwt(this IServiceCollection _service, RSA _rsa)
-        {
-            _service.AddAuthorizationBuilder();
-            _service.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, option =>
-                {
+          public static IServiceCollection AjouterSecuriteJwt(this IServiceCollection _service, RSA _rsa)
+          {
+               _service.AddAuthorizationBuilder();
+               _service.AddAuthentication(options =>
+               {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+               })
+               .AddJwtBearer(option =>
+               {
                     option.TokenValidationParameters = new TokenValidationParameters
                     {
-                        // se qu'on veut valider ou non
-                        ValidateIssuer = false,
-                        ValidateAudience = false
+                         ValidateIssuer = false,
+                         ValidateAudience = false
                     };
 
-                    // permet de valider le chiffrement du JWT en definissant la clé utilisée
                     option.Configuration = new OpenIdConnectConfiguration
                     {
-                        SigningKeys = { new RsaSecurityKey(_rsa) }
+                         SigningKeys = { new RsaSecurityKey(_rsa) }
                     };
 
-                    // pour avoir les cl� valeur normal comme dans les claims
-                    // par defaut ajouter des Uri pour certain truc comme le "sub"
                     option.MapInboundClaims = false;
-                });
+               });
 
-            return _service;
-        }
+               return _service;
+          }
 
-        public static IServiceCollection AjouterSwagger(this IServiceCollection _service)
+          public static IServiceCollection AjouterSwagger(this IServiceCollection _service)
         {
             _service.AddSwaggerGen(swagger =>
             {

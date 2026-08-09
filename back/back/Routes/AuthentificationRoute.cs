@@ -17,11 +17,15 @@ public static class AuthentificationRoute
      {
           builder.MapPost("connexion", ConnexionAsync)
                .WithDescription("Connexion au compte du personnage")
+               .AllowAnonymous()
                .ProducesBadRequest()
                .ProducesNotFound()
                .Produces<ConnexionReponse>();
 
-          builder.MapPost("inscription", InscriptionAsync);
+          builder.MapPost("inscription", InscriptionAsync)
+               .ProducesBadRequest()
+               .ProducesNoContent()
+               .AllowAnonymous();
 
           return builder;
      }

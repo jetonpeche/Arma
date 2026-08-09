@@ -7,7 +7,7 @@ public static class WebApplicationExtension
 {
      public static WebApplication AjouterRouteAPI(this WebApplication _app)
      {
-        var mapGroupe = _app.MapGroup("api").AddEndpointFilter<DroitMiddleware>();
+        var mapGroupe = _app.MapGroup("api").RequireAuthorization().AddEndpointFilter<DroitMiddleware>();
 
           mapGroupe.MapGroup("test").AjouterTestRoute();
           mapGroupe.MapGroup("authentification").AjouterRouteAuthentification();
@@ -28,6 +28,7 @@ public static class WebApplicationExtension
           mapGroupe.MapGroup("droit-groupe").AjouterRouteDroitGroupe();
           mapGroupe.MapGroup("banque").AjouterRouteBanque();
           mapGroupe.MapGroup("medaille").AjouterRouteMedaille();
+          mapGroupe.MapGroup("orbat").AjouterRouteOrbat();
           mapGroupe.MapGroup("preset").AjouterRoutePreset();
           mapGroupe.MapGroup("log").AjouterRouteLog();
           mapGroupe.MapGroup("formation").AjouterRouteFormation();
