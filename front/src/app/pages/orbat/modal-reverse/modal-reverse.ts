@@ -3,7 +3,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { PersonnageService } from '@services/PersonnageService';
-import { UpperCasePipe } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
@@ -23,7 +23,7 @@ interface GroupeTroupe {
         MatDialogModule, MatIconModule, MatButtonModule, 
         MatFormFieldModule, MatInputModule, FormsModule, 
         MatButtonToggleModule, UpperCasePipe, MatTooltipModule,
-        MatDatepickerModule
+        MatDatepickerModule, DatePipe
     ],
   templateUrl: './modal-reverse.html',
   styleUrl: './modal-reverse.scss',

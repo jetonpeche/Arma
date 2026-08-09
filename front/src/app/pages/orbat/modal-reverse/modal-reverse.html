@@ -75,7 +75,7 @@
                             </div>
                             <div class="t-op">
                                 <mat-icon>history</mat-icon>
-                                Dernière Op: {{ troupe.dateDerniereParticipation ? troupe.dateDerniereParticipation : 'Aucune' }}
+                                Dernière Op: {{ troupe.dateDerniereParticipation ? (troupe.dateDerniereParticipation | date:'dd/MM/yyyy') : 'Aucune' }}
                             </div>
                         </div>
                     </div>

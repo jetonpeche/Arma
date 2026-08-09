@@ -185,7 +185,7 @@ public static class PersonnageRoute
                          NomRaccourci = x.Grade.NomRaccourci
                     } : null,
                     NomSpecialite = x.Specialite?.Nom,
-                    DateDerniereParticipation = x.DateDerniereParticipation?.ToString("d") ?? null
+                    DateDerniereParticipation = x.DateDerniereParticipation?.ToString("yyyy-MM-dd") ?? null
                })
                .ToArray();
 
