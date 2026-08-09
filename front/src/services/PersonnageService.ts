@@ -5,6 +5,7 @@ import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Personnage, PersonnageModifierRequete, PersonnageRequete } from "@models/Personnage";
 import { PersonnageMort, PersonnageMort2Requete, PersonnageMortRequete } from "@models/PersonnageMort";
+import { PersonnageReserve } from "@models/PersonnageReserve";
 
 export class PersonnageService
 {
@@ -35,6 +36,11 @@ export class PersonnageService
     ListerMort(): Observable<PersonnageMort[]>
     {
         return this.http.get<PersonnageMort[]>(`${this.BASE_API}/lister-mort`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ListerReserve(): Observable<PersonnageReserve[]>
+    {
+        return this.http.get<PersonnageReserve[]>(`${this.BASE_API}/lister-reserve`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     AjouterMort(_personnage: PersonnageMort2Requete): Observable<void>

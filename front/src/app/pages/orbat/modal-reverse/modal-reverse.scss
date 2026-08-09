@@ -1,0 +1,169 @@
+/* =========================================================
+   OVERRIDE MATERIAL (Pour coller au bord et forcer Flex)
+   ========================================================= */
+::ng-deep .reserve-dialog-container .mdc-dialog__surface {
+    border-radius: 0 !important;
+    background-color: var(--mat-sys-surface) !important;
+    border-left: 2px solid var(--mat-sys-primary);
+    
+    /* CORRECTION DU "TROU" : Transforme la surface du dialog en conteneur flex */
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100vh !important; 
+}
+
+/* =========================================================
+   STRUCTURE PRINCIPALE
+   ========================================================= */
+.reserve-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Prend tout l'espace disponible */
+    height: 100%;
+    overflow: hidden; /* Désactive le scroll global, seul le contenu défilera */
+    background-color: var(--mat-sys-surface);
+}
+
+.reserve-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px 16px 16px 16px;
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container) 50%, transparent);
+
+    .title-block {
+        display: flex;
+        flex-direction: column;
+
+        h2 { margin: 0; font-family: 'Courier New', Courier, monospace; font-weight: 900; color: var(--mat-sys-on-surface); }
+        .subtitle { font-family: 'Courier New', Courier, monospace; font-size: 0.75rem; color: var(--mat-sys-primary); font-weight: bold; }
+    }
+}
+
+/* =========================================================
+   OUTILS & RECHERCHE (RÉVISÉ)
+   ========================================================= */
+.reserve-tools {
+    display: flex;
+    flex-direction: column; /* Empile le switch et la recherche */
+    gap: 16px;
+    padding: 16px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container) 30%, transparent);
+    border-bottom: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+
+    /* Le switch prend toute la largeur */
+    .view-toggle {
+        width: 100%;
+        
+        mat-button-toggle {
+            flex: 1; /* Chaque bouton prend 50% de l'espace */
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+    }
+
+    .search-field {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   CONTENU ET CARTES
+   ========================================================= */
+.reserve-content {
+    flex: 1 1 auto !important;
+    max-height: none !important;
+    padding: 16px !important;
+    margin: 0 !important;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-track { background: color-mix(in srgb, var(--mat-sys-surface-container) 50%, transparent); }
+    &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--mat-sys-primary) 50%, transparent); border-radius: 4px;}
+}
+
+.roster-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* En-tête de séparation pour le Tri par Spécialité */
+.group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 16px 0 8px 0;
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--mat-sys-primary);
+    
+    .g-title {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+        color: var(--mat-sys-primary);
+        letter-spacing: 1px;
+    }
+    
+    .g-count {
+        font-family: 'Courier New', Courier, monospace;
+        color: var(--mat-sys-on-surface-variant);
+        font-weight: 900;
+    }
+}
+
+.troupe-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 80%, #000);
+    
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    border-left: 3px solid color-mix(in srgb, var(--mat-sys-primary) 60%, transparent);
+    
+    transition: border-color 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+        border-left-color: var(--mat-sys-primary);
+        transform: translateX(4px);
+    }
+
+    .t-main {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        font-family: 'Courier New', Courier, monospace;
+        
+        .t-grade { color: var(--mat-sys-primary); font-weight: bold; font-size: 0.9rem; }
+        .t-nom { color: var(--mat-sys-on-surface); font-weight: 900; font-size: 1.1rem; text-transform: uppercase; }
+    }
+
+    .t-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        
+        .t-spec, .t-op {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--mat-sys-on-surface-variant);
+            font-family: 'Courier New', Courier, monospace;
+
+            mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--mat-sys-outline); }
+        }
+    }
+}
+
+.empty-roster {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 32px;
+    color: var(--mat-sys-error);
+    font-family: 'Courier New', Courier, monospace;
+    opacity: 0.8;
+}

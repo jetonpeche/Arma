@@ -21,7 +21,11 @@ public static class PersonnageRoute
                .WithDescription("Lister les personnages morts")
                .Produces<PersonnageMortReponse[]>();
 
-        builder.MapPost("ajouter", AjouterAsync)
+          builder.MapGet("lister-reserve", ListerReserveAsync)
+               .WithDescription("Lister les personnages en reserves")
+               .Produces<PersonnageReserveReponse[]>();
+
+          builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter un nouveau personnage")
                .ProducesBadRequest()
                .ProducesCreated<int>();
@@ -153,6 +157,35 @@ public static class PersonnageRoute
 
         return Results.Extensions.Ok(liste, PersonnageMortReponseContext.Default);
     }
+
+     static async Task<IResult> ListerReserveAsync()
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var listeOrbatSlot = db.GetCollection<Orbat>().FindAll()
+               .Where(x => x.ListeSlot.Count > 0)
+               .Select(x => x.ListeSlot)
+               .ToList()
+               .SelectMany(x => x);
+
+          var listePersonnage = db.GetCollection<Personnage>()
+               .Include(x => x.Grade)
+               .Include(x => x.Specialite)
+               .FindAll();
+
+          var listeReserve = listePersonnage.Where(x => !listeOrbatSlot.Any(y => y.Personnage?.Id == x.Id))
+               .Select(x => new PersonnageReserveReponse
+               {
+                    Id = x.Id,
+                    Nom = x.Nom,
+                    NomGrade = x.Grade?.NomRaccourci,
+                    NomSpecialite = x.Specialite?.Nom,
+                    DateDerniereParticipation = x.DateDerniereParticipation?.ToString("d") ?? null
+               })
+               .ToArray();
+
+          return Results.Extensions.Ok(listeReserve, PersonnageReserveReponseContext.Default);
+     }
 
     static async Task<IResult> AjouterAsync(
          [FromServices] IMemoryCache _cache,

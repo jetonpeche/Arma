@@ -22,6 +22,7 @@ import { Droit } from '@models/DroitGroupe';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { EUrl } from '@enums/EUrl';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
+import { ModalReverse } from './modal-reverse/modal-reverse';
 
 export interface OrbatNode extends Orbat {
   enfants?: OrbatNode[];
@@ -97,6 +98,18 @@ export class OrbatPage implements OnInit
         this.droit = this.authServ.RecupererDroit(EUrl.Orbat);
         this.droitModifierFichier = this.authServ.RecupererDroit(EUrl.UploadFichier);
         this.ListerOrbat();
+    }
+
+    protected OuvrirModalReserve(): void
+    {
+        this.dialog.open(ModalReverse, {
+            position: { right: '0', top: '0' },
+            height: '100vh',
+            width: this.estMobile ? '100vw' : '400px',
+            maxWidth: '100vw',
+            panelClass: 'reserve-dialog-container',
+            autoFocus: false
+        });
     }
 
     protected OuvrirModalConfirmation(_idOrbat: number): void

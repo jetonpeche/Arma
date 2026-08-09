@@ -4,6 +4,11 @@
         <div class="unsc-subtitle">// ORDRE DE BATAILLE TACTIQUE</div>
     </div>
     <div class="header-actions">
+        <button matButton="filled" (click)="OuvrirModalReserve()">
+            <mat-icon>groups</mat-icon>
+            Effectifs Disponibles
+        </button>
+
         @if (droit.peutEcrire) 
         {
             <button matButton="filled" (click)="OuvrirModalAjouterModifierOrbat()">

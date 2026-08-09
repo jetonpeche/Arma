@@ -19,7 +19,7 @@ public static class OrbatRoute
                .WithDescription("Ajouter un element à l'orbat")
                .ProducesCreated();
 
-          builder.MapPost("modifier/{idOrbat:int}", ModifierAsync)
+          builder.MapPut("modifier/{idOrbat:int}", ModifierAsync)
                .WithDescription("Modifier un element à l'orbat")
                .ProducesNotFound()
                .ProducesCreated();
@@ -119,6 +119,9 @@ public static class OrbatRoute
           [FromBody] OrbatRequete _requete
      )
      {
+          if (_requete.IdParent <= 0)
+               _requete.IdParent = null;
+
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
           var colOrbat = db.GetCollection<Orbat>();
