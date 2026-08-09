@@ -64,7 +64,8 @@
                         <mat-label>Assignation</mat-label>
                         <mat-select formControlName="idPersonnage">
                             <mat-option [value]="null">VACANT</mat-option>
-                            @for (perso of FiltrerPersonnages(slotCtrl.get('gradeRequisId')?.value); track perso.id) {
+                            @for (perso of FiltrerPersonnages(slotCtrl.get('gradeRequisId')?.value); track perso.id) 
+                            {
                                 <mat-option [value]="perso.id">
                                     [{{ perso.grade.nomRaccourci }}] {{ perso.nom }}
                                 </mat-option>

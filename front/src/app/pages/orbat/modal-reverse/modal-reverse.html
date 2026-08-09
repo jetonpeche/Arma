@@ -4,7 +4,6 @@
     <div class="reserve-header">
         <div class="title-block">
             <h2>EFFECTIFS EN ATTENTE</h2>
-            <!-- Affichage direct du total basé sur la liste filtrée -->
             <span class="subtitle">// NON ASSIGNÉ [ TOTAL: {{ troupesFiltrees().length }} ]</span>
         </div>
         <button mat-icon-button matDialogClose>
@@ -21,8 +20,8 @@
             <mat-button-toggle [value]="true">PAR SPÉCIALITÉ</mat-button-toggle>
         </mat-button-toggle-group>
 
-        <!-- Recherche corrigée -->
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+        <!-- Recherche -->
+        <mat-form-field>
             <mat-icon matPrefix style="margin: 0 8px;">search</mat-icon>
             <input matInput placeholder="Matricule, grade ou spécialité..." [ngModel]="recherche()" (ngModelChange)="recherche.set($event)">
             @if (recherche()) 
@@ -50,7 +49,7 @@
                 {
                     <div class="troupe-card">
                         <div class="t-main">
-                            <span class="t-grade">[{{ troupe.nomGrade || 'N/A' }}]</span>
+                            <span class="t-grade">[{{ troupe.grade?.nomRaccourci ?? 'N/A' }}]</span>
                             <span class="t-nom">{{ troupe.nom }}</span>
                         </div>
                         
@@ -68,7 +67,7 @@
                 }
             }
 
-            @if (troupesFiltrees().length === 0) 
+            @if (troupesFiltrees().length == 0) 
             {
                 <div class="empty-roster">
                     <mat-icon>warning</mat-icon>

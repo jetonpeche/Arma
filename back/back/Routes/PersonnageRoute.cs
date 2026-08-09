@@ -178,7 +178,12 @@ public static class PersonnageRoute
                {
                     Id = x.Id,
                     Nom = x.Nom,
-                    NomGrade = x.Grade?.NomRaccourci,
+                    Grade = x.Grade is not null ? new GradeLegerReponse
+                    {
+                         Id = x.Grade.Id,
+                         Nom = x.Grade.Nom,
+                         NomRaccourci = x.Grade.NomRaccourci
+                    } : null,
                     NomSpecialite = x.Specialite?.Nom,
                     DateDerniereParticipation = x.DateDerniereParticipation?.ToString("d") ?? null
                })

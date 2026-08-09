@@ -1,8 +1,10 @@
+import { GradeLeger } from "./Grade"
+
 export type PersonnageReserve =
 {
     id: number,
     nom: string,
-    nomGrade: string | null,
+    grade: GradeLeger | null,
     nomSpecialite: string | null,
     dateDerniereParticipation: Date | null
 }

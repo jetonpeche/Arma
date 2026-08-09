@@ -18,6 +18,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ButtonLoader } from '@jetonpeche/angular-mat-input';
 import { OrbatService } from '@services/OrbatService';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { PersonnageReserve } from '@models/PersonnageReserve';
 
 @Component({
   selector: 'app-ajouter-modifier-orbat',
@@ -37,7 +38,7 @@ export class AjouterModifierOrbat implements OnInit
     protected form: FormGroup;
 
     protected listeGrade = signal<Grade[]>([]);
-    protected listePersonnage = signal<Personnage[]>([]);
+    protected listePersonnage = signal<PersonnageReserve[]>([]);
 
     private dialogData: Orbat = inject(MAT_DIALOG_DATA);
     private dialogRef = inject(MatDialogRef<AjouterModifierOrbat>);
@@ -138,7 +139,7 @@ export class AjouterModifierOrbat implements OnInit
         return suggestions.filter(role => role.toLowerCase().includes(valeurLower));
     }
 
-    protected FiltrerPersonnages(idGradeRequis: number | null): Personnage[] 
+    protected FiltrerPersonnages(idGradeRequis: number | null): PersonnageReserve[] 
     {
         const tousLesPersonnages = this.listePersonnage();
 
@@ -194,7 +195,7 @@ export class AjouterModifierOrbat implements OnInit
 
     private ListerPersonnage(): void
     {
-        this.personnageServ.Lister().subscribe({
+        this.personnageServ.ListerReserve().subscribe({
             next: (retour) => this.listePersonnage.set(retour)
         });
     }

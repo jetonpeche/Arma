@@ -38,12 +38,13 @@ export class ModalReverse implements OnInit
         const terme = this.recherche().toLowerCase().trim();
         const liste = this.troupesDisponibles();
         
-        if (!terme) return liste;
+        if (!terme) 
+            return liste;
         
         return liste.filter(t => 
             t.nom.toLowerCase().includes(terme) || 
             (t.nomSpecialite && t.nomSpecialite.toLowerCase().includes(terme)) ||
-            (t.nomGrade && t.nomGrade.toLowerCase().includes(terme))
+            (t.grade.nomRaccourci && t.grade.nomRaccourci.toLowerCase().includes(terme))
         );
     });
 
