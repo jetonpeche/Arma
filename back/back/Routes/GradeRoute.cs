@@ -13,7 +13,8 @@ public static class GradeRoute
     {
         builder.MapGet("lister", ListerAsync)
             .WithDescription("Lister les grades")
-            .Produces<GradeReponse[]>();
+            .Produces<GradeReponse[]>()
+            .AllowAnonymous();
 
         builder.MapPost("ajouter", AjouterAsync)
             .WithDescription("Ajouter un nouveau grade")

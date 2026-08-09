@@ -11,7 +11,8 @@ public static class SpecialiteRoute
     public static RouteGroupBuilder AjouterRouteSpecialite(this RouteGroupBuilder builder)
     {
           builder.MapGet("lister", ListerAsync)
-               .WithDescription("Lister les spécialités");
+               .WithDescription("Lister les spécialités")
+               .AllowAnonymous();
 
           builder.MapPost("ajouter", AjouterAsync)
                .WithDescription("Ajouter une nouvelle spécialité")
