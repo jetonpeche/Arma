@@ -703,6 +703,12 @@ mat-drawer-container {
                 transform: scale(0.8);
                 color: var(--mat-sys-error);
             }
+
+            .admin-icon-orbat {
+                margin-right: 8px;
+                transform: scale(0.8);
+                color: var(--mat-sys-tertiary);
+            }
         }
 
         /* Lien actif façon "Cible verrouillée" */

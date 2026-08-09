@@ -164,6 +164,11 @@
                     </div>
                 </div>
 
+                <a mat-list-item class="standalone-item" routerLink="orbat" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                    <mat-icon matListItemIcon class="admin-icon-orbat">schema</mat-icon> 
+                    <span matListItemTitle>Orbat</span>
+                </a>
+
                 <!-- ACCÈS ADMINISTRATEUR (Hors dossier) -->
                 @if(droit())
                 {
