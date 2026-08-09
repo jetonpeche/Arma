@@ -5,29 +5,24 @@ import { EUrl } from '@enums/EUrl';
 
 export const connecterGuard: CanActivateFn = (route, state) => 
 {
-    if(!environment.utilisateur)
+    const utilisateur = environment.utilisateur as Authentifier;
+
+    if (!utilisateur) 
         return false;
 
-    if(
-        state.url == EUrl.Boutique || state.url == EUrl.Personnage || 
-        state.url == EUrl.Specialite || state.url == EUrl.Medaille || 
-        state.url == EUrl.HistoriqueCampagne || state.url == EUrl.Grade ||
-        state.url == EUrl.PlaneteOrigine || state.url == "/cimetiere" || 
-        state.url == "/flotte" || state.url == EUrl.Vaisseau || state.url == EUrl.Formation ||
-        state.url == EUrl.Aeronef || state.url == EUrl.Orbat
-    )
+    const routesAccèsLibre = [
+        EUrl.Boutique, EUrl.Personnage, EUrl.Specialite, EUrl.Medaille, 
+        EUrl.HistoriqueCampagne, EUrl.Grade, EUrl.PlaneteOrigine, 
+        EUrl.Vaisseau, EUrl.Formation, EUrl.Aeronef, EUrl.Orbat,
+        "/cimetiere", "/flotte"
+    ];
+
+    if (routesAccèsLibre.includes(state.url)) 
         return true;
 
-    let utilisateurDroit = (environment.utilisateur as Authentifier).droit;
-    
-    let url = state.url;
+    const urlCible = state.url == "/gestion-boutique" ? EUrl.Boutique : state.url;
 
-    if(state.url == "/gestion-boutique")
-        url = EUrl.Boutique;
-
-    let droit = utilisateurDroit
-        .listeDroit
-        .find(x => url.startsWith(x.routeGroupe, 1));
+    const droit = utilisateur.droit?.listeDroit?.find(x => urlCible.startsWith(x.routeGroupe, 1));
     
-    return droit.peutLire;
+    return droit?.peutLire ?? false;
 };

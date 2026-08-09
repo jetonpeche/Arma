@@ -78,7 +78,7 @@ export class AjouterModifierOrbat implements OnInit
             listeSlot: new FormArray([])
         });
 
-        if(this.dialogData)
+        if(this.dialogData?.id != null)
         {
             this.btnLabel.set("Modifier");
      
@@ -138,7 +138,7 @@ export class AjouterModifierOrbat implements OnInit
             
         this.btnClick.set(true);
 
-        if(this.dialogData)
+        if(this.dialogData?.id != null)
         {                  
             this.orbatServ.Modifier(this.dialogData.id, this.form.value).subscribe({
                 next: () =>
@@ -151,7 +151,7 @@ export class AjouterModifierOrbat implements OnInit
             });
         }
         else
-        {             
+        {
             this.orbatServ.Ajouter(this.form.value).subscribe({
                 next: () =>
                 {

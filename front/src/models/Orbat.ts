@@ -25,7 +25,7 @@ export type OrbatSlot =
 export type OrbatSlotRequete =
 {
     /* en cas d'ajout pas d'id */
-    id?: number,
+    id?: string,
     idGradeRequis: number | null,
     idPersonnage: number | null,
     role: string,
@@ -36,9 +36,8 @@ export type OrbatSlotRequete =
 export type OrbatRequete =
 {
     idParent: number | null,
-    titre: string,
+    titre: string | null,
     indicatif: string | null,
     frequenceRadio: string | null,
-    urlImage: string,
-    listeSlot: OrbatSlot[]
+    listeSlot: OrbatSlotRequete[]
 }

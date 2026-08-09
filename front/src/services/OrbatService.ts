@@ -19,11 +19,16 @@ export class OrbatService
 
     Ajouter(_orbat: OrbatRequete): Observable<void>
     {
-        return this.http.get<void>(`${this.BASE_API}/ajouter`).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.post<void>(`${this.BASE_API}/ajouter`, _orbat).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Modifier(_idOrbat: number, _orbat: OrbatRequete): Observable<void>
     {
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idOrbat}`, _orbat).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    Supprimer(_idOrbat: number): Observable<void>
+    {
+        return this.http.delete<void>(`${this.BASE_API}/supprimer/${_idOrbat}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 }

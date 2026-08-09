@@ -4,10 +4,13 @@
         <div class="unsc-subtitle">// ORDRE DE BATAILLE TACTIQUE</div>
     </div>
     <div class="header-actions">
-        <button matButton="filled" (click)="OuvrirModalAjouterModifierOrbat()">
-            <mat-icon>add</mat-icon>
-            Ajouter
-        </button>
+        @if (droit.peutEcrire) 
+        {
+            <button matButton="filled" (click)="OuvrirModalAjouterModifierOrbat()">
+                <mat-icon>add</mat-icon>
+                Ajouter un parent
+            </button>
+        }
 
         <mat-form-field>
             <mat-label>Recherche</mat-label>
@@ -81,27 +84,40 @@
                 </div>
             </div>
 
-            <div class="unit-actions" (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
-                <button mat-icon-button matTooltip="Modifier l'unité" (click)="OuvrirModalAjouterModifierOrbat(node)">
-                    <mat-icon>edit</mat-icon>
-                </button>
+            @if (droit.peutEcrire || droit.peutSupprimer)
+            {
+                <div class="unit-actions" (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
 
-                <jp-input-file-btn matIconButton
-                                           icon="photo"
-                                           (fileChange)="UploadFichier(node.id, $any($event))"            
-                                           accept=".png, .jpg, .webp, .jpeg"
-                                           matTooltip="Modifier l'écusson" />
+                    @if(droit.peutEcrire)
+                    {
+                        <button mat-icon-button matTooltip="Modifier l'unité" (click)="OuvrirModalAjouterModifierOrbat(node)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
 
-                <button mat-icon-button matTooltip="Ajouter une sous-unité" (click)="OuvrirModalAjouterModifierOrbat(null, node.id)">
-                    <mat-icon>add</mat-icon>
-                </button>
+                        <button mat-icon-button matTooltip="Ajouter une sous-unité" (click)="OuvrirModalAjouterModifierOrbat(null, node.id)">
+                            <mat-icon>add</mat-icon>
+                        </button>
+                    }
 
-                <span class="spacer"></span>
+                    @if (droitModifierFichier.peutEcrire) 
+                    {
+                        <jp-input-file-btn matIconButton
+                                                    icon="photo"
+                                                    (fileChange)="UploadFichier(node.id, $any($event))"            
+                                                    accept=".png, .jpg, .webp, .jpeg"
+                                                    matTooltip="Modifier l'écusson" />
+                    }
 
-                <button mat-icon-button matTooltip="Supprimer">
-                    <mat-icon>delete</mat-icon>
-                </button>
-            </div>
+                    <span class="spacer"></span>
+
+                    @if (droit.peutSupprimer) 
+                    {
+                        <button mat-icon-button matTooltip="Supprimer" (click)="OuvrirModalConfirmation(node.id)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    }
+                </div>
+            }
         </div>
 
         <!-- LES ENFANTS -->
