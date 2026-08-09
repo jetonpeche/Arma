@@ -23,7 +23,6 @@ public sealed class Orbat
 
 public sealed class OrbatSlot
 {
-     public Guid Id { get; set; }
 
      [BsonRef]
      public Grade? GradeRequis { get; set; }

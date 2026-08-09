@@ -22,8 +22,6 @@ public sealed class OrbatReponse
 
 public sealed class OrbatSlotReponse
 {
-     public required Guid Id { get; set; }
-
      public required GradeLegerReponse? GradeRequis { get; set; }
 
      public required PersonnageLegerReponse? Personnage { get; set; }

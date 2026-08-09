@@ -19,6 +19,11 @@ public static class OrbatRoute
                .WithDescription("Ajouter un element à l'orbat")
                .ProducesCreated();
 
+          builder.MapPost("modifier", ModifierAsync)
+               .WithDescription("Modifier un element à l'orbat")
+               .ProducesNotFound()
+               .ProducesCreated();
+
           builder.MapDelete("supprimer/{idOrbat:int}", SupprimerAsync)
                .WithDescription("Supprimer un element de l'orbat")
                .ProducesNotFound()
@@ -44,7 +49,6 @@ public static class OrbatRoute
                     UrlImage = x.NomImage != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_ORBAT + x.NomImage : "",
                     ListeSlot = x.ListeSlot.Select(y => new OrbatSlotReponse
                     {
-                         Id = y.Id,
                          Personnage = y.Personnage != null ? new PersonnageLegerReponse
                          {
                               Id = y.Personnage.Id,
@@ -94,21 +98,63 @@ public static class OrbatRoute
                Titre = _requete.Titre?.XSS(),
                FrequenceRadio = _requete.FrequenceRadio?.XSS(),
                Indicatif = _requete.Indicatif?.XSS(),
-               Parent = _requete.IdParent.HasValue ? new Orbat { Id = _requete.IdParent!.Value } : null,
+               Parent = _requete.IdParent.HasValue ? new() { Id = _requete.IdParent!.Value } : null,
                ListeSlot = _requete.ListeSlot.ConvertAll(x => new OrbatSlot
                {
-                    Id = Guid.NewGuid(),
                     Role = x.Role,
                     EstOptionnel = x.EstOptionnel,
                     OrdreAffichage = x.OrdreAffichage,
-                    GradeRequis = x.IdGradeRequis.HasValue ? new Grade { Id = x.IdGradeRequis.Value } : null,
-                    Personnage = x.IdPersonnage.HasValue ? new Personnage { Id = x.IdPersonnage.Value } : null
+                    GradeRequis = x.IdGradeRequis.HasValue ? new() { Id = x.IdGradeRequis.Value } : null,
+                    Personnage = x.IdPersonnage.HasValue ? new() { Id = x.IdPersonnage.Value } : null
                })
           };
 
           colOrbat.Insert(orbat);
 
           return Results.Created();
+     }
+
+     static async Task<IResult>ModifierAsync(
+          [FromRoute(Name = "idOrbat")] int _idOrbat,
+          [FromBody] OrbatRequete _requete
+     )
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var colOrbat = db.GetCollection<Orbat>();
+
+          if (_requete.IdParent.HasValue && !colOrbat.Exists(x => x.Id == _requete.IdParent.Value))
+               return Results.NotFound("Le parent n'existe pas");
+
+          var listeIdPersonnageBson = _requete.ListeSlot.Where(x => x.IdPersonnage.HasValue)
+               .Select(x => new BsonValue(x.IdPersonnage!.Value));
+
+          var listeIdGradeRequisBson = _requete.ListeSlot.Where(x => x.IdGradeRequis.HasValue)
+               .Select(x => new BsonValue(x.IdGradeRequis!.Value));
+
+          if (db.GetCollection<Personnage>().Query().Where(Query.In("_id", listeIdPersonnageBson)).Count() != listeIdPersonnageBson.Count())
+               return Results.BadRequest("Un des personnages n'existe pas");
+
+          if (db.GetCollection<Grade>().Query().Where(Query.In("_id", listeIdGradeRequisBson)).Count() != listeIdGradeRequisBson.Count())
+               return Results.BadRequest("Un des grades n'existe pas");
+
+          var orbat = colOrbat.FindById(_idOrbat);
+
+          orbat.Titre = _requete.Titre?.XSS();
+          orbat.FrequenceRadio = _requete.FrequenceRadio?.XSS();
+          orbat.Indicatif = _requete.Indicatif?.XSS();
+          orbat.ListeSlot = _requete.ListeSlot.ConvertAll(x => new OrbatSlot
+          {
+               Role = x.Role,
+               EstOptionnel = x.EstOptionnel,
+               OrdreAffichage = x.OrdreAffichage,
+               GradeRequis = x.IdGradeRequis.HasValue ? new() { Id = x.IdGradeRequis.Value } : null,
+               Personnage = x.IdPersonnage.HasValue ? new() { Id = x.IdPersonnage.Value } : null
+          });
+
+          var ok = colOrbat.Update(orbat);
+
+          return ok ? Results.NoContent() : Results.NotFound("L'element n'existe pas");
      }
 
      static async Task<IResult> SupprimerAsync(
