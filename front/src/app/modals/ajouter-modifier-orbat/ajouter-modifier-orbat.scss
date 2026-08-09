@@ -124,6 +124,34 @@ mat-divider {
             font-size: 0.8rem;
             font-weight: bold;
         }
+
+        .s-reorder {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+            padding-right: 8px;
+            margin-right: 4px;
+
+            button {
+                width: 24px;
+                height: 24px;
+                padding: 0;
+                
+                /* Réduit la taille des flèches */
+                mat-icon {
+                    font-size: 20px;
+                    width: 20px;
+                    height: 20px;
+                    line-height: 20px;
+                    color: var(--mat-sys-on-surface-variant);
+                }
+
+                &:hover:not([disabled]) mat-icon {
+                    color: var(--mat-sys-primary);
+                }
+            }
+        }
     }
 }
 

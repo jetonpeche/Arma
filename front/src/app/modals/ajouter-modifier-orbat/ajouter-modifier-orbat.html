@@ -31,7 +31,7 @@
     </div>
 
     <div formArrayName="listeSlot" class="slots-container">
-        @for (slotCtrl of ListeOrbatSlot.controls; track $index) 
+        @for (slotCtrl of ListeOrbatSlot.controls; track slotCtrl) 
         {
             <div [formGroupName]="$index" class="slot-row">
                 
@@ -74,6 +74,17 @@
                 </div>
 
                 <div class="slot-actions">
+
+                    <div class="s-reorder">
+                        <button type="button" mat-icon-button (click)="MonterSlot($index)" [disabled]="$first" matTooltip="Monter ce poste">
+                            <mat-icon>keyboard_arrow_up</mat-icon>
+                        </button>
+
+                        <button type="button" mat-icon-button (click)="DescendreSlot($index)" [disabled]="$last" matTooltip="Descendre ce poste">
+                            <mat-icon>keyboard_arrow_down</mat-icon>
+                        </button>
+                    </div>
+
                     <mat-slide-toggle formControlName="estOptionnel">
                         Opt.
                     </mat-slide-toggle>

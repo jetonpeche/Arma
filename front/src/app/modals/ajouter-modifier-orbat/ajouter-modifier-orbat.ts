@@ -17,6 +17,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ButtonLoader } from '@jetonpeche/angular-mat-input';
 import { OrbatService } from '@services/OrbatService';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-ajouter-modifier-orbat',
@@ -24,7 +25,7 @@ import { OrbatService } from '@services/OrbatService';
       MatDialogModule, MatButtonModule, ReactiveFormsModule, 
       MatFormFieldModule, MatInputModule, MatSelectModule, 
       MatIconModule, MatSlideToggleModule, MatDividerModule,
-      MatAutocompleteModule, ButtonLoader
+      MatAutocompleteModule, ButtonLoader, MatTooltipModule
   ],
   templateUrl: './ajouter-modifier-orbat.html',
   styleUrl: './ajouter-modifier-orbat.scss',
@@ -84,6 +85,26 @@ export class AjouterModifierOrbat implements OnInit
      
             if (this.dialogData.listeSlot)
                 this.dialogData.listeSlot.forEach(slot => this.AjouterSlot(slot));
+        }
+    }
+
+    protected MonterSlot(index: number): void 
+    {
+        if (index > 0) 
+        {
+            const slot = this.ListeOrbatSlot.at(index);
+            this.ListeOrbatSlot.removeAt(index);
+            this.ListeOrbatSlot.insert(index - 1, slot);
+        }
+    }
+
+    protected DescendreSlot(index: number): void 
+    {
+        if (index < this.ListeOrbatSlot.length - 1) 
+        {
+            const slot = this.ListeOrbatSlot.at(index);
+            this.ListeOrbatSlot.removeAt(index);
+            this.ListeOrbatSlot.insert(index + 1, slot);
         }
     }
 
