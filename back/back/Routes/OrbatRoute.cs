@@ -19,7 +19,7 @@ public static class OrbatRoute
                .WithDescription("Ajouter un element à l'orbat")
                .ProducesCreated();
 
-          builder.MapPost("modifier", ModifierAsync)
+          builder.MapPost("modifier/{idOrbat:int}", ModifierAsync)
                .WithDescription("Modifier un element à l'orbat")
                .ProducesNotFound()
                .ProducesCreated();
