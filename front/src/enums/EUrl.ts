@@ -18,5 +18,6 @@ export enum EUrl
     HistoriqueCampagne = "/historique-campagne",
     Preset = "/preset",
     Formation = "/formation",
-    Aeronef = "/aeronef"
+    Aeronef = "/aeronef",
+    Orbat = "/orbat"
 }

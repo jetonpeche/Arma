@@ -18,6 +18,9 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierOrbat } from '@modals/ajouter-modifier-orbat/ajouter-modifier-orbat';
+import { Droit } from '@models/DroitGroupe';
+import { AuthentificationService } from '@services/AuthentificationService';
+import { EUrl } from '@enums/EUrl';
 
 export interface OrbatNode extends Orbat {
   enfants?: OrbatNode[];
@@ -33,7 +36,8 @@ export class OrbatPage implements OnInit
 {
     viewport = viewChild.required<ElementRef>("viewport");
 
-    protected listePersonnage = signal<Personnage[]>([]);
+    protected droit: Droit;
+    protected droitModifierFichier: Droit;
 
     protected recherche = signal<string>("");
     
@@ -50,6 +54,7 @@ export class OrbatPage implements OnInit
     private orbatServ = inject(OrbatService);
     private fichierServ = inject(FichierService);
     private snackBarServ = inject(SnackBarService);
+    private authServ = inject(AuthentificationService);
     private dialog = inject(MatDialog);
 
     private readonly estMobile = window.innerWidth <= 800;
@@ -89,6 +94,8 @@ export class OrbatPage implements OnInit
 
     ngOnInit(): void 
     {
+        this.droit = this.authServ.RecupererDroit(EUrl.Orbat);
+        this.droitModifierFichier = this.authServ.RecupererDroit(EUrl.UploadFichier);
         this.ListerOrbat();
     }
 
