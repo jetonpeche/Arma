@@ -15,7 +15,7 @@ import { PersonnageService } from '@services/PersonnageService';
 import { SnackBarService } from '@services/SnackBarService';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { ButtonLoader } from '@jetonpeche/angular-mat-input';
+import { AutocompleteDataSource, ButtonLoader, InputAutocomplete } from '@jetonpeche/angular-mat-input';
 import { OrbatService } from '@services/OrbatService';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PersonnageReserve } from '@models/PersonnageReserve';
@@ -23,11 +23,12 @@ import { PersonnageReserve } from '@models/PersonnageReserve';
 @Component({
   selector: 'app-ajouter-modifier-orbat',
   imports: [
-      MatDialogModule, MatButtonModule, ReactiveFormsModule, 
-      MatFormFieldModule, MatInputModule, MatSelectModule, 
-      MatIconModule, MatSlideToggleModule, MatDividerModule,
-      MatAutocompleteModule, ButtonLoader, MatTooltipModule
-  ],
+    MatDialogModule, MatButtonModule, ReactiveFormsModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatIconModule, MatSlideToggleModule, MatDividerModule,
+    MatAutocompleteModule, ButtonLoader, MatTooltipModule,
+    InputAutocomplete
+],
   templateUrl: './ajouter-modifier-orbat.html',
   styleUrl: './ajouter-modifier-orbat.scss',
 })
@@ -38,7 +39,8 @@ export class AjouterModifierOrbat implements OnInit
     protected form: FormGroup;
 
     protected listeGrade = signal<Grade[]>([]);
-    protected listePersonnage = signal<PersonnageReserve[]>([]);
+    protected listePersonnage = signal<Personnage[]>([]);
+    protected dataSourceAutocomplete = signal<AutocompleteDataSource[]>([]);
 
     private dialogData: Orbat = inject(MAT_DIALOG_DATA);
     private dialogRef = inject(MatDialogRef<AjouterModifierOrbat>);
@@ -139,14 +141,19 @@ export class AjouterModifierOrbat implements OnInit
         return suggestions.filter(role => role.toLowerCase().includes(valeurLower));
     }
 
-    protected FiltrerPersonnages(idGradeRequis: number | null): PersonnageReserve[] 
+    protected FiltrerPersonnages(idGradeRequis: number | null): void
     {
         const tousLesPersonnages = this.listePersonnage();
 
-        if (!idGradeRequis)
-            return tousLesPersonnages;
+        let liste = [];
 
-        return tousLesPersonnages.filter(p => p.grade && p.grade.id == idGradeRequis);
+        if (!idGradeRequis)
+            liste = tousLesPersonnages.map(x => ({ value: x.id, display: x.nom }));
+
+        else
+            liste = tousLesPersonnages.filter(p => p.grade && p.grade.id == idGradeRequis).map(x => ({ value: x.id, display: x.nom }));
+
+        this.dataSourceAutocomplete.set(liste);
     }
 
     protected Valider(): void
@@ -195,8 +202,12 @@ export class AjouterModifierOrbat implements OnInit
 
     private ListerPersonnage(): void
     {
-        this.personnageServ.ListerReserve().subscribe({
-            next: (retour) => this.listePersonnage.set(retour)
+        this.personnageServ.Lister().subscribe({
+            next: (retour) => 
+            {
+                this.listePersonnage.set(retour)
+                this.FiltrerPersonnages(null);
+            }
         });
     }
 }

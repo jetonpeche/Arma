@@ -101,7 +101,7 @@ mat-divider {
         padding: 12px 16px;
         align-items: center;
 
-        mat-form-field {
+        mat-form-field, jp-autocomplete {
             flex: 1;
             min-width: 160px;
         }
@@ -168,7 +168,8 @@ mat-divider {
     border-radius: 2px;
 }
 
-:host-context(html.dark-mode), :host-context(html.light-mode) {
+:host-context(html.light-mode) 
+{
     .slot-row {
         background-color: var(--mat-sys-surface-container-highest);
         

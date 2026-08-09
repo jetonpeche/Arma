@@ -52,30 +52,22 @@
 
                     <mat-form-field class="field-select" subscriptSizing="dynamic">
                         <mat-label>Grade Requis</mat-label>
-                        <mat-select formControlName="idGradeRequis">
+                        <mat-select formControlName="idGradeRequis" (selectionChange)="FiltrerPersonnages($event.value)">
                             <mat-option [value]="null">Aucun</mat-option>
-                            @for (grade of listeGrade(); track grade.id) {
+                            @for (grade of listeGrade(); track grade.id) 
+                            {
                                 <mat-option [value]="grade.id">{{ grade.nom }}</mat-option>
                             }
                         </mat-select>
                     </mat-form-field>
 
-                    <mat-form-field class="field-select" subscriptSizing="dynamic">
-                        <mat-label>Assignation</mat-label>
-                        <mat-select formControlName="idPersonnage">
-                            <mat-option [value]="null">VACANT</mat-option>
-                            @for (perso of FiltrerPersonnages(slotCtrl.get('gradeRequisId')?.value); track perso.id) 
-                            {
-                                <mat-option [value]="perso.id">
-                                    [{{ perso.grade.nomRaccourci }}] {{ perso.nom }}
-                                </mat-option>
-                            }
-                        </mat-select>
-                    </mat-form-field>
+                    <jp-autocomplete label="Assignation" 
+                                                formControlName="idPersonnage" 
+                                                [dataSource]="dataSourceAutocomplete()" 
+                                                requireSelection />
                 </div>
 
                 <div class="slot-actions">
-
                     <div class="s-reorder">
                         <button type="button" mat-icon-button (click)="MonterSlot($index)" [disabled]="$first" matTooltip="Monter ce poste">
                             <mat-icon>keyboard_arrow_up</mat-icon>

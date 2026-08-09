@@ -20,17 +20,31 @@
             <mat-button-toggle [value]="true">PAR SPÉCIALITÉ</mat-button-toggle>
         </mat-button-toggle-group>
 
-        <!-- Recherche -->
-        <mat-form-field>
-            <mat-icon matPrefix style="margin: 0 8px;">search</mat-icon>
-            <input matInput placeholder="Matricule, grade ou spécialité..." [ngModel]="recherche()" (ngModelChange)="recherche.set($event)">
-            @if (recherche()) 
-            {
-                <button matSuffix mat-icon-button (click)="recherche.set('')">
-                    <mat-icon>close</mat-icon>
-                </button>
-            }
-        </mat-form-field>
+        <div class="filters-row">
+            <mat-form-field class="search-field">
+                <mat-icon matPrefix style="margin: 0 8px;">search</mat-icon>
+                <input matInput placeholder="Matricule, grade ou spécialité..." [ngModel]="recherche()" (ngModelChange)="recherche.set($event)">
+                @if (recherche()) 
+                {
+                    <button matSuffix mat-icon-button (click)="recherche.set('')">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                }
+            </mat-form-field>
+
+            <mat-form-field class="date-field">
+                <mat-label>Inactif depuis le...</mat-label>
+                <input matInput [matDatepicker]="pickerInactif" [ngModel]="filtreDate()" (ngModelChange)="filtreDate.set($event)">
+                <mat-datepicker-toggle matIconSuffix [for]="pickerInactif"></mat-datepicker-toggle>
+                <mat-datepicker #pickerInactif></mat-datepicker>
+                @if (filtreDate()) 
+                {
+                    <button matSuffix mat-icon-button (click)="filtreDate.set(null); $event.stopPropagation()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                }
+            </mat-form-field>
+        </div>
     </div>
 
     <mat-dialog-content class="reserve-content">
@@ -38,7 +52,8 @@
         <div class="roster-list">
             @for (groupe of groupesAffichage(); track groupe.specialite) 
             {
-                @if (modeGroupe()) {
+                @if (modeGroupe())
+                {
                     <div class="group-header">
                         <span class="g-title">>> {{ groupe.specialite | uppercase }}</span>
                         <span class="g-count">[{{ groupe.troupes.length }}]</span>
