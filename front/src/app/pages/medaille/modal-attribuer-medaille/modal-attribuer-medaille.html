@@ -1,24 +1,53 @@
-<h2 mat-dialog-title>Attribuer {{ nomMedaille() }}</h2>
-<mat-dialog-content>
-    <jp-autocomplete label="Personnage" 
-                                [dataSource]="listePersonnageAutoComplete()" 
-                                [formControl]="formControl"
-                                requireSelection />
+<h2 mat-dialog-title class="tactical-dialog-title">
+    <span class="t-main">PROTOCOLE D'ATTRIBUTION</span>
+    <span class="t-sub">// {{ nomMedaille() }}</span>
+</h2>
 
-    @for (element of listePersonnageChoisi(); track element.id) 
-    {
-        <div class="flex">
-            <span style="font-size: 1em; padding-top: 10px;">{{ element.nom }}</span>
-            <span>
-                <button (click)="Supprimer(element)" matIconButton>
+<mat-dialog-content class="tactical-dialog-content">
+    
+    <!-- 1. ZONE DE SÉLECTION -->
+    <div class="selection-zone">
+        <jp-autocomplete label="Saisir un matricule..." 
+                         [dataSource]="listePersonnageAutoComplete()" 
+                         [formControl]="formControl"
+                         requireSelection />
+    </div>
+
+    <!-- 2. EN-TÊTE DE LA LISTE -->
+    <div class="roster-header">
+        <h3>RÉCIPIENDAIRES SÉLECTIONNÉS [{{ listePersonnageChoisi().length }}]</h3>
+    </div>
+
+    <!-- 3. LISTE DES SOLDATS DÉCORÉS -->
+    <div class="roster-list">
+        
+        @for (element of listePersonnageChoisi(); track element.id) 
+        {
+            <div class="recipient-card">
+                <div class="r-info">
+                    <mat-icon class="r-icon">military_tech</mat-icon>
+                    <span class="r-name">{{ element.nom }}</span>
+                </div>
+                
+                <button (click)="Supprimer(element)" mat-icon-button class="r-remove" matTooltip="Révoquer l'attribution">
                     <mat-icon>close</mat-icon>
                 </button>
-            </span>
-        </div>
-    }
-</mat-dialog-content>
-<mat-dialog-actions>
-    <jp-button-loader matButton="text" label="Fermer" matDialogClose />&nbsp;
-    <jp-button-loader (clicked)="Valider()" [loading]="btnClick()" label="Valider" />
-</mat-dialog-actions>
+            </div>
+        }
 
+        <!-- MESSAGE SI AUCUN SOLDAT SÉLECTIONNÉ -->
+        @if (listePersonnageChoisi().length === 0) 
+        {
+            <div class="empty-roster">
+                <mat-icon>radar</mat-icon>
+                <span>Aucun effectif sélectionné pour cette décoration.</span>
+            </div>
+        }
+    </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions class="tactical-actions">
+    <jp-button-loader matButton="text" label="ANNULER" matDialogClose />&nbsp;
+    <jp-button-loader (clicked)="Valider()" [loading]="btnClick()" label="CONFIRMER L'ATTRIBUTION" />
+</mat-dialog-actions>
