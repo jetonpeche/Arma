@@ -29,7 +29,7 @@ export class AjouterModifierDroitGroupe implements OnInit
     private readonly TOUTES_LES_ROUTES = [
         EUrl.Boutique, EUrl.DroitGroupe, EUrl.Formation, EUrl.Grade, EUrl.Logistique, 
         EUrl.Materiel, EUrl.Personnage, EUrl.Preset, EUrl.Medaille, EUrl.HistoriqueCampagne, 
-        EUrl.PlaneteOrigine, EUrl.PropositionAchat, EUrl.Specialite, EUrl.TypeLogistique, 
+        EUrl.PlaneteOrigine, EUrl.PropositionAchat, EUrl.Specialite, EUrl.TypeLogistique, EUrl.Aeronef,
         EUrl.TypeMateriel, EUrl.TypeStockageLogistique, EUrl.UploadFichier, EUrl.Vaisseau, EUrl.Orbat
     ].map(url => url.replace("/", ""));
 
