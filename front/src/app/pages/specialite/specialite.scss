@@ -58,28 +58,34 @@
     width: 420px; 
     display: flex;
     flex-direction: column;
-    background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 90%, transparent) !important;
-    border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent) !important;
-    border-top: none !important; 
+    
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 95%, #050505) !important;    
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    
+    border: none !important; /* Le bord natif est remplacé par le biseau et l'ombre interne */
     border-left: 4px solid var(--org-color) !important; 
-    border-radius: 4px !important;
+    border-radius: 0 !important;
+    
     position: relative;
     z-index: 2;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    
+    /* Ombre interne pour simuler l'écran enfoncé dans la coque */
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent),
+                0 4px 12px rgba(0, 0, 0, 0.4);
+    
     backdrop-filter: blur(8px);
     transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     overflow: hidden;
     user-select: none;
 
-    /* EFFET AU SURVOL (Verrouillage de la cible ET Synchronisation holographique) */
     &:hover, &.is-synced {
         transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), -8px 0 20px -10px color-mix(in srgb, var(--org-color) 50%, transparent);
-        border-color: color-mix(in srgb, var(--org-color) 60%, transparent) !important;
-        border-left: 6px solid var(--org-color) !important; /* Renforce la ligne de force */
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--org-color) 40%, transparent), 
+                    0 12px 24px rgba(0, 0, 0, 0.6), 
+                    -8px 0 20px -10px color-mix(in srgb, var(--org-color) 50%, transparent);
+        border-left: 6px solid var(--org-color) !important;
         z-index: 10;
 
-        /* Animation de l'image (couleur + zoom + laser) */
         .org-portrait {
             filter: grayscale(0%) contrast(1.1) brightness(1.1);
             transform: scale(1.05);
@@ -94,9 +100,9 @@
 /* --- IMAGES DES NIVEAUX 0 ET 1 (Effets conservés) --- */
 .org-portrait-container {
     width: 100%;
-    height: 140px; 
+    height: 140px;
     position: relative;
-    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+    border-bottom: 2px solid color-mix(in srgb, var(--org-color) 40%, transparent);
     overflow: hidden;
     background: #000;
     
@@ -128,7 +134,7 @@
         transition: opacity 0.3s ease;
     }
 
-    /* Le Laser de Scan Tactique (Invisible au repos, déclenché au survol) */
+    /* Le Laser de Scan Tactique */
     &::after {
         content: '';
         position: absolute;
@@ -165,7 +171,8 @@
     text-align: left;
     position: relative;
     z-index: 2;
-    gap: 8px;
+    gap: 12px;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--org-color) 8%, transparent), transparent 40px);
 }
 
 .org-header {
@@ -178,14 +185,15 @@
 
 .org-raccourci {
     font-family: 'Courier New', Courier, monospace;
-    background-color: color-mix(in srgb, var(--org-color) 15%, transparent);
+    background-color: color-mix(in srgb, var(--org-color) 20%, transparent);
     color: var(--org-color);
-    border: 1px solid color-mix(in srgb, var(--org-color) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--org-color) 50%, transparent);
     padding: 2px 6px;
     font-size: 0.75rem;
     font-weight: 900;
     border-radius: 2px;
     letter-spacing: 1px;
+    box-shadow: 0 0 8px color-mix(in srgb, var(--org-color) 30%, transparent);
 }
 
 .org-title {
@@ -203,17 +211,17 @@
     gap: 6px;
     font-family: 'Courier New', Courier, monospace;
     font-size: 0.8rem;
-    color: var(--mat-sys-on-surface-variant);
-    background-color: color-mix(in srgb, var(--mat-sys-surface-container) 50%, transparent);
-    padding: 4px 8px;
+    color: var(--org-color);
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container) 80%, transparent);
+    padding: 6px 8px;
     border-radius: 2px;
-    border-left: 2px solid var(--mat-sys-secondary);
+    border-left: 2px solid var(--org-color);
     width: 100%;
     box-sizing: border-box;
     
     mat-icon {
         font-size: 16px; width: 16px; height: 16px;
-        color: var(--mat-sys-secondary);
+        color: var(--org-color);
     }
 }
 
@@ -224,15 +232,28 @@
 .org-desc {
     font-size: 0.85rem;
     color: var(--mat-sys-on-surface-variant); 
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 6; 
-    line-clamp: 6;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    padding: 0;
-    margin-top: 4px;
+    line-height: 1.5;
+    
+    max-height: 110px;
+    overflow-y: auto;
+    padding-right: 8px;
+    
+    margin-top: 0;
     font-family: 'Courier New', Courier, monospace;
+    
+    &::-webkit-scrollbar { 
+        width: 4px; 
+    }
+    &::-webkit-scrollbar-track { 
+        background: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 50%, transparent); 
+    }
+    &::-webkit-scrollbar-thumb { 
+        background: color-mix(in srgb, var(--org-color) 50%, transparent); 
+        border-radius: 2px; 
+    }
+    &::-webkit-scrollbar-thumb:hover { 
+        background: var(--org-color); 
+    }
 }
 
 /* =========================================================
