@@ -77,7 +77,7 @@ export class AjouterModifierOrbat implements OnInit
         this.form = new FormGroup({
             idParent: new FormControl(this.dialogData?.idParent ?? null),
             titre: new FormControl(this.dialogData?.titre ?? "", [Validators.maxLength(100)]),
-            indicatif: new FormControl(this.dialogData?.indicatif ?? "", [Validators.required, Validators.maxLength(100)]),
+            indicatif: new FormControl(this.dialogData?.indicatif ?? "", [Validators.maxLength(100)]),
             frequenceRadio: new FormControl(this.dialogData?.frequenceRadio ?? "", [Validators.maxLength(6)]),
             listeSlot: new FormArray([])
         });
