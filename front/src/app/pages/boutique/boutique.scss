@@ -311,72 +311,6 @@
 }
 
 /* =========================================================
-   SÉCURITÉ RESPONSIVE (MOBILES ET DATAPADS)
-   ========================================================= */
-@media screen and (max-width: 768px) 
-{
-        .quartermaster-brief {
-        flex-direction: column;
-        text-align: center;
-        
-        .brief-icon {
-            margin-right: 0;
-            margin-bottom: 16px;
-        }
-    }
-
-    .unsc-terminal-overlay 
-    {    
-        /* On maximise la largeur pour ne pas perdre un pixel */
-        .terminal-window {
-            width: 95vw;
-        }
-
-        /* On réduit l'en-tête */
-        .terminal-header {
-            font-size: 0.7rem;
-            letter-spacing: 1px;
-            padding: 4px 8px;
-        }
-
-        /* On diminue les marges internes pour laisser place au texte */
-        .terminal-body {
-            padding: 16px 10px;
-            min-height: 180px;
-        }
-
-        .log-line {
-            font-size: 0.75rem; 
-            margin: 0 0 10px 0;
-        }
-
-        /* On empile l'icône de validation et le texte l'un sur l'autre */
-        .result-sequence {
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
-            
-            mat-icon {
-                font-size: 64px; 
-                width: 64px; 
-                height: 64px;
-            }
-
-            h2 {
-                font-size: 1.1rem;
-                margin: 0 0 12px 0;
-                letter-spacing: 1px;
-            }
-
-            p { 
-                font-size: 0.8rem; 
-                white-space: normal; 
-            }
-        }
-    }
-}
-
-/* =========================================================
    TERMINAL DE LIAISON UNSC (COMMAND PROMPT)
    ========================================================= */
 .unsc-terminal-overlay 
@@ -583,4 +517,282 @@
     60% { transform: translate(3px, 1px) }
     80% { transform: translate(1px, -1px) }
     100% { transform: translate(0) }
+}
+
+/* =========================================================
+   LIAISON ORBITALE (ANIMATION HOLOGRAPHIQUE DE DON)
+   ========================================================= */
+.orbital-uplink-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 5, 10, 0.9);
+    backdrop-filter: blur(10px);
+    transition: background-color 0.5s ease;
+
+    &.success-mode {
+        background-color: rgba(0, 15, 10, 0.95); /* Vire légèrement au vert tactique */
+    }
+
+    .uplink-hud {
+        position: relative;
+        width: 600px;
+        height: 600px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .hud-header {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        color: var(--mat-sys-tertiary);
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        letter-spacing: 2px;
+        border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent);
+        padding-bottom: 8px;
+    }
+
+    /* --- CONTENEUR HOLOGRAPHIQUE 3D --- */
+    .hologram-container {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1000px;
+        transform-style: preserve-3d;
+        margin-top: 50px;
+    }
+
+    /* Les Anneaux Orbitaux */
+    .holo-ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 2px dashed var(--mat-sys-tertiary);
+        box-shadow: 0 0 15px color-mix(in srgb, var(--mat-sys-tertiary) 50%, transparent),
+                    inset 0 0 15px color-mix(in srgb, var(--mat-sys-tertiary) 50%, transparent);
+        opacity: 0.3;
+        transform: rotateX(60deg); /* Donne l'effet 3D posé au sol */
+        transition: opacity 0.5s ease;
+
+        &.spinning { opacity: 1; }
+    }
+
+    .outer { width: 300px; height: 300px; animation: spin-ring-cw 10s linear infinite; }
+    .middle { width: 200px; height: 200px; border: 4px dotted var(--mat-sys-tertiary); animation: spin-ring-ccw 6s linear infinite; }
+    .inner { width: 100px; height: 100px; border-style: solid; animation: spin-ring-cw 3s linear infinite; }
+
+    /* Cœur central */
+    .holo-core {
+        position: absolute;
+        z-index: 10;
+        transform: translateY(-20px); /* Lève l'icône au dessus des anneaux */
+        
+        mat-icon {
+            font-size: 64px; width: 64px; height: 64px;
+            color: var(--mat-sys-tertiary);
+            filter: drop-shadow(0 0 15px var(--mat-sys-tertiary));
+        }
+
+        .pulse-icon { animation: core-pulse 1.5s ease-in-out infinite alternate; }
+        .success-icon { 
+            color: var(--mat-sys-primary); 
+            filter: drop-shadow(0 0 20px var(--mat-sys-primary));
+            animation: appear-scale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    }
+
+    /* Faisceau de données (Le rayon laser montant) */
+    .data-beam {
+        position: absolute;
+        bottom: 50%; /* Part du centre */
+        width: 60px;
+        height: 0;
+        background: linear-gradient(to top, 
+            color-mix(in srgb, var(--mat-sys-tertiary) 90%, transparent), 
+            transparent);
+        filter: blur(4px);
+        opacity: 0;
+        transition: all 0.5s ease;
+        z-index: 5;
+        transform-origin: bottom;
+
+        &.active {
+            height: 400px;
+            opacity: 0.8;
+            animation: beam-flicker 0.1s infinite;
+        }
+    }
+
+    /* Zone de texte de statut */
+    .uplink-status {
+        text-align: center;
+        font-family: 'Courier New', Courier, monospace;
+        margin-bottom: 20px;
+        
+        .status-text {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            letter-spacing: 4px;
+        }
+
+        .blink { color: var(--mat-sys-tertiary); animation: blink-text 1s step-end infinite; }
+        .upload { color: var(--mat-sys-tertiary); text-shadow: 0 0 10px var(--mat-sys-tertiary); }
+        .confirm { color: var(--mat-sys-primary); text-shadow: 0 0 15px var(--mat-sys-primary); }
+
+        p {
+            color: var(--mat-sys-on-surface);
+            font-size: 1.1rem;
+            margin: 0;
+            background-color: rgba(0,0,0,0.5);
+            padding: 4px 12px;
+            border: 1px solid var(--mat-sys-outline-variant);
+        }
+    }
+}
+
+/* --- KEYFRAMES 3D & LUMIÈRE --- */
+@keyframes spin-ring-cw {
+    0% { transform: rotateX(70deg) rotateZ(0deg); }
+    100% { transform: rotateX(70deg) rotateZ(360deg); }
+}
+
+@keyframes spin-ring-ccw {
+    0% { transform: rotateX(70deg) rotateZ(360deg); }
+    100% { transform: rotateX(70deg) rotateZ(0deg); }
+}
+
+@keyframes core-pulse {
+    from { transform: translateY(-20px) scale(0.9); opacity: 0.7; }
+    to { transform: translateY(-30px) scale(1.1); opacity: 1; }
+}
+
+@keyframes beam-flicker {
+    0% { opacity: 0.7; width: 58px; }
+    50% { opacity: 0.9; width: 62px; }
+    100% { opacity: 0.8; width: 60px; }
+}
+
+@keyframes blink-text {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+@keyframes appear-scale {
+    0% { transform: translateY(-20px) scale(0); opacity: 0; }
+    100% { transform: translateY(-30px) scale(1.2); opacity: 1; }
+}
+
+/* =========================================================
+   SÉCURITÉ RESPONSIVE (MOBILES ET DATAPADS)
+   ========================================================= */
+@media screen and (max-width: 768px) 
+{
+        .quartermaster-brief {
+        flex-direction: column;
+        text-align: center;
+        
+        .brief-icon {
+            margin-right: 0;
+            margin-bottom: 16px;
+        }
+    }
+
+    .unsc-terminal-overlay 
+    {    
+        /* On maximise la largeur pour ne pas perdre un pixel */
+        .terminal-window {
+            width: 95vw;
+        }
+
+        /* On réduit l'en-tête */
+        .terminal-header {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            padding: 4px 8px;
+        }
+
+        /* On diminue les marges internes pour laisser place au texte */
+        .terminal-body {
+            padding: 16px 10px;
+            min-height: 180px;
+        }
+
+        .log-line {
+            font-size: 0.75rem; 
+            margin: 0 0 10px 0;
+        }
+
+        /* On empile l'icône de validation et le texte l'un sur l'autre */
+        .result-sequence {
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+            
+            mat-icon {
+                font-size: 64px; 
+                width: 64px; 
+                height: 64px;
+            }
+
+            h2 {
+                font-size: 1.1rem;
+                margin: 0 0 12px 0;
+                letter-spacing: 1px;
+            }
+
+            p { 
+                font-size: 0.8rem; 
+                white-space: normal; 
+            }
+        }
+    }
+
+    .orbital-uplink-overlay {
+        
+        .uplink-hud {
+            width: 95vw;
+            height: 80vh;
+            justify-content: space-evenly;
+        }
+
+        /* L'en-tête s'empile pour gagner de la place */
+        .hud-header {
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .hologram-container {
+            transform: scale(0.65);
+            margin-top: 0;
+        }
+
+        /* On réduit la typographie de statut */
+        .uplink-status {
+            margin-bottom: 0;
+
+            .status-text {
+                font-size: 1.3rem; 
+                letter-spacing: 2px;
+            }
+            
+            p {
+                font-size: 0.85rem;
+                padding: 8px;
+                line-height: 1.4;
+            }
+        }
+    }
 }

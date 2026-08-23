@@ -39,6 +39,11 @@ export class BoutiquePage implements OnInit
     protected transactionSucces = signal<boolean>(false);
     protected transactionEchec = signal<boolean>(false);
 
+    // --- VARIABLES POUR L'ANIMATION DU DON ---
+    protected animationDonEnCours = signal<boolean>(false);
+    protected phaseDon = signal<number>(1); 
+    protected montantDonActuel = signal<number>(0);
+
     private readonly estMobile = window.innerWidth <= 800;
     private router = inject(Router);
     private dialog = inject(MatDialog);
@@ -68,14 +73,7 @@ export class BoutiquePage implements OnInit
             next: (montant) =>
             {
                 if(montant && montant > 0)
-                {
-                    console.log(montant);
-                    
-                    this.pointPersonnage.update(x => x - montant);
-                    environment.utilisateur.nbPointBoutique -= montant;
-                    sessionStorage.setItem("utilisateur", environment.utilisateur);
-                    this.authServ.ModifierPointBanque(montant, EModeBanque.Ajouter);
-                }
+                    this.ExecuterTransfertDon(montant);
             }
         });
     }
@@ -98,6 +96,42 @@ export class BoutiquePage implements OnInit
     {
         const VALEUR = _recherche.toLowerCase();
         return this.listeBoutique().filter(x => x.nom.toLowerCase().includes(VALEUR));
+    }
+
+    private ExecuterTransfertDon(_montant: number): void
+    {
+        this.animationDonEnCours.set(true);
+
+        this.pointPersonnage.update(x => x - _montant);
+        environment.utilisateur.nbPointBoutique -= _montant;
+        sessionStorage.setItem("utilisateur", environment.utilisateur);
+        this.authServ.ModifierPointBanque(_montant, EModeBanque.Ajouter);
+        this.montantDonActuel.set(_montant / 50);
+
+        this.phaseDon.set(1);
+
+        if ('vibrate' in navigator)
+            navigator.vibrate([50, 150, 50, 150, 50]); 
+
+        setTimeout(() => {
+            this.phaseDon.set(2);
+
+            if ('vibrate' in navigator)
+                navigator.vibrate([1500, 200, 1000]); 
+
+        }, 2000);
+
+        setTimeout(() => {
+            this.phaseDon.set(3);
+
+            if ('vibrate' in navigator)
+                navigator.vibrate([100, 50, 100]); 
+            
+        }, 5000);
+
+        setTimeout(() => {
+            this.animationDonEnCours.set(false);
+        }, 8500);
     }
 
     private Acheter(_idBoutique: number, _idBoutiquePrix: number, _prix: number): void

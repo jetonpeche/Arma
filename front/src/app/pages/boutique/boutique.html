@@ -183,3 +183,63 @@
         </div>
     </div>
 }
+
+<!-- =========================================================
+     ANIMATION DE LIAISON ORBITALE (DON AU BATAILLON)
+     ========================================================= -->
+@if(animationDonEnCours()) 
+{
+    <div class="orbital-uplink-overlay" [class.success-mode]="phaseDon() == 3">
+        
+        <div class="uplink-hud">
+            <div class="hud-header">
+                <span>// FLEETCOM SECURE CHANNEL</span>
+                <span>O.N.I. UPLINK PROTOCOL</span>
+            </div>
+
+            <!-- Projecteur Holographique -->
+            <div class="hologram-container">
+                <!-- Les anneaux de ciblage -->
+                <div class="holo-ring outer" [class.spinning]="phaseDon() >= 1"></div>
+                <div class="holo-ring middle" [class.spinning]="phaseDon() >= 1"></div>
+                <div class="holo-ring inner" [class.spinning]="phaseDon() >= 1"></div>
+
+                <!-- Le faisceau de transfert de données -->
+                <div class="data-beam" [class.active]="phaseDon() == 2"></div>
+                <div class="data-particles" [class.active]="phaseDon() == 2"></div>
+
+                <!-- Le cœur du système -->
+                <div class="holo-core">
+                    @if(phaseDon() < 3) 
+                    {
+                        <mat-icon class="pulse-icon">satellite_alt</mat-icon>
+                    } 
+                    @else 
+                    {
+                        <mat-icon class="success-icon">check_circle</mat-icon>
+                    }
+                </div>
+            </div>
+
+            <!-- Affichage du statut -->
+            <div class="uplink-status">
+                @if(phaseDon() == 1) 
+                { 
+                    <h2 class="status-text blink">ALIGNEMENT SATELLITE...</h2>
+                    <p>Recherche d'un vaisseau relais en orbite.</p>
+                }
+                @if(phaseDon() == 2) 
+                { 
+                    <h2 class="status-text upload">TRANSMISSION DES FONDS...</h2>
+                    <p>Chiffrement quantique : {{ montantDonActuel() }} CR ({{ montantDonActuel() * 50 }} PTS)</p>
+                }
+                @if(phaseDon() == 3) 
+                { 
+                    <h2 class="status-text confirm">TRANSFERT CONFIRMÉ</h2>
+                    <p>Fonds réceptionnés par la trésorerie de la Compagnie.</p>
+                }
+            </div>
+        </div>
+        
+    </div>
+}
