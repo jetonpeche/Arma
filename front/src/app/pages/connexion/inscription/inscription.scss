@@ -127,6 +127,100 @@
     gap: 8px;
 }
 
+/* --- RÈGLEMENT SCROLLABLE (ÉTAPE 4) --- */
+.reglement-container {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 80%, #050505);
+    border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+    border-left: 4px solid var(--mat-sys-error);
+    padding: 16px;
+    color: var(--mat-sys-on-surface-variant);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+
+    /* --- LIEN VERS LE REGISTRE COMPLET --- */
+    .full-law-link {
+        margin: 24px 0;
+        display: flex;
+        justify-content: center;
+        cursor: pointer;
+
+        .unsc-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            font-size: 0.85rem;
+            color: var(--mat-sys-primary);
+            text-decoration: none;
+            letter-spacing: 1px;
+            
+            padding: 8px 16px;
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+            border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+            border-radius: 2px;
+            transition: all 0.2s ease;
+
+            mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+
+            &:hover {
+                background-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+                border-color: var(--mat-sys-primary);
+                box-shadow: 0 0 12px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+                transform: scale(1.02);
+            }
+        }
+    }
+
+    .r-title {
+        color: var(--mat-sys-error);
+        margin: 0 0 16px 0;
+        font-weight: 900;
+        letter-spacing: 1px;
+        border-bottom: 1px dashed color-mix(in srgb, var(--mat-sys-error) 40%, transparent);
+        padding-bottom: 8px;
+    }
+
+    p {
+        margin: 0 0 16px 0;
+    }
+
+    strong {
+        color: var(--mat-sys-error);
+    }
+
+    .r-signature {
+        margin-top: 24px;
+        font-weight: bold;
+        text-align: center;
+        border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+        padding-top: 16px;
+    }
+
+    /* Scrollbar tactique */
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-track { background: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 50%, transparent); }
+    &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--mat-sys-error) 50%, transparent); border-radius: 2px; }
+    &::-webkit-scrollbar-thumb:hover { background: var(--mat-sys-error); }
+}
+
+/* Mode Clair pour la boite du règlement */
+:host-context(html.light-mode) {
+    .reglement-container {
+        background-color: var(--mat-sys-surface-container-highest);
+        border: 1px solid var(--mat-sys-outline);
+        border-left: 4px solid var(--mat-sys-error);
+    }
+}
+
 /* --- ANIMATIONS --- */
 @keyframes unsc-fade-text {
     0% { opacity: 0; transform: translateX(-10px); }

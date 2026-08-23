@@ -8,10 +8,11 @@ import { SpecialiteService } from '@services/SpecialiteService';
 import { SnackBarService } from '@services/SnackBarService';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-inscription',
-  imports: [ReactiveFormsModule, MatButtonModule, MatDialogModule, MatIconModule, InputText, InputAutocomplete, InputPassword, InputTextarea],
+  imports: [RouterLink, ReactiveFormsModule, MatButtonModule, MatDialogModule, MatIconModule, InputText, InputAutocomplete, InputPassword, InputTextarea],
   templateUrl: './inscription.html',
   styleUrl: './inscription.scss',
 })
@@ -19,6 +20,7 @@ export class Inscription implements OnInit
 {
     protected form: FormGroup;
     protected btnClick = signal<boolean>(false);
+    protected aLuLeReglement = signal<boolean>(false);
     protected etapeCourante = signal<number>(1);
 
     protected dataSourceGrade = signal<AutocompleteDataSource[]>([]);
@@ -76,7 +78,7 @@ export class Inscription implements OnInit
 
     protected EtapeSuivante(): void 
     {
-        if (this.etapeCourante() < 3)
+        if (this.etapeCourante() < 4)
             this.etapeCourante.set(this.etapeCourante() + 1);
     }
 
@@ -84,6 +86,17 @@ export class Inscription implements OnInit
     {
         if (this.etapeCourante() > 1)
             this.etapeCourante.set(this.etapeCourante() - 1);
+    }
+
+    protected onScrollReglement(event: Event): void 
+    {
+        const element = event.target as HTMLElement;
+        
+        // On calcule la position. On laisse 2px de marge de tolérance pour éviter les bugs de zoom du navigateur.
+        if (Math.ceil(element.scrollTop + element.clientHeight) >= element.scrollHeight - 2) 
+        {
+            this.aLuLeReglement.set(true);
+        }
     }
 
     protected ValiderForm(): void

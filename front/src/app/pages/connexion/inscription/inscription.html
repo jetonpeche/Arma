@@ -55,6 +55,46 @@
                 <jp-textarea label="État de service (Optionnel)" [rows]="5" formControlName="etatService" showMaxLength />
             </div>
         }
+
+        @if(etapeCourante() == 4) 
+        {
+            <div class="officer-dialogue">
+                <div class="officer-name">// OFFICIER RECRUTEUR :</div>
+                <p class="dialogue-text">"Dernière chose avant de prendre la plaque. Lisez le Code de Justice Militaire. Lisez-le jusqu'au bout. On ne plaisante pas avec la discipline ici, recrue."</p>
+            </div>
+
+            <div class="form-step single-col">
+                <!-- Le (scroll) déclenche notre vérification TypeScript -->
+                <div class="reglement-container" (scroll)="onScrollReglement($event)">
+                    <h3 class="r-title">CODE DE JUSTICE MILITAIRE (UCMJ)</h3>
+                    <p><strong>ARTICLE 1 - JURIDICTION ABSOLUE :</strong> Le présent Code est inconditionnel. Il régit l'ensemble des effectifs du Corps des Marines. Le pouvoir disciplinaire est le privilège exclusif des Sous-Officiers et Officiers.</p>
+                    <p><strong>1ER DEGRÉ : INFRACTION MINEURE</strong><br>
+                    Fautes légères de discipline. Résolues en interne par le Chef de Section. (Corvées, CR, punitions physiques).</p>
+                    <p><strong>2ÈME DEGRÉ : INFRACTION MAJEURE</strong><br>
+                    Fautes signalées ou récidives. Exige un Compte Rendu au commandement. (Confiscation, retenue sur solde, prison militaire).</p>
+                    <p><strong>3ÈME DEGRÉ : COUR MARTIALE / H.R.P.</strong><br>
+                    Comportement irréparable ou atteintes à la communauté. Application stricte par l'État-Major. (Désertion, CK forcé, renvoi ou bannissement).</p>
+
+                    <div class="full-law-link">
+                        <a routerLink="/discipline" target="_blank" class="unsc-link">
+                            <mat-icon>open_in_new</mat-icon>
+                            <span>CONSULTER LE REGISTRE COMPLET (NOUVEL ONGLET)</span>
+                        </a>
+                    </div>
+
+                    <div class="r-signature">
+                        @if(aLuLeReglement()) 
+                        {
+                            <mat-icon style="color: var(--mat-sys-primary); vertical-align: middle;">check_circle</mat-icon> Lecture confirmée.
+                        } 
+                        @else 
+                        {
+                            <mat-icon style="color: var(--mat-sys-error); vertical-align: middle;">arrow_downward</mat-icon> Défilez jusqu'en bas pour déverrouiller la signature.
+                        }
+                    </div>
+                </div>
+            </div>
+        }
     </form>
 </mat-dialog-content>
 
@@ -65,6 +105,8 @@
         <span class="step-node" [class.active]="etapeCourante() >= 2">2</span>
         <span class="step-line" [class.active]="etapeCourante() >= 3"></span>
         <span class="step-node" [class.active]="etapeCourante() >= 3">3</span>
+        <span class="step-line" [class.active]="etapeCourante() >= 4"></span>
+        <span class="step-node" [class.active]="etapeCourante() >= 4">4</span>
     </div>
 
 <div class="action-buttons">
@@ -81,7 +123,7 @@
             </button>
         }
         
-        @if(etapeCourante() < 3) 
+        @if(etapeCourante() < 4)
         {
             <button matButton="filled" (click)="EtapeSuivante()" class="unsc-nav-btn">
                 <span class="btn-text">Suivant</span>
@@ -90,7 +132,7 @@
         } 
         @else 
         {
-            <button mat-flat-button color="primary" [disabled]="btnClick()" (click)="ValiderForm()" class="unsc-nav-btn sign-btn">
+            <button matButton="filled" [disabled]="btnClick() || !aLuLeReglement()" (click)="ValiderForm()" class="unsc-nav-btn sign-btn">
                 <mat-icon [class.is-loading]="btnClick()">{{ btnClick() ? 'sync' : 'assignment_turned_in' }}</mat-icon>
                 <span class="btn-text">{{(btnClick() ? 'Transmission...' : 'Signer l\'engagement')}}</span>
             </button>
