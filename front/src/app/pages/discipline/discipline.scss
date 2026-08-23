@@ -1,0 +1,205 @@
+/* =========================================================
+   CODE DE JUSTICE MILITAIRE - DATAPAD UNSC (HAUTE LISIBILITÉ)
+   ========================================================= */
+p, span {
+    font-size: 1rem;
+}
+
+/* --- DIRECTIVE DU HAUT COMMANDEMENT --- */
+.unsc-directive-block {
+    margin: 0 auto 40px auto;
+    max-width: 1400px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 80%, #050505);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-top: 4px solid var(--mat-sys-primary);
+    position: relative;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+    .directive-header {
+        display: flex;
+        justify-content: space-between;
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent);
+        border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+        padding: 8px 16px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: var(--mat-sys-primary);
+    }
+
+    .directive-body {
+        padding: 24px 32px;
+
+        .d-title {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--mat-sys-on-surface);
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin: 0 0 16px 0;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            &::before {
+                content: '>';
+                color: var(--mat-sys-primary);
+            }
+        }
+
+        p {
+            line-height: 1.6;
+            color: var(--mat-sys-on-surface-variant);
+            margin: 0;
+        }
+    }
+}
+
+/* --- GRILLE --- */
+.sanctions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+/* --- CARTE DE SANCTION (CHÂSSIS COMMUN) --- */
+.sanction-card {
+    display: flex;
+    flex-direction: column;
+    
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 95%, #050505) !important;
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    
+    border: none !important;
+    border-radius: 0 !important;
+    border-left: 4px solid var(--s-color) !important; 
+    
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: inset 2px 0 0 0 var(--s-color),
+                    inset 0 0 0 1px color-mix(in srgb, var(--s-color) 40%, transparent), 
+                    0 12px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    /* EN-TÊTE DE LA CARTE */
+    .s-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 24px;
+        background: linear-gradient(to right, color-mix(in srgb, var(--s-color) 15%, transparent), transparent);
+        border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 20%, transparent);
+
+        mat-icon {
+            color: var(--s-color);
+            font-size: 32px;
+            width: 32px; 
+            height: 32px;
+            filter: drop-shadow(0 0 8px color-mix(in srgb, var(--s-color) 60%, transparent));
+        }
+
+        h2 {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--mat-sys-on-surface);
+            margin: 0;
+            letter-spacing: 1px;
+        }
+    }
+
+    /* CONTENU DE LA CARTE */
+    .s-content {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        .s-desc {
+            line-height: 1.6;
+            color: var(--mat-sys-on-surface-variant);
+            margin: 0;
+            padding-bottom: 16px;
+            border-bottom: 1px dashed color-mix(in srgb, var(--s-color) 40%, transparent);
+
+            strong { color: var(--s-color); }
+        }
+
+        .s-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+
+            .s-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                color: var(--mat-sys-on-surface);
+
+                mat-icon {
+                    color: var(--s-color);
+                    font-size: 20px;
+                    width: 20px; 
+                    height: 20px;
+                    margin-top: 2px;
+                    flex-shrink: 0;
+                }
+
+                .s-item-content {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px; 
+                    
+                    strong {
+                        font-family: 'Courier New', Courier, monospace;
+                        color: var(--s-color);
+                        letter-spacing: 0.5px;
+                        font-size: 1.1rem;
+                    }
+
+                    span {
+                        line-height: 1.5;
+                        color: var(--mat-sys-on-surface-variant);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* --- DÉFINITION DES COULEURS PAR NIVEAU --- */
+.level-1 { --s-color: #fbc02d; /* Jaune Warning */ }
+.level-2 { --s-color: #f57c00; /* Orange Danger */ }
+.level-3 { --s-color: var(--mat-sys-error); /* Rouge Critique */ }
+
+/* =========================================================
+   MODE CLAIR (LIGHT MODE)
+   ========================================================= */
+:host-context(html.light-mode) {
+    .unsc-directive-block,
+    .sanction-card {
+        background-color: var(--mat-sys-surface-container-highest) !important;
+        box-shadow: inset 0 0 0 1px var(--mat-sys-outline);
+    }
+    
+    .unsc-directive-block {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .sanction-card:hover {
+        box-shadow: inset 2px 0 0 0 var(--s-color),
+                    inset 0 0 0 1px var(--mat-sys-outline),
+                    0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .level-1 { 
+        --s-color: #b98900;
+    }
+}

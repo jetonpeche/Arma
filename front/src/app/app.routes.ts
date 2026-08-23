@@ -55,6 +55,11 @@ export const routes: Routes = [
         canActivate: [connecterGuard]
     },
     { 
+        path: "discipline",
+        loadComponent: () => import("./pages/discipline/discipline").then(x => x.Discipline),
+        title: "Code de Justice Militaire"
+    },
+    { 
         path: "specialite",
         loadComponent: () => import("./pages/specialite/specialite").then(x => x.SpecialitePage),
         title: "Specialité"
