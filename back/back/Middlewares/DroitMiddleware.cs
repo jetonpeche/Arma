@@ -86,8 +86,10 @@ public class DroitMiddleware : IEndpointFilter
 
                if (nomMapGroupe is "banque")
                {
-                    if(!droitGroupe.PeutModifierBanque)
+                    if (routeSplit[3] == "modifier" && !droitGroupe.PeutModifierBanque)
                          return Results.Forbid();
+
+                    return await next(context);
                }
 
                if (droit is not null)
