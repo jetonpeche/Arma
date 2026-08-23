@@ -53,7 +53,7 @@ export class AuthentificationService
             environment.utilisateur.nbPointBanque += _prix;
         }
 
-        sessionStorage.setItem("utilisateur", environment.utilisateur);
+        sessionStorage.setItem("utilisateur", JSON.stringify(environment.utilisateur));
     }
 
     RecupererDroit(_url: EUrl): Droit | null

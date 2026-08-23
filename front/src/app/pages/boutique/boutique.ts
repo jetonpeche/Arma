@@ -104,7 +104,7 @@ export class BoutiquePage implements OnInit
 
         this.pointPersonnage.update(x => x - _montant);
         environment.utilisateur.nbPointBoutique -= _montant;
-        sessionStorage.setItem("utilisateur", environment.utilisateur);
+        sessionStorage.setItem("utilisateur", JSON.stringify(environment.utilisateur));
         this.authServ.ModifierPointBanque(_montant, EModeBanque.Ajouter);
         this.montantDonActuel.set(_montant / 50);
 
@@ -126,7 +126,7 @@ export class BoutiquePage implements OnInit
 
             if ('vibrate' in navigator)
                 navigator.vibrate([100, 50, 100]); 
-            
+
         }, 5000);
 
         setTimeout(() => {
@@ -155,7 +155,7 @@ export class BoutiquePage implements OnInit
 
                     this.pointPersonnage.update(x => x - _prix);
                     environment.utilisateur.nbPointBoutique -= _prix;
-                    sessionStorage.setItem("utilisateur", environment.utilisateur);
+                    sessionStorage.setItem("utilisateur", JSON.stringify(environment.utilisateur));
                     
                     setTimeout(() => {
                         this.transactionSucces.set(false);

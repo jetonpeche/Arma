@@ -300,7 +300,7 @@ export class App implements OnInit
                 environment.utilisateur.parametre.sonActiver = this.sonEstActiver();
                 environment.utilisateur.parametre.volume = this.volume();
                 environment.utilisateur.parametre.themeSombreActiver = !this.estLightMode()
-                sessionStorage.setItem("utilisateur", environment.utilisateur);
+                sessionStorage.setItem("utilisateur", JSON.stringify(environment.utilisateur));
             },
             error: () => this.snackbarServ.Erreur("Erreur réseau")
         });
