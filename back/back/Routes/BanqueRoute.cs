@@ -15,6 +15,11 @@ public static class BanqueRoute
                .ProducesBadRequest()
                .ProducesNoContent();
 
+          builder.MapPut("don/{nbPoint:int}", DonAsync)
+               .WithDescription("Donner vos points à la compagnie")
+               .ProducesBadRequest()
+               .ProducesNoContent();
+
           return builder;
      }
 
@@ -54,6 +59,40 @@ public static class BanqueRoute
                Date = DateTime.UtcNow,
                Information = $"{nomPersonnage} a {(_requete.Mode is 0 ? "ajouté(e)" : "retiré(e)")} {_requete.NbPoint} points de campagne"
           });
+
+          return Results.NoContent();
+     }
+
+     async static Task<IResult> DonAsync(
+          HttpContext _httpContext,
+          [FromRoute(Name = "nbPoint")] int _nbPoint
+     )
+     {
+          if (_nbPoint <= 0)
+               return Results.BadRequest("Le nombre de point doit être supérieur à zéro");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          int idPersonnage = _httpContext.RecupererIdPersonnage();
+
+          var nbPointBoutique = db.GetCollection<Personnage>().Query()
+               .Where(x => x.Id == idPersonnage)
+               .Select(x => x.NbPointBoutique)
+               .FirstOrDefault();
+
+          if (_nbPoint > nbPointBoutique)
+               return Results.BadRequest("Font insufisant");
+
+          var banque = db.GetCollection<Banque>().Query().First();
+
+          banque.Argent += _nbPoint * 50;
+          nbPointBoutique -= _nbPoint;
+
+          db.GetCollection<Banque>().Update(banque);
+          db.GetCollection<Personnage>().UpdateMany(
+               x => new Personnage { NbPointBoutique = nbPointBoutique }, 
+               x => x.Id == idPersonnage
+          );
 
           return Results.NoContent();
      }

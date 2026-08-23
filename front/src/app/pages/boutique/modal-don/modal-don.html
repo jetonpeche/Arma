@@ -1,0 +1,57 @@
+<h2 mat-dialog-title class="don-header">
+    <mat-icon>volunteer_activism</mat-icon>
+    <span>TRANSFERT DE FONDS - BATAILLON</span>
+</h2>
+
+<mat-dialog-content>
+    
+    <!-- Dialogue RP -->
+    <div class="officer-dialogue">
+        <div class="officer-name">// QUARTIER-MAÎTRE :</div>
+        <p class="dialogue-text">"C'est un beau geste, Marine. Chaque crédit versé dans la caisse de la compagnie nous permet de réquisitionner du matériel lourd pour sauver vos miches sur le terrain. Combien vous lâchez ?"</p>
+    </div>
+
+    <!-- Rappel Logistique -->
+    <div class="solde-info">
+        <span class="label">VOTRE SOLDE ACTUEL :</span>
+        <span class="value">{{ soldeActuel() }} CR</span>
+    </div>
+
+    <!-- Saisie Tactique -->
+    <form [formGroup]="form" class="don-form">
+        <mat-form-field>
+            <mat-label>Montant du transfert (CR)</mat-label>
+            <input matInput type="number" formControlName="montant">
+            <mat-icon matSuffix>payments</mat-icon>
+            
+            @if(form.controls['montant'].hasError('min'))
+            {
+                <mat-error>Le montant minimum autorisé est de 1 CR.</mat-error>
+            }
+            @if(form.controls['montant'].hasError('max')) 
+            {
+                <mat-error>Fonds insuffisants. Vous ne possédez que {{ soldeActuel() }} CR.</mat-error>
+            }
+            @if(form.controls['montant'].hasError('required')) 
+            {
+                <mat-error>Saisie d'un montant obligatoire.</mat-error>
+            }
+        </mat-form-field>
+
+        <div class="conversion-box">
+            <div class="rate-info">// TAUX DE CHANGE APPLIQUÉ : 1 CR = 50 PTS COMPAGNIE</div>
+            <div class="result">
+                <span>LE BATAILLON RECEVRA :</span>
+                <span class="converted-value">
+                    {{ form.controls['montant'].value > 0 ? (form.controls['montant'].value * 50) : 0 }} PTS                
+                </span>
+            </div>
+        </div>
+    </form>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button matButton="text" matDialogClose>Annuler</button>&nbsp;
+    <jp-button-loader label="Autoriser le transfert" (clicked)="Valider()" [loading]="btnClick()" />
+</mat-dialog-actions>

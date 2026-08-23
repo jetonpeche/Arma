@@ -17,4 +17,9 @@ export class BanqueService
         const INFOS = { nbPoint: _nbPoint, mode: _mode };
         return this.http.put<void>(`${this.BASE_API}/modifier`, INFOS).pipe(takeUntilDestroyed(this.destroyRef));
     }
+
+    Don(_nbPoint: number): Observable<void>
+    {
+        return this.http.put<void>(`${this.BASE_API}/don/${_nbPoint}`, null).pipe(takeUntilDestroyed(this.destroyRef));
+    }
 }

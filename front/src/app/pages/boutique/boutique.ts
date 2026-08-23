@@ -16,6 +16,9 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalDon } from './modal-don/modal-don';
+import { EModeBanque } from '@enums/EModeBanque';
 
 @Component({
   selector: 'app-boutique',
@@ -36,7 +39,9 @@ export class BoutiquePage implements OnInit
     protected transactionSucces = signal<boolean>(false);
     protected transactionEchec = signal<boolean>(false);
 
+    private readonly estMobile = window.innerWidth <= 800;
     private router = inject(Router);
+    private dialog = inject(MatDialog);
     private boutiqueServ = inject(BoutiqueService);
     private authServ = inject(AuthentificationService);
     private dialogConfimationServ = inject(DialogConfirmationService);
@@ -50,6 +55,29 @@ export class BoutiquePage implements OnInit
     protected GestionBoutique(): void
     {
         this.router.navigateByUrl("/gestion-boutique");
+    }
+
+    protected OuvrirModalDon(): void
+    {
+        const DIALOG_REF = this.dialog.open(ModalDon, {
+            width: this.estMobile ? "95%" : "30%",
+            maxWidth: "100vw"
+        });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (montant) =>
+            {
+                if(montant && montant > 0)
+                {
+                    console.log(montant);
+                    
+                    this.pointPersonnage.update(x => x - montant);
+                    environment.utilisateur.nbPointBoutique -= montant;
+                    sessionStorage.setItem("utilisateur", environment.utilisateur);
+                    this.authServ.ModifierPointBanque(montant, EModeBanque.Ajouter);
+                }
+            }
+        });
     }
 
     protected OuvrirModalConfirmationPayer(_boutique: Boutique): void

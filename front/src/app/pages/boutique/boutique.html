@@ -30,9 +30,16 @@
             <p>
                 « Ouvrez grand vos putains d'oreilles, tas de bleus. L'armurerie, c'est pas une foutue galerie marchande pour aller faire du lèche-vitrine. Vos crédits, vous les avez gagnés en bouffant de la boue et en pissant le sang. Alors claquez-les sans faire les cons si vous voulez avoir une infime chance de ramener votre cul en un seul morceau au prochain largage. Est-ce que c'est bien clair ?! »            
             </p>
-            <div class="solde-display">
-                <mat-icon>account_balance_wallet</mat-icon>
-                <span>FONDS DISPONIBLES : <span class="points">{{ pointPersonnage() }} CR</span></span>
+            <div class="brief-actions">
+                <div class="solde-display">
+                    <mat-icon>account_balance_wallet</mat-icon>
+                    <span>FONDS DISPONIBLES : <span class="points">{{ pointPersonnage() }} CR</span></span>
+                </div>
+                
+                <button matButton="text" (click)="OuvrirModalDon()">
+                    <mat-icon>volunteer_activism</mat-icon>
+                    <span>FAIRE UN DON A LA C21</span>
+                </button>
             </div>
         </div>
     </mat-card>

@@ -18,7 +18,7 @@
         opacity: 0.8;
     }
 
-    .brief-content {
+.brief-content {
         flex: 1;
 
         p {
@@ -29,31 +29,39 @@
             margin-bottom: 16px;
             line-height: 1.6;
         }
-    }
 
-    .solde-display {
-        display: inline-flex;
-        align-items: center;
-        background-color: var(--mat-sys-surface-container-highest);
-        color: var(--mat-sys-primary);
-        padding: 8px 16px;
-        border: 1px solid var(--mat-sys-primary);
-        border-radius: 4px;
-        font-family: 'Courier New', Courier, monospace;
-        font-weight: bold;
-        font-size: 1.1rem;
-        letter-spacing: 1px;
-        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        /* --- ACTIONS LOGISTIQUES (SOLDE ET DON) --- */
+        .brief-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
 
-        mat-icon {
-            margin-right: 8px;
-        }
+            .solde-display {
+                display: inline-flex;
+                align-items: center;
+                background-color: var(--mat-sys-surface-container-highest);
+                color: var(--mat-sys-primary);
+                padding: 8px 16px;
+                border: 1px solid var(--mat-sys-primary);
+                border-radius: 4px;
+                font-family: 'Courier New', Courier, monospace;
+                font-weight: bold;
+                font-size: 1.1rem;
+                letter-spacing: 1px;
+                box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 
-        .points {
-            color: var(--mat-sys-tertiary); /* Lueur Cyan/Ambre du thème */
-            font-size: 1.3rem;
-            margin-left: 8px;
-            text-shadow: 0 0 5px var(--mat-sys-tertiary);
+                mat-icon {
+                    margin-right: 8px;
+                }
+
+                .points {
+                    color: var(--mat-sys-tertiary);
+                    font-size: 1.3rem;
+                    margin-left: 8px;
+                    text-shadow: 0 0 5px var(--mat-sys-tertiary);
+                }
+            }
         }
     }
 }
