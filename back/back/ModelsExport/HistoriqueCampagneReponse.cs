@@ -8,5 +8,7 @@ public sealed class HistoriqueCampagneReponse
      public required string Date { get; set; }
      public required string Titre { get; set; }
      public required string Texte { get; set; }
+     public required string CodeOperation { get; set; }
+     public required PlaneteOrigineLegerReponse? Planete { get; set; }
      public required string[]  ListeUrlImage { get; set; }
 }

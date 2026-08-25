@@ -3,8 +3,17 @@
     <form [formGroup]="form">
         
         <jp-input-text label="Titre" formControlName="titre" showMaxLength />
-        <div style="margin-top: 16px; margin-bottom: 16px;">
+
+        <div style="margin-bottom: 16px;">
+            <jp-input-text label="Code d'opération" formControlName="codeOperation" />
+        </div>
+
+        <div style="margin-bottom: 16px;">
             <jp-input-text label="Date" formControlName="date" />
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <jp-autocomplete [dataSource]="dataSourcePlanete()" label="Planète" formControlName="idPlanete" requireSelection />
         </div>
 
         <jp-textarea label="Description" formControlName="texte" [rows]="7" showMaxLength />

@@ -53,6 +53,7 @@ public static class HistoriqueCampagneRoute
           int total = db.GetCollection<HistoriqueCampagne>().Query().Count();
 
           var liste = db.GetCollection<HistoriqueCampagne>().Query()
+               .Include(x => x.Planete)
                .OrderBy(x => x.Id)
                .Select(x => new HistoriqueCampagneReponse
                {
@@ -60,8 +61,14 @@ public static class HistoriqueCampagneRoute
                     Date = x.Date,
                     Titre = x.Titre,
                     Texte = x.Texte,
+                    CodeOperation = x.CodeOperation,
+                    Planete = x.Planete != null ? new()
+                    {
+                         Id = x.Planete.Id,
+                         Nom = x.Planete.Nom
+                    } : null,
                     ListeUrlImage = x.ListeNomFichier.Select(y => baseUrl + y)
-                    .ToArray(),
+                         .ToArray(),
                })
                .Offset((_page - 1) * 5)
                .Limit(5)
@@ -86,13 +93,21 @@ public static class HistoriqueCampagneRoute
           if (string.IsNullOrWhiteSpace(_requete.Texte) || string.IsNullOrWhiteSpace(_requete.Titre))
                return Results.BadRequest("Le texte et le titre sont obligatoires");
 
+          if (_requete.IdPlanete <= 0)
+               return Results.BadRequest("La planete n'existe pas");
+
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var id = db.GetCollection<HistoriqueCampagne>().Insert(new HistoriqueCampagne()
+          if (!db.GetCollection<PlaneteOrigine>().Exists(x => x.Id == _requete.IdPlanete))
+               return Results.BadRequest("La planete n'existe pas");
+
+          var id = db.GetCollection<HistoriqueCampagne>().Insert(new HistoriqueCampagne
           {
                Date = _requete.Date.XSS(),
                Titre = _requete.Titre.XSS(),
-               Texte = _requete.Texte.XSS()
+               Texte = _requete.Texte.XSS(),
+               CodeOperation = _requete.CodeOperation.XSS(),
+               Planete = new PlaneteOrigine { Id = _requete.IdPlanete }
           }).AsInt32;
 
           var nomPersonnage = db.GetCollection<Personnage>().Query()
@@ -118,13 +133,21 @@ public static class HistoriqueCampagneRoute
           if (string.IsNullOrWhiteSpace(_requete.Texte) || string.IsNullOrWhiteSpace(_requete.Titre))
                return Results.BadRequest("Le texte et le titre sont obligatoires");
 
+                    if (_requete.IdPlanete <= 0)
+               return Results.BadRequest("La planete n'existe pas");
+
           using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          if (!db.GetCollection<PlaneteOrigine>().Exists(x => x.Id == _requete.IdPlanete))
+               return Results.BadRequest("La planete n'existe pas");
 
           var id = db.GetCollection<HistoriqueCampagne>().UpdateMany(x => new HistoriqueCampagne
           {
                Date = _requete.Date.XSS(),
                Titre = _requete.Titre.XSS(),
-               Texte = _requete.Texte.XSS()
+               Texte = _requete.Texte.XSS(),
+               CodeOperation = _requete.CodeOperation.XSS(),
+               Planete = new PlaneteOrigine { Id = _requete.IdPlanete }
           }, x => x.Id == _idHistoriqueCampagne);
 
           var nomPersonnage = db.GetCollection<Personnage>().Query()

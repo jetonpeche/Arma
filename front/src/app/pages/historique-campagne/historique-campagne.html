@@ -13,27 +13,58 @@
     }
 </div>
 
-@for (element of listeHistoriqueCampagne(); track $index) 
+<!-- BATAILLON - DOSSIERS DATAPAD -->
+@for (element of listeHistoriqueCampagne(); track element.id) 
 {
-    <mat-card class="unsc-campaign-card">
-        <mat-card-header>
-            <mat-card-title>{{ element.titre }}</mat-card-title>
-            <mat-card-subtitle>
-                <mat-icon class="date-icon">satellite_alt</mat-icon>
-                <span class="date-label">TIMESTAMP //</span>
-                <span class="date-value">{{ element.date }}</span> 
-            </mat-card-subtitle>
-        </mat-card-header>
+    <div class="unsc-datapad-dossier">
         
-        <mat-card-content>
+        <!-- BARRE DE CLASSIFICATION -->
+        <div class="dossier-top-bar">
+            <span class="classification">
+                <mat-icon>gavel</mat-icon>
+                <span>// ARCHIVE O.N.I. CLASSIFIÉE //</span>
+            </span>
+            <span class="file-id">REF: {{ element.id | number:'3.0-0' }}-{{ element.date | slice:6:10 }}</span>
+        </div>
+
+        <!-- EN-TÊTE DU DOSSIER -->
+        <div class="dossier-header">
+            <h2 class="dossier-title">{{ element.titre }}</h2>
+            
+            <div class="tactical-badges">
+                <div class="subtitle-block">
+                    <mat-icon class="sub-icon">satellite_alt</mat-icon>
+                    <span class="sub-label">TIMESTAMP //</span>
+                    <span class="sub-value">{{ element.date }}</span> 
+                </div>
+
+                @if(element.codeOperation) {
+                    <div class="subtitle-block op-block">
+                        <mat-icon class="sub-icon">memory</mat-icon>
+                        <span class="sub-label">OP //</span>
+                        <span class="sub-value">{{ element.codeOperation }}</span>
+                    </div>
+                }
+
+                @if(element.planete) {
+                    <div class="subtitle-block planet-block">
+                        <mat-icon class="sub-icon">public</mat-icon>
+                        <span class="sub-label">LOC //</span>
+                        <span class="sub-value">{{ element.planete.nom | uppercase }}</span>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <!-- CONTENU (DÉBRIEFING ET RECO) -->
+        <div class="dossier-body">
             <p class="campaign-report-text">{{ element.texte }}</p>
 
-            <jp-grid-container>     
+            <jp-grid-container [gap]="16">     
                 @for (urlImg of element.listeUrlImage; track $index) 
                 {
                     <jp-grid-element [colXs]="12" [colSm]="6" [colLg]="4">
                         <div [class]="droitFichier?.peutEcrire ? 'parent' : 'parentPasDroitFichier'">
-
                             <img [src]="urlImg" alt="Fichier reconnaissance de campagne">
 
                             @if(droitFichier?.peutEcrire)
@@ -53,9 +84,10 @@
                     </jp-grid-element>
                 }
             </jp-grid-container>
-        </mat-card-content>
+        </div>
         
-        <mat-card-actions class="card-actions">
+        <!-- ACTIONS (PIED DE DOSSIER) -->
+        <div class="dossier-footer">
             <span class="spacer"></span>
             @if(droit?.peutEcrire)
             {
@@ -64,7 +96,6 @@
                     MODIFIER
                 </button>
             }
-
             @if(droit?.peutSupprimer)
             {
                 <button mat-flat-button color="warn" (click)="OuvrirModalConfirmerSupprimer(element)">
@@ -72,8 +103,8 @@
                     SUPPRIMER
                 </button>
             }
-        </mat-card-actions>
-    </mat-card>
+        </div>
+    </div>
 }
 
 <mat-paginator class="unsc-paginator"

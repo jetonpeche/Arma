@@ -1,141 +1,158 @@
 /* =========================================================
-   CARTES DE RAPPORTS (CADRE HUD COMPLET)
+   CHÂSSIS DATAPAD UNSC (REMPLACE MAT-CARD)
    ========================================================= */
-.unsc-campaign-card {
-    position: relative; 
-    background-color: var(--mat-sys-surface-container);
-    border: 1px solid var(--mat-sys-outline-variant); 
-    border-radius: 2px !important; 
-    margin-bottom: 32px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    overflow: visible;
+.unsc-datapad-dossier {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 40px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 95%, #050505);
+    
+    /* Découpe tactique des angles (Chamfer) */
+    clip-path: polygon(
+        0 16px, 
+        16px 0, 
+        100% 0, 
+        100% calc(100% - 16px), 
+        calc(100% - 16px) 100%, 
+        0 100%
+    );
 
-    /* --- LE RÉTICULE DE CIBLAGE --- */
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        pointer-events: none; 
-        z-index: 10;
-        
-        $c: var(--mat-sys-primary); 
-        $t: 2px;  /* Épaisseur du cadre */
-        $l: 32px; /* Taille des angles au repos */
-        
-        background:
-            linear-gradient($c, $c) top left / $l $t no-repeat,
-            linear-gradient($c, $c) top left / $t $l no-repeat,
-            linear-gradient($c, $c) top right / $l $t no-repeat,
-            linear-gradient($c, $c) top right / $t $l no-repeat,
-            linear-gradient($c, $c) bottom left / $l $t no-repeat,
-            linear-gradient($c, $c) bottom left / $t $l no-repeat,
-            linear-gradient($c, $c) bottom right / $l $t no-repeat,
-            linear-gradient($c, $c) bottom right / $t $l no-repeat;
-            
-        opacity: 0.7; 
-        transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Encadrement et Lueur */
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mat-sys-outline-variant) 40%, transparent);
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: inset 2px 0 0 0 var(--mat-sys-primary), 
+                    inset 0 0 0 1px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent),
+                    0 12px 24px rgba(0,0,0,0.4);
+    }
+}
+
+/* --- BARRE DE CLASSIFICATION SUPÉRIEURE --- */
+.dossier-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+    padding: 6px 16px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    color: var(--mat-sys-primary);
+
+    .classification {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        mat-icon {
+            font-size: 16px; width: 16px; height: 16px;
+        }
     }
 
-    /* --- EFFET AU SURVOL (VERROUILLAGE COMPLET) --- */
-    &:hover {
-        border-color: transparent; 
-        box-shadow: 0 8px 25px rgba(0,0,0,0.5), 
-                    inset 0 0 30px color-mix(in srgb, var(--mat-sys-primary) 5%, transparent);
+    .file-id {
+        color: var(--mat-sys-on-surface-variant);
+    }
+}
+
+/* --- EN-TÊTE DU DOSSIER --- */
+.dossier-header {
+    padding: 24px 24px 16px 24px;
+    border-bottom: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+
+    .dossier-title {
+        color: var(--mat-sys-primary);
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 900;
+        font-size: 1.6rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin: 0 0 16px 0;
+        display: flex;
+        align-items: center;
 
         &::before {
-            opacity: 1;
-            $t: 2px;
-            /* ORDRE DE FERMETURE : Les lignes avancent jusqu'à 51% pour se rejoindre au centre */
-            $l: 51%; 
-            background-size: 
-                $l $t, $t $l, /* HG */
-                $l $t, $t $l, /* HD */
-                $l $t, $t $l, /* BG */
-                $l $t, $t $l; /* BD */
-                
-            filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mat-sys-primary) 80%, transparent));
+            content: '>';
+            margin-right: 12px;
+            color: var(--mat-sys-on-surface-variant);
         }
     }
 }
 
-/* --- AJUSTEMENT DE L'EN-TÊTE --- */
-mat-card-header {
-    padding: 20px 24px 0 24px !important;
-    
-    /* SUPPRESSION DU TRAIT VERTICAL ET DE LA MARGE */
-    border-left: none; 
-    margin-left: 0;
+/* --- BADGES TACTIQUES --- */
+.tactical-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
 
-    mat-card-title {
-        color: var(--mat-sys-primary);
-        font-family: 'Courier New', Courier, monospace !important;
-        font-weight: 900 !important;
-        letter-spacing: 1.5px;
-        font-size: 1.4rem !important;
-    }
-
-    mat-card-subtitle {
-        display: flex !important;
+    .subtitle-block {
+        display: flex;
         align-items: center;
         gap: 8px;
-        font-family: 'Courier New', Courier, monospace !important;
-        font-size: 0.85rem !important;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.85rem;
         
         background-color: color-mix(in srgb, var(--mat-sys-tertiary) 10%, transparent);
-        padding: 6px 12px !important;
+        padding: 6px 12px;
         border-radius: 2px;
         border-left: 3px solid var(--mat-sys-tertiary);
-        margin-top: 8px;
-        width: fit-content;
 
-        .date-icon {
-            font-size: 16px;
-            width: 16px;
-            height: 16px;
-            color: var(--mat-sys-tertiary);
-            line-height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        &.op-block {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+            border-left-color: var(--mat-sys-primary);
+            .sub-icon { color: var(--mat-sys-primary); }
         }
 
-        .date-label {
+        &.planet-block {
+            background-color: color-mix(in srgb, #9c27b0 10%, transparent);
+            border-left-color: #9c27b0;
+            .sub-icon { color: #9c27b0; }
+        }
+
+        .sub-icon {
+            font-size: 16px; width: 16px; height: 16px;
+            color: var(--mat-sys-tertiary);
+        }
+
+        .sub-label {
             font-weight: 900;
             letter-spacing: 1.5px;
             color: var(--mat-sys-on-surface-variant);
-            line-height: 1;
-            display: flex;
-            align-items: center;
-            margin-top: 2px;
         }
 
-        .date-value {
+        .sub-value {
             color: var(--mat-sys-on-surface);
             font-weight: bold;
         }
     }
 }
-/* --- TEXTE DU DÉBRIEFING --- */
-mat-card-content {
-    padding: 0 24px 24px 24px !important;
+
+/* --- CORPS DU DOSSIER --- */
+.dossier-body {
+    padding: 24px;
     
     .campaign-report-text {
         color: var(--mat-sys-on-surface);
         font-size: 1.05rem;
-        line-height: 1.6;
-        margin-bottom: 24px;
-        white-space: pre-wrap; /* Conserve les retours à la ligne des longs rapports */
+        line-height: 1.7;
+        margin: 0 0 32px 0;
+        white-space: pre-wrap; 
     }
 }
 
-/* --- BOUTONS D'ACTION DU DOSSIER --- */
-.card-actions {
-    padding: 12px 24px !important;
-    background-color: var(--mat-sys-surface-container-highest);
+/* --- PIED DE DOSSIER (ACTIONS) --- */
+.dossier-footer {
+    padding: 16px 24px;
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent);
     border-top: 1px solid var(--mat-sys-outline-variant);
     display: flex;
     gap: 12px;
+    align-items: center;
 
     .spacer {
         flex: 1 1 auto;
@@ -143,12 +160,12 @@ mat-card-content {
 }
 
 /* =========================================================
-   GALERIE PHOTO ET GESTION DES FICHIERS (RESPONSIVE)
+   GALERIE PHOTO ET GESTION DES FICHIERS
    ========================================================= */
 @mixin baseParent {
     position: relative;
-    width: 100%; /* S'adapte à la grille responsive */
-    height: 18rem; 
+    width: 100%; 
+    height: 18rem; /* DIMENSION CONSERVÉE */
     overflow: hidden;
     border: 1px solid var(--mat-sys-outline-variant);
     border-radius: 2px;
@@ -158,31 +175,26 @@ mat-card-content {
         display: block;
         width: 100%; 
         height: 100%;
-        object-fit: cover; /* Recadre proprement sans étirer la photo */
+        object-fit: cover; 
         transition: transform 0.4s ease;
     }
 }
 
-.parentPasDroitFichier {
-    @include baseParent;
-}
-
+.parentPasDroitFichier { @include baseParent; }
 .parent {
     @include baseParent;
 
-    /* Overlay d'affichage radar au survol */
     &::after {
         content: '';
         position: absolute;
         inset: 0;
-        background-color: rgba(0, 15, 0, 0.6); /* Filtre vert translucide tactique */
+        background-color: rgba(0, 15, 0, 0.6); 
         opacity: 0;
         z-index: 1;
         transition: opacity 0.2s ease;
         backdrop-filter: blur(2px);
     }
 
-    /* Boîte à outils flottante pour l'édition de reconnaissance */
     .enfant {
         position: absolute;
         top: 12px;
@@ -197,52 +209,47 @@ mat-card-content {
 
     &:hover {
         border-color: var(--mat-sys-primary);
-
-        img {
-            transform: scale(1.03); /* Léger effet de zoom scanner */
-        }
-
-        &::after {
-            opacity: 1;
-        }
-
-        .enfant {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        img { transform: scale(1.03); }
+        &::after { opacity: 1; }
+        .enfant { opacity: 1; transform: translateY(0); }
     }
 }
 
-/* --- ADAPTATION SÉCURITÉ RESPONSIVE (MOBILE) --- */
+/* =========================================================
+   ADAPTATION SÉCURITÉ RESPONSIVE (MOBILE)
+   ========================================================= */
 @media screen and (max-width: 600px) {
-    mat-card-header {
-        padding: 16px 16px 0 16px !important;
+    .dossier-top-bar {
+        font-size: 0.7rem;
+        padding: 6px 12px;
+    }
+
+    .dossier-header {
+        padding: 16px;
         
-        mat-card-title {
-            font-size: 1.15rem !important;
+        .dossier-title { font-size: 1.25rem; }
+    }
+
+    .dossier-body {
+        padding: 16px;
+
+        .campaign-report-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 24px;
         }
     }
 
-    mat-card-content {
-        padding: 16px !important;
-    }
-
-    /* Réduction de la hauteur des images sur téléphone pour éviter les cartes trop longues */
+    /* DIMENSION MOBILE CONSERVÉE */
     .parent, .parentPasDroitFichier {
         height: 12rem;
     }
 
-    .card-actions {
-        padding: 12px 16px !important;
+    .dossier-footer {
+        padding: 16px;
         flex-wrap: wrap;
         
-        .spacer {
-            display: none; /* Les boutons prennent toute la largeur et s'alignent */
-        }
-        
-        button {
-            width: 100%;
-            justify-content: center;
-        }
+        .spacer { display: none; }
+        button { width: 100%; justify-content: center; }
     }
 }

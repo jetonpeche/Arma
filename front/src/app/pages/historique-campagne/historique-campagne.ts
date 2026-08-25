@@ -15,10 +15,11 @@ import { ETypeRessource } from '@enums/ETypeRessource';
 import { FichierService } from '@services/FichierService';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { AjouterModifierHistoriqueCampagne } from '@modals/ajouter-modifier-historique-campagne/ajouter-modifier-historique-campagne';
+import { DecimalPipe, SlicePipe, UpperCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-historique-campagne',
-  imports: [MatPaginatorModule, MatButtonModule, MatIconModule, MatCardModule, GridContainer, GridElement, InputFile],
+  imports: [SlicePipe, DecimalPipe, UpperCasePipe, MatPaginatorModule, MatButtonModule, MatIconModule, MatCardModule, GridContainer, GridElement, InputFile],
   templateUrl: './historique-campagne.html',
   styleUrl: './historique-campagne.scss',
 })
