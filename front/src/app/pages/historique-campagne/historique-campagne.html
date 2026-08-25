@@ -91,14 +91,14 @@
             <span class="spacer"></span>
             @if(droit?.peutEcrire)
             {
-                <button mat-flat-button color="primary" (click)="OuvriModalAjouterModifierHistoriqueCampagne(element)">
+                <button matButton="filled" (click)="OuvriModalAjouterModifierHistoriqueCampagne(element)">
                     <mat-icon>edit</mat-icon>
                     MODIFIER
                 </button>
             }
             @if(droit?.peutSupprimer)
             {
-                <button mat-flat-button color="warn" (click)="OuvrirModalConfirmerSupprimer(element)">
+                <button matButton="filled" (click)="OuvrirModalConfirmerSupprimer(element)">
                     <mat-icon>delete</mat-icon>
                     SUPPRIMER
                 </button>
