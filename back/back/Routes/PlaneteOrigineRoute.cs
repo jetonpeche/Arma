@@ -11,8 +11,8 @@ public static class PlaneteOrigineRoute
 {
     public static RouteGroupBuilder AjouterRoutePlaneteOrigine(this RouteGroupBuilder builder)
     {
-        builder.MapGet("lister", ListerAsync)
-              .WithDescription("Lister les planetes")
+        builder.MapGet("lister/{idSecteur:int}", ListerAsync)
+              .WithDescription("Lister les planetes d'un secteur")
               .Produces<PaginationReponse<PlaneteOrigine>>()
               .AllowAnonymous();
 
@@ -55,42 +55,28 @@ public static class PlaneteOrigineRoute
 
     static async Task<IResult> ListerAsync(
          HttpContext _httpContext,
-         [FromQuery(Name = "thermeRecherche")] string _recherche = "",
-         [FromQuery(Name = "page")] int _page = 1
+         [FromRoute(Name = "idSecteur")] int _idSecteur
     )
     {
-          if (_page <= 1)
-               _page = 1;
+        using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          using var db = new LiteDatabase(Constant.BDD_NOM);
+        var liste = db.GetCollection<PlaneteOrigine>().Query()
+            .Where(x => x.Secteur.Id == _idSecteur)
+            .OrderBy(x => x.Nom)
+            .Select(x => new PlaneteOrigineReponse
+            {
+                Id = x.Id,
+                Nom = x.Nom,
+                Description = x.Description,
+                Statut = x.Statut,
+                PositionX = x.PositionX,
+                PositionY = x.PositionY,
+                IdSecteur = x.Secteur == null ? null : x.Secteur.Id,
+                NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
+            })
+            .ToList();
 
-          int total = db.GetCollection<PlaneteOrigine>().Query().Count();
-
-          var requete = db.GetCollection<PlaneteOrigine>().Query()
-               .OrderBy(x => x.Nom);
-
-          if (!string.IsNullOrWhiteSpace(_recherche))
-               requete = requete.Where(x => x.Nom.Contains(_recherche));
-
-          var liste = requete.Select(x => new PlaneteOrigine
-          {
-               Id = x.Id,
-               Nom = x.Nom,
-               Description = x.Description,
-               NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
-          })
-          .Offset((_page - 1) * 12)
-          .Limit(12)
-          .ToArray();
-
-          return Results.Extensions.Ok(
-               new PaginationReponse<PlaneteOrigine>
-               {
-                    Page = _page,
-                    Total = total,
-                    Liste = liste
-               },
-               PaginationReponseContext.Default);
+        return Results.Extensions.Ok(liste, PlaneteOrigineReponseContext.Default);
     }
 
     static async Task<IResult> ListerLegerAsync()

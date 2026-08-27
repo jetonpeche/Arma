@@ -1,19 +1,16 @@
 import { EStatusPlanete } from "@enums/EStatusPlanete"
-import { SecteurPlanetaire } from "./SecteurPlanetaire"
 
 export type PlaneteOrigine =
 {
     id: number,
+    idSecteur: number,
     nom: string,
     description: string | null,
     nomFichier: string,
     statut: EStatusPlanete,
-    secteur: SecteurPlanetaire,
 
-    position: {
-        x: number,
-        y: number
-    }
+    positionX: number,
+    positionY: number
 }
 
 export type Secteur =
@@ -22,10 +19,8 @@ export type Secteur =
     nom: string,
     description: string | null,
 
-    position: {
-        x: number,
-        y: number
-    }
+    positionX: number,
+    positionY: number
 }
 
 export type PlaneteConnecter = 
@@ -37,8 +32,8 @@ export type PlaneteConnecter =
 
 export type SecteurConnecter = 
 {
-    idPlaneteA: number,
-    idPlaneteB: number,
+    idSecteurA: number,
+    idSecteurB: number,
     distance: string
 }
 
