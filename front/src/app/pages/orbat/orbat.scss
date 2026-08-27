@@ -119,8 +119,8 @@
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
 
     width: max-content;
-    min-width: 320px; 
-    max-width: 450px;
+    min-width: 420px; 
+    max-width: 550px;
     z-index: 2; 
     position: relative;
     
@@ -223,7 +223,7 @@
         
         .slot-row {
             display: grid; 
-            grid-template-columns: 140px 1fr;
+            grid-template-columns: 180px 1fr;
             border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 20%, transparent);
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.8rem;
@@ -278,8 +278,8 @@
 @media screen and (max-width: 768px) 
 {
     .unit-card {
-        min-width: 260px;
-        max-width: 90vw;  /* La carte ne dépassera jamais 90% de la largeur de l'écran */
+        min-width: 320px;
+        max-width: 90vw;
         
         /* Réduction proportionnelle du biseau holographique */
         clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
@@ -293,7 +293,7 @@
         }
 
         .slot-list .slot-row {
-            grid-template-columns: 90px 1fr; 
+            grid-template-columns: 120px 1fr;
             font-size: 0.7rem;
             min-height: 28px;
 
