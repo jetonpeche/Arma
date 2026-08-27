@@ -4,12 +4,72 @@
         <div class="unsc-subtitle">// ARCHIVES DE COMPAGNIE - RAPPORTS POST-OPÉRATIONNELS (AAR)</div>
     </div>
 
-    @if (droit?.peutEcrire)
+    <div class="header-actions">
+        @if (droit?.peutEcrire)
+        {
+            <button matButton="filled" (click)="OuvrirModalAjouterModifierCampagne()">
+                <mat-icon>add</mat-icon>
+                AJOUTER UNE CAMPAGNE
+            </button>
+
+            <button matButton="filled" (click)="OuvriModalAjouterModifierHistoriqueCampagne()">
+                <mat-icon>add</mat-icon>
+                AJOUTER UN HISTORIQUE
+            </button>
+        }
+    </div>
+</div>
+
+<div class="campaign-selector-box">
+    
+    <div class="selector-with-actions">
+        <mat-form-field class="unsc-select">
+            <mat-label>THÉÂTRE D'OPÉRATIONS (CAMPAGNE)</mat-label>
+            <mat-select [value]="idCampagneSelectionnee()" (selectionChange)="ChangerCampagne($event.value)">
+                @for (campagne of listeCampagne(); track campagne.id) 
+                {
+                    <mat-option [value]="campagne.id">
+                        {{ campagne.nom | uppercase }}
+                    </mat-option>
+                }
+            </mat-select>
+            <mat-icon matPrefix>folder_special</mat-icon>
+        </mat-form-field>
+
+        @if(campagneCourante(); as camp) 
+        {
+            <div class="campaign-actions">
+                @if(droit?.peutEcrire) 
+                {
+                    <button matIconButton matTooltip="Modifier cette campagne" (click)="OuvrirModalAjouterModifierCampagne(camp)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                }
+                
+                @if(droit?.peutSupprimer) 
+                {
+                    <button matIconButton matTooltip="Supprimer cette campagne" (click)="OuvrirModalConfirmerSupprimerCampagne(camp)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Affichage du briefing de la campagne courante -->
+    @if(campagneCourante(); as camp) 
     {
-        <button matButton="filled" (click)="OuvriModalAjouterModifierHistoriqueCampagne()">
-            <mat-icon>add</mat-icon>
-            AJOUTER UNE CAMPAGNE
-        </button>
+        <div class="campaign-briefing">
+            @if(camp.resumer) {
+                <p class="c-resumer">{{ camp.resumer }}</p>
+            }
+            @if(camp.intervalDate) {
+                <span class="c-dates">
+                    <mat-icon>date_range</mat-icon>
+                    {{ camp.intervalDate }}
+                </span>
+            }
+        </div>
     }
 </div>
 

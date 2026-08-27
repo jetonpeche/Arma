@@ -4,8 +4,9 @@ namespace back.ModelsExport;
 
 public sealed class HistoriqueCampagneReponse
 {
-     public int Id { get; set; }
-     public required string Date { get; set; }
+    public int Id { get; set; }
+    public int IdCampagne { get; set; }
+    public required string Date { get; set; }
      public required string Titre { get; set; }
      public required string Texte { get; set; }
      public required string CodeOperation { get; set; }

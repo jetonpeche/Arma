@@ -5,6 +5,7 @@ import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { HistoriqueCampagne, HistoriqueCampagneRequete } from "@models/HistoriqueCampagne";
 import { Pagination } from "@models/Pagination";
+import { Campagne, CampagneRequete } from "@models/Campagne";
 
 export class HistoriqueCampagneService
 {
@@ -13,24 +14,44 @@ export class HistoriqueCampagneService
 
     private readonly BASE_API = `${environment.urlApi}/historique-campagne`;
 
-    Lister(_page: number): Observable<Pagination<HistoriqueCampagne>>
+    ListerCampagne(): Observable<Campagne[]>
     {
-        return this.http.get<Pagination<HistoriqueCampagne>>(`${this.BASE_API}/lister?page=${_page}`).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.get<Campagne[]>(`${this.BASE_API}/lister-campagne`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    Ajouter(_historiqueCampagne: HistoriqueCampagneRequete): Observable<number>
+    ListerHistorique(_idCampagne: number, _page: number): Observable<Pagination<HistoriqueCampagne>>
     {
-        return this.http.post<number>(`${this.BASE_API}/ajouter`, _historiqueCampagne).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.get<Pagination<HistoriqueCampagne>>(`${this.BASE_API}/lister-historique/${_idCampagne}?page=${_page}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    Modifier(_idHistoriqueCampagne: number, _historiqueCampagne: HistoriqueCampagneRequete): Observable<void>
+    AjouterCampagne(_campagne: CampagneRequete): Observable<void>
     {
-        return this.http.put<void>(`${this.BASE_API}/modifier/${_idHistoriqueCampagne}`, _historiqueCampagne).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.post<void>(`${this.BASE_API}/ajouter-campagne`, _campagne).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    Supprimer(_idHistoriqueCampagne: number): Observable<void>
+    AjouterHistorique(_historiqueCampagne: HistoriqueCampagneRequete): Observable<number>
     {
-        return this.http.delete<void>(`${this.BASE_API}/supprimer/${_idHistoriqueCampagne}`).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.post<number>(`${this.BASE_API}/ajouter-historique`, _historiqueCampagne).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ModifierHistorique(_idHistoriqueCampagne: number, _historiqueCampagne: HistoriqueCampagneRequete): Observable<void>
+    {
+        return this.http.put<void>(`${this.BASE_API}/modifier-historique/${_idHistoriqueCampagne}`, _historiqueCampagne).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ModifierCampagne(_idCampagne: number, _campagne: CampagneRequete): Observable<void>
+    {
+        return this.http.put<void>(`${this.BASE_API}/modifier-campagne/${_idCampagne}`, _campagne).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    SupprimerHistorique(_idHistoriqueCampagne: number): Observable<void>
+    {
+        return this.http.delete<void>(`${this.BASE_API}/supprimer-historique/${_idHistoriqueCampagne}`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    SupprimerCampagne(_idCampagne: number): Observable<void>
+    {
+        return this.http.delete<void>(`${this.BASE_API}/supprimer-campagne/${_idCampagne}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     SupprimerImage(_idHistoriqueCampagne: number, _nomFichier: string): Observable<void>

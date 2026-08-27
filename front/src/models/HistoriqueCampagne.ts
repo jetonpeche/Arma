@@ -3,6 +3,7 @@ import { PlaneteOrigineLeger } from "./PlaneteOrigine"
 export type HistoriqueCampagne =
 {
     id: number,
+    idCampagne: number,
     date: string,
     titre: string,
     texte: string,
@@ -17,5 +18,6 @@ export type HistoriqueCampagneRequete =
     titre: string,
     codeOperation: string,
     texte: string,
-    idPlanete: number
+    idPlanete: number,
+    idCampagne: number
 }

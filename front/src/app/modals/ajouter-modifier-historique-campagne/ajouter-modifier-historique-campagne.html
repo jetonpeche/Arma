@@ -16,6 +16,10 @@
             <jp-autocomplete [dataSource]="dataSourcePlanete()" label="Planète" formControlName="idPlanete" requireSelection />
         </div>
 
+        <div style="margin-bottom: 16px;">
+            <jp-autocomplete [dataSource]="dataSourceCampagne()" label="Campagne" formControlName="idCampagne" requireSelection />
+        </div>
+
         <jp-textarea label="Description" formControlName="texte" [rows]="7" showMaxLength />
 
         <jp-input-file-drop-zone accept=".png, .jpg, .jpeg, .webp"

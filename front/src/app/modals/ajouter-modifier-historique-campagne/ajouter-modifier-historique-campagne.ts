@@ -22,6 +22,7 @@ export class AjouterModifierHistoriqueCampagne implements OnInit
 {
     protected form: FormGroup;
     protected dataSourcePlanete = signal<AutocompleteDataSource[]>([]);
+    protected dataSourceCampagne = signal<AutocompleteDataSource[]>([]);
     protected labelBtn = signal<string>("Ajouter");
     protected btnClick = signal<boolean>(false);
 
@@ -36,6 +37,7 @@ export class AjouterModifierHistoriqueCampagne implements OnInit
     ngOnInit(): void 
     {
         this.ListerPlanete();
+        this.ListerCampagne();
 
         if(this.matDialogData)
             this.labelBtn.set("Modifier");
@@ -45,7 +47,8 @@ export class AjouterModifierHistoriqueCampagne implements OnInit
             date: new FormControl(this.matDialogData?.date ?? "", [Validators.required]),
             texte: new FormControl(this.matDialogData?.texte ?? "", [Validators.required, Validators.maxLength(1_000)]),
             codeOperation: new FormControl(this.matDialogData?.codeOperation ?? "", [Validators.maxLength(120)]),
-            idPlanete: new FormControl(this.matDialogData?.planete?.id ?? 0, [Validators.required])
+            idPlanete: new FormControl(this.matDialogData?.planete?.id ?? 0, [Validators.required]),
+            idCampagne: new FormControl(this.matDialogData?.idCampagne ?? 0, [Validators.required])
         });
     }
 
@@ -63,7 +66,7 @@ export class AjouterModifierHistoriqueCampagne implements OnInit
 
         if(this.matDialogData)
         {
-            this.historiqueCampagneServ.Modifier(this.matDialogData.id, this.form.value).subscribe({
+            this.historiqueCampagneServ.ModifierHistorique(this.matDialogData.id, this.form.value).subscribe({
                 next: () =>
                 {
                     this.btnClick.set(false);
@@ -94,7 +97,7 @@ export class AjouterModifierHistoriqueCampagne implements OnInit
         }
         else
         {
-            this.historiqueCampagneServ.Ajouter(this.form.value).subscribe({
+            this.historiqueCampagneServ.AjouterHistorique(this.form.value).subscribe({
                 next: (id) =>
                 {
                     const uploads = Array.from(this.listeFichier).map(element => 
@@ -122,6 +125,16 @@ export class AjouterModifierHistoriqueCampagne implements OnInit
                 error: () => this.btnClick.set(false)
             });
         }
+    }
+
+    private ListerCampagne(): void
+    {
+        this.historiqueCampagneServ.ListerCampagne().subscribe({
+            next: (retour) =>
+            {
+                this.dataSourceCampagne.set(retour.map(x => ({ value: x.id, display: x.nom })));
+            }
+        })
     }
 
     private ListerPlanete(): void
