@@ -19,7 +19,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierPlaneteOrigine } from '@modals/ajouter-modifier-planete-origine/ajouter-modifier-planete-origine';
 import { AjouterModifierSysteme } from '@modals/ajouter-modifier-systeme/ajouter-modifier-systeme';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
-import { sys } from 'typescript';
 import { ModalDistanceConnexion } from './modal-distance-connexion/modal-distance-connexion';
 
 @Component({
@@ -343,7 +342,7 @@ export class CarteGalactique implements OnInit
                             this.systemeSelectionneRoute.set(null);
                             return;
                         }
-                        
+
                         this.planeteServ.AjouterConnexion({ idPlaneteA: cibleA.id, idPlaneteB: cibleB, distance: distanceSaisie }).subscribe({
                             next: () =>
                             {
