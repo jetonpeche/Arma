@@ -74,7 +74,7 @@ public static class PlaneteOrigineRoute
                 Statut = x.Statut,
                 PositionX = x.PositionX,
                 PositionY = x.PositionY,
-                IdSysteme = x.Systeme == null ? null : x.Systeme.Id,
+                IdSysteme = x.Systeme.Id,
                 NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
             })
             .ToList();

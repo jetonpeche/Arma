@@ -7,8 +7,8 @@ public sealed class PlaneteOrigine
      [BsonId]
     public int Id { get; set; }
 
-    [BsonRef]
-    public Systeme Systeme { get; set; }
+     [BsonRef]
+     public Systeme Systeme { get; set; } = null!;
 
     public string Nom { get; set; } = null!;
      public string? Description { get; set; }

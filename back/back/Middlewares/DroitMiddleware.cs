@@ -46,7 +46,7 @@ public class DroitMiddleware : IEndpointFilter
           if (droitGroupe is null)
             return Results.NotFound("Le personnage n'existe pas");
 
-          if (nomMapGroupe is "systeme")
+          if (nomMapGroupe is "systeme" or "asteroide")
                nomMapGroupe = "planete-origine";
 
           var droit = droitGroupe.ListeDroit.FirstOrDefault(x => x.RouteGroupe == nomMapGroupe);

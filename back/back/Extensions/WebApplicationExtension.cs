@@ -15,6 +15,7 @@ public static class WebApplicationExtension
           mapGroupe.MapGroup("personnage").AjouterRoutePersonnage();
           mapGroupe.MapGroup("grade").AjouterRouteGrade();
           mapGroupe.MapGroup("planete-origine").AjouterRoutePlaneteOrigine();
+          mapGroupe.MapGroup("asteroide").AjouterRouteAsteroide();
           mapGroupe.MapGroup("systeme").AjouterRouteSysteme();
           mapGroupe.MapGroup("specialite").AjouterRouteSpecialite();
           mapGroupe.MapGroup("upload-fichier").AjouterRouteFichier();

@@ -6,7 +6,7 @@ public sealed class PlaneteOrigineReponse
 {
     public int Id { get; set; }
 
-    public int? IdSysteme { get; set; }
+    public int IdSysteme { get; set; }
 
     public string Nom { get; set; } = null!;
     public string? Description { get; set; }
