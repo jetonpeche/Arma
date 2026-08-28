@@ -20,7 +20,7 @@ public class DroitMiddleware : IEndpointFilter
           string nomMapGroupe = routeSplit[2];
           string verbeHttp = context.HttpContext.Request.Method;
 
-          if (nomMapGroupe is "authentification" or "test" or "bot-discord")
+          if (nomMapGroupe is "test" or "bot-discord")
                return await next(context);
 
           if (verbeHttp == HttpMethods.Get)
@@ -28,6 +28,7 @@ public class DroitMiddleware : IEndpointFilter
                if (nomMapGroupe is "specialite" or "grade" or "personnage" or "log")
                     return await next(context);
           }
+        
           else if (verbeHttp == HttpMethods.Put && nomMapGroupe is "parametre")
                return await next(context);
 
@@ -43,7 +44,10 @@ public class DroitMiddleware : IEndpointFilter
                .FirstOrDefault();
 
           if (droitGroupe is null)
-               return Results.NotFound("Le personnage n'existe pas");
+            return Results.NotFound("Le personnage n'existe pas");
+
+          if (nomMapGroupe is "systeme")
+               nomMapGroupe = "planete-origine";
 
           var droit = droitGroupe.ListeDroit.FirstOrDefault(x => x.RouteGroupe == nomMapGroupe);
 
@@ -53,7 +57,7 @@ public class DroitMiddleware : IEndpointFilter
                     return Results.Forbid();
           }
         
-        if(verbeHttp == HttpMethods.Get)
+          if(verbeHttp == HttpMethods.Get)
           {
                if(nomMapGroupe is "boutique")
                     return await next(context);

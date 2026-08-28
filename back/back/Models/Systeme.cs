@@ -2,7 +2,7 @@ using LiteDB;
 
 namespace back.Models;
 
-public sealed class Secteur
+public sealed class Systeme
 {
     [BsonId]
     public int Id { get; set; }

@@ -1,10 +1,11 @@
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { PlaneteOrigine, PlaneteOrigineLeger, PlaneteOrigineRequete } from "@models/PlaneteOrigine";
+import { PlaneteConnecter, PlaneteOrigine, PlaneteOrigineLeger, PlaneteOrigineRequete } from "@models/PlaneteOrigine";
 import { Pagination } from "@models/Pagination";
+import { SystemePositionRequete } from "@models/Systeme";
 
 export class PlaneteService
 {
@@ -13,18 +14,19 @@ export class PlaneteService
 
     private readonly BASE_API = `${environment.urlApi}/planete-origine`;
 
-    Lister(_page: number,  _recherche: string = ""): Observable<Pagination<PlaneteOrigine>>
+    Lister(_idSyteme: number): Observable<PlaneteOrigine[]>
     {
-        let params = new HttpParams()
-            .set("page", _page)
-            .set("thermeRecherche", _recherche);
-
-        return this.http.get<Pagination<PlaneteOrigine>>(`${this.BASE_API}/lister`, { params: params }).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.get<PlaneteOrigine[]>(`${this.BASE_API}/lister/${_idSyteme}`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     ListerLeger(): Observable<PlaneteOrigineLeger[]>
     {
         return this.http.get<PlaneteOrigineLeger[]>(`${this.BASE_API}/lister-leger`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ListerConnexion(): Observable<PlaneteConnecter[]>
+    {
+        return this.http.get<PlaneteConnecter[]>(`${this.BASE_API}/lister-connexion`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Ajouter(_planete: PlaneteOrigineRequete): Observable<number>
@@ -35,6 +37,11 @@ export class PlaneteService
     Modifier(_idPlanete: number, _planete: PlaneteOrigineRequete): Observable<void>
     {
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idPlanete}`, _planete).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ModifierPosition(_idPlanete: number, _position: SystemePositionRequete): Observable<void>
+    {
+        return this.http.patch<void>(`${this.BASE_API}/modifier-connexion/${_idPlanete}`, _position).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Supprimer(_idPlanete: number): Observable<void>

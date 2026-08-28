@@ -1,0 +1,169 @@
+<!-- ANCRE INVISIBLE POUR LE MENU CLIC DROIT -->
+<div style="visibility: hidden; position: fixed;" 
+     [style.left]="contextMenuPosition.x" 
+     [style.top]="contextMenuPosition.y" 
+     [matMenuTriggerFor]="contextMenu">
+</div>
+
+<mat-menu #contextMenu="matMenu" class="unsc-context-menu">
+    <div class="menu-header">
+        <mat-icon>gps_fixed</mat-icon>
+        COORDONNÉES [{{ clicX() }}, {{ clicY() }}]
+    </div>
+
+    @if(!systemeActif()) 
+    {
+        <button mat-menu-item (click)="OuvrirModalAjouterSysteme()">
+            <mat-icon color="primary">add_circle</mat-icon>
+            <span>Fonder un Système</span>
+        </button>
+    } 
+    @else 
+    {
+        <button mat-menu-item (click)="OuvrirModalAjouterPlanete()">
+            <mat-icon color="accent">add_circle</mat-icon>
+            <span>Scanner une Planète</span>
+        </button>
+    }
+</mat-menu>
+
+<!-- HUD TACTIQUE -->
+<div class="map-hud">
+    <div class="hud-info">
+        @if(systemeActif(); as sys) 
+        {
+            <h1>SYSTÈME {{ sys.nom | uppercase }}</h1>
+            <span class="subtitle">// VUE MICRO : RÉSEAU PLANÉTAIRE LOCAL</span>
+        } 
+        @else 
+        {
+            <h1>CARTE GALACTIQUE</h1>
+            <span class="subtitle">// VUE MACRO : RÉSEAU DES SYSTÈMES</span>
+        }
+    </div>
+    
+    <div class="hud-controls">
+        @if(modeEdition()) 
+        {
+            <div class="edit-warning">
+                <mat-icon>warning</mat-icon>
+                <span>MODE ÉDITION ACTIF</span>
+            </div>
+        }
+
+        @if(systemeActif()) 
+        {
+            <button matMiniFab (click)="RetourVueGalactique()" matTooltip="Remonter à la Galaxie">
+                <mat-icon>reply</mat-icon>
+            </button>
+        }
+
+        <button matMiniFab (click)="RecentrerCarte()" matTooltip="Recentrer">
+            <mat-icon>my_location</mat-icon>
+        </button>
+        
+        @if(droit?.peutEcrire) 
+        {
+            <button matMiniFab
+                    (click)="ActiverDesactiverModeEdition()" 
+                    [matTooltip]="modeEdition() ? 'Verrouiller la carte' : 'Mode Édition (Déplacer)'">
+                <mat-icon>{{ modeEdition() ? 'lock_open' : 'lock' }}</mat-icon>
+            </button>
+        }
+    </div>
+</div>
+
+<!-- LE VISEUR (Zone de glissement et de zoom) -->
+<div class="galactic-viewport" 
+     [class.grabbing]="isDragging()"
+     [class.edit-mode]="modeEdition()"
+     (mousedown)="onMouseDown($event)"
+     (touchstart)="onMouseDown($event)">
+     
+    <!-- LE CANEVAS (La carte qui bouge) -->
+    <div class="galactic-canvas" 
+         [class.edit-mode]="modeEdition()"
+         [style.transform]="'translate(' + panX() + 'px, ' + panY() + 'px) scale(' + echelle() + ')'">
+        
+        <!-- COUCHE 1 : LES ROUTES SPATIALES (Lignes SVG) -->
+        <svg class="routes-layer">
+            @if(!systemeActif()) 
+            {
+                @for (route of routesSystemes(); track $index) 
+                {
+                    <line [attr.x1]="route.x1" [attr.y1]="route.y1" [attr.x2]="route.x2" [attr.y2]="route.y2" class="slipspace-route" />
+
+                    <text [attr.x]="route.midX" [attr.y]="route.midY - 8" class="route-distance" dominant-baseline="middle" text-anchor="middle">
+                        {{ route.distance }}
+                    </text>
+                }
+            } 
+            @else 
+            {
+                @for (route of routesPlanetes(); track $index) 
+                {
+                    <line [attr.x1]="route.x1" [attr.y1]="route.y1" [attr.x2]="route.x2" [attr.y2]="route.y2" class="slipspace-route planet-route" />
+
+                    <text [attr.x]="route.midX" [attr.y]="route.midY - 8" class="route-distance planet-route-distance" dominant-baseline="middle" text-anchor="middle">
+                        {{ route.distance }}
+                    </text>
+                }
+            }
+        </svg>
+
+        <!-- COUCHE 2 : LA GRILLE TACTIQUE -->
+        <div class="tactical-grid" (contextmenu)="onContextMenu($event)">
+            @if(!systemeActif()) 
+            {
+                <!-- AFFICHAGE DES SYSTEMES -->
+                @for (systeme of listeSysteme(); track systeme.id) 
+                {
+                    <div class="grid-node system-node"
+                            [style.grid-column]="systeme.positionX" 
+                            [style.grid-row]="systeme.positionY"
+                            cdkDrag
+                            [cdkDragDisabled]="!modeEdition()"
+                            [cdkDragScale]="echelle()"
+                            (cdkDragEnded)="onNodeDragEnd($event, systeme)"
+                            
+                            (click)="GererClicSysteme(systeme)"
+                            [class.is-targeted]="systemeSelectionneRoute()?.id === systeme.id">
+
+                        <div class="node-core"></div>
+                        <div class="node-label">
+                            <span class="s-name">{{ systeme.nom | uppercase }}</span>
+                        </div>
+                    </div>
+                }
+            }
+            @else 
+            {
+                <!-- AFFICHAGE DES PLANETES -->
+                @for (planete of listePlanete(); track planete.id) 
+                {
+                    <div class="grid-node planet-node" 
+                         [style.grid-column]="planete.positionX" 
+                         [style.grid-row]="planete.positionY">
+                        
+                        <div class="node-core planet-core" [style.background-color]="ObtenirCouleurStatut(planete.statut)"></div>
+                        <div class="node-label">
+                            <span class="s-name">{{ planete.nom | uppercase }}</span>
+                        </div>
+
+                        <div class="node-details">
+                            <div class="d-header" [style.border-bottom-color]="ObtenirCouleurStatut(planete.statut)">
+                                <span class="d-nom">{{ planete.nom | uppercase }}</span>
+                                <span class="d-statut" [style.color]="ObtenirCouleurStatut(planete.statut)">
+                                    [{{ ObtenirLibelleStatut(planete.statut) | uppercase }}]
+                                </span>
+                            </div>
+                            <div class="d-body">
+                                {{ planete.description || 'Aucune donnée topographique disponible dans les archives.' }}
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

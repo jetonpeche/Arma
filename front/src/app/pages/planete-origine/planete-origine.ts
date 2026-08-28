@@ -140,12 +140,12 @@ export class PlaneteOriginePage implements OnInit
 
     private Lister(_page: number = 1, _recherche: string = ""): void
     {
-        this.planeteServ.Lister(_page, _recherche).subscribe({
+        this.planeteServ.Lister(1).subscribe({
             next: (retour) => 
             {
-                this.nbElement.set(retour.total);
-                this.pageIndex.set(retour.page - 1);
-                this.listePlanete.set(retour.liste);
+                // this.nbElement.set(retour.total);
+                // this.pageIndex.set(retour.page - 1);
+                // this.listePlanete.set(retour.liste);
             }
         });
     }

@@ -170,6 +170,11 @@
                     <span matListItemTitle>Orbat</span>
                 </a>
 
+                <a mat-list-item class="standalone-item" routerLink="carte-galactique" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                    <mat-icon matListItemIcon class="admin-icon-orbat">schema</mat-icon> 
+                    <span matListItemTitle>Carte galactique</span>
+                </a>
+
                 <!-- ACCÈS ADMINISTRATEUR (Hors dossier) -->
                 @if(droit())
                 {

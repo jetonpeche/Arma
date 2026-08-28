@@ -75,6 +75,12 @@ export const routes: Routes = [
         title: "Planète d'origine"
     },
     { 
+        path: "carte-galactique",
+        loadComponent: () => import("./pages/carte-galactique/carte-galactique").then(x => x.CarteGalactique),
+        title: "Carte galactique",
+        canActivate: [connecterGuard]
+    },
+    { 
         path: "boutique",
         loadComponent: () => import("./pages/boutique/boutique").then(x => x.BoutiquePage),
         title: "Boutique",

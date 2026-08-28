@@ -11,9 +11,9 @@ public static class PlaneteOrigineRoute
 {
     public static RouteGroupBuilder AjouterRoutePlaneteOrigine(this RouteGroupBuilder builder)
     {
-        builder.MapGet("lister/{idSecteur:int}", ListerAsync)
+        builder.MapGet("lister/{idSysteme:int}", ListerAsync)
               .WithDescription("Lister les planetes d'un secteur")
-              .Produces<PaginationReponse<PlaneteOrigine>>()
+              .Produces<PlaneteOrigineReponse[]>()
               .AllowAnonymous();
 
         builder.MapGet("lister-leger", ListerLegerAsync)
@@ -40,7 +40,10 @@ public static class PlaneteOrigineRoute
             .ProducesNotFound()
             .ProducesNoContent();
 
-        builder.MapPatch("modifier-position/{idPlanete:int}", ModifierPositionAsync);
+        builder.MapPatch("modifier-position/{idPlanete:int}", ModifierPositionAsync)
+            .WithDescription("Modifier les coordonnées d'une planete")
+            .ProducesNotFound()
+            .ProducesNoContent();
 
         builder.MapDelete("supprimer/{idPlaneteOrigine:int}", SupprimerAsync)
             .WithDescription("Supprimer une planete")
@@ -54,14 +57,14 @@ public static class PlaneteOrigineRoute
     }
 
     static async Task<IResult> ListerAsync(
-         HttpContext _httpContext,
-         [FromRoute(Name = "idSecteur")] int _idSecteur
+        HttpContext _httpContext,
+        [FromRoute(Name = "idSysteme")] int _idSysteme
     )
     {
         using var db = new LiteDatabase(Constant.BDD_NOM);
 
         var liste = db.GetCollection<PlaneteOrigine>().Query()
-            .Where(x => x.Secteur.Id == _idSecteur)
+            .Where(x => x.Systeme.Id == _idSysteme)
             .OrderBy(x => x.Nom)
             .Select(x => new PlaneteOrigineReponse
             {
@@ -71,7 +74,7 @@ public static class PlaneteOrigineRoute
                 Statut = x.Statut,
                 PositionX = x.PositionX,
                 PositionY = x.PositionY,
-                IdSecteur = x.Secteur == null ? null : x.Secteur.Id,
+                IdSysteme = x.Systeme == null ? null : x.Systeme.Id,
                 NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
             })
             .ToList();
@@ -107,7 +110,7 @@ public static class PlaneteOrigineRoute
             })
             .ToList();
 
-        return Results.Extensions.Ok(liste, SecteurPlaneteConnexionReponse.Default);
+        return Results.Extensions.Ok(liste, SystemePlaneteConnexionReponse.Default);
     }
 
     static async Task<IResult> AjouterAsync(
@@ -116,7 +119,7 @@ public static class PlaneteOrigineRoute
     {
         using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        if (!db.GetCollection<Secteur>().Exists(x => x.Id == _requete.IdSecteur))
+        if (!db.GetCollection<Systeme>().Exists(x => x.Id == _requete.IdSysteme))
             return Results.NotFound("Le secteur n'existe pas");
 
         var col = db.GetCollection<PlaneteOrigine>();
@@ -124,14 +127,14 @@ public static class PlaneteOrigineRoute
         var grade = new PlaneteOrigine
         {
             Nom = _requete.Nom.XSS(),
-            Secteur = new Secteur { Id = _requete.IdSecteur },
+            Systeme = new Systeme { Id = _requete.IdSysteme },
             Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
             PositionX = _requete.PositionX,
             PositionY = _requete.PositionY,
             Statut = _requete.Statut
         };
 
-        int id = col.Insert(grade);
+        int id = col.Insert(grade).AsInt32;
 
         return Results.Created("", id);
     }
@@ -187,13 +190,13 @@ public static class PlaneteOrigineRoute
 
         using var db = new LiteDatabase(Constant.BDD_NOM);
 
-        if (!db.GetCollection<Secteur>().Exists(x => x.Id == _requete.IdSecteur))
-            return Results.NotFound("Le secteur n'existe pas");
+        if (!db.GetCollection<Systeme>().Exists(x => x.Id == _requete.IdSysteme))
+            return Results.NotFound("Le systeme n'existe pas");
 
         var ok = db.GetCollection<PlaneteOrigine>().UpdateMany(_ => new()
         {
             Nom = _requete.Nom.XSS(),
-            Secteur = new Secteur { Id = _requete.IdSecteur },
+            Systeme = new Systeme { Id = _requete.IdSysteme },
             Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
             PositionX = _requete.PositionX,
             PositionY = _requete.PositionY,

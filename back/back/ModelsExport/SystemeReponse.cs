@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace back.ModelsExport;
 
-public sealed class SecteurReponse
+public sealed class SystemeReponse
 {
     public required int Id { get; set; }
     public required string Nom { get; set; } = null!;
@@ -11,13 +11,13 @@ public sealed class SecteurReponse
     public required decimal PositionY { get; set; }
 }
 
-public sealed class SecteurLegerReponse
+public sealed class SystemeLegerReponse
 {
     public required int Id { get; set; }
     public required string Nom { get; set; } = null!;
 }
 
-[JsonSerializable(typeof(List<SecteurReponse>))]
-[JsonSerializable(typeof(List<SecteurLegerReponse>))]
+[JsonSerializable(typeof(List<SystemeReponse>))]
+[JsonSerializable(typeof(List<SystemeLegerReponse>))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-public partial class SecteurReponseContext: JsonSerializerContext;
+public partial class SystemeReponseContext: JsonSerializerContext;

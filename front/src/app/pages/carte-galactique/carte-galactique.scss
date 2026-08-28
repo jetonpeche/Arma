@@ -1,0 +1,558 @@
+/* =========================================================
+   STRUCTURE DU ECRAN RADAR (PLEIN ÉCRAN)
+   ========================================================= */
+:host {
+    display: block;
+    position: relative;
+    width: 100%;
+    /* Ajustez 112px selon la taille de votre barre de menu globale */
+    height: calc(100vh - 112px); 
+    background-color: #0a111a;
+    overflow: hidden;
+}
+
+/* --- HUD DE COMMANDEMENT --- */
+.map-hud {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    right: 24px;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none; /* Le clic traverse le HUD vide pour attraper la carte */
+
+    .hud-info {
+        background-color: rgba(10, 17, 26, 0.75);
+        border-left: 4px solid var(--mat-sys-primary);
+        padding: 12px 24px;
+        backdrop-filter: blur(4px);
+        
+        h1 { margin: 0; color: var(--mat-sys-primary); font-family: 'Courier New', Courier, monospace; font-size: 1.5rem; letter-spacing: 2px;}
+        .subtitle { color: var(--mat-sys-on-surface-variant); font-size: 0.8rem; letter-spacing: 1px; }
+    }
+
+    .hud-controls {
+        pointer-events: auto; /* Réactive le clic sur les boutons */
+        display: flex;
+        gap: 16px;
+    }
+}
+
+/* =========================================================
+   MOTEUR PAN & ZOOM
+   ========================================================= */
+.galactic-viewport {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    position: relative;
+    background-image: 
+        radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px; /* Étoiles lointaines */
+
+    &.grabbing { cursor: grabbing; }
+}
+
+.galactic-canvas {
+    position: absolute;
+    
+    top: 0;
+    left: 0;
+    
+    transform-origin: 0 0;
+    will-change: transform;
+    
+    width: 10000px;
+    height: 10000px;
+}
+
+/* =========================================================
+   LA GRILLE ET LES ROUTES
+   ========================================================= */
+
+/* Paramètre global : 1 case = 100px (Identique au TypeScript) */
+$cell-size: 100px;
+
+/* La couche SVG des lignes (Absolue, derrière la grille) */
+.routes-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 10000px; /* Taille immense pour englober la grille */
+    height: 10000px;
+    pointer-events: none;
+    z-index: 1;
+
+    .slipspace-route {
+        stroke: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+        stroke-width: 2px;
+        stroke-dasharray: 6 4; /* Ligne pointillée */
+        animation: route-flow 3s linear infinite;
+    }
+}
+
+@keyframes route-flow {
+    to { stroke-dashoffset: -20; }
+}
+
+/* La Grille CSS */
+.tactical-grid {
+    position: absolute;
+    top: 0; left: 0;
+    display: grid;
+    grid-template-columns: repeat(100, $cell-size);
+    grid-template-rows: repeat(100, $cell-size);
+    z-index: 5;
+
+    background-image: 
+        linear-gradient(to right, color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) 1px, transparent 1px);
+    background-size: $cell-size $cell-size;
+    
+    /* Bordure extérieure pour marquer la limite de la carte */
+    border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+}
+
+/* Un nœud de la grille (Le Système) */
+.grid-node {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto; /* Rend la planète cliquable */
+    
+    /* Le visuel de l'astre */
+    .node-core {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: var(--mat-sys-primary);
+        box-shadow: 0 0 15px var(--mat-sys-primary);
+        transition: transform 0.2s ease;
+        cursor: pointer;
+    }
+
+    /* Le texte du Système */
+    .node-label {
+        position: absolute;
+        top: calc(50% + 18px);
+        white-space: nowrap;
+        background-color: rgba(0,0,0,0.6);
+        padding: 2px 8px;
+        border: 1px solid var(--mat-sys-primary);
+        color: white;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.8rem;
+        font-weight: bold;
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
+    &:hover .node-core { transform: scale(1.4); }
+    &:hover .node-label { opacity: 1; z-index: 10; }
+}
+
+/* --- AFFICHAGE DES DISTANCES (SVG TEXT) --- */
+.route-distance {
+    fill: var(--mat-sys-primary);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    font-weight: bold;
+    pointer-events: none;
+    
+    /* Astuce SVG : Crée un contour sombre autour du texte pour masquer la ligne derrière */
+    paint-order: stroke;
+    stroke: #0a111a;
+    stroke-width: 4px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Variante pour la vue Planétaire */
+.planet-route-distance {
+    fill: var(--mat-sys-secondary);
+    font-size: 12px;
+}
+
+/* --- STYLE SPÉCIFIQUE : PLANÈTES --- */
+.grid-node.planet-node {
+    
+    .node-core.planet-core {
+        /* Les planètes sont plus petites que les systèmes, et de couleur différente */
+        width: 20px;
+        height: 20px;
+        background-color: var(--mat-sys-secondary);
+        box-shadow: 0 0 10px var(--mat-sys-secondary);
+    }
+
+    .node-label {
+        /* Le texte est légèrement plus petit */
+        font-size: 0.75rem;
+        top: calc(50% + 12px);
+        border-color: var(--mat-sys-secondary);
+    }
+
+    &:hover .node-core.planet-core { transform: scale(1.5); }
+}
+
+/* --- LIGNES DE ROUTES PLANÉTAIRES --- */
+.slipspace-route.planet-route {
+    stroke: color-mix(in srgb, var(--mat-sys-secondary) 50%, transparent);
+    stroke-width: 1.5px;
+    stroke-dasharray: 4 4;
+}
+
+/* =========================================================
+   PANNEAU DE RENSEIGNEMENTS (REDESIGN TEXTES LONGS)
+   ========================================================= */
+.node-details {
+    position: absolute;
+    top: -20px; left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    
+    width: 320px; 
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none; /* Reste inactif pour ne pas bloquer la souris... */
+    transition: all 0.2s ease-out;
+    
+    /* Découpe biseautée et ombres conservées */
+    clip-path: polygon(12px 0%, 100% 0%, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0% 100%, 0% 12px);
+    border: none;
+    filter: drop-shadow(0 0 4px var(--mat-sys-primary)) drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 95%, transparent);
+    padding: 16px;
+    backdrop-filter: blur(8px);
+
+    /* Lignes de balayage */
+    &::before {
+        content: " ";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(transparent 50%, color-mix(in srgb, var(--mat-sys-on-surface) 5%, transparent) 50%);
+        background-size: 100% 4px;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    .d-header {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 2px solid; 
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+
+        .d-nom {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--mat-sys-primary);
+            text-shadow: 0 0 5px color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .d-statut {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 4px;
+            text-shadow: 0 0 4px currentColor; 
+        }
+    }
+
+    /* MODIFICATION MAJEURE : Gestion du texte long */
+    .d-body {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.85rem;
+        color: var(--mat-sys-on-surface);
+        line-height: 1.5;
+        text-align: justify;
+        
+        /* Limite de hauteur et activation du scroll */
+        max-height: 140px; 
+        overflow-y: auto;
+        padding-right: 8px; /* Évite que le texte ne touche la barre de défilement */
+        
+        /* PERSONNALISATION DE LA BARRE DE DÉFILEMENT (Style Terminal) */
+        &::-webkit-scrollbar {
+            width: 4px; /* Très fine */
+        }
+        &::-webkit-scrollbar-track {
+            background: color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent);
+            border-radius: 2px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: var(--mat-sys-primary);
+            border-radius: 2px;
+        }
+        /* Mode Firefox */
+        scrollbar-width: thin;
+        scrollbar-color: var(--mat-sys-primary) color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent);
+    }
+}
+
+/* 
+   TRÈS IMPORTANT : Pour pouvoir scroller dans la boîte avec la souris, 
+   on doit réactiver 'pointer-events' UNIQUEMENT au survol.
+*/
+.grid-node.planet-node:hover:not(.cdk-drag-dragging) .node-details {
+    pointer-events: auto; 
+}
+
+/* Apparition au survol (uniquement si on n'est pas en train de Drag&Drop) */
+.grid-node.planet-node:hover:not(.cdk-drag-dragging) {
+    z-index: 40;
+    
+    /* Masque l'étiquette simple... */
+    .node-label { opacity: 0; }
+    
+    /* ...pour afficher le panneau complet */
+    .node-details {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-20px);
+    }
+}
+
+/* =========================================================
+   ALERTE VISUELLE : MODE ÉDITION
+   ========================================================= */
+
+/* 1. L'encadrement du radar (Halo de danger) */
+.galactic-viewport.edit-mode {
+    box-shadow: inset 0 0 0 3px var(--mat-sys-error), 
+                inset 0 0 80px color-mix(in srgb, var(--mat-sys-error) 15%, transparent);
+    
+    background-image: none; 
+}
+
+/* 2. Le texte d'alerte dans le HUD */
+.edit-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 16px;
+    color: var(--mat-sys-error);
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 900;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    
+    /* Animation de pulsation type alarme */
+    animation: blink-warning 1.5s infinite;
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@keyframes blink-warning {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px var(--mat-sys-error)); }
+    50% { opacity: 0.4; filter: none; }
+}
+
+/* 3. Intensification de la Grille de placement */
+.galactic-canvas.edit-mode .tactical-grid {
+    /* Les lignes de la grille deviennent plus opaques (de 10% on passe à 35%) */
+    background-image: 
+        linear-gradient(to right, color-mix(in srgb, var(--mat-sys-primary) 35%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in srgb, var(--mat-sys-primary) 35%, transparent) 1px, transparent 1px);
+}
+
+/* =========================================================
+   MODE ÉDITION (DRAG & DROP)
+   ========================================================= */
+
+/* Curseurs pour faire comprendre qu'on peut attraper le système */
+.galactic-canvas.edit-mode .grid-node.system-node {
+    cursor: grab;
+    
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+/* On masque temporairement le zoom/hover quand on déplace la planète */
+.cdk-drag-dragging {
+    z-index: 100 !important;
+    opacity: 0.8;
+    
+    .node-core { transform: scale(1.4) !important; }
+}
+
+/* --- SÉLECTION DE ROUTE EN MODE ÉDITION --- */
+.grid-node.is-targeted {
+    z-index: 20;
+
+    .node-core {
+        background-color: var(--mat-sys-tertiary);
+        box-shadow: 0 0 20px var(--mat-sys-tertiary);
+        transform: scale(1.6);
+        animation: radar-pulse 1.5s infinite;
+    }
+
+    .node-label {
+        color: var(--mat-sys-tertiary);
+        border-color: var(--mat-sys-tertiary);
+        opacity: 1;
+    }
+}
+
+@keyframes radar-pulse {
+    0% { box-shadow: 0 0 10px var(--mat-sys-tertiary); }
+    50% { box-shadow: 0 0 40px var(--mat-sys-tertiary); }
+    100% { box-shadow: 0 0 10px var(--mat-sys-tertiary); }
+}
+
+/* =========================================================
+   MENU CONTEXTUEL (THÈME DYNAMIQUE - CORRIGÉ)
+   ========================================================= */
+::ng-deep .mat-mdc-menu-panel.unsc-context-menu {
+    background-color: var(--mat-sys-surface-container-high) !important;
+    overflow: hidden !important;
+
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+
+    clip-path: polygon(
+        12px 0%, 
+        100% 0%, 
+        100% calc(100% - 12px), 
+        calc(100% - 12px) 100%, 
+        0% 100%, 
+        0% 12px
+    ) !important;
+
+    filter: drop-shadow(0 0 2px var(--mat-sys-primary)) 
+            drop-shadow(0 5px 10px rgba(0,0,0,0.5)) !important;
+
+    .mat-mdc-menu-content {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    /* En-tête du menu (Alignement et marges corrigés) */
+    .menu-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        color: var(--mat-sys-primary) !important;
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent) !important;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.9rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-primary) 40%, transparent) !important;
+
+        mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    /* Le texte des boutons (Typographie forcée) */
+    .mdc-list-item__primary-text {
+        color: var(--mat-sys-on-surface) !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 0.9rem !important;
+        font-weight: bold !important;
+    }
+
+    .mat-mdc-menu-item-text {
+        color: var(--mat-sys-on-surface) !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 0.9rem !important;
+        font-weight: bold !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    /* Boutons et survol */
+    .mat-mdc-menu-item {
+        min-height: 48px !important;
+        
+        mat-icon {
+            color: var(--mat-sys-primary) !important;
+            margin-right: 12px !important;
+        }
+        
+        &:hover {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
+        }
+    }
+}
+
+/* =========================================================
+   ADAPTATION THEME CLAIR (LIGHT MODE)
+   ========================================================= */
+:host-context(html.light-mode) 
+{
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 80%, #fff);
+
+    .node-details {
+        /* On force un fond très clair pour le panneau holographique */
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 95%, #ffffff);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        border-color: var(--mat-sys-outline);
+
+        filter: drop-shadow(0 0 2px rgba(0,0,0,0.3)) 
+                drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+        
+        .d-header {
+            filter: brightness(0.65) contrast(1.2); 
+        }
+    }
+
+    ::ng-deep .mat-mdc-menu-panel.unsc-context-menu {
+        filter: drop-shadow(0 0 2px rgba(0,0,0,0.3)) 
+                drop-shadow(0 5px 10px rgba(0,0,0,0.1)) !important;
+    }
+
+    .grid-node.planet-node .node-core.planet-core {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .route-distance {
+        stroke: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 80%, #fff);
+        
+        fill: color-mix(in srgb, var(--mat-sys-primary) 80%, #000);
+    }
+
+    .planet-route-distance {
+        fill: color-mix(in srgb, var(--mat-sys-secondary) 80%, #000);
+    }
+
+    /* Les étoiles de fond deviennent des points sombres */
+    .galactic-viewport {
+        background-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    }
+
+    /* Ajustement du HUD pour qu'il soit lisible sur fond blanc */
+    .map-hud .hud-info {
+        background-color: rgba(255, 255, 255, 0.85);
+        
+        .subtitle {
+            color: var(--mat-sys-on-surface);
+        }
+    }
+
+    /* Assombrissement des étiquettes des systèmes */
+    .grid-node .node-label {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: var(--mat-sys-on-surface);
+        border-color: var(--mat-sys-primary);
+    }
+
+    /* Le quadrillage de la grille tactique ressort un peu plus */
+    .tactical-grid {
+        background-image: 
+            linear-gradient(to right, color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) 1px, transparent 1px),
+            linear-gradient(to bottom, color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) 1px, transparent 1px);
+    }
+}
