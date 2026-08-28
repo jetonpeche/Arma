@@ -16,7 +16,12 @@ public static class PlaneteOrigineRoute
               .Produces<PlaneteOrigineReponse[]>()
               .AllowAnonymous();
 
-        builder.MapGet("lister-leger", ListerLegerAsync)
+         builder.MapGet("lister-paginer", ListerPaginerAsync)
+                .WithDescription("Lister les planetes paginer")
+                .Produces<PaginationReponse<PlaneteOrigineReponse>>()
+                .AllowAnonymous();
+
+          builder.MapGet("lister-leger", ListerLegerAsync)
             .WithDescription("Lister les planetes aleger")
             .Produces<PlaneteOrigineLegerReponse[]>()
             .AllowAnonymous();
@@ -56,10 +61,50 @@ public static class PlaneteOrigineRoute
         return builder;
     }
 
-    static async Task<IResult> ListerAsync(
+     static async Task<IResult> ListerPaginerAsync(
+          HttpContext _httpContext,
+          [FromQuery(Name = "thermeRecherche")] string _recherche = "",
+          [FromQuery(Name = "page")] int _page = 1
+     )
+     {
+          if (_page <= 1)
+               _page = 1;
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          int total = db.GetCollection<PlaneteOrigine>().Query().Count();
+
+          var requete = db.GetCollection<PlaneteOrigine>().Query()
+               .OrderBy(x => x.Nom);
+
+          if (!string.IsNullOrWhiteSpace(_recherche))
+               requete = requete.Where(x => x.Nom.ToLower().Contains(_recherche.ToLower()));
+
+          var liste = requete.Select(x => new PlaneteOrigine
+          {
+               Id = x.Id,
+               Nom = x.Nom,
+               Description = x.Description,
+               NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
+          })
+          .Offset((_page - 1) * 12)
+          .Limit(12)
+          .ToArray();
+
+          return Results.Extensions.Ok(
+               new PaginationReponse<PlaneteOrigine>
+               {
+                    Page = _page,
+                    Total = total,
+                    Liste = liste
+               },
+               PaginationReponseContext.Default);
+     }
+
+     static async Task<IResult> ListerAsync(
         HttpContext _httpContext,
         [FromRoute(Name = "idSysteme")] int _idSysteme
-    )
+     )
     {
         using var db = new LiteDatabase(Constant.BDD_NOM);
 

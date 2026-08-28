@@ -1,10 +1,11 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { PlaneteConnecter, PlaneteConnecterSupprimerRequete, PlaneteOrigine, PlaneteOrigineLeger, PlaneteOrigineRequete } from "@models/PlaneteOrigine";
 import { SystemePositionRequete } from "@models/Systeme";
+import { Pagination } from "@models/Pagination";
 
 export class PlaneteService
 {
@@ -16,6 +17,15 @@ export class PlaneteService
     Lister(_idSyteme: number): Observable<PlaneteOrigine[]>
     {
         return this.http.get<PlaneteOrigine[]>(`${this.BASE_API}/lister/${_idSyteme}`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    ListerPaginer(_thermeRecherche: string, _page: number): Observable<Pagination<PlaneteOrigine>>
+    {
+        let params = new HttpParams()
+            .set("page", _page)
+            .set("thermeRecherche", _thermeRecherche);
+
+        return this.http.get<Pagination<PlaneteOrigine>>(`${this.BASE_API}/lister-paginer`, { params: params }).pipe(takeUntilDestroyed(this.destroyRef));    
     }
 
     ListerLeger(): Observable<PlaneteOrigineLeger[]>
