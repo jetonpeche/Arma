@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>Calcul de sous-espace</h2>
+<mat-dialog-content>
+    <p style="margin-bottom: 24px; color: var(--mat-sys-on-surface-variant); font-family: 'Courier New', Courier, monospace;">
+        Établissement d'une route entre <strong>{{ data.nomCibleA }}</strong> et <strong>{{ data.nomCibleB }}</strong>. <br>
+        Veuillez renseigner la distance télémétrique.
+    </p>
+
+    <form [formGroup]="form">
+        <jp-input-text label="Distance (ex: 14.5 AL, 3 Jours...)" formControlName="distance" />
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="text" matDialogClose>Annuler</button>
+    <button matButton="filled" (click)="ValiderForm()">Valider la route</button>
+</mat-dialog-actions>

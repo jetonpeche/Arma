@@ -20,6 +20,7 @@ import { AjouterModifierPlaneteOrigine } from '@modals/ajouter-modifier-planete-
 import { AjouterModifierSysteme } from '@modals/ajouter-modifier-systeme/ajouter-modifier-systeme';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { sys } from 'typescript';
+import { ModalDistanceConnexion } from './modal-distance-connexion/modal-distance-connexion';
 
 @Component({
   selector: 'app-carte-galactique',
@@ -206,15 +207,34 @@ export class CarteGalactique implements OnInit
             } 
             else 
             {
-                this.systemeServ.AjouterConnexion({ idSystemeA: cibleA.id, idSystemeB: cibleB, distance: null }).subscribe({
-                    next: () =>
-                    {
-                        this.listeSystemeConnexion.update(liste => [
-                            ...liste, 
-                            { idSystemeA: cibleA.id, idSystemeB: cibleB, distance: "INCONNUE" }
-                        ]);
+                const DIALOG_REF = this.dialog.open(ModalDistanceConnexion, {
+                    width: "400px",
+                    data: { nomCibleA: cibleA.nom, nomCibleB: systeme.nom }
+                });
 
-                        this.snackBarServ.Ok("Nouvelle route stellaire établie");
+                DIALOG_REF.afterClosed().subscribe({
+                    next: (distanceSaisie: string | null) => 
+                    {
+                        // annuler
+                        if (distanceSaisie === undefined || distanceSaisie === null) 
+                        {
+                            this.systemeSelectionneRoute.set(null);
+                            return;
+                        }
+
+                        this.systemeServ.AjouterConnexion({ idSystemeA: cibleA.id, idSystemeB: cibleB, distance: distanceSaisie }).subscribe({
+                            next: () =>
+                            {
+                                this.listeSystemeConnexion.update(liste => [
+                                    ...liste, 
+                                    { idSystemeA: cibleA.id, idSystemeB: cibleB, distance: distanceSaisie }
+                                ]);
+
+                                this.snackBarServ.Ok("Nouvelle route stellaire établie");
+                                this.systemeSelectionneRoute.set(null);
+                            },
+                            error: () => this.systemeSelectionneRoute.set(null)
+                        });
                     }
                 });
             }
@@ -272,20 +292,18 @@ export class CarteGalactique implements OnInit
 
     protected GererClicPlanete(planete: PlaneteOrigine): void 
     {
-        // En vue normale, le clic ne fait rien (le survol affiche déjà les détails)
-        if (!this.modeEdition()) return;
+        if (!this.modeEdition()) 
+            return;
 
         const cibleA = this.planeteSelectionneRoute();
         const cibleB = planete.id;
 
         if (!cibleA) 
-        {
             this.planeteSelectionneRoute.set(planete);
-        } 
-        else if (cibleA.id === planete.id) 
-        {
+
+        else if (cibleA.id == planete.id) 
             this.planeteSelectionneRoute.set(null);
-        }
+
         else 
         { 
             const routeExistante = this.listePlaneteConnexion().find( c => 
@@ -311,14 +329,34 @@ export class CarteGalactique implements OnInit
             } 
             else 
             {
-                this.planeteServ.AjouterConnexion({ idPlaneteA: cibleA.id, idPlaneteB: cibleB, distance: null }).subscribe({
-                    next: () =>
+                const DIALOG_REF = this.dialog.open(ModalDistanceConnexion, {
+                    width: "400px",
+                    data: { nomCibleA: cibleA.nom, nomCibleB: planete.nom }
+                });
+
+                DIALOG_REF.afterClosed().subscribe({
+                    next: (distanceSaisie: string | null) => 
                     {
-                        this.listePlaneteConnexion.update(liste => [
-                            ...liste, 
-                            { idPlaneteA: cibleA.id, idPlaneteB: cibleB, distance: "INCONNUE" }
-                        ]);
-                        this.snackBarServ.Ok("Nouvelle route planétaire établie");
+                        // annuler
+                        if (distanceSaisie === undefined || distanceSaisie === null) 
+                        {
+                            this.systemeSelectionneRoute.set(null);
+                            return;
+                        }
+                        
+                        this.planeteServ.AjouterConnexion({ idPlaneteA: cibleA.id, idPlaneteB: cibleB, distance: distanceSaisie }).subscribe({
+                            next: () =>
+                            {
+                                this.listePlaneteConnexion.update(liste => [
+                                    ...liste, 
+                                    { idPlaneteA: cibleA.id, idPlaneteB: cibleB, distance: distanceSaisie }
+                                ]);
+                                
+                                this.snackBarServ.Ok("Nouvelle route planétaire établie");
+                                this.planeteSelectionneRoute.set(null);
+                            },
+                            error: () => this.planeteSelectionneRoute.set(null)
+                        });
                     }
                 });
             }
