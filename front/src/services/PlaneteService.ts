@@ -4,7 +4,6 @@ import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { PlaneteConnecter, PlaneteConnecterSupprimerRequete, PlaneteOrigine, PlaneteOrigineLeger, PlaneteOrigineRequete } from "@models/PlaneteOrigine";
-import { Pagination } from "@models/Pagination";
 import { SystemePositionRequete } from "@models/Systeme";
 
 export class PlaneteService
@@ -46,7 +45,7 @@ export class PlaneteService
 
     ModifierPosition(_idPlanete: number, _position: SystemePositionRequete): Observable<void>
     {
-        return this.http.patch<void>(`${this.BASE_API}/modifier-connexion/${_idPlanete}`, _position).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.patch<void>(`${this.BASE_API}/modifier-position/${_idPlanete}`, _position).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Supprimer(_idPlanete: number): Observable<void>

@@ -32,6 +32,24 @@
         }
     } 
 
+    @else if(asteroideCibleMenu(); as asteroide) 
+    {
+        @if(droit.peutEcrire) 
+        {
+            <button mat-menu-item (click)="OuvrirModalAjouterModifierAsteroide()">
+                <mat-icon color="accent">edit</mat-icon>
+                <span>Modifier {{ asteroide?.nom ?? 'astéroïde' }}</span>
+            </button>
+        }
+        @if (droit.peutSupprimer)
+        {
+            <button mat-menu-item class="btn-danger" (click)="OuvrirModalConfirmationSuppression()">
+                <mat-icon>delete</mat-icon>
+                <span>Pulvériser l'astéroïde</span>
+            </button>
+        }
+    }
+
     <!-- CAS 2 : CLIC SUR UN SYSTÈME (VUE MACRO) -->
     @else if (systemeCibleMenu(); as systeme) 
     {
@@ -152,6 +170,14 @@
                         {{ route.distance }}
                     </text>
                 }
+
+                @for (route of routesAsteroides(); track $index) 
+                {
+                    <line [attr.x1]="route.x1" [attr.y1]="route.y1" [attr.x2]="route.x2" [attr.y2]="route.y2" class="slipspace-route planet-route" />
+                    <text [attr.x]="route.midX" [attr.y]="route.midY - 8" class="route-distance planet-route-distance" dominant-baseline="middle" text-anchor="middle">
+                        {{ route.distance }}
+                    </text>
+                }
             }
         </svg>
 
@@ -168,7 +194,7 @@
                             cdkDrag
                             [cdkDragDisabled]="!modeEdition()"
                             [cdkDragScale]="echelle()"
-                            (cdkDragEnded)="onNodeDragEnd($event, systeme)"
+                            (cdkDragEnded)="DeplacerAstre($event, systeme, 'systeme')"
                             
                             (click)="GererClicSysteme(systeme)"
                             [class.is-targeted]="systemeSelectionneRoute()?.id === systeme.id">
@@ -191,7 +217,7 @@
                          cdkDrag
                          [cdkDragDisabled]="!modeEdition()"
                          [cdkDragScale]="echelle()"
-                         (cdkDragEnded)="onPlaneteDragEnd($event, planete)"
+                         (cdkDragEnded)="DeplacerAstre($event, planete, 'planete')"
                          
                          (click)="GererClicPlanete(planete)"
                          [class.is-targeted]="planeteSelectionneRoute()?.id === planete.id">
@@ -210,6 +236,38 @@
                             </div>
                             <div class="d-body">
                                 {{ planete.description || 'Aucune donnée topographique disponible dans les archives.' }}
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @for (asteroide of listeAsteroide(); track asteroide.id) 
+                {
+                    <div class="grid-node asteroid-node" 
+                        [style.grid-column]="asteroide.positionX" 
+                        [style.grid-row]="asteroide.positionY"
+                        [class.is-targeted]="asteroideSelectionneRoute()?.id === asteroide.id"
+                        cdkDrag
+                        [cdkDragDisabled]="!modeEdition()"
+                        [cdkDragScale]="echelle()"
+                        (cdkDragEnded)="DeplacerAstre($event, asteroide, 'asteroide')"
+                        (click)="GererClicAsteroide(asteroide)">
+                        
+                        <div class="node-core asteroid-core" [style.background-color]="ObtenirCouleurStatutAsteroide(asteroide.statut)"></div>
+        
+                        <div class="node-label">
+                            <span class="s-name">{{ asteroide.nom | uppercase }}</span>
+                        </div>
+
+                        <div class="node-details">
+                            <div class="d-header" [style.border-bottom-color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
+                                <span class="d-nom">{{ asteroide.nom | uppercase }}</span>
+                                <span class="d-statut" [style.color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
+                                    [{{ ObtenirLibelleStatutAsteroide(asteroide.statut) | uppercase }}]
+                                </span>
+                            </div>
+                            <div class="d-body">
+                                {{ asteroide.description || 'Amas rocheux non scanné.' }}
                             </div>
                         </div>
                     </div>

@@ -30,6 +30,10 @@ export type PlaneteOrigineRequete =
 {
     nom: string,
     description: string | null,
+    statut: EStatusPlanete,
+
+    positionX: number,
+    positionY: number
 }
 
 export type PlaneteConnecterSupprimerRequete = Omit<PlaneteConnecter, "distance">;

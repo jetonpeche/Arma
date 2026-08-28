@@ -20,6 +20,10 @@ import { AjouterModifierPlaneteOrigine } from '@modals/ajouter-modifier-planete-
 import { AjouterModifierSysteme } from '@modals/ajouter-modifier-systeme/ajouter-modifier-systeme';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { ModalDistanceConnexion } from './modal-distance-connexion/modal-distance-connexion';
+import { Asteroide, AsteroideConnecter } from '@models/Asteroide';
+import { EStatutAsteroide } from '@enums/EStatusAsteroide';
+import { AsteroideService } from '@services/AsteroideService';
+import { AjouterModifierAsteroide } from '@modals/ajouter-modifier-asteroide/ajouter-modifier-asteroide';
 
 @Component({
   selector: 'app-carte-galactique',
@@ -31,8 +35,10 @@ export class CarteGalactique implements OnInit
 {
   protected listeSysteme = signal<Systeme[]>([]);
   protected listePlanete = signal<PlaneteOrigine[]>([]);
+  protected listeAsteroide = signal<Asteroide[]>([]);
   protected listeSystemeConnexion = signal<SystemeConnecter[]>([]);
   protected listePlaneteConnexion = signal<PlaneteConnecter[]>([]);
+  protected listeAsteroideConnexion = signal<AsteroideConnecter[]>([]);
   protected droit: Droit;
 
     // --- MOTEUR PAN & ZOOM ---
@@ -47,6 +53,7 @@ export class CarteGalactique implements OnInit
     protected clicY = signal<number>(0);
     protected planeteCibleMenu = signal<PlaneteOrigine>(null);
     protected systemeCibleMenu = signal<Systeme>(null);
+    protected asteroideCibleMenu = signal<Asteroide>(null);
 
     // Position de l'ancre invisible sur l'écran
     protected contextMenuPosition = { x: '0px', y: '0px' };
@@ -55,6 +62,7 @@ export class CarteGalactique implements OnInit
     protected systemeActif = signal<Systeme | null>(null);
     protected systemeSelectionneRoute = signal<Systeme | null>(null);
     protected planeteSelectionneRoute = signal<PlaneteOrigine | null>(null);
+    protected asteroideSelectionneRoute = signal<Asteroide | null>(null);
     
     private startDragX = 0;
     private startDragY = 0;
@@ -63,61 +71,15 @@ export class CarteGalactique implements OnInit
 
     private planeteServ = inject(PlaneteService);
     private systemeServ = inject(SystemeService);
+    private asteroideServ = inject(AsteroideService);
     private authServ = inject(AuthentificationService);
     private snackBarServ = inject(SnackBarService);
     private dialogConfirmationServ = inject(DialogConfirmationService);
     private dialog = inject(MatDialog);
 
-    // Cet algorithme transforme les X/Y de la grille en pixels pour tracer les lignes SVG au centre des cases
-    // --- CALCUL DES ROUTES SYSTÈMES ---
-    protected routesSystemes = computed(() => {
-        const systemes = this.listeSysteme();
-        const connexions = this.listeSystemeConnexion();
-        
-        return connexions.map(conn => {
-            const sysA = systemes.find(s => s.id === conn.idSystemeA);
-            const sysB = systemes.find(s => s.id === conn.idSystemeB);
-
-            if (!sysA || !sysB) return null;
-
-            const x1 = (sysA.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
-            const y1 = (sysA.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
-            const x2 = (sysB.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
-            const y2 = (sysB.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
-
-            return {
-                x1, y1, x2, y2,
-                midX: (x1 + x2) / 2, // Centre X
-                midY: (y1 + y2) / 2, // Centre Y
-                distance: conn.distance
-            };
-        }).filter(route => route !== null);
-    });
-
-    // --- CALCUL DES ROUTES PLANÈTES ---
-    protected routesPlanetes = computed(() => {
-        const planetes = this.listePlanete();
-        const connexions = this.listePlaneteConnexion();
-        
-        return connexions.map(conn => {
-            const planA = planetes.find(p => p.id === conn.idPlaneteA);
-            const planB = planetes.find(p => p.id === conn.idPlaneteB);
-
-            if (!planA || !planB) return null;
-
-            const x1 = (planA.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
-            const y1 = (planA.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
-            const x2 = (planB.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
-            const y2 = (planB.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
-
-            return {
-                x1, y1, x2, y2,
-                midX: (x1 + x2) / 2, // Centre X
-                midY: (y1 + y2) / 2, // Centre Y
-                distance: conn.distance
-            };
-        }).filter(route => route !== null);
-    });
+    protected routesSystemes = computed(() => this.GenererLignesSpatiales(this.listeSysteme(), this.listeSystemeConnexion(), 'idSystemeA', 'idSystemeB'));
+    protected routesPlanetes = computed(() => this.GenererLignesSpatiales(this.listePlanete(), this.listePlaneteConnexion(), 'idPlaneteA', 'idPlaneteB'));
+    protected routesAsteroides = computed(() => this.GenererLignesSpatiales(this.listeAsteroide(), this.listeAsteroideConnexion(), 'idAsteroideA', 'idAsteroideB'));
 
     ngOnInit(): void 
     {
@@ -138,6 +100,47 @@ export class CarteGalactique implements OnInit
             const newScale = Math.min(Math.max(0.3, this.echelle() + delta), 3); // Bloque le zoom entre 0.3x et 3x
             this.echelle.set(newScale);
         }
+    }
+
+    protected DeplacerAstre(event: CdkDragEnd, astre: any, typeAstre: 'systeme' | 'planete' | 'asteroide'): void 
+    {
+        const casesX = Math.round((event.distance.x / this.echelle()) / this.TAILLE_CASE);
+        const casesY = Math.round((event.distance.y / this.echelle()) / this.TAILLE_CASE);
+
+        if (casesX == 0 && casesY == 0)
+            return event.source._dragRef.reset();
+
+        const newX = Math.max(1, astre.positionX + casesX); 
+        const newY = Math.max(1, astre.positionY + casesY);
+
+        // 1. Détection des collisions selon la vue
+        let collision = null;
+        if (typeAstre === 'systeme') {
+            collision = this.listeSysteme().find(s => s.id !== astre.id && s.positionX === newX && s.positionY === newY);
+        } else {
+            collision = this.listePlanete().find(p => (typeAstre !== 'planete' || p.id !== astre.id) && p.positionX === newX && p.positionY === newY) 
+                     || this.listeAsteroide().find(a => (typeAstre !== 'asteroide' || a.id !== astre.id) && a.positionX === newX && a.positionY === newY);
+        }
+
+        if (collision) {
+            this.snackBarServ.Erreur(`Alerte de collision : Secteur occupé.`);
+            return event.source._dragRef.reset();
+        }
+
+        // 2. Routage vers le bon service API
+        const service = typeAstre === 'systeme' ? this.systemeServ : (typeAstre === 'planete' ? this.planeteServ : this.asteroideServ);
+        const listeSignal = typeAstre === 'systeme' ? this.listeSysteme : (typeAstre === 'planete' ? this.listePlanete : this.listeAsteroide);
+
+        service.ModifierPosition(astre.id, { positionX: newX, positionY: newY }).subscribe({
+            next: () => {
+                listeSignal.update(liste => {
+                    const cible = liste.find(x => x.id === astre.id);
+                    if (cible) { cible.positionX = newX; cible.positionY = newY; }
+                    return [...liste];
+                });
+                event.source._dragRef.reset();
+            }
+        });
     }
 
     protected onMouseDown(event: MouseEvent | TouchEvent): void 
@@ -243,52 +246,6 @@ export class CarteGalactique implements OnInit
         }
     }
 
-    protected onPlaneteDragEnd(event: CdkDragEnd, planete: PlaneteOrigine): void 
-    {
-        const distanceX = event.distance.x / this.echelle();
-        const distanceY = event.distance.y / this.echelle();
-
-        const casesX = Math.round(distanceX / this.TAILLE_CASE);
-        const casesY = Math.round(distanceY / this.TAILLE_CASE);
-
-        if (casesX === 0 && casesY === 0) 
-        {
-            event.source._dragRef.reset();
-            return;
-        }
-
-        const newX = Math.max(1, planete.positionX + casesX); 
-        const newY = Math.max(1, planete.positionY + casesY);
-
-        const collision = this.listePlanete().find(p => p.id !== planete.id && p.positionX === newX && p.positionY === newY);
-
-        if (collision) 
-        {
-            this.snackBarServ.Erreur(`Alerte de collision : Ce secteur est déjà occupé par ${collision.nom}`);
-            event.source._dragRef.reset(); 
-        } 
-        else
-        {
-            this.planeteServ.ModifierPosition(planete.id, { positionX: newX, positionY: newY }).subscribe({
-                next: () =>
-                {
-                    this.listePlanete.update(liste => {
-                        const p = liste.find(x => x.id === planete.id);
-                        if (p) 
-                        {
-                            p.positionX = newX;
-                            p.positionY = newY;
-                        }
-                        return [...liste];
-                    });
-
-                    event.source._dragRef.reset();
-                    this.snackBarServ.Ok("Orbite planétaire recalibrée");
-                }
-            });
-        }
-    }
-
     protected GererClicPlanete(planete: PlaneteOrigine): void 
     {
         if (!this.modeEdition()) 
@@ -364,11 +321,87 @@ export class CarteGalactique implements OnInit
         }
     }
 
+    protected GererClicAsteroide(asteroide: Asteroide): void 
+    {
+        if (!this.modeEdition()) 
+            return;
+
+        const cibleA = this.asteroideSelectionneRoute();
+        const cibleB = asteroide.id;
+
+        if (!cibleA) 
+            this.asteroideSelectionneRoute.set(asteroide);
+
+        else if (cibleA.id == asteroide.id) 
+            this.asteroideSelectionneRoute.set(null);
+
+        else 
+        { 
+            const routeExistante = this.listeAsteroideConnexion().find( c => 
+                (c.idAsteroideA === cibleA.id && c.idAsteroideB === cibleB) ||
+                (c.idAsteroideA === cibleB && c.idAsteroideB === cibleA.id)
+            );
+
+            if (routeExistante) 
+            {
+                this.asteroideServ.SupprimerConnexion({ idAsteroideA: cibleA.id, idAsteroideB: cibleB }).subscribe({
+                    next: () =>
+                    {
+                        this.listeAsteroideConnexion.update(liste =>
+                            liste.filter(c => 
+                                !( (c.idAsteroideA === cibleA.id && c.idAsteroideB === cibleB) || 
+                                (c.idAsteroideA === cibleB && c.idAsteroideB === cibleA.id) )
+                            )
+                        );
+                        
+                        this.snackBarServ.Ok("Route astéroide détruite");
+                    }
+                });
+            } 
+            else 
+            {
+                const DIALOG_REF = this.dialog.open(ModalDistanceConnexion, {
+                    width: "400px",
+                    data: { nomCibleA: cibleA.nom, nomCibleB: asteroide.nom }
+                });
+
+                DIALOG_REF.afterClosed().subscribe({
+                    next: (distanceSaisie: string | null) => 
+                    {
+                        // annuler
+                        if (distanceSaisie === undefined || distanceSaisie === null) 
+                        {
+                            this.asteroideSelectionneRoute.set(null);
+                            return;
+                        }
+
+                        this.asteroideServ.AjouterConnexion({ idAsteroideA: cibleA.id, idAsteroideB: cibleB, distance: distanceSaisie }).subscribe({
+                            next: () =>
+                            {
+                                this.listeAsteroideConnexion.update(liste => [
+                                    ...liste, 
+                                    { idAsteroideA: cibleA.id, idAsteroideB: cibleB, distance: distanceSaisie }
+                                ]);
+                                
+                                this.snackBarServ.Ok("Nouvelle route astéroide établie");
+                                this.asteroideSelectionneRoute.set(null);
+                            },
+                            error: () => this.asteroideSelectionneRoute.set(null)
+                        });
+                    }
+                });
+            }
+
+            this.planeteSelectionneRoute.set(null);
+        }
+    }
+
     protected RetourVueGalactique(): void
     {
         this.systemeActif.set(null);
         this.RecentrerCarte();
         this.listePlanete.set([]);
+        this.listeAsteroide.set([]);
     }
 
     @HostListener('window:mouseup')
@@ -398,59 +431,6 @@ export class CarteGalactique implements OnInit
         this.panY.set(0);
     }
 
-    protected onNodeDragEnd(event: CdkDragEnd, systeme: Systeme): void 
-    {
-        // On divise la distance de la souris par l'échelle de zoom
-        // pour obtenir la distance "réelle" sur la grille holographique.
-        const distanceX = event.distance.x / this.echelle();
-        const distanceY = event.distance.y / this.echelle();
-
-        // On convertit les pixels corrigés en cases de grille (1 case = 100px)
-        const casesX = Math.round(distanceX / this.TAILLE_CASE);
-        const casesY = Math.round(distanceY / this.TAILLE_CASE);
-
-        // S'il n'a pas bougé d'une case complète, on annule visuellement
-        if (casesX === 0 && casesY === 0) 
-        {
-            event.source._dragRef.reset();
-            return;
-        }
-
-        // Calcul des nouvelles coordonnées (empêche de sortir dans des zones négatives)
-        const newX = Math.max(1, systeme.positionX + casesX); 
-        const newY = Math.max(1, systeme.positionY + casesY);
-
-        // VÉRIFICATION DES COLLISIONS
-        const collision = this.listeSysteme().find(s => s.id !== systeme.id && s.positionX === newX && s.positionY === newY);
-
-        if (collision) 
-        {
-            this.snackBarServ.Erreur(`Alerte de collision : Ce secteur est déjà occupé par ${collision.nom}`);
-            event.source._dragRef.reset(); // Rétractation à la case de départ
-        } 
-        else
-        {
-            this.systemeServ.ModifierPosition(systeme.id, { positionX: newX, positionY: newY }).subscribe({
-                next: () =>
-                {
-                    this.listeSysteme.update(liste => {
-                        const sys = liste.find(s => s.id == systeme.id);
-
-                        if (sys) 
-                        {
-                            sys.positionX = newX;
-                            sys.positionY = newY;
-                        }
-
-                        return [...liste];
-                    });
-
-                    event.source._dragRef.reset();
-                }
-            });
-        }
-    }
-
     protected onContextMenu(event: MouseEvent): void 
     {
         event.preventDefault(); 
@@ -472,21 +452,24 @@ export class CarteGalactique implements OnInit
         // 1. On réinitialise les cibles précédentes
         this.planeteCibleMenu.set(null);
         this.systemeCibleMenu.set(null);
+        this.asteroideCibleMenu.set(null);
 
-        // 2. On cherche si un astre occupe la case visée
+        // On cherche si un astre occupe la case visée
         if (!this.systemeActif()) 
         {
             const sys = this.listeSysteme().find(s => s.positionX == caseX && s.positionY == caseY);
-
-            if (sys) 
-                this.systemeCibleMenu.set(sys);
+            if (sys) this.systemeCibleMenu.set(sys);
         } 
         else 
         {
             const planete = this.listePlanete().find(p => p.positionX == caseX && p.positionY == caseY);
+            const asteroide = this.listeAsteroide().find(a => a.positionX == caseX && a.positionY == caseY);
 
             if (planete) 
                 this.planeteCibleMenu.set(planete);
+
+            else if (asteroide) 
+                this.asteroideCibleMenu.set(asteroide);
         }
 
         // 3. Mise à jour des coordonnées
@@ -563,16 +546,67 @@ export class CarteGalactique implements OnInit
         });
     }
 
+    protected OuvrirModalAjouterModifierAsteroide(): void 
+    {
+        const DIALOG_REF = this.dialog.open(AjouterModifierAsteroide, {
+            width: this.estMobile ? "95%" : "60%", 
+            maxWidth: "100vw",
+            data: this.asteroideCibleMenu() ?? {
+                idSysteme: this.systemeActif().id,
+                positionX: this.clicX(),
+                positionY: this.clicY()
+            }
+        });
+
+        DIALOG_REF.afterClosed().subscribe({
+            next: (retour: Asteroide | null) =>
+            {
+                const estUneModification = this.asteroideCibleMenu() !== null;
+                this.asteroideCibleMenu.set(null);
+
+                if(retour)
+                {
+                    if(estUneModification)
+                    {
+                        this.listeAsteroide.update(liste => 
+                            liste.map(x => x.id === retour.id ? retour : x)
+                        );
+                    }
+                    else
+                        this.listeAsteroide.update(x => [...x, retour]);
+                }
+            }
+        });
+    }
+
     protected OuvrirModalConfirmationSuppression(): void
     {
-        const MESSAGE = `Confirmez-vous la suppression ${this.planeteCibleMenu() ? ('de la planete' + this.planeteCibleMenu().nom) : ('du système' + this.systemeCibleMenu().nom + ' et de toutes ses planetes') } ?`;
+        let messageCible = "";
+        
+        if (this.planeteCibleMenu()) 
+            messageCible = "de la planète " + this.planeteCibleMenu().nom;
+
+        else if (this.asteroideCibleMenu()) 
+            messageCible = "de l'astéroïde " + this.asteroideCibleMenu().nom;
+
+        else if (this.systemeCibleMenu()) 
+            messageCible = "du système " + this.systemeCibleMenu().nom + " et de tous ses astres";
+
+        const MESSAGE = `Confirmez-vous la suppression ${messageCible} ?`;
 
         this.dialogConfirmationServ.Ouvrir("Suppression galactique", MESSAGE).subscribe({
             next: (retour) =>
             {
                 if(retour)
                 {
-                    this.planeteCibleMenu() ? this.SupprimerPlanete() : this.SupprimerSysteme();
+                    if (this.planeteCibleMenu()) 
+                        this.SupprimerPlanete();
+
+                    else if (this.asteroideCibleMenu()) 
+                        this.SupprimerAsteroide();
+
+                    else if (this.systemeCibleMenu()) 
+                        this.SupprimerSysteme();
                 }
             }
         });
@@ -610,6 +644,43 @@ export class CarteGalactique implements OnInit
             case EStatusPlanete.HorsRegistre: return "#00cec9"; // Cyan (Furtif)
             default: return "#7f8fa6"; // Gris neutre par défaut
         }
+    }
+
+    protected ObtenirLibelleStatutAsteroide(statut: EStatutAsteroide): string 
+    {
+        switch (statut) 
+        {
+            case EStatutAsteroide.Neutre: return "Roche spatiale standard";
+            case EStatutAsteroide.Coloniser: return "Colonisé";
+            default: return "Roche spatiale standard";
+        }
+    }
+
+    protected ObtenirCouleurStatutAsteroide(statut: any): string 
+    {
+        switch (statut) 
+        {
+            case EStatutAsteroide.Neutre: return "#7f8fa6";
+            case EStatutAsteroide.Coloniser: return "#00a8ff";
+            default: return "#7f8fa6"; // Gris rocheux par défaut
+        }
+    }
+
+    private GenererLignesSpatiales(astres: any[], connexions: any[], cleIdA: string, cleIdB: string) 
+    {
+        return connexions.map(conn => {
+            const astA = astres.find(a => a.id === conn[cleIdA]);
+            const astB = astres.find(a => a.id === conn[cleIdB]);
+
+            if (!astA || !astB) return null;
+
+            const x1 = (astA.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+            const y1 = (astA.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+            const x2 = (astB.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+            const y2 = (astB.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+
+            return { x1, y1, x2, y2, midX: (x1 + x2) / 2, midY: (y1 + y2) / 2, distance: conn.distance };
+        }).filter(route => route !== null);
     }
 
     private SupprimerSysteme(): void
@@ -654,14 +725,32 @@ export class CarteGalactique implements OnInit
         });
     }
 
+    private SupprimerAsteroide(): void
+    {
+        const ID = this.asteroideCibleMenu().id;
+        
+        this.asteroideServ.Supprimer(ID).subscribe({
+            next: () =>
+            {
+                this.snackBarServ.Ok("Le champ d'astéroïdes a été pulvérisé par l'artillerie navale.");
+                this.listeAsteroide.update(x => x.filter(y => y.id != ID));
+                this.listeAsteroideConnexion.update(x => x.filter(y => !(y.idAsteroideA == ID || y.idAsteroideB == ID)))
+                
+                this.asteroideCibleMenu.set(null);
+            }
+        });
+    }
+
     private ListerPlaneteConnexion(): void 
     {
         this.planeteServ.ListerConnexion().subscribe({ next: (retour) => this.listePlaneteConnexion.set(retour) });
+        this.asteroideServ.ListerConnexion().subscribe({ next: (retour) => this.listeAsteroideConnexion.set(retour) });
     }
 
     private ListerPlaneteSysteme(_idSysteme: number): void 
     {
         this.planeteServ.Lister(_idSysteme).subscribe({ next: (retour) => this.listePlanete.set(retour) });
+        this.asteroideServ.Lister(_idSysteme).subscribe({ next: (retour) => this.listeAsteroide.set(retour) });
     }
 
     private ListerSysteme(): void 
