@@ -11,7 +11,7 @@ public static class AsteroideRoute
 {
      public static RouteGroupBuilder AjouterRouteAsteroide(this RouteGroupBuilder builder)
      {
-          builder.MapGet("lister/{idSysteme:int}", ListerAsync)
+          builder.MapGet("lister/{idAsteroide:int}", ListerAsync)
                 .WithDescription("Lister les asteroides d'un secteur")
                 .Produces<AsteroideReponse[]>()
                 .AllowAnonymous();
@@ -137,7 +137,7 @@ public static class AsteroideRoute
           }
 
           if (
-              !db.GetCollection<AsteroideConnecte>().Exists(x =>
+              db.GetCollection<AsteroideConnecte>().Exists(x =>
                   (x.AsteroideA.Id == _requete.IdAsteroideA && x.AsteroideA.Id == _requete.IdAsteroideB) ||
                   (x.AsteroideA.Id == _requete.IdAsteroideB && x.AsteroideA.Id == _requete.IdAsteroideA)
               )
@@ -169,17 +169,18 @@ public static class AsteroideRoute
           if (!db.GetCollection<Systeme>().Exists(x => x.Id == _requete.IdSysteme))
                return Results.NotFound("Le systeme n'existe pas");
 
-          var asteroide = new Asteroide
+          var nom = string.IsNullOrWhiteSpace(_requete.Nom) ? null : _requete.Nom?.XSS();
+          var description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS();
+
+          var ok = db.GetCollection<Asteroide>().UpdateMany(_ => new Asteroide
           {
-               Nom = _requete.Nom?.XSS(),
+               Nom = nom,
                Systeme = new Systeme { Id = _requete.IdSysteme },
-               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
+               Description = description,
                PositionX = _requete.PositionX,
                PositionY = _requete.PositionY,
                Statut = _requete.Statut
-          };
-
-          var ok = db.GetCollection<Asteroide>().UpdateMany(_ => asteroide, x => x.Id == _idAsteroide);
+          }, x => x.Id == _idAsteroide);
 
           return ok > 0 ? Results.NoContent() : Results.NotFound("L'astéroide n'existe pas");
      }

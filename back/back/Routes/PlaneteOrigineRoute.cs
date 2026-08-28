@@ -161,7 +161,7 @@ public static class PlaneteOrigineRoute
         }
 
         if (
-            !db.GetCollection<PlaneteConnecte>().Exists(x =>
+            db.GetCollection<PlaneteConnecte>().Exists(x =>
                 (x.PlaneteA.Id == _requete.IdPlaneteA && x.PlaneteB.Id == _requete.IdPlaneteB) ||
                 (x.PlaneteA.Id == _requete.IdPlaneteB && x.PlaneteB.Id == _requete.IdPlaneteA)
             )

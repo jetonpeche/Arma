@@ -85,6 +85,11 @@
                 <mat-icon color="accent">add_circle</mat-icon>
                 <span>Scanner une Planète</span>
             </button>
+
+            <button mat-menu-item (click)="OuvrirModalAjouterModifierAsteroide()">
+                <mat-icon color="accent">add_circle</mat-icon>
+                <span>Scanner un astéroide</span>
+            </button>
         }
     }
 </mat-menu>
@@ -246,6 +251,7 @@
                     <div class="grid-node asteroid-node" 
                         [style.grid-column]="asteroide.positionX" 
                         [style.grid-row]="asteroide.positionY"
+                        [class.has-details]="AfficherDetailsAsteroide(asteroide.statut)"
                         [class.is-targeted]="asteroideSelectionneRoute()?.id === asteroide.id"
                         cdkDrag
                         [cdkDragDisabled]="!modeEdition()"
@@ -259,17 +265,20 @@
                             <span class="s-name">{{ asteroide.nom | uppercase }}</span>
                         </div>
 
-                        <div class="node-details">
-                            <div class="d-header" [style.border-bottom-color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
-                                <span class="d-nom">{{ asteroide.nom | uppercase }}</span>
-                                <span class="d-statut" [style.color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
-                                    [{{ ObtenirLibelleStatutAsteroide(asteroide.statut) | uppercase }}]
-                                </span>
+                        @if (AfficherDetailsAsteroide(asteroide.statut)) 
+                        {
+                            <div class="node-details">
+                                <div class="d-header" [style.border-bottom-color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
+                                    <span class="d-nom">{{ asteroide.nom | uppercase }}</span>
+                                    <span class="d-statut" [style.color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
+                                        [{{ ObtenirLibelleStatutAsteroide(asteroide.statut) | uppercase }}]
+                                    </span>
+                                </div>
+                                <div class="d-body">
+                                    {{ asteroide.description || 'Données classifiées ou indisponibles.' }}
+                                </div>
                             </div>
-                            <div class="d-body">
-                                {{ asteroide.description || 'Amas rocheux non scanné.' }}
-                            </div>
-                        </div>
+                        }
                     </div>
                 }
             }

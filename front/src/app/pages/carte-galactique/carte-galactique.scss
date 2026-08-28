@@ -181,8 +181,8 @@ $cell-size: 100px;
     
     .node-core.planet-core {
         /* Les planètes sont plus petites que les systèmes, et de couleur différente */
-        width: 20px;
-        height: 20px;
+        width: 28px;
+        height: 28px;
         background-color: var(--mat-sys-secondary);
         box-shadow: 0 0 10px var(--mat-sys-secondary);
     }
@@ -190,7 +190,7 @@ $cell-size: 100px;
     .node-label {
         /* Le texte est légèrement plus petit */
         font-size: 0.75rem;
-        top: calc(50% + 12px);
+        top: calc(50% + 18px);
         border-color: var(--mat-sys-secondary);
     }
 
@@ -201,8 +201,8 @@ $cell-size: 100px;
 .grid-node.asteroid-node {
     
     .node-core.asteroid-core {
-        width: 18px;
-        height: 18px;
+        width: 28px;
+        height: 28px;
         background-color: #7f8fa6; /* Gris rocheux */
         box-shadow: 0 0 8px rgba(127, 143, 166, 0.6);
         
@@ -216,7 +216,7 @@ $cell-size: 100px;
 
     .node-label {
         font-size: 0.7rem;
-        top: calc(50% + 10px);
+        top: calc(50% + 18px);
         border-color: #7f8fa6;
         color: #dcdde1;
     }
@@ -333,18 +333,18 @@ $cell-size: 100px;
    TRÈS IMPORTANT : Pour pouvoir scroller dans la boîte avec la souris, 
    on doit réactiver 'pointer-events' UNIQUEMENT au survol.
 */
-.grid-node.planet-node:hover:not(.cdk-drag-dragging) .node-details {
+.grid-node.planet-node:hover:not(.cdk-drag-dragging) .node-details,
+.grid-node.asteroid-node.has-details:hover:not(.cdk-drag-dragging) .node-details {
     pointer-events: auto; 
 }
 
 /* Apparition au survol (uniquement si on n'est pas en train de Drag&Drop) */
-.grid-node.planet-node:hover:not(.cdk-drag-dragging) {
+.grid-node.planet-node:hover:not(.cdk-drag-dragging),
+.grid-node.asteroid-node.has-details:hover:not(.cdk-drag-dragging) {
     z-index: 40;
     
-    /* Masque l'étiquette simple... */
     .node-label { opacity: 0; }
-    
-    /* ...pour afficher le panneau complet */
+
     .node-details {
         opacity: 1;
         transform: translateX(-50%) translateY(-20px);

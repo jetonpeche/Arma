@@ -431,6 +431,11 @@ export class CarteGalactique implements OnInit
         this.panY.set(0);
     }
 
+    protected AfficherDetailsAsteroide(statut: EStatutAsteroide): boolean 
+    {
+        return statut != EStatutAsteroide.Neutre;
+    }
+
     protected onContextMenu(event: MouseEvent): void 
     {
         event.preventDefault(); 

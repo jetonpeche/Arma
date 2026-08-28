@@ -39,7 +39,7 @@ export class AjouterModifierPlaneteOrigine implements OnInit
 
     ngOnInit(): void 
     {
-        if(this.matDialogData)
+        if(this.matDialogData?.id)
             this.labelBtn.set("Modifier");
 
         this.form = new FormGroup({
