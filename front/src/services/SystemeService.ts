@@ -44,7 +44,7 @@ export class SystemeService
 
     ModifierPosition(_idSysteme: number, _position: SystemePositionRequete): Observable<void>
     {
-        return this.http.patch<void>(`${this.BASE_API}/modifier-connexion/${_idSysteme}`, _position).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.patch<void>(`${this.BASE_API}/modifier-position/${_idSysteme}`, _position).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     Supprimer(_idSysteme: number): Observable<void>
