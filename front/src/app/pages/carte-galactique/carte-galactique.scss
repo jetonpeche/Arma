@@ -329,24 +329,18 @@ $cell-size: 100px;
     }
 }
 
-/* 
-   TRÈS IMPORTANT : Pour pouvoir scroller dans la boîte avec la souris, 
-   on doit réactiver 'pointer-events' UNIQUEMENT au survol.
-*/
-.grid-node.planet-node:hover:not(.cdk-drag-dragging) .node-details,
-.grid-node.asteroid-node.has-details:hover:not(.cdk-drag-dragging) .node-details {
-    pointer-events: auto; 
-}
-
-/* Apparition au survol (uniquement si on n'est pas en train de Drag&Drop) */
-.grid-node.planet-node:hover:not(.cdk-drag-dragging),
-.grid-node.asteroid-node.has-details:hover:not(.cdk-drag-dragging) {
+/* =========================================================
+   AFFICHAGE DES DÉTAILS (AU CLIC)
+   ========================================================= */
+.grid-node.show-details:not(.cdk-drag-dragging) 
+{
     z-index: 40;
-    
-    .node-label { opacity: 0; }
 
+    .node-label { opacity: 0; }
+    
     .node-details {
         opacity: 1;
+        pointer-events: auto;
         transform: translateX(-50%) translateY(-20px);
     }
 }

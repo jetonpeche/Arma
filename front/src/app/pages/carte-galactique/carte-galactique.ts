@@ -57,6 +57,7 @@ export class CarteGalactique implements OnInit
 
     // Position de l'ancre invisible sur l'écran
     protected contextMenuPosition = { x: '0px', y: '0px' };
+    protected astreSelectionneDetails = signal<any | null>(null);
 
     protected modeEdition = signal<boolean>(false);
     protected systemeActif = signal<Systeme | null>(null);
@@ -145,8 +146,13 @@ export class CarteGalactique implements OnInit
 
     protected onMouseDown(event: MouseEvent | TouchEvent): void 
     {
-      if (this.modeEdition() && (event.target as HTMLElement).closest('.system-node'))
+        if (this.modeEdition() && (event.target as HTMLElement).closest('.system-node'))
             return;
+
+        if (!(event.target as HTMLElement).closest('.grid-node')) 
+        {
+            this.astreSelectionneDetails.set(null);
+        }
 
         this.isDragging.set(true);
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
@@ -161,6 +167,8 @@ export class CarteGalactique implements OnInit
         this.modeEdition.set(!this.modeEdition());
         this.systemeSelectionneRoute.set(null);
         this.planeteSelectionneRoute.set(null);
+        this.asteroideSelectionneRoute.set(null);
+        this.astreSelectionneDetails.set(null);
     }
 
     protected GererClicSysteme(systeme: Systeme): void 
@@ -249,7 +257,12 @@ export class CarteGalactique implements OnInit
     protected GererClicPlanete(planete: PlaneteOrigine): void 
     {
         if (!this.modeEdition()) 
+        {
+            this.astreSelectionneDetails.set(
+                this.astreSelectionneDetails()?.id == planete.id ? null : planete
+            );
             return;
+        }
 
         const cibleA = this.planeteSelectionneRoute();
         const cibleB = planete.id;
@@ -324,7 +337,12 @@ export class CarteGalactique implements OnInit
     protected GererClicAsteroide(asteroide: Asteroide): void 
     {
         if (!this.modeEdition()) 
+        {
+            this.astreSelectionneDetails.set(
+                this.astreSelectionneDetails()?.id == asteroide.id ? null : asteroide
+            );
             return;
+        }
 
         const cibleA = this.asteroideSelectionneRoute();
         const cibleB = asteroide.id;
@@ -399,6 +417,7 @@ export class CarteGalactique implements OnInit
     protected RetourVueGalactique(): void
     {
         this.systemeActif.set(null);
+        this.astreSelectionneDetails.set(null);
         this.RecentrerCarte();
         this.listePlanete.set([]);
         this.listeAsteroide.set([]);
@@ -429,11 +448,6 @@ export class CarteGalactique implements OnInit
         this.echelle.set(1);
         this.panX.set(0);
         this.panY.set(0);
-    }
-
-    protected AfficherDetailsAsteroide(statut: EStatutAsteroide): boolean 
-    {
-        return statut != EStatutAsteroide.Neutre;
     }
 
     protected onContextMenu(event: MouseEvent): void 

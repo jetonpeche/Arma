@@ -225,14 +225,15 @@
                          (cdkDragEnded)="DeplacerAstre($event, planete, 'planete')"
                          
                          (click)="GererClicPlanete(planete)"
-                         [class.is-targeted]="planeteSelectionneRoute()?.id === planete.id">
+                         [class.is-targeted]="planeteSelectionneRoute()?.id == planete.id"
+                         [class.show-details]="astreSelectionneDetails()?.id == planete.id">
                         
                         <div class="node-core planet-core" [style.background-color]="ObtenirCouleurStatut(planete.statut)"></div>
                         <div class="node-label">
                             <span class="s-name">{{ planete.nom | uppercase }}</span>
                         </div>
 
-                        <div class="node-details">
+                        <div class="node-details" (click)="$event.stopPropagation()">
                             <div class="d-header" [style.border-bottom-color]="ObtenirCouleurStatut(planete.statut)">
                                 <span class="d-nom">{{ planete.nom | uppercase }}</span>
                                 <span class="d-statut" [style.color]="ObtenirCouleurStatut(planete.statut)">
@@ -251,13 +252,13 @@
                     <div class="grid-node asteroid-node" 
                         [style.grid-column]="asteroide.positionX" 
                         [style.grid-row]="asteroide.positionY"
-                        [class.has-details]="AfficherDetailsAsteroide(asteroide.statut)"
-                        [class.is-targeted]="asteroideSelectionneRoute()?.id === asteroide.id"
                         cdkDrag
                         [cdkDragDisabled]="!modeEdition()"
                         [cdkDragScale]="echelle()"
                         (cdkDragEnded)="DeplacerAstre($event, asteroide, 'asteroide')"
-                        (click)="GererClicAsteroide(asteroide)">
+                        (click)="GererClicAsteroide(asteroide)"
+                        [class.is-targeted]="asteroideSelectionneRoute()?.id == asteroide.id"
+                        [class.show-details]="astreSelectionneDetails()?.id == asteroide.id">
                         
                         <div class="node-core asteroid-core" [style.background-color]="ObtenirCouleurStatutAsteroide(asteroide.statut)"></div>
         
@@ -265,20 +266,17 @@
                             <span class="s-name">{{ asteroide.nom | uppercase }}</span>
                         </div>
 
-                        @if (AfficherDetailsAsteroide(asteroide.statut)) 
-                        {
-                            <div class="node-details">
-                                <div class="d-header" [style.border-bottom-color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
-                                    <span class="d-nom">{{ asteroide.nom | uppercase }}</span>
-                                    <span class="d-statut" [style.color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
-                                        [{{ ObtenirLibelleStatutAsteroide(asteroide.statut) | uppercase }}]
-                                    </span>
-                                </div>
-                                <div class="d-body">
-                                    {{ asteroide.description || 'Données classifiées ou indisponibles.' }}
-                                </div>
+                        <div class="node-details" (click)="$event.stopPropagation()">
+                            <div class="d-header" [style.border-bottom-color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
+                                <span class="d-nom">{{ asteroide.nom | uppercase }}</span>
+                                <span class="d-statut" [style.color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
+                                    [{{ ObtenirLibelleStatutAsteroide(asteroide.statut) | uppercase }}]
+                                </span>
                             </div>
-                        }
+                            <div class="d-body">
+                                {{ asteroide.description || 'Données classifiées ou indisponibles.' }}
+                            </div>
+                        </div>
                     </div>
                 }
             }
