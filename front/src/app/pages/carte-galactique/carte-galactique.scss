@@ -227,6 +227,34 @@ $cell-size: 100px;
     }
 }
 
+/* --- STYLE SPÉCIFIQUE : SOLEIL --- */
+.grid-node.planet-node.sun-node {
+    
+    .node-core.planet-core {
+        width: 44px;
+        height: 44px;
+        
+        /* On retire l'ombre classique pour une lueur intense */
+        box-shadow: 0 0 20px currentColor; 
+        
+        /* Animation de fusion nucléaire */
+        animation: star-pulse 3s infinite alternate ease-in-out;
+    }
+
+    .node-label {
+        top: calc(50% + 28px); 
+    }
+
+    &:hover .node-core.planet-core { 
+        transform: scale(1.2); 
+    }
+}
+
+@keyframes star-pulse {
+    0% { filter: brightness(1); box-shadow: 0 0 15px currentColor; }
+    100% { filter: brightness(1.2); box-shadow: 0 0 35px currentColor; }
+}
+
 @keyframes spin-rock {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }

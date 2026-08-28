@@ -9,5 +9,6 @@ export enum EStatusPlanete
     HorsRegistre = 6,
     EnGuerre = 7,
     Vitrifier = 8,
-    VitrifierPartielle = 9
+    VitrifierPartielle = 9,
+    Soleil = 10
 }

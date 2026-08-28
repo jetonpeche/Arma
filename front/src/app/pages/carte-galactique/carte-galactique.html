@@ -217,6 +217,7 @@
                 @for (planete of listePlanete(); track planete.id) 
                 {
                     <div class="grid-node planet-node" 
+                         [class.sun-node]="EstUnSoleil(planete.statut)"
                          [style.grid-column]="planete.positionX" 
                          [style.grid-row]="planete.positionY"
                          cdkDrag

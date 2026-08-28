@@ -29,7 +29,8 @@ export class AjouterModifierPlaneteOrigine implements OnInit
         { valeur: EStatusPlanete.HorsRegistre, nom: "Hors Registre (O.N.I.)" },
         { valeur: EStatusPlanete.EnGuerre, nom: "Zone de Guerre Active" },
         { valeur: EStatusPlanete.Vitrifier, nom: "Vitrifiée" },
-        { valeur: EStatusPlanete.VitrifierPartielle, nom: "Vitrification Partielle" }
+        { valeur: EStatusPlanete.VitrifierPartielle, nom: "Vitrification Partielle" },
+        { valeur: EStatusPlanete.Soleil, nom: "Etoile" }
     ];
 
     private matDialogData: PlaneteOrigine = inject(MAT_DIALOG_DATA);

@@ -631,6 +631,11 @@ export class CarteGalactique implements OnInit
         });
     }
 
+    protected EstUnSoleil(statut: EStatusPlanete): boolean 
+    {
+        return statut == EStatusPlanete.Soleil; 
+    }
+
     protected ObtenirLibelleStatut(statut: EStatusPlanete): string 
     {
         switch (statut) 
@@ -645,6 +650,7 @@ export class CarteGalactique implements OnInit
             case EStatusPlanete.EnGuerre: return "Zone de Guerre Active";
             case EStatusPlanete.Vitrifier: return "Vitrifiée";
             case EStatusPlanete.VitrifierPartielle: return "Vitrification Partielle";
+            case EStatusPlanete.Soleil: return "Étoile Centrale";
             default: return "Données corrompues";
         }
     }
@@ -661,6 +667,7 @@ export class CarteGalactique implements OnInit
             case EStatusPlanete.Vitrifier: return "#2f3640"; // Gris cendre très sombre
             case EStatusPlanete.VitrifierPartielle: return "#7158e2"; // Violet sombre/brûlé
             case EStatusPlanete.HorsRegistre: return "#00cec9"; // Cyan (Furtif)
+            case EStatusPlanete.Soleil: return "#f1c40f";
             default: return "#7f8fa6"; // Gris neutre par défaut
         }
     }
