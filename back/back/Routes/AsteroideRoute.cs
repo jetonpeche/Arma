@@ -227,7 +227,7 @@ public static class AsteroideRoute
      )
      {
           if (_requete.IdAsteroideA <= 0 || _requete.IdAsteroideB <= 0)
-               return Results.NotFound("Une des planetes n'existe pas");
+               return Results.NotFound("UnS des astéroides n'existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
