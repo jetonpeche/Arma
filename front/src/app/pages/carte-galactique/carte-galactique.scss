@@ -486,6 +486,19 @@ $cell-size: 100px;
             background-color: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
         }
     }
+
+    .mat-mdc-menu-item.btn-danger 
+    {
+        .mdc-list-item__primary-text, 
+        span, 
+        mat-icon {
+            color: var(--mat-sys-error) !important;
+        }
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--mat-sys-error) 15%, transparent) !important;
+        }
+    }
 }
 
 /* =========================================================

@@ -27,6 +27,12 @@ public static class SecteurRoute
             .WithDescription("Ajouter un systeme")
             .ProducesCreated<int>();
 
+        builder.MapPost("connecter", ConnecterAsync)
+            .WithDescription("Connecter deux systemes pour afficher une route")
+            .ProducesBadRequest()
+            .ProducesNotFound()
+            .ProducesCreated();
+
         builder.MapPut("modifier/{idSysteme:int}", ModifierAsync)
             .WithDescription("Modifier un systeme")
             .ProducesNotFound()
@@ -37,9 +43,13 @@ public static class SecteurRoute
             .ProducesNotFound()
             .ProducesNoContent();
 
-        builder.MapPut("supprimer/{idSysteme:int}", SupprimerAsync)
+        builder.MapDelete("supprimer/{idSysteme:int}", SupprimerAsync)
             .WithDescription("Supprimer un systeme")
             .ProducesNotFound()
+            .ProducesNoContent();
+
+        builder.MapDelete("supprimer-connexion", SupprimerConnexionAsync)
+            .WithDescription("Supprimer une connexion entre deux systemes")
             .ProducesNoContent();
 
         return builder;
@@ -85,8 +95,8 @@ public static class SecteurRoute
         var liste = db.GetCollection<SystemeConnecte>().Query()
             .Select(x => new SystemeConnexionReponse
             {
-                IdSecteurA = x.SystemeA.Id,
-                IdSecteurB = x.SystemeB.Id,
+                IdSystemeA = x.SystemeA.Id,
+                IdSystemeB = x.SystemeB.Id,
                 Distance = x.Distance
             })
             .ToList();
@@ -109,6 +119,49 @@ public static class SecteurRoute
         });
 
         return Results.Created<int>("", id.AsInt32);
+    }
+
+    static async Task<IResult> ConnecterAsync(
+        [FromBody] SystemeConnexionRequete _requete
+    )
+    {
+        if (_requete.IdSystemeA <= 0 || _requete.IdSystemeB <= 0)
+            return Results.NotFound("Un des systemes existe pas");
+
+        if (_requete.IdSystemeA == _requete.IdSystemeB)
+            return Results.BadRequest("Le systeme ne peut pas pointer sur sui même");
+
+        using var db = new LiteDatabase(Constant.BDD_NOM);
+        var collection = db.GetCollection<PlaneteOrigine>();
+
+        if (
+            !collection.Exists(x => x.Id == _requete.IdSystemeA) ||
+            !collection.Exists(x => x.Id == _requete.IdSystemeB)
+        )
+        {
+            return Results.NotFound("Un des systemes n'existe pas");
+        }
+
+        if (
+            db.GetCollection<SystemeConnecte>().Exists(x =>
+                (x.SystemeA.Id == _requete.IdSystemeA && x.SystemeB.Id == _requete.IdSystemeB) ||
+                (x.SystemeA.Id == _requete.IdSystemeB && x.SystemeB.Id == _requete.IdSystemeA)
+            )
+        )
+        {
+            return Results.BadRequest("Les systemes sont déjà connectés");
+        }
+
+        var systemeConnecter = new SystemeConnecte
+        {
+            SystemeA = new Systeme { Id = _requete.IdSystemeA },
+            SystemeB = new Systeme { Id = _requete.IdSystemeB },
+            Distance = string.IsNullOrWhiteSpace(_requete.Distance) ? null : _requete.Distance.XSS()
+        };
+
+        db.GetCollection<SystemeConnecte>().Insert(systemeConnecter);
+
+        return Results.Created();
     }
 
     static async Task<IResult> ModifierAsync(
@@ -169,8 +222,32 @@ public static class SecteurRoute
             return Results.NotFound("Le systeme existe pas");
 
         db.GetCollection<SystemeConnecte>().DeleteMany(x => x.SystemeA.Id == _idSysteme || x.SystemeB.Id == _idSysteme);
-        db.GetCollection<PlaneteOrigine>().UpdateMany(_ => new PlaneteOrigine { Systeme = null }, x => x.Systeme.Id == _idSysteme);
+
+        var listeIdPlanete = db.GetCollection<PlaneteOrigine>().Query()
+            .Where(x => x.Systeme.Id == _idSysteme)
+            .Select(x => x.Id)
+            .ToList();
+
+        db.GetCollection<PlaneteConnecte>().DeleteMany(x => listeIdPlanete.Contains(x.PlaneteA.Id) || listeIdPlanete.Contains(x.PlaneteB.Id));
+        db.GetCollection<PlaneteOrigine>().DeleteMany(x => x.Systeme.Id == _idSysteme);
 
         return Results.NoContent();
+    }
+
+    static async Task<IResult> SupprimerConnexionAsync(
+        [FromBody] SystemeConnexionSupprimerRequete _requete
+    )
+    {
+        if (_requete.IdSystemeA <= 0 || _requete.IdSystemeB <= 0)
+            return Results.NotFound("Un des systemes n'existe pas");
+
+        using var db = new LiteDatabase(Constant.BDD_NOM);
+
+        var nb = db.GetCollection<SystemeConnecte>().DeleteMany(x =>
+            (x.SystemeA.Id == _requete.IdSystemeA && x.SystemeB.Id == _requete.IdSystemeB) ||
+            (x.SystemeA.Id == _requete.IdSystemeB && x.SystemeB.Id == _requete.IdSystemeA)
+        );
+
+        return nb > 0 ? Results.NoContent() : Results.NotFound("La connexion existe pas");
     }
 }

@@ -5,25 +5,69 @@
      [matMenuTriggerFor]="contextMenu">
 </div>
 
+<!-- MODULE DU MENU CONTEXTUEL -->
 <mat-menu #contextMenu="matMenu" class="unsc-context-menu">
     <div class="menu-header">
         <mat-icon>gps_fixed</mat-icon>
         COORDONNÉES [{{ clicX() }}, {{ clicY() }}]
     </div>
 
-    @if(!systemeActif()) 
+    <!-- CAS 1 : CLIC SUR UNE PLANÈTE (VUE MICRO) -->
+    @if(planeteCibleMenu(); as planete) 
     {
-        <button mat-menu-item (click)="OuvrirModalAjouterSysteme()">
-            <mat-icon color="primary">add_circle</mat-icon>
-            <span>Fonder un Système</span>
-        </button>
+        @if(droit.peutEcrire)
+        {
+            <button mat-menu-item (click)="OuvrirModalAjouterModifierPlanete()">
+                <mat-icon color="accent">edit</mat-icon>
+                <span>Modifier {{ planete.nom }}</span>
+            </button>
+        }
+
+        @if (droit.peutSupprimer) 
+        {
+            <button mat-menu-item class="btn-danger" (click)="OuvrirModalConfirmationSuppression()">
+                <mat-icon>delete</mat-icon>
+                <span>Détruire l'astre</span>
+            </button>
+        }
     } 
+
+    <!-- CAS 2 : CLIC SUR UN SYSTÈME (VUE MACRO) -->
+    @else if (systemeCibleMenu(); as systeme) 
+    {
+        @if(droit.peutEcrire)
+        {
+            <button mat-menu-item (click)="OuvrirModalAjouterModifierSysteme()">
+                <mat-icon>edit</mat-icon>
+                <span>Modifier {{ systeme.nom }}</span>
+            </button>
+        }
+
+        @if(droit.peutSupprimer)
+        {
+            <button mat-menu-item class="btn-danger" (click)="OuvrirModalConfirmationSuppression()">
+                <mat-icon>delete</mat-icon>
+                <span>Détruire le Système</span>
+            </button>
+        }
+    } 
+    <!-- CAS 3 : CLIC DANS LE VIDE SPATIAL (AJOUT) -->
     @else 
     {
-        <button mat-menu-item (click)="OuvrirModalAjouterPlanete()">
-            <mat-icon color="accent">add_circle</mat-icon>
-            <span>Scanner une Planète</span>
-        </button>
+        @if(!systemeActif()) 
+        {
+            <button mat-menu-item (click)="OuvrirModalAjouterModifierSysteme()">
+                <mat-icon color="primary">add_circle</mat-icon>
+                <span>Fonder un Système</span>
+            </button>
+        } 
+        @else 
+        {
+            <button mat-menu-item (click)="OuvrirModalAjouterModifierPlanete()">
+                <mat-icon color="accent">add_circle</mat-icon>
+                <span>Scanner une Planète</span>
+            </button>
+        }
     }
 </mat-menu>
 
@@ -143,7 +187,14 @@
                 {
                     <div class="grid-node planet-node" 
                          [style.grid-column]="planete.positionX" 
-                         [style.grid-row]="planete.positionY">
+                         [style.grid-row]="planete.positionY"
+                         cdkDrag
+                         [cdkDragDisabled]="!modeEdition()"
+                         [cdkDragScale]="echelle()"
+                         (cdkDragEnded)="onPlaneteDragEnd($event, planete)"
+                         
+                         (click)="GererClicPlanete(planete)"
+                         [class.is-targeted]="planeteSelectionneRoute()?.id === planete.id">
                         
                         <div class="node-core planet-core" [style.background-color]="ObtenirCouleurStatut(planete.statut)"></div>
                         <div class="node-label">

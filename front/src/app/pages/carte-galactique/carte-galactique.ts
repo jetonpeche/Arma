@@ -18,6 +18,8 @@ import { EStatusPlanete } from '@enums/EStatusPlanete';
 import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierPlaneteOrigine } from '@modals/ajouter-modifier-planete-origine/ajouter-modifier-planete-origine';
 import { AjouterModifierSysteme } from '@modals/ajouter-modifier-systeme/ajouter-modifier-systeme';
+import { DialogConfirmationService } from '@services/DialogConfirmationService';
+import { sys } from 'typescript';
 
 @Component({
   selector: 'app-carte-galactique',
@@ -43,6 +45,8 @@ export class CarteGalactique implements OnInit
     protected contextMenuTrigger = viewChild.required(MatMenuTrigger);
     protected clicX = signal<number>(0);
     protected clicY = signal<number>(0);
+    protected planeteCibleMenu = signal<PlaneteOrigine>(null);
+    protected systemeCibleMenu = signal<Systeme>(null);
 
     // Position de l'ancre invisible sur l'écran
     protected contextMenuPosition = { x: '0px', y: '0px' };
@@ -50,6 +54,7 @@ export class CarteGalactique implements OnInit
     protected modeEdition = signal<boolean>(false);
     protected systemeActif = signal<Systeme | null>(null);
     protected systemeSelectionneRoute = signal<Systeme | null>(null);
+    protected planeteSelectionneRoute = signal<PlaneteOrigine | null>(null);
     
     private startDragX = 0;
     private startDragY = 0;
@@ -60,6 +65,7 @@ export class CarteGalactique implements OnInit
     private systemeServ = inject(SystemeService);
     private authServ = inject(AuthentificationService);
     private snackBarServ = inject(SnackBarService);
+    private dialogConfirmationServ = inject(DialogConfirmationService);
     private dialog = inject(MatDialog);
 
     // Cet algorithme transforme les X/Y de la grille en pixels pour tracer les lignes SVG au centre des cases
@@ -113,58 +119,13 @@ export class CarteGalactique implements OnInit
         }).filter(route => route !== null);
     });
 
-    // ==========================================
-// DONNÉES DE TEST : HAUT COMMANDEMENT UNSC
-// ==========================================
-
-readonly MOCK_SYSTEMES: Systeme[] = [
-    { id: 1, nom: "Système Sol", description: "Berceau de l'humanité et siège de FLEETCOM.", positionX: 5, positionY: 5 },
-    { id: 2, nom: "Epsilon Eridani", description: "Pôle militaire principal. Forteresse de l'UNSC.", positionX: 8, positionY: 3 },
-    { id: 3, nom: "Epsilon Indi", description: "Colonie agricole majeure.", positionX: 2, positionY: 7 },
-    { id: 4, nom: "Proxima Centauri", description: "Avant-poste de recherche de l'O.N.I.", positionX: 4, positionY: 3 }
-];
-
-readonly MOCK_SYSTEMES_CONNEXIONS: SystemeConnecter[] = [
-    { idSystemeA: 1, idSystemeB: 2, distance: "10.5 AL" }, // Sol vers Epsilon Eridani
-    { idSystemeA: 1, idSystemeB: 4, distance: "4.2 AL" },  // Sol vers Proxima
-    { idSystemeA: 2, idSystemeB: 3, distance: "12.0 AL" }, // Eridani vers Indi
-    { idSystemeA: 4, idSystemeB: 3, distance: "8.5 AL" }   // Proxima vers Indi
-];
-
-readonly MOCK_PLANETES: PlaneteOrigine[] = [
-    // Planètes du Système Sol (ID: 1)
-    { id: 101, idSysteme: 1, nom: "Terre", description: "Capitale de l'UEG.", nomFichier: "terre.png", statut: 1, positionX: 4, positionY: 4 },
-    { id: 102, idSysteme: 1, nom: "Mars", description: "Chantiers navals de Reyes.", nomFichier: "mars.png", statut: 1, positionX: 6, positionY: 5 },
-    { id: 103, idSysteme: 1, nom: "Luna", description: "Centre de formation de l'Académie.", nomFichier: "luna.png", statut: 1, positionX: 3, positionY: 3 },
-    
-    // Planètes du Système Epsilon Eridani (ID: 2)
-    { id: 201, idSysteme: 2, nom: "Reach", description: "Forteresse militaire et producteur de titane.", nomFichier: "reach.png", statut: 2, positionX: 5, positionY: 5 },
-    { id: 202, idSysteme: 2, nom: "Tribute", description: "Centre industriel lourd.", nomFichier: "tribute.png", statut: 1, positionX: 7, positionY: 3 },
-    
-    // Planètes du Système Epsilon Indi (ID: 3)
-    { id: 301, idSysteme: 3, nom: "Harvest", description: "Grenier à grain des colonies.", nomFichier: "harvest.png", statut: 3, positionX: 5, positionY: 5 }
-];
-
-readonly MOCK_PLANETES_CONNEXIONS: PlaneteConnecter[] = [
-    // Routes intra-Sol
-    { idPlaneteA: 101, idPlaneteB: 103, distance: "384 000 km" }, // Terre - Luna
-    { idPlaneteA: 101, idPlaneteB: 102, distance: "225 M km" },   // Terre - Mars
-    // Routes intra-Eridani
-    { idPlaneteA: 201, idPlaneteB: 202, distance: "Courte" }      // Reach - Tribute
-];
-
     ngOnInit(): void 
     {
-      this.droit = this.authServ.RecupererDroit(EUrl.PlaneteOrigine);
-        this.listeSysteme.set(this.MOCK_SYSTEMES);
-        this.listeSystemeConnexion.set(this.MOCK_SYSTEMES_CONNEXIONS);
-        this.listePlanete.set(this.MOCK_PLANETES);
-        this.listePlaneteConnexion.set(this.MOCK_PLANETES_CONNEXIONS);
-    }
+        this.droit = this.authServ.RecupererDroit(EUrl.PlaneteOrigine);
 
-    // ==========================================
-    // MÉTHODES DU MOTEUR PAN & ZOOM
-    // ==========================================
+        this.ListerSysteme();
+        this.ListerPlaneteConnexion();
+    }
     
     // Zoom à la molette
     @HostListener('wheel', ['$event'])
@@ -196,6 +157,7 @@ readonly MOCK_PLANETES_CONNEXIONS: PlaneteConnecter[] = [
     {
         this.modeEdition.set(!this.modeEdition());
         this.systemeSelectionneRoute.set(null);
+        this.planeteSelectionneRoute.set(null);
     }
 
     protected GererClicSysteme(systeme: Systeme): void 
@@ -204,59 +166,164 @@ readonly MOCK_PLANETES_CONNEXIONS: PlaneteConnecter[] = [
         {
             this.systemeActif.set(systeme);
             this.RecentrerCarte();
-            //this.ListerPlaneteSysteme(systeme.id);
+            this.ListerPlaneteSysteme(systeme.id);
             return;
         }
 
         const cibleA = this.systemeSelectionneRoute();
+        const cibleB = systeme.id;
 
         if (!cibleA) 
         {
-            // 1er clic : On verrouille le point de départ
             this.systemeSelectionneRoute.set(systeme);
         } 
-        else if (cibleA.id === systeme.id) 
-        {
-            // Clic sur lui-même : On annule la sélection
+        else if (cibleA.id == systeme.id) 
             this.systemeSelectionneRoute.set(null);
-        } 
-        else 
-        {
-            // 2ème clic sur un autre système : Traitement de la route
-            
-            // On respecte votre règle stricte : idA est toujours le plus petit
-            const idMin = Math.min(cibleA.id, systeme.id);
-            const idMax = Math.max(cibleA.id, systeme.id);
 
+        else 
+        { 
             // On cherche si la route existe déjà
-            const routeExistante = this.listeSystemeConnexion().find(
-                c => c.idSystemeA === idMin && c.idSystemeB === idMax
+            const routeExistante = this.listeSystemeConnexion().find( c => 
+                (c.idSystemeA == cibleA.id && c.idSystemeB == cibleB) ||
+                (c.idSystemeA == cibleB && c.idSystemeB == cibleA.id)
             );
 
             if (routeExistante) 
             {
-                // La route existe -> ON LA DÉTRUIT
-                this.listeSystemeConnexion.update(liste => 
-                    liste.filter(c => !(c.idSystemeA === idMin && c.idSystemeB === idMax))
-                );
-                
-                // TODO API : this.systemeServ.SupprimerConnexion(...)
-                this.snackBarServ.Ok("Route stellaire détruite.");
+                this.systemeServ.SupprimerConnexion({ idSystemeA: cibleA.id, idSystemeB: cibleB }).subscribe({
+                    next: () =>
+                    {
+                        this.listeSystemeConnexion.update(liste =>
+                            liste.filter(c => 
+                                !( (c.idSystemeA === cibleA.id && c.idSystemeB === cibleB) || 
+                                (c.idSystemeA === cibleB && c.idSystemeB === cibleA.id) )
+                            )
+                        );
+                        
+                        this.snackBarServ.Ok("Route stellaire détruite");
+                    }
+                });
             } 
             else 
             {
-                // La route n'existe pas -> ON LA CRÉE
-                this.listeSystemeConnexion.update(liste => [
-                    ...liste, 
-                    { idSystemeA: idMin, idSystemeB: idMax, distance: "INCONNUE" }
-                ]);
-                
-                // TODO API : this.systemeServ.AjouterConnexion(...)
-                this.snackBarServ.Ok("Nouvelle route stellaire établie.");
+                this.systemeServ.AjouterConnexion({ idSystemeA: cibleA.id, idSystemeB: cibleB, distance: null }).subscribe({
+                    next: () =>
+                    {
+                        this.listeSystemeConnexion.update(liste => [
+                            ...liste, 
+                            { idSystemeA: cibleA.id, idSystemeB: cibleB, distance: "INCONNUE" }
+                        ]);
+
+                        this.snackBarServ.Ok("Nouvelle route stellaire établie");
+                    }
+                });
             }
 
             // On libère la sélection pour la prochaine manœuvre
             this.systemeSelectionneRoute.set(null);
+        }
+    }
+
+    protected onPlaneteDragEnd(event: CdkDragEnd, planete: PlaneteOrigine): void 
+    {
+        const distanceX = event.distance.x / this.echelle();
+        const distanceY = event.distance.y / this.echelle();
+
+        const casesX = Math.round(distanceX / this.TAILLE_CASE);
+        const casesY = Math.round(distanceY / this.TAILLE_CASE);
+
+        if (casesX === 0 && casesY === 0) 
+        {
+            event.source._dragRef.reset();
+            return;
+        }
+
+        const newX = Math.max(1, planete.positionX + casesX); 
+        const newY = Math.max(1, planete.positionY + casesY);
+
+        const collision = this.listePlanete().find(p => p.id !== planete.id && p.positionX === newX && p.positionY === newY);
+
+        if (collision) 
+        {
+            this.snackBarServ.Erreur(`Alerte de collision : Ce secteur est déjà occupé par ${collision.nom}`);
+            event.source._dragRef.reset(); 
+        } 
+        else
+        {
+            this.planeteServ.ModifierPosition(planete.id, { positionX: newX, positionY: newY }).subscribe({
+                next: () =>
+                {
+                    this.listePlanete.update(liste => {
+                        const p = liste.find(x => x.id === planete.id);
+                        if (p) 
+                        {
+                            p.positionX = newX;
+                            p.positionY = newY;
+                        }
+                        return [...liste];
+                    });
+
+                    event.source._dragRef.reset();
+                    this.snackBarServ.Ok("Orbite planétaire recalibrée");
+                }
+            });
+        }
+    }
+
+    protected GererClicPlanete(planete: PlaneteOrigine): void 
+    {
+        // En vue normale, le clic ne fait rien (le survol affiche déjà les détails)
+        if (!this.modeEdition()) return;
+
+        const cibleA = this.planeteSelectionneRoute();
+        const cibleB = planete.id;
+
+        if (!cibleA) 
+        {
+            this.planeteSelectionneRoute.set(planete);
+        } 
+        else if (cibleA.id === planete.id) 
+        {
+            this.planeteSelectionneRoute.set(null);
+        }
+        else 
+        { 
+            const routeExistante = this.listePlaneteConnexion().find( c => 
+                (c.idPlaneteA === cibleA.id && c.idPlaneteB === cibleB) ||
+                (c.idPlaneteA === cibleB && c.idPlaneteB === cibleA.id)
+            );
+
+            if (routeExistante) 
+            {
+                this.planeteServ.SupprimerConnexion({ idPlaneteA: cibleA.id, idPlaneteB: cibleB }).subscribe({
+                    next: () =>
+                    {
+                        this.listePlaneteConnexion.update(liste =>
+                            liste.filter(c => 
+                                !( (c.idPlaneteA === cibleA.id && c.idPlaneteB === cibleB) || 
+                                (c.idPlaneteA === cibleB && c.idPlaneteB === cibleA.id) )
+                            )
+                        );
+                        
+                        this.snackBarServ.Ok("Route planétaire détruite");
+                    }
+                });
+            } 
+            else 
+            {
+                this.planeteServ.AjouterConnexion({ idPlaneteA: cibleA.id, idPlaneteB: cibleB, distance: null }).subscribe({
+                    next: () =>
+                    {
+                        this.listePlaneteConnexion.update(liste => [
+                            ...liste, 
+                            { idPlaneteA: cibleA.id, idPlaneteB: cibleB, distance: "INCONNUE" }
+                        ]);
+                        this.snackBarServ.Ok("Nouvelle route planétaire établie");
+                    }
+                });
+            }
+
+            this.planeteSelectionneRoute.set(null);
         }
     }
 
@@ -324,27 +391,34 @@ readonly MOCK_PLANETES_CONNEXIONS: PlaneteConnecter[] = [
             this.snackBarServ.Erreur(`Alerte de collision : Ce secteur est déjà occupé par ${collision.nom}`);
             event.source._dragRef.reset(); // Rétractation à la case de départ
         } 
-        else 
+        else
         {
-            // SAUVEGARDE ET DÉPLACEMENT
-            this.listeSysteme.update(liste => {
-                const sys = liste.find(s => s.id === systeme.id);
-                if (sys) {
-                    sys.positionX = newX;
-                    sys.positionY = newY;
-                }
-                return [...liste];
-            });
+            this.systemeServ.ModifierPosition(systeme.id, { positionX: newX, positionY: newY }).subscribe({
+                next: () =>
+                {
+                    this.listeSysteme.update(liste => {
+                        const sys = liste.find(s => s.id == systeme.id);
 
-            event.source._dragRef.reset();
+                        if (sys) 
+                        {
+                            sys.positionX = newX;
+                            sys.positionY = newY;
+                        }
+
+                        return [...liste];
+                    });
+
+                    event.source._dragRef.reset();
+                }
+            });
         }
     }
 
     protected onContextMenu(event: MouseEvent): void 
     {
-        event.preventDefault();
+        event.preventDefault(); 
 
-        if (!this.droit?.peutEcrire) 
+        if (!this.droit?.peutEcrire && !this.droit?.peutSupprimer) 
             return;
 
         const gridElement = event.currentTarget as HTMLElement;
@@ -356,35 +430,43 @@ readonly MOCK_PLANETES_CONNEXIONS: PlaneteConnecter[] = [
         const caseX = Math.floor(xReel / this.TAILLE_CASE) + 1;
         const caseY = Math.floor(yReel / this.TAILLE_CASE) + 1;
 
-        if (caseX < 1 || caseX > 100 || caseY < 1 || caseY > 100) 
-            return;
+        if (caseX < 1 || caseX > 100 || caseY < 1 || caseY > 100) return;
 
-        let caseOccupee = false;
-        
+        // 1. On réinitialise les cibles précédentes
+        this.planeteCibleMenu.set(null);
+        this.systemeCibleMenu.set(null);
+
+        // 2. On cherche si un astre occupe la case visée
         if (!this.systemeActif()) 
-            caseOccupee = this.listeSysteme().some(s => s.positionX === caseX && s.positionY === caseY);
+        {
+            const sys = this.listeSysteme().find(s => s.positionX == caseX && s.positionY == caseY);
 
+            if (sys) 
+                this.systemeCibleMenu.set(sys);
+        } 
         else 
-            caseOccupee = this.listePlanete().some(p => p.positionX === caseX && p.positionY === caseY);
+        {
+            const planete = this.listePlanete().find(p => p.positionX == caseX && p.positionY == caseY);
 
-        if (caseOccupee) 
-            return;
+            if (planete) 
+                this.planeteCibleMenu.set(planete);
+        }
 
+        // 3. Mise à jour des coordonnées
         this.clicX.set(caseX);
         this.clicY.set(caseY);
-
         this.contextMenuPosition.x = event.clientX + 'px';
         this.contextMenuPosition.y = event.clientY + 'px';
 
         this.contextMenuTrigger().openMenu();
     }
 
-    protected OuvrirModalAjouterSysteme(): void 
+    protected OuvrirModalAjouterModifierSysteme(): void 
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierSysteme, { 
             width: this.estMobile ? "95%" : "60%", 
             maxWidth: "100vw",
-            data: {
+            data: this.systemeCibleMenu() ?? {
                 positionX: this.clicX(), 
                 positionY: this.clicY() 
             }
@@ -393,18 +475,30 @@ readonly MOCK_PLANETES_CONNEXIONS: PlaneteConnecter[] = [
         DIALOG_REF.afterClosed().subscribe({
             next: (retour: Systeme | null) =>
             {
+                const estUneModification = this.systemeCibleMenu() !== null;
+                this.systemeCibleMenu.set(null);
+
                 if(retour)
-                    this.listeSysteme.update(x => [...x, retour]);
+                {
+                    if(estUneModification)
+                    {
+                        this.listeSysteme.update(liste => 
+                            liste.map(x => x.id === retour.id ? retour : x)
+                        );
+                    }
+                    else
+                        this.listeSysteme.update(x => [...x, retour]);
+                }
             }
         });
     }
 
-    protected OuvrirModalAjouterPlanete(): void 
+    protected OuvrirModalAjouterModifierPlanete(): void 
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierPlaneteOrigine, {
             width: this.estMobile ? "95%" : "60%", 
             maxWidth: "100vw",
-            data: {
+            data: this.planeteCibleMenu() ?? {
                 idSysteme: this.systemeActif().id,
                 positionX: this.clicX(),
                 positionY: this.clicY()
@@ -414,8 +508,35 @@ readonly MOCK_PLANETES_CONNEXIONS: PlaneteConnecter[] = [
         DIALOG_REF.afterClosed().subscribe({
             next: (retour: PlaneteOrigine | null) =>
             {
+                const estUneModification = this.planeteCibleMenu() !== null;
+                this.planeteCibleMenu.set(null);
+
                 if(retour)
-                    this.listePlanete.update(x => [...x, retour])
+                {
+                    if(estUneModification)
+                    {
+                        this.listePlanete.update(liste => 
+                            liste.map(x => x.id === retour.id ? retour : x)
+                        );
+                    }
+                    else
+                        this.listePlanete.update(x => [...x, retour]);
+                }
+            }
+        });
+    }
+
+    protected OuvrirModalConfirmationSuppression(): void
+    {
+        const MESSAGE = `Confirmez-vous la suppression ${this.planeteCibleMenu() ? ('de la planete' + this.planeteCibleMenu().nom) : ('du système' + this.systemeCibleMenu().nom + ' et de toutes ses planetes') } ?`;
+
+        this.dialogConfirmationServ.Ouvrir("Suppression galactique", MESSAGE).subscribe({
+            next: (retour) =>
+            {
+                if(retour)
+                {
+                    this.planeteCibleMenu() ? this.SupprimerPlanete() : this.SupprimerSysteme();
+                }
             }
         });
     }
@@ -452,6 +573,48 @@ readonly MOCK_PLANETES_CONNEXIONS: PlaneteConnecter[] = [
             case EStatusPlanete.HorsRegistre: return "#00cec9"; // Cyan (Furtif)
             default: return "#7f8fa6"; // Gris neutre par défaut
         }
+    }
+
+    private SupprimerSysteme(): void
+    {
+        const ID = this.systemeCibleMenu().id;
+
+        this.systemeServ.Supprimer(ID).subscribe({
+            next: () =>
+            {
+                this.snackBarServ.Ok("Le système a été supprimé");
+                this.listeSysteme.update(x => x.filter(y => y.id != ID));
+                this.listeSystemeConnexion.update(x => x.filter(y => !(y.idSystemeA == ID || y.idSystemeB == ID)))
+
+                const idsPlanetesDetruites = this.listePlanete()
+                    .filter(p => p.idSysteme === ID)
+                    .map(p => p.id);
+
+                this.listePlaneteConnexion.update(routes => 
+                    routes.filter(r => 
+                        !idsPlanetesDetruites.includes(r.idPlaneteA) && 
+                        !idsPlanetesDetruites.includes(r.idPlaneteB)
+                    )
+                );
+
+                this.systemeCibleMenu.set(null);
+                this.RetourVueGalactique();
+            }
+        });
+    }
+
+    private SupprimerPlanete(): void
+    {
+        const ID = this.planeteCibleMenu().id;
+        this.planeteServ.Supprimer(ID).subscribe({
+            next: () =>
+            {
+                this.snackBarServ.Ok("La planete a été supprimée");
+                this.listePlanete.update(x => x.filter(y => y.id != ID))
+                this.listePlaneteConnexion.update(x => x.filter(y => !(y.idPlaneteA == ID || y.idPlaneteB == ID)))
+                this.planeteCibleMenu.set(null);
+            }
+        });
     }
 
     private ListerPlaneteConnexion(): void 

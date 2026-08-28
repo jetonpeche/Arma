@@ -12,7 +12,7 @@ export type SystemeConnecter =
 {
     idSystemeA: number,
     idSystemeB: number,
-    distance: string
+    distance: string | null
 }
 
 export type SystemeLeger =
@@ -28,3 +28,4 @@ export type SystemePositionRequete =
 }
 
 export type SystemeRequete = Omit<Systeme, "id">;
+export type SystemeConnecterSupprimerRequete = Omit<SystemeConnecter, "distance">;

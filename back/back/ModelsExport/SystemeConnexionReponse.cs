@@ -4,9 +4,9 @@ namespace back.ModelsExport;
 
 public sealed class SystemeConnexionReponse
 {
-    public required int IdSecteurA { get; set; }
+    public required int IdSystemeA { get; set; }
 
-    public required int IdSecteurB { get; set; }
+    public required int IdSystemeB { get; set; }
 
     public required string? Distance { get; set; }
 }

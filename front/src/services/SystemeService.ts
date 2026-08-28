@@ -3,7 +3,7 @@ import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Systeme, SystemeConnecter, SystemeLeger, SystemePositionRequete, SystemeRequete } from "@models/Systeme";
+import { Systeme, SystemeConnecter, SystemeConnecterSupprimerRequete, SystemeLeger, SystemePositionRequete, SystemeRequete } from "@models/Systeme";
 
 export class SystemeService
 {
@@ -32,6 +32,11 @@ export class SystemeService
         return this.http.post<number>(`${this.BASE_API}/ajouter`, _systeme).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
+    AjouterConnexion(_connexion: SystemeConnecter): Observable<void>
+    {
+        return this.http.post<void>(`${this.BASE_API}/connecter`, _connexion).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
     Modifier(_idSysteme: number, _systeme: SystemeRequete): Observable<void>
     {
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idSysteme}`, _systeme).pipe(takeUntilDestroyed(this.destroyRef));
@@ -45,5 +50,10 @@ export class SystemeService
     Supprimer(_idSysteme: number): Observable<void>
     {
         return this.http.delete<void>(`${this.BASE_API}/supprimer/${_idSysteme}`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    SupprimerConnexion(_systemeConnexion: SystemeConnecterSupprimerRequete): Observable<void>
+    {
+        return this.http.delete<void>(`${this.BASE_API}/supprimer-connexion`, { body: _systemeConnexion }).pipe(takeUntilDestroyed(this.destroyRef));
     }
 }

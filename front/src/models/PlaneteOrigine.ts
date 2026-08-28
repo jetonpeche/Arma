@@ -17,7 +17,7 @@ export type PlaneteConnecter =
 {
     idPlaneteA: number,
     idPlaneteB: number,
-    distance: string
+    distance: string | null
 }
 
 export type PlaneteOrigineLeger =
@@ -31,3 +31,5 @@ export type PlaneteOrigineRequete =
     nom: string,
     description: string | null,
 }
+
+export type PlaneteConnecterSupprimerRequete = Omit<PlaneteConnecter, "distance">;
