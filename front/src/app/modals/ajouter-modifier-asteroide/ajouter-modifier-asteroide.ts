@@ -23,7 +23,8 @@ export class AjouterModifierAsteroide implements OnInit
     protected btnClick = signal<boolean>(false);
     protected listeStatuts = [
         { valeur: EStatutAsteroide.Neutre, nom: "Roche spatiale standard" },
-        { valeur: EStatutAsteroide.Coloniser, nom: "Colonisé" }
+        { valeur: EStatutAsteroide.Coloniser, nom: "Colonisé" },
+        { valeur: EStatutAsteroide.HorsRegistre, nom: "Hors Registre (O.N.I.)" }
     ];
 
     private matDialogData: PlaneteOrigine = inject(MAT_DIALOG_DATA);
