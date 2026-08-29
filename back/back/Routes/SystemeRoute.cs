@@ -132,7 +132,7 @@ public static class SecteurRoute
             return Results.BadRequest("Le systeme ne peut pas pointer sur sui même");
 
         using var db = new LiteDatabase(Constant.BDD_NOM);
-        var collection = db.GetCollection<PlaneteOrigine>();
+        var collection = db.GetCollection<Systeme>();
 
         if (
             !collection.Exists(x => x.Id == _requete.IdSystemeA) ||
