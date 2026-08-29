@@ -829,6 +829,7 @@ export class CarteGalactique implements OnInit
             case EStatusPlanete.InsurrectionTotal: return "Insurrection totale";
             case EStatusPlanete.Neutre: return "Système Neutre";
             case EStatusPlanete.Inconnu: return "Statut Inconnu";
+            case EStatusPlanete.Inhabiter: return "Inhabité";
             case EStatusPlanete.HorsRegistre: return "Hors Registre (O.N.I.)";
             case EStatusPlanete.EnGuerre: return "Zone de Guerre Active";
             case EStatusPlanete.Vitrifier: return "Vitrifiée";

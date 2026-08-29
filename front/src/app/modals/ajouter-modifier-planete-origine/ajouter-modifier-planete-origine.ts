@@ -27,6 +27,7 @@ export class AjouterModifierPlaneteOrigine implements OnInit
         { valeur: EStatusPlanete.InsurrectionTotal, nom: "Insurrection totale" },
         { valeur: EStatusPlanete.Neutre, nom: "Système Neutre" },
         { valeur: EStatusPlanete.Inconnu, nom: "Statut Inconnu" },
+        { valeur: EStatusPlanete.Inhabiter, nom: "Inhabité" },
         { valeur: EStatusPlanete.HorsRegistre, nom: "Hors Registre (O.N.I.)" },
         { valeur: EStatusPlanete.EnGuerre, nom: "Zone de Guerre Active" },
         { valeur: EStatusPlanete.Vitrifier, nom: "Vitrifiée" },
