@@ -80,6 +80,7 @@ export class AjouterModifierPlaneteOrigine implements OnInit
                         nom: FORM.nom,
                         description: FORM.description,
                         statut: FORM.statut,
+                        estPlaneteOrigine: FORM.estPlaneteOrigine,
                         positionX: FORM.positionX,
                         positionY: FORM.positionY
                     } as PlaneteOrigine);
@@ -101,6 +102,7 @@ export class AjouterModifierPlaneteOrigine implements OnInit
                         nom: FORM.nom,
                         description: FORM.description,
                         statut: FORM.statut,
+                        estPlaneteOrigine: FORM.estPlaneteOrigine,
                         positionX: FORM.positionX,
                         positionY: FORM.positionY
                     } as PlaneteOrigine);
