@@ -33,6 +33,11 @@ export class PlaneteService
         return this.http.get<PlaneteOrigineLeger[]>(`${this.BASE_API}/lister-leger`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
+    ListerOrigine(): Observable<PlaneteOrigineLeger[]>
+    {
+        return this.http.get<PlaneteOrigineLeger[]>(`${this.BASE_API}/lister-origine`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
     ListerConnexion(): Observable<PlaneteConnecter[]>
     {
         return this.http.get<PlaneteConnecter[]>(`${this.BASE_API}/lister-connexion`).pipe(takeUntilDestroyed(this.destroyRef));

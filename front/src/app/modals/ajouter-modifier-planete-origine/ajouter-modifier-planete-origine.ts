@@ -8,10 +8,11 @@ import { SnackBarService } from '@services/SnackBarService';
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { EStatusPlanete } from '@enums/EStatusPlanete';
 import { MatSelectModule } from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 @Component({
     selector: 'app-ajouter-modifier-planete-origine',
-    imports: [MatSelectModule, MatDialogModule, InputText, ButtonLoader, ReactiveFormsModule, InputTextarea, GridContainer, GridElement],
+    imports: [MatCheckboxModule, MatSelectModule, MatDialogModule, InputText, ButtonLoader, ReactiveFormsModule, InputTextarea, GridContainer, GridElement],
     templateUrl: './ajouter-modifier-planete-origine.html',
 })
 export class AjouterModifierPlaneteOrigine implements OnInit
@@ -48,6 +49,7 @@ export class AjouterModifierPlaneteOrigine implements OnInit
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
             description: new FormControl(this.matDialogData?.description ?? "", [Validators.maxLength(400)]),
             statut: new FormControl(this.matDialogData?.statut ?? EStatusPlanete.Neutre, [Validators.required]),
+            estPlaneteOrigine: new FormControl(this.matDialogData?.estPlaneteOrigine),
 
             idSysteme: new FormControl(this.matDialogData.idSysteme),
             positionX: new FormControl(this.matDialogData.positionX),

@@ -12,6 +12,6 @@ public sealed class PaginationReponse<T>
 }
 
 [JsonSerializable(typeof(PaginationReponse<HistoriqueCampagneReponse>))]
-[JsonSerializable(typeof(PaginationReponse<PlaneteOrigine>))]
+[JsonSerializable(typeof(PaginationReponse<PlaneteOrigineReponse>))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 public partial class PaginationReponseContext : JsonSerializerContext;

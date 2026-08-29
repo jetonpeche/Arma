@@ -16,7 +16,12 @@ public static class PlaneteOrigineRoute
               .Produces<PlaneteOrigineReponse[]>()
               .AllowAnonymous();
 
-         builder.MapGet("lister-paginer", ListerPaginerAsync)
+          builder.MapGet("lister-origine", ListerOrigineAsync)
+                .WithDescription("Lister les planetes d'origine (selectionnable pour les personnages)")
+                .Produces<PlaneteOrigineLegerReponse[]>()
+                .AllowAnonymous();
+
+          builder.MapGet("lister-paginer", ListerPaginerAsync)
                 .WithDescription("Lister les planetes paginer")
                 .Produces<PaginationReponse<PlaneteOrigineReponse>>()
                 .AllowAnonymous();
@@ -80,11 +85,16 @@ public static class PlaneteOrigineRoute
           if (!string.IsNullOrWhiteSpace(_recherche))
                requete = requete.Where(x => x.Nom.ToLower().Contains(_recherche.ToLower()));
 
-          var liste = requete.Select(x => new PlaneteOrigine
+          var liste = requete.Select(x => new PlaneteOrigineReponse
           {
                Id = x.Id,
                Nom = x.Nom,
                Description = x.Description,
+               EstPlaneteOrigine = x.EstPlaneteOrigine,
+               Statut = x.Statut,
+               IdSysteme = x.Systeme.Id,
+               PositionX = x.PositionX,
+               PositionY = x.PositionY,
                NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
           })
           .Offset((_page - 1) * 12)
@@ -92,7 +102,7 @@ public static class PlaneteOrigineRoute
           .ToArray();
 
           return Results.Extensions.Ok(
-               new PaginationReponse<PlaneteOrigine>
+               new PaginationReponse<PlaneteOrigineReponse>
                {
                     Page = _page,
                     Total = total,
@@ -120,12 +130,29 @@ public static class PlaneteOrigineRoute
                 PositionX = x.PositionX,
                 PositionY = x.PositionY,
                 IdSysteme = x.Systeme.Id,
+                EstPlaneteOrigine = x.EstPlaneteOrigine,
                 NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
             })
             .ToList();
 
         return Results.Extensions.Ok(liste, PlaneteOrigineReponseContext.Default);
     }
+
+     static async Task<IResult> ListerOrigineAsync()
+     {
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var requete = db.GetCollection<PlaneteOrigine>().Query()
+               .Where(x => x.EstPlaneteOrigine)
+              .OrderBy(x => x.Nom)
+              .Select(x => new PlaneteOrigineLegerReponse
+              {
+                   Id = x.Id,
+                   Nom = x.Nom
+              }).ToArray();
+
+          return Results.Extensions.Ok(requete, PlaneteOrigineLegerReponseContext.Default);
+     }
 
     static async Task<IResult> ListerLegerAsync()
     {
@@ -176,6 +203,7 @@ public static class PlaneteOrigineRoute
             Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
             PositionX = _requete.PositionX,
             PositionY = _requete.PositionY,
+            EstPlaneteOrigine = _requete.EstPlaneteOrigine,
             Statut = _requete.Statut
         };
 
@@ -245,7 +273,8 @@ public static class PlaneteOrigineRoute
             Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
             PositionX = _requete.PositionX,
             PositionY = _requete.PositionY,
-            Statut = _requete.Statut
+            Statut = _requete.Statut,
+            EstPlaneteOrigine = _requete.EstPlaneteOrigine,
         }, x => x.Id == _idPlanete);
 
         return ok > 0 ? Results.NoContent() : Results.NotFound("La planète n'existe pas");

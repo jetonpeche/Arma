@@ -7,6 +7,7 @@ export type PlaneteOrigine =
     nom: string,
     description: string | null,
     nomFichier: string,
+    estPlaneteOrigine: boolean,
     statut: EStatusPlanete,
 
     positionX: number,

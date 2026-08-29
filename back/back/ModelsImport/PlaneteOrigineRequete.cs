@@ -8,6 +8,7 @@ public sealed class PlaneteOrigineRequete
     public required string Nom{ get; set; }
     public required string Description { get; set; }
     public required int Statut { get; set; }
+     public required bool EstPlaneteOrigine { get; set; }
 
     public required decimal PositionX { get; set; }
     public required decimal PositionY { get; set; }

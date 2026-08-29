@@ -12,6 +12,7 @@ public sealed class PlaneteOrigineReponse
     public string? Description { get; set; }
     public string? NomFichier { get; set; }
     public int Statut { get; set; }
+     public bool EstPlaneteOrigine { get; set; }
 
     public decimal PositionX { get; set; }
     public decimal PositionY { get; set; }
