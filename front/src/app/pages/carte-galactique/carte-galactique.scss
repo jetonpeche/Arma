@@ -160,14 +160,14 @@ $cell-size: 100px;
 .route-distance {
     fill: var(--mat-sys-primary);
     font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+    font-size: 22px;
     font-weight: bold;
     pointer-events: none;
     
     /* Astuce SVG : Crée un contour sombre autour du texte pour masquer la ligne derrière */
     paint-order: stroke;
     stroke: #0a111a;
-    stroke-width: 4px;
+    stroke-width: 6px;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
@@ -175,7 +175,7 @@ $cell-size: 100px;
 /* Variante pour la vue Planétaire */
 .planet-route-distance {
     fill: var(--mat-sys-secondary);
-    font-size: 12px;
+    font-size: 18px;
 }
 
 /* --- STYLE SPÉCIFIQUE : PLANÈTES --- */
