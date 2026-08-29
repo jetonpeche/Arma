@@ -142,6 +142,29 @@
                 </mat-autocomplete>
             </mat-form-field>
         }
+        @else
+        {
+            <mat-form-field style="width: 350px;" subscriptSizing="dynamic">
+                <mat-label>Scanner une cible...</mat-label>
+                <mat-icon matPrefix>radar</mat-icon>
+                <input type="text" matInput 
+                       [ngModel]="rechercheAstre()" 
+                       (ngModelChange)="rechercheAstre.set($event)"
+                       (click)="$event.target.select()" 
+                       [matAutocomplete]="autoAstre">
+                
+                <mat-autocomplete #autoAstre="matAutocomplete" 
+                                  autoActiveFirstOption
+                                  (optionSelected)="NaviguerVersAstre($event.option.value)" 
+                                  [displayWith]="AfficherNomAstre">
+                    @for (astre of astresFiltres(); track astre.id) {
+                        <mat-option [value]="astre" style="font-family: 'Courier New', Courier, monospace;">
+                            {{ astre.nom | uppercase }}
+                        </mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+        }
 
         @if(systemeActif()) 
         {

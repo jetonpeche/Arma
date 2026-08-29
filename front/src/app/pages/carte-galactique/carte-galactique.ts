@@ -54,6 +54,7 @@ export class CarteGalactique implements OnInit
 
     protected viewport = viewChild.required<ElementRef>('viewport');
     protected rechercheSysteme = signal<string>("");
+    protected rechercheAstre = signal<string>("");
 
     // --- MENU CONTEXTUEL ---
     protected contextMenuTrigger = viewChild.required(MatMenuTrigger);
@@ -98,6 +99,24 @@ export class CarteGalactique implements OnInit
             return systemes;
 
         return systemes.filter(s => s.nom.toLowerCase().includes(terme));
+    });
+
+    protected astresFiltres = computed(() => {
+        const terme = this.rechercheAstre()?.toLowerCase().trim();
+        
+        // 1. On récupère les planètes
+        const planetes = this.listePlanete();
+        
+        // 2. On récupère les astéroïdes, mais on EXCLUT les neutres
+        const asteroides = this.listeAsteroide().filter(a => a.statut != EStatutAsteroide.Neutre); 
+        
+        // 3. On fusionne les deux flottes
+        const astres = [...planetes, ...asteroides];
+
+        // Si la recherche est vide, on affiche toutes les cibles valides
+        if (!terme) return astres; 
+
+        return astres.filter(a => a.nom.toLowerCase().includes(terme));
     });
 
     ngOnInit(): void 
@@ -147,6 +166,11 @@ export class CarteGalactique implements OnInit
         return systeme ? systeme.nom.toUpperCase() : '';
     }
 
+    protected AfficherNomAstre(astre: any): string 
+    {
+        return astre ? astre.nom.toUpperCase() : '';
+    }
+    
     protected NaviguerVersSysteme(systeme: Systeme): void 
     {
         if (!systeme) return;
@@ -175,6 +199,30 @@ export class CarteGalactique implements OnInit
 
         // 6. Nettoyage de la barre de recherche
         this.rechercheSysteme.set("");
+    }
+
+    protected NaviguerVersAstre(astre: any): void 
+    {
+        if (!astre) 
+            return;
+
+        const cibleEchelle = 1.5; 
+        this.echelle.set(cibleEchelle);
+
+        // 2. Calcul du centre de l'écran radar
+        const ecranRect = this.viewport().nativeElement.getBoundingClientRect();
+        const ecranCentreX = ecranRect.width / 2;
+        const ecranCentreY = ecranRect.height / 2;
+
+        // 3. Calcul de la position de l'astre en pixels sur la grille
+        const astrePixelsX = (astre.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+        const astrePixelsY = (astre.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+
+        // 4. Déplacement de la caméra
+        this.panX.set(ecranCentreX - (astrePixelsX * cibleEchelle));
+        this.panY.set(ecranCentreY - (astrePixelsY * cibleEchelle));
+
+        this.rechercheAstre.set("");
     }
 
     protected DeplacerAstre(event: CdkDragEnd, astre: any, typeAstre: 'systeme' | 'planete' | 'asteroide'): void 
