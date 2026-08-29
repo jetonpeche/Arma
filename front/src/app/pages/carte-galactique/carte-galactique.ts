@@ -864,6 +864,7 @@ export class CarteGalactique implements OnInit
         {
             case EStatutAsteroide.Neutre: return "Roche spatiale standard";
             case EStatutAsteroide.Coloniser: return "Colonisé";
+            case EStatutAsteroide.HorsRegistre: return "Hors Registre (O.N.I.)";
             default: return "Roche spatiale standard";
         }
     }
