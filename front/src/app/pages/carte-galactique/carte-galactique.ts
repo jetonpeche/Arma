@@ -517,13 +517,69 @@ export class CarteGalactique implements OnInit
         this.panY.set(clientY - this.startDragY);
     }
 
-    protected RecentrerCarte(): void
+   protected RecentrerCarte(): void
     {
-        this.echelle.set(1);
-        this.panX.set(0);
-        this.panY.set(0);
-    }
+        const ecranRect = this.viewport().nativeElement.getBoundingClientRect();
+        const screenW = ecranRect.width;
+        const screenH = ecranRect.height;
 
+        // 1. Déterminer quelles cibles on doit encadrer selon la vue (Macro ou Micro)
+        let noeudsVisibles: any[] = [];
+        
+        if (!this.systemeActif()) {
+            // VUE MACRO : On englobe tous les systèmes
+            noeudsVisibles = this.listeSysteme();
+        } else {
+            // VUE MICRO : On englobe les planètes, le soleil, les lunes et les astéroïdes
+            noeudsVisibles = [...this.listePlanete(), ...this.listeAsteroide()];
+        }
+
+        // S'il n'y a rien sur le radar, on se place au centre exact de la grille (Case 50,50)
+        if (noeudsVisibles.length === 0) 
+        {
+            const vueGlobaleEchelle = 0.3;
+            this.echelle.set(vueGlobaleEchelle);
+            this.panX.set((screenW / 2) - (5000 * vueGlobaleEchelle));
+            this.panY.set((screenH / 2) - (5000 * vueGlobaleEchelle));
+            return;
+        }
+
+        // 2. Recherche des coordonnées extrêmes (Nord, Sud, Est, Ouest)
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+
+        noeudsVisibles.forEach(n => {
+            if (n.positionX < minX) minX = n.positionX;
+            if (n.positionX > maxX) maxX = n.positionX;
+            if (n.positionY < minY) minY = n.positionY;
+            if (n.positionY > maxY) maxY = n.positionY;
+        });
+
+        // 3. Conversion des cases en pixels (avec 2 cases de marge pour respirer)
+        minX = (minX - 2) * this.TAILLE_CASE;
+        maxX = (maxX + 1) * this.TAILLE_CASE;
+        minY = (minY - 2) * this.TAILLE_CASE;
+        maxY = (maxY + 1) * this.TAILLE_CASE;
+
+        const largeurZone = maxX - minX;
+        const hauteurZone = maxY - minY;
+        const centreZoneX = minX + (largeurZone / 2);
+        const centreZoneY = minY + (hauteurZone / 2);
+
+        // 4. Calcul du niveau de zoom parfait pour tout faire rentrer
+        const scaleX = screenW / largeurZone;
+        const scaleY = screenH / hauteurZone;
+        let echelleIdeale = Math.min(scaleX, scaleY);
+        
+        // Sécurité : On bloque l'échelle entre 0.3 (très reculé) et 1.5 (pour ne pas trop zoomer s'il n'y a qu'une planète)
+        echelleIdeale = Math.min(Math.max(0.3, echelleIdeale), 1.5);
+
+        // 5. Exécution de la translation géométrique
+        this.echelle.set(echelleIdeale);
+        this.panX.set((screenW / 2) - (centreZoneX * echelleIdeale));
+        this.panY.set((screenH / 2) - (centreZoneY * echelleIdeale));
+    }
+    
     protected onContextMenu(event: MouseEvent): void 
     {
         event.preventDefault(); 
@@ -710,6 +766,11 @@ export class CarteGalactique implements OnInit
         return statut == EStatusPlanete.Soleil; 
     }
 
+    protected EstUneLune(statut: EStatusPlanete): boolean 
+    {
+        return statut == EStatusPlanete.Lune; 
+    }
+
     protected ObtenirLibelleStatut(statut: EStatusPlanete): string 
     {
         switch (statut) 
@@ -725,6 +786,7 @@ export class CarteGalactique implements OnInit
             case EStatusPlanete.Vitrifier: return "Vitrifiée";
             case EStatusPlanete.VitrifierPartielle: return "Vitrification Partielle";
             case EStatusPlanete.Soleil: return "Étoile Centrale";
+            case EStatusPlanete.Lune: return "Lune / Satellite";
             default: return "Données corrompues";
         }
     }
@@ -742,6 +804,7 @@ export class CarteGalactique implements OnInit
             case EStatusPlanete.VitrifierPartielle: return "#7158e2"; // Violet sombre/brûlé
             case EStatusPlanete.HorsRegistre: return "#00cec9"; // Cyan (Furtif)
             case EStatusPlanete.Soleil: return "#f1c40f";
+            case EStatusPlanete.Lune: return "#dcdde1";
             default: return "#7f8fa6"; // Gris neutre par défaut
         }
     }

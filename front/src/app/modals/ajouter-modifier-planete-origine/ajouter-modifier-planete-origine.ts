@@ -30,7 +30,8 @@ export class AjouterModifierPlaneteOrigine implements OnInit
         { valeur: EStatusPlanete.EnGuerre, nom: "Zone de Guerre Active" },
         { valeur: EStatusPlanete.Vitrifier, nom: "Vitrifiée" },
         { valeur: EStatusPlanete.VitrifierPartielle, nom: "Vitrification Partielle" },
-        { valeur: EStatusPlanete.Soleil, nom: "Etoile" }
+        { valeur: EStatusPlanete.Soleil, nom: "Etoile" },
+        { valeur: EStatusPlanete.Lune, nom:  "Lune / Satellite" }
     ];
 
     private matDialogData: PlaneteOrigine = inject(MAT_DIALOG_DATA);

@@ -10,5 +10,6 @@ export enum EStatusPlanete
     EnGuerre = 7,
     Vitrifier = 8,
     VitrifierPartielle = 9,
-    Soleil = 10
+    Soleil = 10,
+    Lune = 11
 }

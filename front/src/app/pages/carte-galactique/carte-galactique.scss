@@ -126,8 +126,8 @@ $cell-size: 100px;
     
     /* Le visuel de l'astre */
     .node-core {
-        width: 24px;
-        height: 24px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         background-color: var(--mat-sys-primary);
         box-shadow: 0 0 15px var(--mat-sys-primary);
@@ -138,7 +138,7 @@ $cell-size: 100px;
     /* Le texte du Système */
     .node-label {
         position: absolute;
-        top: calc(50% + 18px);
+        top: calc(50% + 30px);
         white-space: nowrap;
         background-color: rgba(0,0,0,0.6);
         padding: 2px 8px;
@@ -182,8 +182,8 @@ $cell-size: 100px;
     
     .node-core.planet-core {
         /* Les planètes sont plus petites que les systèmes, et de couleur différente */
-        width: 28px;
-        height: 28px;
+        width: 46px;
+        height: 46px;
         background-color: var(--mat-sys-secondary);
         box-shadow: 0 0 10px var(--mat-sys-secondary);
     }
@@ -191,20 +191,35 @@ $cell-size: 100px;
     .node-label {
         /* Le texte est légèrement plus petit */
         font-size: 0.75rem;
-        top: calc(50% + 18px);
+        top: calc(50% + 28px);
         border-color: var(--mat-sys-secondary);
     }
 
     &:hover .node-core.planet-core { transform: scale(1.5); }
 }
 
+/* --- STYLE SPÉCIFIQUE : LUNE --- */
+.grid-node.planet-node.moon-node {
+    
+    .node-core.planet-core {
+        /* La Lune a des cratères (points sombres) sur son fond de couleur */
+        background-image: radial-gradient(circle, rgba(0,0,0,0.3) 2px, transparent 3px);
+        background-size: 10px 10px;
+        background-position: center;
+        
+        /* Légèrement plus petite qu'une planète standard pour le réalisme */
+        width: 30px;
+        height: 30px;
+    }
+}
+
 /* --- STYLE SPÉCIFIQUE : ASTÉROÏDES --- */
 .grid-node.asteroid-node {
     
     .node-core.asteroid-core {
-        width: 28px;
-        height: 28px;
-        background-color: #7f8fa6; /* Gris rocheux */
+        width: 48px;
+        height: 48px;
+        background-color: #7f8fa6;
         box-shadow: 0 0 8px rgba(127, 143, 166, 0.6);
         
         /* Découpe asymétrique pour simuler une roche */
@@ -217,7 +232,7 @@ $cell-size: 100px;
 
     .node-label {
         font-size: 0.7rem;
-        top: calc(50% + 18px);
+        top: calc(50% + 28px);
         border-color: #7f8fa6;
         color: #dcdde1;
     }
@@ -232,8 +247,8 @@ $cell-size: 100px;
 .grid-node.planet-node.sun-node {
     
     .node-core.planet-core {
-        width: 44px;
-        height: 44px;
+        width: 72px;
+        height: 72px;
         
         /* On retire l'ombre classique pour une lueur intense */
         box-shadow: 0 0 20px currentColor; 
@@ -243,7 +258,7 @@ $cell-size: 100px;
     }
 
     .node-label {
-        top: calc(50% + 28px); 
+        top: calc(50% + 42px); 
     }
 
     &:hover .node-core.planet-core { 
