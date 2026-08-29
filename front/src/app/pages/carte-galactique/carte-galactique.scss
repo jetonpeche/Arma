@@ -138,15 +138,16 @@ $cell-size: 100px;
     /* Le texte du Système */
     .node-label {
         position: absolute;
-        top: calc(50% + 30px);
+        top: calc(50% + 32px);
         white-space: nowrap;
         background-color: rgba(0,0,0,0.6);
-        padding: 2px 8px;
+        padding: 4px 12px;
         border: 1px solid var(--mat-sys-primary);
         color: white;
         font-family: 'Courier New', Courier, monospace;
-        font-size: 0.8rem;
+        font-size: 1rem; 
         font-weight: bold;
+        letter-spacing: 1px;
         pointer-events: none;
         opacity: 0.8;
     }
@@ -189,9 +190,9 @@ $cell-size: 100px;
     }
 
     .node-label {
-        /* Le texte est légèrement plus petit */
-        font-size: 0.75rem;
-        top: calc(50% + 28px);
+        font-size: 0.85rem; 
+        padding: 3px 10px;
+        top: calc(50% + 24px);
         border-color: var(--mat-sys-secondary);
     }
 
@@ -210,6 +211,11 @@ $cell-size: 100px;
         /* Légèrement plus petite qu'une planète standard pour le réalisme */
         width: 30px;
         height: 30px;
+    }
+
+    .node-label {
+        font-size: 0.75rem; 
+        top: calc(50% + 20px);
     }
 }
 
@@ -230,9 +236,10 @@ $cell-size: 100px;
         animation: spin-rock 20s linear infinite;
     }
 
-    .node-label {
-        font-size: 0.7rem;
-        top: calc(50% + 28px);
+    .node-label { 
+        font-size: 0.8rem;
+        padding: 3px 8px;
+        top: calc(50% + 24px); 
         border-color: #7f8fa6;
         color: #dcdde1;
     }
@@ -257,8 +264,10 @@ $cell-size: 100px;
         animation: star-pulse 3s infinite alternate ease-in-out;
     }
 
-    .node-label {
-        top: calc(50% + 42px); 
+    .node-label { 
+        font-size: 1rem; 
+        padding: 4px 12px;
+        top: calc(50% + 42px);
     }
 
     &:hover .node-core.planet-core { 
