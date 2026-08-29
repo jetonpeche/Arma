@@ -24,10 +24,15 @@ import { Asteroide, AsteroideConnecter } from '@models/Asteroide';
 import { EStatutAsteroide } from '@enums/EStatusAsteroide';
 import { AsteroideService } from '@services/AsteroideService';
 import { AjouterModifierAsteroide } from '@modals/ajouter-modifier-asteroide/ajouter-modifier-asteroide';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-carte-galactique',
-  imports: [MatDividerModule, MatMenuModule, DragDropModule, MatTooltipModule, MatIconModule, MatButtonModule, UpperCasePipe],
+  imports: [FormsModule, MatFormFieldModule, MatInputModule, MatAutocompleteModule, MatDividerModule, MatMenuModule, DragDropModule, MatTooltipModule, MatIconModule, MatButtonModule, UpperCasePipe],
   templateUrl: './carte-galactique.html',
   styleUrl: './carte-galactique.scss',
 })
@@ -46,6 +51,9 @@ export class CarteGalactique implements OnInit
     protected panX = signal<number>(0);
     protected panY = signal<number>(0);
     protected isDragging = signal<boolean>(false);
+
+    protected viewport = viewChild.required<ElementRef>('viewport');
+    protected rechercheSysteme = signal<string>("");
 
     // --- MENU CONTEXTUEL ---
     protected contextMenuTrigger = viewChild.required(MatMenuTrigger);
@@ -81,6 +89,16 @@ export class CarteGalactique implements OnInit
     protected routesSystemes = computed(() => this.GenererLignesSpatiales(this.listeSysteme(), this.listeSystemeConnexion(), 'idSystemeA', 'idSystemeB'));
     protected routesPlanetes = computed(() => this.GenererLignesSpatiales(this.listePlanete(), this.listePlaneteConnexion(), 'idPlaneteA', 'idPlaneteB'));
     protected routesAsteroides = computed(() => this.GenererLignesSpatiales(this.listeAsteroide(), this.listeAsteroideConnexion(), 'idAsteroideA', 'idAsteroideB'));
+    protected systemesFiltres = computed(() => 
+    {
+        const terme = this.rechercheSysteme()?.toLowerCase().trim();
+        const systemes = this.listeSysteme();
+
+        if (!terme) 
+            return systemes;
+
+        return systemes.filter(s => s.nom.toLowerCase().includes(terme));
+    });
 
     ngOnInit(): void 
     {
@@ -94,13 +112,69 @@ export class CarteGalactique implements OnInit
     @HostListener('wheel', ['$event'])
     onWheel(event: WheelEvent): void 
     {
-        if ((event.target as HTMLElement).closest('.galactic-viewport')) 
+        const viewport = (event.target as HTMLElement).closest('.galactic-viewport') as HTMLElement;
+        
+        if (viewport) 
         {
             event.preventDefault();
+            
+            const oldScale = this.echelle();
             const delta = event.deltaY > 0 ? -0.1 : 0.1;
-            const newScale = Math.min(Math.max(0.3, this.echelle() + delta), 3); // Bloque le zoom entre 0.3x et 3x
+            const newScale = Math.min(Math.max(0.3, oldScale + delta), 3); // Bloque le zoom entre 0.3x et 3x
+
+            // Si l'échelle n'a pas changé (on est au zoom minimum ou maximum), on ne fait rien
+            if (oldScale == newScale) 
+                return;
+
+            // 1. On récupère la position de la souris par rapport à l'écran du radar
+            const rect = viewport.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+
+            // 2. Calcul du nouveau décalage (Pan) pour garder le point sous la souris intact
+            const newPanX = mouseX - ((mouseX - this.panX()) / oldScale) * newScale;
+            const newPanY = mouseY - ((mouseY - this.panY()) / oldScale) * newScale;
+
+            // 3. Application simultanée des nouvelles coordonnées
             this.echelle.set(newScale);
+            this.panX.set(newPanX);
+            this.panY.set(newPanY);
         }
+    }
+
+    protected AfficherNomSysteme(systeme: Systeme): string 
+    {
+        return systeme ? systeme.nom.toUpperCase() : '';
+    }
+
+    protected NaviguerVersSysteme(systeme: Systeme): void 
+    {
+        if (!systeme) return;
+
+        // 1. On quitte la vue système (si on y était)
+        this.systemeActif.set(null);
+        this.listePlanete.set([]);
+        this.listeAsteroide.set([]);
+
+        // 2. On fixe l'échelle à un niveau de zoom confortable (ex: 100%)
+        const cibleEchelle = 1;
+        this.echelle.set(cibleEchelle);
+
+        // 3. Calcul du centre de l'écran radar
+        const ecranRect = this.viewport().nativeElement.getBoundingClientRect();
+        const ecranCentreX = ecranRect.width / 2;
+        const ecranCentreY = ecranRect.height / 2;
+
+        // 4. Calcul de la position du système en pixels sur la grille
+        const systemePixelsX = (systeme.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+        const systemePixelsY = (systeme.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+
+        // 5. Compensation : on décale la carte pour que le système tombe pile au centre
+        this.panX.set(ecranCentreX - (systemePixelsX * cibleEchelle));
+        this.panY.set(ecranCentreY - (systemePixelsY * cibleEchelle));
+
+        // 6. Nettoyage de la barre de recherche
+        this.rechercheSysteme.set("");
     }
 
     protected DeplacerAstre(event: CdkDragEnd, astre: any, typeAstre: 'systeme' | 'planete' | 'asteroide'): void 

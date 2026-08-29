@@ -33,9 +33,10 @@
     }
 
     .hud-controls {
-        pointer-events: auto; /* Réactive le clic sur les boutons */
+        pointer-events: auto;
         display: flex;
         gap: 16px;
+        align-items: center;
     }
 }
 

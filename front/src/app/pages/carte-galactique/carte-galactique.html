@@ -118,6 +118,31 @@
             </div>
         }
 
+        @if (!systemeActif())
+        {
+            <mat-form-field style="width: 350px" subscriptSizing="dynamic">
+                <mat-label>Saut hyper-spatial vers...</mat-label>
+                <mat-icon matPrefix>explore</mat-icon>
+                <input type="text" matInput 
+                       [ngModel]="rechercheSysteme()" 
+                       (ngModelChange)="rechercheSysteme.set($event)" 
+                       [matAutocomplete]="autoNav">
+                
+                <mat-autocomplete #autoNav="matAutocomplete" 
+                                  autoActiveFirstOption 
+                                  (optionSelected)="NaviguerVersSysteme($event.option.value)" 
+                                  [displayWith]="AfficherNomSysteme">
+
+                    @for (sys of systemesFiltres(); track sys.id) 
+                    {
+                        <mat-option [value]="sys">
+                            {{ sys.nom | uppercase }}
+                        </mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+        }
+
         @if(systemeActif()) 
         {
             <button matMiniFab (click)="RetourVueGalactique()" matTooltip="Remonter à la Galaxie">
@@ -141,7 +166,7 @@
 </div>
 
 <!-- LE VISEUR (Zone de glissement et de zoom) -->
-<div class="galactic-viewport" 
+<div class="galactic-viewport"  #viewport
      [class.grabbing]="isDragging()"
      [class.edit-mode]="modeEdition()"
      (mousedown)="onMouseDown($event)"
