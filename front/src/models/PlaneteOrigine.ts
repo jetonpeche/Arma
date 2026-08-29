@@ -32,6 +32,7 @@ export type PlaneteOrigineRequete =
     nom: string,
     description: string | null,
     statut: EStatusPlanete,
+    estPlaneteOrigine: boolean,
 
     positionX: number,
     positionY: number

@@ -50,7 +50,7 @@ export class AjouterModifierPlaneteOrigine implements OnInit
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
             description: new FormControl(this.matDialogData?.description ?? "", [Validators.maxLength(400)]),
             statut: new FormControl(this.matDialogData?.statut ?? EStatusPlanete.Neutre, [Validators.required]),
-            estPlaneteOrigine: new FormControl(this.matDialogData?.estPlaneteOrigine),
+            estPlaneteOrigine: new FormControl(this.matDialogData?.estPlaneteOrigine ?? false),
 
             idSysteme: new FormControl(this.matDialogData.idSysteme),
             positionX: new FormControl(this.matDialogData.positionX),
