@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>{{ labelBtn() }} un secteur</h2>
+<mat-dialog-content>
+    <form [formGroup]="form">
+        <jp-grid-container [gap]="15">
+            <jp-grid-element [colDefault]="12">
+                <jp-input-text label="Nom" formControlName="nom" />
+            </jp-grid-element>
+
+            <jp-grid-element [colDefault]="12">
+                <jp-input-text type="color" label="Couleur" formControlName="couleurHexa" />
+            </jp-grid-element>
+        </jp-grid-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <jp-button-loader matButton="text" matDialogClose label="Fermer" />&nbsp;
+    <jp-button-loader [loading]="btnClick()" (clicked)="ValiderForm()" [label]="labelBtn()" />
+</mat-dialog-actions>

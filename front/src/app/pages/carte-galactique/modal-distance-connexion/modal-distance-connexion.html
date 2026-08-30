@@ -10,6 +10,6 @@
     </form>
 </mat-dialog-content>
 <mat-dialog-actions>
-    <button matButton="text" matDialogClose>Annuler</button>
+    <button matButton="text" [matDialogClose]="undefined">Annuler</button>
     <button matButton="filled" (click)="ValiderForm()">Valider la route</button>
 </mat-dialog-actions>

@@ -118,9 +118,82 @@
             </div>
         }
 
+        @if(modeEdition() && !systemeActif()) 
+        {
+            <div class="painting-toolbar">
+                <button matMiniFab 
+                            [class.outil-actif]="outilActif() === 'main'"
+                            (click)="outilActif.set('main')" 
+                            matTooltip="Déplacer la carte">
+                    <mat-icon>pan_tool</mat-icon>
+                </button>
+
+                <button matMiniFab 
+                            [class.outil-actif]="outilActif() === 'pinceau'"
+                            (click)="outilActif.set('pinceau')" 
+                            matTooltip="Peindre un Secteur">
+                    <mat-icon>brush</mat-icon>
+                </button>
+
+                <button matMiniFab 
+                            [class.outil-actif]="outilActif() === 'gomme'"
+                            (click)="outilActif.set('gomme')" 
+                            matTooltip="Gomme spatiale">
+                    <mat-icon>format_color_reset</mat-icon>
+                </button>
+
+                <div class="toolbar-divider"></div>
+
+                <mat-form-field class="faction-select" subscriptSizing="dynamic">
+                    <mat-select [ngModel]="secteurActifId()" (ngModelChange)="secteurActifId.set($event)" [disabled]="outilActif() !== 'pinceau'">
+                        
+                        <mat-select-trigger>
+                            @if(ObtenirSecteur(secteurActifId()); as secteurActif) 
+                            {
+                                <strong class="carre-faction" [style.color]="secteurActif.couleurHexa">█</strong> 
+                                <span style="margin-left: 4px;">{{ secteurActif.nom | uppercase }}</span>
+                            }
+                        </mat-select-trigger>
+
+                        <!-- La liste déroulante -->
+                        @for (secteur of listeSecteur(); track secteur.id) 
+                        {
+                            <mat-option [value]="secteur.id">
+                                <strong [style.color]="secteur.couleurHexa">█</strong> 
+                                <span style="margin-left: 4px;">{{ secteur.nom | uppercase }}</span>
+                            </mat-option>
+                        }
+                        
+                    </mat-select>
+                </mat-form-field>
+
+                <button matMiniFab (click)="OuvrirModalAjouterModifierSecteur()" matTooltip="Créer/Gérer un Secteur">
+                    <mat-icon>flag</mat-icon>
+                </button>
+
+                <button matMiniFab 
+                        (click)="ModifierSecteurActif()" 
+                        [disabled]="!secteurActifId()" 
+                        matTooltip="Modifier ce Secteur">
+                    <mat-icon>edit</mat-icon>
+                </button>
+
+                <button matMiniFab
+                        (click)="verrouFrontiere.set(!verrouFrontiere())" 
+                        [matTooltip]="verrouFrontiere() ? 'Verrou Actif (Protège les autres)' : 'Forçage (Écrase tout)'" 
+                        [disabled]="outilActif() !== 'pinceau'">
+                    <mat-icon>{{ verrouFrontiere() ? 'security' : 'gpp_bad' }}</mat-icon>
+                </button>
+
+                <button matButton="filled" class="btn-sync" (click)="SauvegarderSecteurs()">
+                    <mat-icon>sync</mat-icon> SAUVEGARDER
+                </button>
+            </div>
+        }
+
         @if (!systemeActif())
         {
-            <mat-form-field style="width: 350px" subscriptSizing="dynamic">
+            <mat-form-field class="search-bar" style="width: 350px" subscriptSizing="dynamic">
                 <mat-label>Saut hyper-spatial vers...</mat-label>
                 <mat-icon matPrefix>explore</mat-icon>
                 <input type="text" matInput 
@@ -144,7 +217,7 @@
         }
         @else
         {
-            <mat-form-field style="width: 350px;" subscriptSizing="dynamic">
+            <mat-form-field class="search-bar" style="width: 350px;" subscriptSizing="dynamic">
                 <mat-label>Scanner une cible...</mat-label>
                 <mat-icon matPrefix>radar</mat-icon>
                 <input type="text" matInput 
@@ -166,25 +239,25 @@
             </mat-form-field>
         }
 
-        @if(systemeActif()) 
-        {
-            <button matMiniFab (click)="RetourVueGalactique()" matTooltip="Remonter à la Galaxie">
-                <mat-icon>reply</mat-icon>
-            </button>
-        }
+        <div class="action-fabs">
+            @if(systemeActif()) 
+            {
+                <button matMiniFab (click)="RetourVueGalactique()" matTooltip="Remonter à la Galaxie">
+                    <mat-icon>reply</mat-icon>
+                </button>
+            }
 
-        <button matMiniFab (click)="RecentrerCarte()" matTooltip="Recentrer">
-            <mat-icon>my_location</mat-icon>
-        </button>
-        
-        @if(droit?.peutEcrire) 
-        {
-            <button matMiniFab
-                    (click)="ActiverDesactiverModeEdition()" 
-                    [matTooltip]="modeEdition() ? 'Verrouiller la carte' : 'Mode Édition (Déplacer)'">
-                <mat-icon>{{ modeEdition() ? 'lock_open' : 'lock' }}</mat-icon>
+            <button matMiniFab (click)="RecentrerCarte()" matTooltip="Recentrer">
+                <mat-icon>my_location</mat-icon>
             </button>
-        }
+            
+            @if(droit?.peutEcrire) 
+            {
+                <button matMiniFab (click)="ActiverDesactiverModeEdition()" [matTooltip]="modeEdition() ? 'Verrouiller la carte' : 'Mode Édition'">
+                    <mat-icon>{{ modeEdition() ? 'lock_open' : 'lock' }}</mat-icon>
+                </button>
+            }
+        </div>
     </div>
 </div>
 
@@ -238,6 +311,16 @@
         <div class="tactical-grid" (contextmenu)="onContextMenu($event)">
             @if(!systemeActif()) 
             {
+                <!-- AFFICHAGE DES SECTEURS PEINTS -->
+                @for (cell of cellulesPeintes(); track cell.cle) 
+                {
+                    <div class="sector-cell"
+                         [style.grid-column]="cell.x"
+                         [style.grid-row]="cell.y"
+                         [style.background-color]="ObtenirCouleurSecteur(cell.idSecteur)">
+                    </div>
+                }
+
                 <!-- AFFICHAGE DES SYSTEMES -->
                 @for (systeme of listeSysteme(); track systeme.id) 
                 {
@@ -245,7 +328,7 @@
                             [style.grid-column]="systeme.positionX" 
                             [style.grid-row]="systeme.positionY"
                             cdkDrag
-                            [cdkDragDisabled]="!modeEdition()"
+                            [cdkDragDisabled]="!modeEdition() || outilActif() != 'main'"
                             [cdkDragScale]="echelle()"
                             (cdkDragEnded)="DeplacerAstre($event, systeme, 'systeme')"
                             
@@ -270,7 +353,7 @@
                          [style.grid-column]="planete.positionX" 
                          [style.grid-row]="planete.positionY"
                          cdkDrag
-                         [cdkDragDisabled]="!modeEdition()"
+                         [cdkDragDisabled]="!modeEdition() || outilActif() != 'main'"
                          [cdkDragScale]="echelle()"
                          (cdkDragEnded)="DeplacerAstre($event, planete, 'planete')"
                          
@@ -303,7 +386,7 @@
                         [style.grid-column]="asteroide.positionX" 
                         [style.grid-row]="asteroide.positionY"
                         cdkDrag
-                        [cdkDragDisabled]="!modeEdition()"
+                        [cdkDragDisabled]="!modeEdition() || outilActif() != 'main'"
                         [cdkDragScale]="echelle()"
                         (cdkDragEnded)="DeplacerAstre($event, asteroide, 'asteroide')"
                         (click)="GererClicAsteroide(asteroide)"

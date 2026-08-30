@@ -1,6 +1,6 @@
 namespace back.ModelsImport;
 
-public sealed class SecteurRequete
+public sealed class SystemeRequete
 {
     public string Nom { get; set; } = null!;
     public string? Description { get; set; }

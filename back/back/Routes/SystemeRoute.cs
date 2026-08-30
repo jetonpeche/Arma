@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace back.Routes;
 
-public static class SecteurRoute
+public static class SystemeRoute
 {
     public static RouteGroupBuilder AjouterRouteSysteme(this RouteGroupBuilder builder)
     {
@@ -105,7 +105,7 @@ public static class SecteurRoute
     }
     
     static async Task<IResult> AjouterAsync(
-        [FromBody] SecteurRequete _requete
+        [FromBody] SystemeRequete _requete
     )
     {
         using var db = new LiteDatabase(Constant.BDD_NOM);
@@ -166,7 +166,7 @@ public static class SecteurRoute
 
     static async Task<IResult> ModifierAsync(
         [FromRoute(Name = "idSysteme")] int _idSysteme, 
-        [FromBody] SecteurRequete _requete
+        [FromBody] SystemeRequete _requete
     )
     {
         if (_idSysteme <= 0)

@@ -29,10 +29,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { ElementRef } from '@angular/core';
+import { SecteurService } from '@services/SecteurService';
+import { Secteur, SecteurSynchroniser } from '@models/Secteur';
+import { AjouterModifierSecteur } from '@modals/ajouter-modifier-secteur/ajouter-modifier-secteur';
+import { MatSelectModule } from '@angular/material/select';
+
+
+type OutilEdition = 'main' | 'pinceau' | 'gomme';
 
 @Component({
   selector: 'app-carte-galactique',
-  imports: [FormsModule, MatFormFieldModule, MatInputModule, MatAutocompleteModule, MatDividerModule, MatMenuModule, DragDropModule, MatTooltipModule, MatIconModule, MatButtonModule, UpperCasePipe],
+  imports: [MatSelectModule, FormsModule, MatFormFieldModule, MatInputModule, MatAutocompleteModule, MatDividerModule, MatMenuModule, DragDropModule, MatTooltipModule, MatIconModule, MatButtonModule, UpperCasePipe],
   templateUrl: './carte-galactique.html',
   styleUrl: './carte-galactique.scss',
 })
@@ -41,6 +48,7 @@ export class CarteGalactique implements OnInit
   protected listeSysteme = signal<Systeme[]>([]);
   protected listePlanete = signal<PlaneteOrigine[]>([]);
   protected listeAsteroide = signal<Asteroide[]>([]);
+  protected listeSecteur = signal<Secteur[]>([]);
   protected listeSystemeConnexion = signal<SystemeConnecter[]>([]);
   protected listePlaneteConnexion = signal<PlaneteConnecter[]>([]);
   protected listeAsteroideConnexion = signal<AsteroideConnecter[]>([]);
@@ -73,6 +81,15 @@ export class CarteGalactique implements OnInit
     protected systemeSelectionneRoute = signal<Systeme | null>(null);
     protected planeteSelectionneRoute = signal<PlaneteOrigine | null>(null);
     protected asteroideSelectionneRoute = signal<Asteroide | null>(null);
+
+    // --- MENU PEINTURE ---
+    protected outilActif = signal<OutilEdition>('main');
+    protected secteurActifId = signal<number | null>(null);
+    protected verrouFrontiere = signal<boolean>(true);
+    protected estEnTrainDePeindre = signal<boolean>(false);
+
+    protected archiveSecteurs = new Map<string, number>(); 
+    protected brouillonSecteurs = signal<Map<string, number>>(new Map()); 
     
     private startDragX = 0;
     private startDragY = 0;
@@ -81,6 +98,7 @@ export class CarteGalactique implements OnInit
 
     private planeteServ = inject(PlaneteService);
     private systemeServ = inject(SystemeService);
+    private secteurServ = inject(SecteurService);
     private asteroideServ = inject(AsteroideService);
     private authServ = inject(AuthentificationService);
     private snackBarServ = inject(SnackBarService);
@@ -119,11 +137,21 @@ export class CarteGalactique implements OnInit
         return astres.filter(a => a.nom.toLowerCase().includes(terme));
     });
 
+    protected cellulesPeintes = computed(() => {
+        const cellules = [];
+        this.brouillonSecteurs().forEach((idSecteur, cle) => {
+            const [x, y] = cle.split('-').map(Number);
+            cellules.push({ cle, x, y, idSecteur });
+        });
+        return cellules;
+    });
+
     ngOnInit(): void 
     {
         this.droit = this.authServ.RecupererDroit(EUrl.PlaneteOrigine);
 
         this.ListerSysteme();
+        this.ListerSecteur();
         this.ListerPlaneteConnexion();
     }
     
@@ -169,6 +197,14 @@ export class CarteGalactique implements OnInit
     protected AfficherNomAstre(astre: any): string 
     {
         return astre ? astre.nom.toUpperCase() : '';
+    }
+
+    protected ModifierSecteurActif(): void
+    {
+        const secteurActuel = this.listeSecteur().find(s => s.id == this.secteurActifId());
+        
+        if (secteurActuel)
+            this.OuvrirModalAjouterModifierSecteur(secteurActuel);
     }
     
     protected NaviguerVersSysteme(systeme: Systeme): void 
@@ -268,13 +304,25 @@ export class CarteGalactique implements OnInit
 
     protected onMouseDown(event: MouseEvent | TouchEvent): void 
     {
-        if (this.modeEdition() && (event.target as HTMLElement).closest('.system-node'))
+        // Détection du clic droit
+        const estClicDroit = event instanceof MouseEvent && event.button === 2;
+
+        if (this.modeEdition() && !this.systemeActif() && this.outilActif() != 'main') 
+        {
+            if (!estClicDroit) 
+            {
+                // Clic Gauche : On peint
+                this.estEnTrainDePeindre.set(true);
+                this.AppliquerPeinture(event);
+                return;
+            }
+        }
+
+        if (this.modeEdition() && (event.target as HTMLElement).closest('.system-node')) 
             return;
 
         if (!(event.target as HTMLElement).closest('.grid-node')) 
-        {
             this.astreSelectionneDetails.set(null);
-        }
 
         this.isDragging.set(true);
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
@@ -287,6 +335,7 @@ export class CarteGalactique implements OnInit
     protected ActiverDesactiverModeEdition(): void 
     {
         this.modeEdition.set(!this.modeEdition());
+        this.outilActif.set('main');
         this.systemeSelectionneRoute.set(null);
         this.planeteSelectionneRoute.set(null);
         this.asteroideSelectionneRoute.set(null);
@@ -302,6 +351,9 @@ export class CarteGalactique implements OnInit
             this.ListerPlaneteSysteme(systeme.id);
             return;
         }
+
+        if (this.outilActif() != 'main') 
+            return;
 
         const cibleA = this.systemeSelectionneRoute();
         const cibleB = systeme.id;
@@ -346,7 +398,7 @@ export class CarteGalactique implements OnInit
 
                 DIALOG_REF.afterClosed().subscribe({
                     next: (distanceSaisie: string | null) => 
-                    {
+                    {   
                         // annuler
                         if (distanceSaisie === undefined || distanceSaisie === null) 
                         {
@@ -385,6 +437,9 @@ export class CarteGalactique implements OnInit
             );
             return;
         }
+
+        if (this.outilActif() !== 'main') 
+            return;
 
         const cibleA = this.planeteSelectionneRoute();
         const cibleB = planete.id;
@@ -465,6 +520,9 @@ export class CarteGalactique implements OnInit
             );
             return;
         }
+
+        if (this.outilActif() !== 'main') 
+            return;
 
         const cibleA = this.asteroideSelectionneRoute();
         const cibleB = asteroide.id;
@@ -550,17 +608,24 @@ export class CarteGalactique implements OnInit
     protected onMouseUp(): void 
     {
         this.isDragging.set(false);
+        this.estEnTrainDePeindre.set(false);
     }
 
     @HostListener('window:mousemove', ['$event'])
     @HostListener('window:touchmove', ['$event'])
     protected onMouseMove(event: MouseEvent | TouchEvent): void 
     {
+        if (this.estEnTrainDePeindre()) 
+        {
+            this.AppliquerPeinture(event);
+            return;
+        }
+
         if (!this.isDragging()) return;
-        
+
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
-        
+
         this.panX.set(clientX - this.startDragX);
         this.panY.set(clientY - this.startDragY);
     }
@@ -628,9 +693,85 @@ export class CarteGalactique implements OnInit
         this.panY.set((screenH / 2) - (centreZoneY * echelleIdeale));
     }
 
+    protected AppliquerPeinture(event: MouseEvent | TouchEvent): void 
+    {
+        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+        const gridElement = this.viewport().nativeElement.querySelector('.tactical-grid');
+
+        if(!gridElement) 
+            return;
+
+        const rect = gridElement.getBoundingClientRect();
+        const caseX = Math.floor(((clientX - rect.left) / this.echelle()) / this.TAILLE_CASE) + 1;
+        const caseY = Math.floor(((clientY - rect.top) / this.echelle()) / this.TAILLE_CASE) + 1;
+
+        if (caseX < 1 || caseX > 100 || caseY < 1 || caseY > 100) 
+            return;
+
+        const cle = `${caseX}-${caseY}`;
+        const mapActuelle = new Map(this.brouillonSecteurs());
+        const secteurExistant = mapActuelle.get(cle);
+
+        if (this.outilActif() == 'pinceau' && this.secteurActifId()) 
+        {
+            // Vérification du VERROU FRONTIÈRE
+            if (secteurExistant && this.verrouFrontiere() && secteurExistant !== this.secteurActifId()) 
+                return; 
+
+            mapActuelle.set(cle, this.secteurActifId());
+        } 
+        else if (this.outilActif() == 'gomme') 
+            mapActuelle.delete(cle);
+
+        this.brouillonSecteurs.set(mapActuelle);
+    }
+
+    protected SauvegarderSecteurs(): void 
+    {
+        const payload: SecteurSynchroniser = {
+            listeCaseAjouter: [],
+            listeCaseModifier: [],
+            listeCaseSupprimer: []
+        };
+
+        this.brouillonSecteurs().forEach((idSecteur, cle) => 
+        {
+            const [x, y] = cle.split('-').map(Number);
+            const ancienSecteur = this.archiveSecteurs.get(cle);
+
+            if (ancienSecteur === undefined)
+                payload.listeCaseAjouter.push({ positionX: x, positionY: y, idSecteur: idSecteur });
+
+            else if (ancienSecteur != idSecteur)
+                payload.listeCaseModifier.push({ positionX: x, positionY: y, idSecteurNouveau: idSecteur });
+        });
+
+        this.archiveSecteurs.forEach((ancienSecteur, cle) => 
+        {
+            if (!this.brouillonSecteurs().has(cle)) 
+            {
+                const [x, y] = cle.split('-').map(Number);
+                payload.listeCaseSupprimer.push({ positionX: x, positionY: y });
+            }
+        });
+
+        this.secteurServ.Synchroniser(payload).subscribe({
+            next: () => {
+                this.AppliquerSynchronisationLocale();
+            },
+            error: () => this.snackBarServ.Erreur("Échec de la transmission au serveur.")
+        });
+    }
+
     protected onContextMenu(event: MouseEvent): void 
     {
         event.preventDefault(); 
+
+        // Ne pas ouvrir le menu si on navigue au click droit avec un pinceau ou gomme
+        if (this.modeEdition() && !this.systemeActif() && this.outilActif() != 'main')
+            return;
 
         if (!this.droit?.peutEcrire && !this.droit?.peutSupprimer) 
             return;
@@ -776,6 +917,19 @@ export class CarteGalactique implements OnInit
         });
     }
 
+    protected OuvrirModalAjouterModifierSecteur(secteur?: Secteur): void 
+    {
+        const DIALOG_REF = this.dialog.open(AjouterModifierSecteur, { 
+            width: this.estMobile ? "95%" : "400px", 
+            maxWidth: "100vw",
+            data: secteur 
+        });
+
+        DIALOG_REF.afterClosed().subscribe(retour => {
+            if (retour) this.ListerSecteur();
+        });
+    }
+
     protected OuvrirModalConfirmationSuppression(): void
     {
         let messageCible = "";
@@ -817,6 +971,19 @@ export class CarteGalactique implements OnInit
     protected EstUneLune(statut: EStatusPlanete): boolean 
     {
         return statut == EStatusPlanete.Lune; 
+    }
+
+    protected ObtenirCouleurSecteur(idSecteur: number): string 
+    {
+        return this.listeSecteur().find(s => s.id == idSecteur)?.couleurHexa || 'transparent';
+    }
+
+    protected ObtenirSecteur(idSecteur: number | null): Secteur | undefined 
+    {
+        if (!idSecteur) 
+            return undefined;
+        
+        return this.listeSecteur().find(s => s.id == idSecteur);
     }
 
     protected ObtenirLibelleStatut(statut: EStatusPlanete): string 
@@ -877,6 +1044,39 @@ export class CarteGalactique implements OnInit
             case EStatutAsteroide.Coloniser: return "#00a8ff";
             default: return "#7f8fa6"; // Gris rocheux par défaut
         }
+    }
+
+    private AppliquerSynchronisationLocale(): void 
+    {
+        // 1. On met à jour l'Archive de sécurité pour qu'elle corresponde au Brouillon
+        this.archiveSecteurs.clear();
+        this.brouillonSecteurs().forEach((idSecteur, cle) => {
+            this.archiveSecteurs.set(cle, idSecteur);
+        });
+
+        // 2. On reconstruit les listes de positions dans listeSecteur localement
+        this.listeSecteur.update(secteursCourants => {
+            
+            // On vide les positions actuelles de chaque secteur
+            const secteursMisAJour = secteursCourants.map(secteur => ({
+                ...secteur,
+                listePosition: []
+            }));
+
+            // On repeuple avec le brouillon parfait
+            this.brouillonSecteurs().forEach((idSecteur, cle) => {
+                const [x, y] = cle.split('-').map(Number);
+                
+                const secteurCible = secteursMisAJour.find(s => s.id === idSecteur);
+                if (secteurCible) {
+                    secteurCible.listePosition.push({ positionX: x, positionY: y });
+                }
+            });
+
+            return secteursMisAJour;
+        });
+
+        this.snackBarServ.Ok("Topographie synchronisée");
     }
 
     private GenererLignesSpatiales(astres: any[], connexions: any[], cleIdA: string, cleIdB: string) 
@@ -970,5 +1170,36 @@ export class CarteGalactique implements OnInit
     {
         this.systemeServ.Lister().subscribe({ next: (retour) => this.listeSysteme.set(retour) });
         this.systemeServ.ListerConnexion().subscribe({ next: (retour) => this.listeSystemeConnexion.set(retour) });
+    }
+
+    private ListerSecteur(): void
+    {
+        this.secteurServ.Lister().subscribe({ 
+            next: (retour) => 
+            {
+                this.listeSecteur.set(retour);
+                this.archiveSecteurs.clear();
+                const initialMap = new Map<string, number>();
+                
+                retour.forEach(secteur => 
+                {
+                    if (secteur.listePosition) 
+                    {
+                        secteur.listePosition.forEach(pos => 
+                        {
+                            const cle = `${pos.positionX}-${pos.positionY}`;
+                            this.archiveSecteurs.set(cle, secteur.id);
+                            initialMap.set(cle, secteur.id);
+                        });
+                    }
+                });
+
+                this.brouillonSecteurs.set(initialMap);
+                
+                if (retour.length > 0) 
+                    this.secteurActifId.set(retour[0].id);
+            },
+            error: (err) => console.error("Erreur Radar Secteurs :", err)
+        });
     }
 }

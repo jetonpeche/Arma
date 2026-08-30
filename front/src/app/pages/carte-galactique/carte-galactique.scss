@@ -37,6 +37,12 @@
         display: flex;
         gap: 16px;
         align-items: center;
+
+        .action-fabs {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
     }
 }
 
@@ -123,6 +129,7 @@ $cell-size: 100px;
     justify-content: center;
     align-items: center;
     pointer-events: auto; /* Rend la planète cliquable */
+    z-index: 5;
     
     /* Le visuel de l'astre */
     .node-core {
@@ -176,6 +183,76 @@ $cell-size: 100px;
 .planet-route-distance {
     fill: var(--mat-sys-secondary);
     font-size: 18px;
+}
+
+/* --- COUCHE SECTEURS PEINTS --- */
+.sector-cell {
+    width: 100%;
+    height: 100%;
+    opacity: 0.15; /* Lavis adaptatif Light/Dark mode */
+    pointer-events: none; /* Laisse les clics passer au travers pour attraper les systèmes */
+    z-index: 1; /* Derrière les planètes */
+    transition: background-color 0.2s ease;
+}
+
+/* --- PALETTE DE PEINTURE TACTIQUE --- */
+.painting-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(10, 17, 26, 0.85);
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--mat-sys-primary);
+    backdrop-filter: blur(8px);
+    pointer-events: auto;
+
+    .outil-actif {
+        background-color: var(--mat-sys-primary) !important;
+        color: var(--mat-sys-on-primary) !important;
+        border-color: var(--mat-sys-primary) !important;
+        box-shadow: 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 50%, transparent) !important;
+        
+        /* On force l'icône à devenir blanche/sombre selon le thème */
+        ::ng-deep mat-icon {
+            color: var(--mat-sys-on-primary) !important;
+        }
+    }
+
+    .toolbar-divider {
+        width: 2px;
+        height: 24px;
+        background-color: color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+        margin: 0 4px;
+    }
+
+    .faction-select {
+        width: 180px;
+        
+        ::ng-deep .mat-mdc-text-field-wrapper {
+            background-color: transparent !important;
+            padding: 0 8px !important;
+        }
+        
+        ::ng-deep .mat-mdc-form-field-infix {
+            padding-top: 4px !important; 
+            padding-bottom: 4px !important;
+            min-height: 40px !important;
+        }
+
+        ::ng-deep .mat-mdc-select-value-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+    }
+
+    .btn-sync {
+        margin-left: 8px;
+    }
+}
+
+.carre-faction {
+    -webkit-text-fill-color: initial !important; /* Annule le filtre global */
 }
 
 /* --- STYLE SPÉCIFIQUE : PLANÈTES --- */
@@ -637,6 +714,32 @@ $cell-size: 100px;
         }
     }
 
+    /* Ajustement de la Palette de Peinture pour le Light Mode */
+    .painting-toolbar {
+        background-color: rgba(255, 255, 255, 0.85); /* Fond blanc translucide */
+        border-color: var(--mat-sys-primary);
+
+        .toolbar-divider {
+            background-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+        }
+
+        .faction-select {
+            ::ng-deep .mat-mdc-select-value-text {
+                color: var(--mat-sys-on-surface); /* Force le texte du select en sombre */
+            }
+        }
+    }
+
+    /* Ajustement de l'Alerte d'édition (Vue Mobile) */
+    .edit-warning {
+        background-color: rgba(255, 255, 255, 0.85) !important;
+    }
+
+    /* Ajustement de la Barre de recherche (Vue Mobile) */
+    .search-bar {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+    }
+
     /* Assombrissement des étiquettes des systèmes */
     .grid-node .node-label {
         background-color: rgba(255, 255, 255, 0.9);
@@ -649,5 +752,111 @@ $cell-size: 100px;
         background-image: 
             linear-gradient(to right, color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) 1px, transparent 1px),
             linear-gradient(to bottom, color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) 1px, transparent 1px);
+    }
+}
+
+/* =========================================================
+   ADAPTATION MOBILE & DATAPAD (RESPONSIVE PIXEL 7)
+   ========================================================= */
+@media screen and (max-width: 800px) {
+    
+    .map-hud {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        padding: 16px;
+        margin: 0;
+        pointer-events: none !important; /* Force la transparence aux clics */
+        z-index: 100;
+        display: block; 
+        
+        /* On cache le gros titre pour dégager la vue */
+        .hud-info {
+            display: none !important; 
+        }
+
+        .hud-controls {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: block; 
+            
+            /* LE CORRECTIF EST ICI : On force l'écran à laisser passer le doigt */
+            pointer-events: none !important; 
+
+            /* 4. Barre de recherche (Accrochée en haut) */
+            .search-bar {
+                position: absolute !important;
+                top: 0; 
+                left: 0;
+                width: 100% !important;
+                pointer-events: auto !important; /* Réactive le clic juste pour la barre */
+                margin: 0;
+                background-color: rgba(10, 17, 26, 0.95);
+                border-radius: 8px;
+            }
+
+            /* 5. Alerte d'édition */
+            .edit-warning {
+                position: absolute;
+                top: 70px;
+                left: 0;
+                pointer-events: auto !important; /* Réactive le clic */
+                background-color: rgba(10, 17, 26, 0.95);
+                padding: 8px 16px;
+                border-radius: 8px;
+            }
+
+            /* 6. Boutons d'action standards (Accrochés en bas à droite) */
+            .action-fabs {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                pointer-events: auto !important; /* Réactive le clic */
+                transition: bottom 0.3s ease, flex-direction 0.3s ease; 
+            }
+
+            /* 7. Palette de peinture (Accrochée en bas) */
+            .painting-toolbar {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                box-sizing: border-box;
+                pointer-events: auto !important; /* Réactive le clic */
+                
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 12px 8px; 
+                padding: 12px; 
+                border-radius: 12px;
+
+                .toolbar-divider { display: none; }
+
+                .mat-mdc-mini-fab {
+                    margin: 0 auto; 
+                }
+
+                .faction-select {
+                    grid-column: 1 / -1; 
+                    width: 100% !important;
+                    margin: 0;
+                }
+
+                .btn-sync {
+                    grid-column: 1 / -1; 
+                    height: 48px; 
+                    font-size: 1.1rem;
+                }
+            }
+
+            /* 8. Magie Tactique : Si la palette est ouverte... */
+            .painting-toolbar ~ .action-fabs {
+                bottom: 250px; 
+                flex-direction: row; 
+            }
+        }
     }
 }

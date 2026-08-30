@@ -41,6 +41,7 @@ import { AeronefService } from '@services/AeronefService';
 import { OrbatService } from '@services/OrbatService';
 import { SystemeService } from '@services/SystemeService';
 import { AsteroideService } from '@services/AsteroideService';
+import { SecteurService } from '@services/SecteurService';
 
 // 2. Enregistrez la langue française dans le système
 registerLocaleData(localeFr);
@@ -112,6 +113,7 @@ export const appConfig: ApplicationConfig = {
     { provide: OrbatService, useClass: OrbatService },
     { provide: SystemeService, useClass: SystemeService },
     { provide: AsteroideService, useClass: AsteroideService },
+    { provide: SecteurService, useClass: SecteurService },
     { provide: HistoriqueCampagneService, useClass: HistoriqueCampagneService },
 
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: matInput },
