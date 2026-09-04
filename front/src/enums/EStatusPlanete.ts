@@ -1,16 +1,36 @@
 export enum EStatusPlanete
 {
-    ControleUNSC = 0,
-    ControleCvenante = 1,
-    InsurrectionPartielle = 2,
-    InsurrectionTotal = 3,
-    Neutre = 4,
-    Inhabiter = 5,
-    HorsRegistre = 6,
-    EnGuerre = 7,
-    Vitrifier = 8,
-    VitrifierPartielle = 9,
-    Soleil = 10,
-    Lune = 11,
-    Inconnu = 12
+    Vitrifier,
+    VitrifierPartielle,
+    EnGuerre,
+    EnPaix,
+    RocheSpatial,
+    Inhabiter,
+    ControlPartiel,
+    ControlTotal,
+    ClassifierONI
+}
+
+export enum ETypePlanete
+{
+    Planete,
+    Lune,
+    Asteroide,
+    Soleil,
+    Halo,
+    StationCivil,
+    StationMilitaire
+}
+
+export enum EAppartenancePlanete
+{
+    Humain,
+    Insurrection,
+    Convenant,
+    Parasite,
+    Brute,
+    Neutre,
+    ClassifierONI,
+    UNSC,
+    Foreneur
 }

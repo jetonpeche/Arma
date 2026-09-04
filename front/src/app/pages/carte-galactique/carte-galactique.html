@@ -32,24 +32,6 @@
         }
     } 
 
-    @else if(asteroideCibleMenu(); as asteroide) 
-    {
-        @if(droit.peutEcrire) 
-        {
-            <button mat-menu-item (click)="OuvrirModalAjouterModifierAsteroide()">
-                <mat-icon color="accent">edit</mat-icon>
-                <span>Modifier {{ asteroide?.nom ?? 'astéroïde' }}</span>
-            </button>
-        }
-        @if (droit.peutSupprimer)
-        {
-            <button mat-menu-item class="btn-danger" (click)="OuvrirModalConfirmationSuppression()">
-                <mat-icon>delete</mat-icon>
-                <span>Pulvériser l'astéroïde</span>
-            </button>
-        }
-    }
-
     <!-- CAS 2 : CLIC SUR UN SYSTÈME (VUE MACRO) -->
     @else if (systemeCibleMenu(); as systeme) 
     {
@@ -85,11 +67,6 @@
                 <mat-icon color="accent">add_circle</mat-icon>
                 <span>Scanner une Planète</span>
             </button>
-
-            <button mat-menu-item (click)="OuvrirModalAjouterModifierAsteroide()">
-                <mat-icon color="accent">add_circle</mat-icon>
-                <span>Scanner un astéroide</span>
-            </button>
         }
     }
 </mat-menu>
@@ -118,6 +95,44 @@
             </div>
         }
 
+        <!-- VUE MICRO -->
+        @if(modeEdition() && systemeActif()) 
+        {
+            <div class="painting-toolbar">
+                <button matMiniFab 
+                        [class.outil-actif]="outilActif() === 'main'"
+                        (click)="outilActif.set('main')" 
+                        matTooltip="Déplacer les Astres">
+                    <mat-icon>pan_tool</mat-icon>
+                </button>
+
+                <!-- L'OVALE -->
+                <button matMiniFab 
+                        [class.outil-actif]="outilActif() === 'orbite'"
+                        (click)="outilActif.set('orbite')" 
+                        matTooltip="Tracer une Orbite Ovale">
+                    <mat-icon>all_out</mat-icon>
+                </button>
+
+                <!-- LE ROND -->
+                <button matMiniFab 
+                        [class.outil-actif]="outilActif() === 'orbite-ronde'"
+                        (click)="outilActif.set('orbite-ronde')" 
+                        matTooltip="Tracer une Orbite Ronde">
+                    <mat-icon>radio_button_unchecked</mat-icon>
+                </button>
+
+                <!-- DÉPLACER L'ORBITE -->
+                <button matMiniFab 
+                        [class.outil-actif]="outilActif() === 'orbite-decalage'"
+                        (click)="outilActif.set('orbite-decalage')" 
+                        matTooltip="Désaxer l'orbite">
+                    <mat-icon>open_with</mat-icon>
+                </button>
+            </div>
+        }
+
+        <!-- VUE MICRO -->
         @if(modeEdition() && !systemeActif()) 
         {
             <div class="painting-toolbar">
@@ -296,14 +311,6 @@
                         {{ route.distance }}
                     </text>
                 }
-
-                @for (route of routesAsteroides(); track $index) 
-                {
-                    <line [attr.x1]="route.x1" [attr.y1]="route.y1" [attr.x2]="route.x2" [attr.y2]="route.y2" class="slipspace-route planet-route" />
-                    <text [attr.x]="route.midX" [attr.y]="route.midY - 8" class="route-distance planet-route-distance" dominant-baseline="middle" text-anchor="middle">
-                        {{ route.distance }}
-                    </text>
-                }
             }
         </svg>
 
@@ -330,6 +337,7 @@
                             cdkDrag
                             [cdkDragDisabled]="!modeEdition() || outilActif() != 'main'"
                             [cdkDragScale]="echelle()"
+                            (cdkDragStarted)="onDragStarted($event)"
                             (cdkDragEnded)="DeplacerAstre($event, systeme, 'systeme')"
                             
                             (click)="GererClicSysteme(systeme)"
@@ -337,77 +345,111 @@
 
                         <div class="node-core"></div>
                         <div class="node-label">
-                            <span class="s-name">{{ systeme.nom | uppercase }}</span>
+                            <span>{{ systeme.nom | uppercase }}</span>
                         </div>
                     </div>
                 }
             }
-            @else 
+            @else
             {
-                <!-- AFFICHAGE DES PLANETES -->
+                <!-- AFFICHAGE UNIQUE DE TOUS LES ASTRES (Planètes, Soleils, Halos, Astéroïdes) -->
                 @for (planete of listePlanete(); track planete.id) 
                 {
                     <div class="grid-node planet-node" 
-                         [class.sun-node]="EstUnSoleil(planete.statut)"
-                         [class.moon-node]="EstUneLune(planete.statut)"
+                         [class.statut-guerre]="planete.statut === eStatusPlanete.EnGuerre"
+                         [class.statut-vitrifie]="planete.statut === eStatusPlanete.Vitrifier || planete.statut === eStatusPlanete.VitrifierPartielle"
                          [style.grid-column]="planete.positionX" 
                          [style.grid-row]="planete.positionY"
                          cdkDrag
                          [cdkDragDisabled]="!modeEdition() || outilActif() != 'main'"
                          [cdkDragScale]="echelle()"
+                         (cdkDragStarted)="onDragStarted($event)"
                          (cdkDragEnded)="DeplacerAstre($event, planete, 'planete')"
-                         
                          (click)="GererClicPlanete(planete)"
                          [class.is-targeted]="planeteSelectionneRoute()?.id == planete.id"
                          [class.show-details]="astreSelectionneDetails()?.id == planete.id">
                         
-                        <div class="node-core planet-core" [style.background-color]="ObtenirCouleurStatut(planete.statut)"></div>
+                        <!-- FORME 1 : HALO -->
+                        @if(planete.type === eTypePlanete.Halo) {
+                            <div class="node-core halo-core" [style.color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+                        }
+                        <!-- FORME 2 : SOLEIL -->
+                        @else if(planete.type === eTypePlanete.Soleil) {
+                            <div class="node-core sun-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+                        }
+                        <!-- FORME 3 : STATION MILITAIRE/CIVILE -->
+                        @else if(planete.type === eTypePlanete.StationCivil || planete.type === eTypePlanete.StationMilitaire) {
+                            <div class="node-core station-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)">
+                                <mat-icon>{{ planete.type === eTypePlanete.StationMilitaire ? 'security' : 'satellite' }}</mat-icon>
+                            </div>
+                        }
+                        <!-- FORME 4 : ASTÉROÏDES (Cluster de débris) -->
+                        @else if(planete.type === eTypePlanete.Asteroide) {
+                            <div class="asteroid-cluster">
+                                @for(roche of GenererTableauDensite(planete.densite); track $index) {
+                                    <div class="rock asteroid-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+                                }
+                            </div>
+                        }
+                        <!-- FORME 5 : LUNE -->
+                        @else if(planete.type === eTypePlanete.Lune) 
+                        {
+                            @if(planete.orbiteX) 
+                            {
+                                <div class="visual-orbit" 
+                                     [style.width.px]="planete.orbiteX" 
+                                     [style.height.px]="planete.orbiteY || planete.orbiteX"
+                                     [style.transform]="'translate(calc(-50% + ' + (planete.orbiteDecalageX || 0) + 'px), calc(-50% + ' + (planete.orbiteDecalageY || 0) + 'px)) rotate(' + (planete.orbiteAngle || 0) + 'deg)'"
+                                     [style.border-color]="ObtenirCouleurAppartenance(planete.appartenance)">
+                                </div>
+                            }
+
+                            <div class="node-core moon-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+                        }
+                        <!-- FORME DÉFAUT : PLANÈTE -->
+                        @else 
+                        {
+                            @if(planete.orbiteX) 
+                            {
+                                <div class="visual-orbit" 
+                                     [style.width.px]="planete.orbiteX" 
+                                     [style.height.px]="planete.orbiteY || planete.orbiteX"
+                                     [style.transform]="'translate(calc(-50% + ' + (planete.orbiteDecalageX || 0) + 'px), calc(-50% + ' + (planete.orbiteDecalageY || 0) + 'px)) rotate(' + (planete.orbiteAngle || 0) + 'deg)'"
+                                     [style.border-color]="ObtenirCouleurAppartenance(planete.appartenance)">
+                                </div>
+                            }
+
+                            <div class="node-core planet-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+                        }
+
                         <div class="node-label">
-                            <span class="s-name">{{ planete.nom | uppercase }}</span>
+                            <span>{{ planete.nom | uppercase }}</span>
                         </div>
 
+                        <!-- PANNEAU HOLOGRAPHIQUE DE DÉTAILS -->
                         <div class="node-details" (click)="$event.stopPropagation()">
-                            <div class="d-header" [style.border-bottom-color]="ObtenirCouleurStatut(planete.statut)">
+                            <div class="d-header" [style.border-bottom-color]="ObtenirCouleurAppartenance(planete.appartenance)">
                                 <span class="d-nom">{{ planete.nom | uppercase }}</span>
-                                <span class="d-statut" [style.color]="ObtenirCouleurStatut(planete.statut)">
+                                <span class="d-statut" [style.color]="ObtenirCouleurAppartenance(planete.appartenance)">
                                     [{{ ObtenirLibelleStatut(planete.statut) | uppercase }}]
                                 </span>
                             </div>
+                            
                             <div class="d-body">
-                                {{ planete.description || 'Aucune donnée topographique disponible dans les archives.' }}
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                @for (asteroide of listeAsteroide(); track asteroide.id) 
-                {
-                    <div class="grid-node asteroid-node" 
-                        [style.grid-column]="asteroide.positionX" 
-                        [style.grid-row]="asteroide.positionY"
-                        cdkDrag
-                        [cdkDragDisabled]="!modeEdition() || outilActif() != 'main'"
-                        [cdkDragScale]="echelle()"
-                        (cdkDragEnded)="DeplacerAstre($event, asteroide, 'asteroide')"
-                        (click)="GererClicAsteroide(asteroide)"
-                        [class.is-targeted]="asteroideSelectionneRoute()?.id == asteroide.id"
-                        [class.show-details]="astreSelectionneDetails()?.id == asteroide.id">
-                        
-                        <div class="node-core asteroid-core" [style.background-color]="ObtenirCouleurStatutAsteroide(asteroide.statut)"></div>
-        
-                        <div class="node-label">
-                            <span class="s-name">{{ asteroide.nom | uppercase }}</span>
-                        </div>
-
-                        <div class="node-details" (click)="$event.stopPropagation()">
-                            <div class="d-header" [style.border-bottom-color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
-                                <span class="d-nom">{{ asteroide.nom | uppercase }}</span>
-                                <span class="d-statut" [style.color]="ObtenirCouleurStatutAsteroide(asteroide.statut)">
-                                    [{{ ObtenirLibelleStatutAsteroide(asteroide.statut) | uppercase }}]
-                                </span>
-                            </div>
-                            <div class="d-body">
-                                {{ asteroide.description || 'Données classifiées ou indisponibles.' }}
+                                <ul class="d-info-list">
+                                    <li><strong>TYPE :</strong> {{ ObtenirLibelleType(planete.type) }}</li>
+                                    <li><strong>FACTION :</strong> {{ ObtenirLibelleAppartenance(planete.appartenance) }}</li>
+                                    
+                                    <!-- Affichage conditionnel de la densité si c'est un astéroïde -->
+                                    @if(planete.type === eTypePlanete.Asteroide) 
+                                    {
+                                        <li><strong>DENSITÉ ROCHEUSE :</strong> Niveau {{ planete.densite || 1 }}</li>
+                                    }
+                                </ul>
+                                
+                                <div class="d-desc">
+                                    {{ planete.description || 'Aucune donnée topographique disponible dans les archives.' }}
+                                </div>
                             </div>
                         </div>
                     </div>

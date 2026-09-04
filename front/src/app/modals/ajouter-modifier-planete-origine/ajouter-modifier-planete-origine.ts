@@ -6,7 +6,7 @@ import { PlaneteOrigine } from '@models/PlaneteOrigine';
 import { PlaneteService } from '@services/PlaneteService';
 import { SnackBarService } from '@services/SnackBarService';
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
-import { EStatusPlanete } from '@enums/EStatusPlanete';
+import { EAppartenancePlanete, EStatusPlanete, ETypePlanete } from '@enums/EStatusPlanete';
 import { MatSelectModule } from '@angular/material/select';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 
@@ -20,20 +20,38 @@ export class AjouterModifierPlaneteOrigine implements OnInit
     protected form: FormGroup;
     protected labelBtn = signal<string>("Ajouter");
     protected btnClick = signal<boolean>(false);
+    protected listeType = [
+        { valeur: ETypePlanete.Asteroide, nom: "Asteroide" },
+        { valeur: ETypePlanete.Halo, nom: "Halo" },
+        { valeur: ETypePlanete.Lune, nom: "Lune" },
+        { valeur: ETypePlanete.Planete, nom: "Planete" },
+        { valeur: ETypePlanete.Soleil, nom: "Soleil" },
+        { valeur: ETypePlanete.StationCivil, nom: "Station civil" },
+        { valeur: ETypePlanete.StationMilitaire, nom: "Station militaire" }
+    ];
+
+    protected listeAppartenance = [
+        { valeur: EAppartenancePlanete.Humain, nom: "Humain" },
+        { valeur: EAppartenancePlanete.UNSC, nom: "UNSC" },
+        { valeur: EAppartenancePlanete.Convenant, nom: "Convenant" },
+        { valeur: EAppartenancePlanete.Insurrection, nom: "Insurrection" },
+        { valeur: EAppartenancePlanete.Brute, nom: "Brute" },
+        { valeur: EAppartenancePlanete.Parasite, nom: "Parasite" },
+        { valeur: EAppartenancePlanete.Foreneur, nom: "Foreneur" },
+        { valeur: EAppartenancePlanete.ClassifierONI, nom: "Classifier O.N.I" },
+        { valeur: EAppartenancePlanete.Neutre, nom: "Neutre" }
+    ];
+
     protected listeStatuts = [
-        { valeur: EStatusPlanete.ControleUNSC, nom: "Contrôle UNSC" },
-        { valeur: EStatusPlanete.ControleCvenante, nom: "Contrôle Covenant" },
-        { valeur: EStatusPlanete.InsurrectionPartielle, nom: "Insurrection partielle" },
-        { valeur: EStatusPlanete.InsurrectionTotal, nom: "Insurrection totale" },
-        { valeur: EStatusPlanete.Neutre, nom: "Système Neutre" },
-        { valeur: EStatusPlanete.Inconnu, nom: "Statut Inconnu" },
-        { valeur: EStatusPlanete.Inhabiter, nom: "Inhabité" },
-        { valeur: EStatusPlanete.HorsRegistre, nom: "Hors Registre (O.N.I.)" },
-        { valeur: EStatusPlanete.EnGuerre, nom: "Zone de Guerre Active" },
         { valeur: EStatusPlanete.Vitrifier, nom: "Vitrifiée" },
         { valeur: EStatusPlanete.VitrifierPartielle, nom: "Vitrification Partielle" },
-        { valeur: EStatusPlanete.Soleil, nom: "Etoile" },
-        { valeur: EStatusPlanete.Lune, nom:  "Lune / Satellite" }
+        { valeur: EStatusPlanete.EnGuerre, nom:  "En Guerre" },
+        { valeur: EStatusPlanete.EnPaix, nom:  "En Paix" },
+        { valeur: EStatusPlanete.RocheSpatial, nom:  "Roche Spatiale" },
+        { valeur: EStatusPlanete.Inhabiter, nom: "Inhabité" },
+        { valeur: EStatusPlanete.ControlPartiel, nom: "Contrôle Partiel" },
+        { valeur: EStatusPlanete.ControlTotal, nom:  "Contrôle Total" },
+        { valeur: EStatusPlanete.ClassifierONI, nom: "Classifié O.N.I." }
     ];
 
     private matDialogData: PlaneteOrigine = inject(MAT_DIALOG_DATA);
@@ -49,7 +67,10 @@ export class AjouterModifierPlaneteOrigine implements OnInit
         this.form = new FormGroup({
             nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
             description: new FormControl(this.matDialogData?.description ?? "", [Validators.maxLength(400)]),
-            statut: new FormControl(this.matDialogData?.statut ?? EStatusPlanete.Neutre, [Validators.required]),
+            statut: new FormControl(this.matDialogData?.statut ?? EStatusPlanete.Inhabiter, [Validators.required]),
+            appartenance: new FormControl(this.matDialogData?.appartenance ?? EAppartenancePlanete.Neutre, [Validators.required]),
+            type: new FormControl(this.matDialogData?.type ?? ETypePlanete.Planete, [Validators.required]),
+            densite: new FormControl(this.matDialogData?.densite ?? 1, [Validators.required]),
             estPlaneteOrigine: new FormControl(this.matDialogData?.estPlaneteOrigine ?? false),
 
             idSysteme: new FormControl(this.matDialogData.idSysteme),
@@ -81,6 +102,9 @@ export class AjouterModifierPlaneteOrigine implements OnInit
                         nom: FORM.nom,
                         description: FORM.description,
                         statut: FORM.statut,
+                        appartenance: FORM.appartenance,
+                        type: FORM.type,
+                        densite: FORM.densite,
                         estPlaneteOrigine: FORM.estPlaneteOrigine,
                         positionX: FORM.positionX,
                         positionY: FORM.positionY
@@ -103,6 +127,9 @@ export class AjouterModifierPlaneteOrigine implements OnInit
                         nom: FORM.nom,
                         description: FORM.description,
                         statut: FORM.statut,
+                        appartenance: FORM.appartenance,
+                        type: FORM.type,
+                        densite: FORM.densite,
                         estPlaneteOrigine: FORM.estPlaneteOrigine,
                         positionX: FORM.positionX,
                         positionY: FORM.positionY

@@ -160,6 +160,7 @@ $cell-size: 100px;
     }
 
     &:hover .node-core { transform: scale(1.4); }
+    &:hover .node-core.halo-core { transform: scale(1.1); } 
     &:hover .node-label { opacity: 1; z-index: 10; }
 }
 
@@ -255,101 +256,110 @@ $cell-size: 100px;
     -webkit-text-fill-color: initial !important; /* Annule le filtre global */
 }
 
-/* --- STYLE SPÉCIFIQUE : PLANÈTES --- */
-.grid-node.planet-node {
-    
-    .node-core.planet-core {
-        /* Les planètes sont plus petites que les systèmes, et de couleur différente */
-        width: 46px;
-        height: 46px;
-        background-color: var(--mat-sys-secondary);
-        box-shadow: 0 0 10px var(--mat-sys-secondary);
-    }
-
-    .node-label {
-        font-size: 0.85rem; 
-        padding: 3px 10px;
-        top: calc(50% + 24px);
-        border-color: var(--mat-sys-secondary);
-    }
-
-    &:hover .node-core.planet-core { transform: scale(1.5); }
+/* --- LIGNES DE ROUTES PLANÉTAIRES --- */
+.slipspace-route.planet-route {
+    stroke: color-mix(in srgb, var(--mat-sys-secondary) 50%, transparent);
+    stroke-width: 1.5px;
+    stroke-dasharray: 4 4;
 }
 
-/* --- STYLE SPÉCIFIQUE : LUNE --- */
-.grid-node.planet-node.moon-node {
-    
-    .node-core.planet-core {
-        /* La Lune a des cratères (points sombres) sur son fond de couleur */
-        background-image: radial-gradient(circle, rgba(0,0,0,0.3) 2px, transparent 3px);
-        background-size: 10px 10px;
-        background-position: center;
-        
-        /* Légèrement plus petite qu'une planète standard pour le réalisme */
-        width: 30px;
-        height: 30px;
-    }
+/* =========================================================
+   LA FORGE GÉOMÉTRIQUE (TYPES D'ASTRES)
+   ========================================================= */
 
-    .node-label {
-        font-size: 0.75rem; 
-        top: calc(50% + 20px);
+/* 1. PLANÈTE (Défaut) */
+.planet-core {
+    width: 46px; height: 46px;
+    box-shadow: inset -5px -5px 15px rgba(0,0,0,0.5);
+}
+
+/* 2. LUNE */
+.moon-core {
+    width: 28px; height: 28px;
+    box-shadow: inset -3px -3px 10px rgba(0,0,0,0.5);
+    background-image: radial-gradient(circle, rgba(0,0,0,0.3) 2px, transparent 3px);
+    background-size: 8px 8px;
+}
+
+/* 3. SOLEIL */
+.sun-core {
+    width: 72px; height: 72px;
+    box-shadow: 0 0 30px currentColor, 0 0 60px currentColor; 
+    animation: star-pulse 3s infinite alternate ease-in-out;
+}
+
+/* 4. HALO (Installation Forerunner) */
+.halo-core {
+    width: 64px; height: 64px; 
+    background-color: transparent !important; 
+    border: 8px solid currentColor; 
+    border-radius: 50% !important;
+    box-shadow: 0 0 10px currentColor !important; 
+}
+
+/* 5. STATIONS SPATIALES */
+.station-core {
+    width: 44px; height: 44px;    
+    border-radius: 0 !important; 
+    
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+    display: flex; justify-content: center; align-items: center;
+    
+    mat-icon {
+        font-size: 24px; width: 24px; height: 24px;
+        color: rgba(0, 0, 0, 0.8); 
     }
 }
 
-/* --- STYLE SPÉCIFIQUE : ASTÉROÏDES --- */
-.grid-node.asteroid-node {
-    
-    .node-core.asteroid-core {
-        width: 48px;
-        height: 48px;
-        background-color: #7f8fa6;
-        box-shadow: 0 0 8px rgba(127, 143, 166, 0.6);
-        
-        /* Découpe asymétrique pour simuler une roche */
+/* 6. ASTÉROÏDES (Cluster de Densité) */
+.asteroid-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px; /* Plus d'espace entre les roches */
+    width: 80px; height: 80px; /* Base élargie pour accueillir de gros blocs */
+
+    .rock {
+        width: 32px; height: 32px; 
         clip-path: polygon(20% 0%, 80% 10%, 100% 60%, 70% 100%, 30% 90%, 0% 50%);
-        border-radius: 0; /* On annule l'arrondi hérité */
+        background-image: radial-gradient(circle at 30% 30%, transparent 20%, rgba(0,0,0,0.6));
+        animation: spin-rock 25s linear infinite;
         
-        /* Animation de rotation lente pour le réalisme tactique */
-        animation: spin-rock 20s linear infinite;
-    }
-
-    .node-label { 
-        font-size: 0.8rem;
-        padding: 3px 8px;
-        top: calc(50% + 24px); 
-        border-color: #7f8fa6;
-        color: #dcdde1;
-    }
-
-    &:hover .node-core.asteroid-core { 
-        transform: scale(1.5); 
-        animation-play-state: paused; /* Stoppe la rotation au survol */
+        &:nth-child(even) {
+            animation-direction: reverse;
+            animation-duration: 35s;
+        }
     }
 }
 
-/* --- STYLE SPÉCIFIQUE : SOLEIL --- */
-.grid-node.planet-node.sun-node {
-    
-    .node-core.planet-core {
-        width: 72px;
-        height: 72px;
-        
-        /* On retire l'ombre classique pour une lueur intense */
-        box-shadow: 0 0 20px currentColor; 
-        
-        /* Animation de fusion nucléaire */
-        animation: star-pulse 3s infinite alternate ease-in-out;
-    }
+/* =========================================================
+   EFFETS TACTIQUES (STATUTS)
+   ========================================================= */
 
-    .node-label { 
-        font-size: 1rem; 
-        padding: 4px 12px;
-        top: calc(50% + 42px);
+/* EN GUERRE : Onde de choc radar rouge */
+.statut-guerre {
+    &::after {
+        content: '';
+        position: absolute;
+        width: 50px; height: 50px;
+        border-radius: 50%;
+        border: 2px solid #e84118;
+        pointer-events: none;
+        animation: radar-pulse-war 1.5s infinite ease-out;
     }
+}
 
-    &:hover .node-core.planet-core { 
-        transform: scale(1.2); 
-    }
+/* VITRIFIÉE : Assombrie et brûlée */
+.statut-vitrifie .node-core, .statut-vitrifie .asteroid-cluster {
+    filter: grayscale(0.8) brightness(0.4) sepia(0.5) hue-rotate(-50deg);
+    position: relative;
+    box-shadow: 0 0 20px #ff9f43, inset 0 0 20px #000;
+}
+
+@keyframes radar-pulse-war {
+    0% { transform: scale(1); opacity: 1; border-width: 3px; }
+    100% { transform: scale(1.6); opacity: 0; border-width: 1px; } 
 }
 
 @keyframes star-pulse {
@@ -360,13 +370,6 @@ $cell-size: 100px;
 @keyframes spin-rock {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
-}
-
-/* --- LIGNES DE ROUTES PLANÉTAIRES --- */
-.slipspace-route.planet-route {
-    stroke: color-mix(in srgb, var(--mat-sys-secondary) 50%, transparent);
-    stroke-width: 1.5px;
-    stroke-dasharray: 4 4;
 }
 
 /* =========================================================
@@ -434,26 +437,39 @@ $cell-size: 100px;
         font-size: 0.85rem;
         color: var(--mat-sys-on-surface);
         line-height: 1.5;
-        text-align: justify;
+        text-align: left;
         
-        /* Limite de hauteur et activation du scroll */
-        max-height: 140px; 
+        max-height: 160px;
         overflow-y: auto;
-        padding-right: 8px; /* Évite que le texte ne touche la barre de défilement */
+        padding-right: 8px; 
+        
+        /* STYLE DE LA LISTE DE DONNÉES */
+        .d-info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 12px 0;
+            border-bottom: 1px dashed color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+            padding-bottom: 8px;
+
+            li {
+                margin-bottom: 4px;
+                color: var(--mat-sys-on-surface-variant);
+                
+                strong {
+                    color: var(--mat-sys-primary);
+                }
+            }
+        }
+
+        .d-desc {
+            text-align: justify;
+            color: var(--mat-sys-on-surface);
+        }
         
         /* PERSONNALISATION DE LA BARRE DE DÉFILEMENT (Style Terminal) */
-        &::-webkit-scrollbar {
-            width: 4px; /* Très fine */
-        }
-        &::-webkit-scrollbar-track {
-            background: color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent);
-            border-radius: 2px;
-        }
-        &::-webkit-scrollbar-thumb {
-            background: var(--mat-sys-primary);
-            border-radius: 2px;
-        }
-        /* Mode Firefox */
+        &::-webkit-scrollbar { width: 4px; }
+        &::-webkit-scrollbar-track { background: color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent); border-radius: 2px; }
+        &::-webkit-scrollbar-thumb { background: var(--mat-sys-primary); border-radius: 2px; }
         scrollbar-width: thin;
         scrollbar-color: var(--mat-sys-primary) color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent);
     }
@@ -523,16 +539,32 @@ $cell-size: 100px;
 }
 
 /* =========================================================
+   TRACEURS ORBITAUX (Visuel paramétrable)
+   ========================================================= */
+.visual-orbit
+{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    border: 2px dashed;
+    border-radius: 50%;
+    opacity: 0.4;
+    
+    /* Gestion des couches et interactions */
+    pointer-events: none;
+    z-index: 1; 
+}
+
+/* =========================================================
    MODE ÉDITION (DRAG & DROP)
    ========================================================= */
 
 /* Curseurs pour faire comprendre qu'on peut attraper le système */
-.galactic-canvas.edit-mode .grid-node.system-node {
+.galactic-canvas.edit-mode .grid-node.system-node,
+.galactic-canvas.edit-mode .grid-node.planet-node {
     cursor: grab;
-    
-    &:active {
-        cursor: grabbing;
-    }
+    &:active { cursor: grabbing; }
 }
 
 /* On masque temporairement le zoom/hover quand on déplace la planète */
@@ -666,6 +698,11 @@ $cell-size: 100px;
 :host-context(html.light-mode) 
 {
     background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 80%, #fff);
+
+    .visual-orbit {
+        opacity: 0.6;
+        filter: brightness(0.65) saturate(1.5); 
+    }
 
     .node-details {
         /* On force un fond très clair pour le panneau holographique */

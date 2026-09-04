@@ -93,6 +93,8 @@ public static class PlaneteOrigineRoute
                EstPlaneteOrigine = x.EstPlaneteOrigine,
                Statut = x.Statut,
                IdSysteme = x.Systeme.Id,
+               Appartenance = x.Appartenance,
+               Type = x.Type,
                PositionX = x.PositionX,
                PositionY = x.PositionY,
                NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
@@ -129,6 +131,8 @@ public static class PlaneteOrigineRoute
                 Statut = x.Statut,
                 PositionX = x.PositionX,
                 PositionY = x.PositionY,
+                Appartenance = x.Appartenance,
+                Type = x.Type,
                 IdSysteme = x.Systeme.Id,
                 EstPlaneteOrigine = x.EstPlaneteOrigine,
                 NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
@@ -204,7 +208,9 @@ public static class PlaneteOrigineRoute
             PositionX = _requete.PositionX,
             PositionY = _requete.PositionY,
             EstPlaneteOrigine = _requete.EstPlaneteOrigine,
-            Statut = _requete.Statut
+            Statut = _requete.Statut,
+            Appartenance = _requete.Appartenance,
+            Type = _requete.Type
         };
 
         int id = col.Insert(grade).AsInt32;
@@ -274,7 +280,9 @@ public static class PlaneteOrigineRoute
             PositionX = _requete.PositionX,
             PositionY = _requete.PositionY,
             Statut = _requete.Statut,
-            EstPlaneteOrigine = _requete.EstPlaneteOrigine,
+            Type = _requete.Type,
+            Appartenance = _requete.Appartenance,
+            EstPlaneteOrigine = _requete.EstPlaneteOrigine
         }, x => x.Id == _idPlanete);
 
         return ok > 0 ? Results.NoContent() : Results.NotFound("La planète n'existe pas");

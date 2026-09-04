@@ -11,19 +11,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { UpperCasePipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SnackBarService } from '@services/SnackBarService';
-import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragEnd, CdkDragStart, DragDropModule } from '@angular/cdk/drag-drop';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
-import { EStatusPlanete } from '@enums/EStatusPlanete';
+import { EStatusPlanete, ETypePlanete, EAppartenancePlanete } from '@enums/EStatusPlanete';
 import { MatDialog } from '@angular/material/dialog';
 import { AjouterModifierPlaneteOrigine } from '@modals/ajouter-modifier-planete-origine/ajouter-modifier-planete-origine';
 import { AjouterModifierSysteme } from '@modals/ajouter-modifier-systeme/ajouter-modifier-systeme';
 import { DialogConfirmationService } from '@services/DialogConfirmationService';
 import { ModalDistanceConnexion } from './modal-distance-connexion/modal-distance-connexion';
-import { Asteroide, AsteroideConnecter } from '@models/Asteroide';
-import { EStatutAsteroide } from '@enums/EStatusAsteroide';
-import { AsteroideService } from '@services/AsteroideService';
-import { AjouterModifierAsteroide } from '@modals/ajouter-modifier-asteroide/ajouter-modifier-asteroide';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,25 +29,22 @@ import { Secteur, SecteurSynchroniser } from '@models/Secteur';
 import { AjouterModifierSecteur } from '@modals/ajouter-modifier-secteur/ajouter-modifier-secteur';
 import { MatSelectModule } from '@angular/material/select';
 
-
-type OutilEdition = 'main' | 'pinceau' | 'gomme';
+type OutilEdition = 'main' | 'pinceau' | 'gomme' | 'orbite' | 'orbite-ronde' | 'orbite-decalage';
 
 @Component({
   selector: 'app-carte-galactique',
-  imports: [MatSelectModule, FormsModule, MatFormFieldModule, MatInputModule, MatAutocompleteModule, MatDividerModule, MatMenuModule, DragDropModule, MatTooltipModule, MatIconModule, MatButtonModule, UpperCasePipe],
+  imports: [MatSelectModule, FormsModule, MatFormFieldModule, MatInputModule, MatAutocompleteModule, MatMenuModule, DragDropModule, MatTooltipModule, MatIconModule, MatButtonModule, UpperCasePipe],
   templateUrl: './carte-galactique.html',
   styleUrl: './carte-galactique.scss',
 })
 export class CarteGalactique implements OnInit
 {
-  protected listeSysteme = signal<Systeme[]>([]);
-  protected listePlanete = signal<PlaneteOrigine[]>([]);
-  protected listeAsteroide = signal<Asteroide[]>([]);
-  protected listeSecteur = signal<Secteur[]>([]);
-  protected listeSystemeConnexion = signal<SystemeConnecter[]>([]);
-  protected listePlaneteConnexion = signal<PlaneteConnecter[]>([]);
-  protected listeAsteroideConnexion = signal<AsteroideConnecter[]>([]);
-  protected droit: Droit;
+    protected listeSysteme = signal<Systeme[]>([]);
+    protected listePlanete = signal<PlaneteOrigine[]>([]);
+    protected listeSecteur = signal<Secteur[]>([]);
+    protected listeSystemeConnexion = signal<SystemeConnecter[]>([]);
+    protected listePlaneteConnexion = signal<PlaneteConnecter[]>([]);
+    protected droit: Droit;
 
     // --- MOTEUR PAN & ZOOM ---
     protected echelle = signal<number>(1);
@@ -70,17 +62,19 @@ export class CarteGalactique implements OnInit
     protected clicY = signal<number>(0);
     protected planeteCibleMenu = signal<PlaneteOrigine>(null);
     protected systemeCibleMenu = signal<Systeme>(null);
-    protected asteroideCibleMenu = signal<Asteroide>(null);
+
+    protected eTypePlanete = ETypePlanete;
+    protected eStatusPlanete = EStatusPlanete;
 
     // Position de l'ancre invisible sur l'écran
     protected contextMenuPosition = { x: '0px', y: '0px' };
     protected astreSelectionneDetails = signal<any | null>(null);
 
     protected modeEdition = signal<boolean>(false);
+    protected planeteEditionOrbite = signal<PlaneteOrigine | null>(null);
     protected systemeActif = signal<Systeme | null>(null);
     protected systemeSelectionneRoute = signal<Systeme | null>(null);
     protected planeteSelectionneRoute = signal<PlaneteOrigine | null>(null);
-    protected asteroideSelectionneRoute = signal<Asteroide | null>(null);
 
     // --- MENU PEINTURE ---
     protected outilActif = signal<OutilEdition>('main');
@@ -99,7 +93,6 @@ export class CarteGalactique implements OnInit
     private planeteServ = inject(PlaneteService);
     private systemeServ = inject(SystemeService);
     private secteurServ = inject(SecteurService);
-    private asteroideServ = inject(AsteroideService);
     private authServ = inject(AuthentificationService);
     private snackBarServ = inject(SnackBarService);
     private dialogConfirmationServ = inject(DialogConfirmationService);
@@ -107,7 +100,6 @@ export class CarteGalactique implements OnInit
 
     protected routesSystemes = computed(() => this.GenererLignesSpatiales(this.listeSysteme(), this.listeSystemeConnexion(), 'idSystemeA', 'idSystemeB'));
     protected routesPlanetes = computed(() => this.GenererLignesSpatiales(this.listePlanete(), this.listePlaneteConnexion(), 'idPlaneteA', 'idPlaneteB'));
-    protected routesAsteroides = computed(() => this.GenererLignesSpatiales(this.listeAsteroide(), this.listeAsteroideConnexion(), 'idAsteroideA', 'idAsteroideB'));
     protected systemesFiltres = computed(() => 
     {
         const terme = this.rechercheSysteme()?.toLowerCase().trim();
@@ -119,30 +111,25 @@ export class CarteGalactique implements OnInit
         return systemes.filter(s => s.nom.toLowerCase().includes(terme));
     });
 
-    protected astresFiltres = computed(() => {
+    protected astresFiltres = computed(() => 
+    {
         const terme = this.rechercheAstre()?.toLowerCase().trim();
-        
-        // 1. On récupère les planètes
-        const planetes = this.listePlanete();
-        
-        // 2. On récupère les astéroïdes, mais on EXCLUT les neutres
-        const asteroides = this.listeAsteroide().filter(a => a.statut != EStatutAsteroide.Neutre); 
-        
-        // 3. On fusionne les deux flottes
-        const astres = [...planetes, ...asteroides];
+        const astresValides = this.listePlanete().filter(a => a.statut != EStatusPlanete.RocheSpatial);
 
-        // Si la recherche est vide, on affiche toutes les cibles valides
-        if (!terme) return astres; 
+        if (!terme) 
+            return astresValides; 
 
-        return astres.filter(a => a.nom.toLowerCase().includes(terme));
+        return astresValides.filter(a => a.nom.toLowerCase().includes(terme));
     });
 
-    protected cellulesPeintes = computed(() => {
+    protected cellulesPeintes = computed(() => 
+    {
         const cellules = [];
         this.brouillonSecteurs().forEach((idSecteur, cle) => {
             const [x, y] = cle.split('-').map(Number);
             cellules.push({ cle, x, y, idSecteur });
         });
+
         return cellules;
     });
 
@@ -214,7 +201,6 @@ export class CarteGalactique implements OnInit
         // 1. On quitte la vue système (si on y était)
         this.systemeActif.set(null);
         this.listePlanete.set([]);
-        this.listeAsteroide.set([]);
 
         // 2. On fixe l'échelle à un niveau de zoom confortable (ex: 100%)
         const cibleEchelle = 1;
@@ -261,7 +247,7 @@ export class CarteGalactique implements OnInit
         this.rechercheAstre.set("");
     }
 
-    protected DeplacerAstre(event: CdkDragEnd, astre: any, typeAstre: 'systeme' | 'planete' | 'asteroide'): void 
+    protected DeplacerAstre(event: CdkDragEnd, astre: any, typeAstre: 'systeme' | 'planete'): void 
     {
         const casesX = Math.round((event.distance.x / this.echelle()) / this.TAILLE_CASE);
         const casesY = Math.round((event.distance.y / this.echelle()) / this.TAILLE_CASE);
@@ -277,8 +263,7 @@ export class CarteGalactique implements OnInit
         if (typeAstre === 'systeme') {
             collision = this.listeSysteme().find(s => s.id !== astre.id && s.positionX === newX && s.positionY === newY);
         } else {
-            collision = this.listePlanete().find(p => (typeAstre !== 'planete' || p.id !== astre.id) && p.positionX === newX && p.positionY === newY) 
-                     || this.listeAsteroide().find(a => (typeAstre !== 'asteroide' || a.id !== astre.id) && a.positionX === newX && a.positionY === newY);
+            collision = this.listePlanete().find(p => (typeAstre !== 'planete' || p.id !== astre.id) && p.positionX === newX && p.positionY === newY);
         }
 
         if (collision) {
@@ -287,8 +272,8 @@ export class CarteGalactique implements OnInit
         }
 
         // 2. Routage vers le bon service API
-        const service = typeAstre === 'systeme' ? this.systemeServ : (typeAstre === 'planete' ? this.planeteServ : this.asteroideServ);
-        const listeSignal = typeAstre === 'systeme' ? this.listeSysteme : (typeAstre === 'planete' ? this.listePlanete : this.listeAsteroide);
+        const service = typeAstre === 'systeme' ? this.systemeServ : this.planeteServ;
+        const listeSignal = typeAstre === 'systeme' ? this.listeSysteme : this.listePlanete;
 
         service.ModifierPosition(astre.id, { positionX: newX, positionY: newY }).subscribe({
             next: () => {
@@ -302,27 +287,53 @@ export class CarteGalactique implements OnInit
         });
     }
 
+    protected onDragStarted(event: CdkDragStart): void 
+    {
+        // Force l'arrêt du déplacement de la carte dès qu'un astre est attrapé
+        this.isDragging.set(false);
+
+        if (event.event)
+            event.event.stopPropagation();
+    }
+
     protected onMouseDown(event: MouseEvent | TouchEvent): void 
     {
-        // Détection du clic droit
+        const targetElement = event.target as HTMLElement;
+        
+        if (targetElement.closest('.grid-node')) 
+        {
+            // Si l'outil Orbite est actif, on verrouille la cible pour la dessiner
+            if (this.modeEdition() && (this.outilActif() === 'orbite' || this.outilActif() === 'orbite-ronde' || this.outilActif() === 'orbite-decalage') && this.systemeActif())            
+            {
+                const gridElement = this.viewport().nativeElement.querySelector('.tactical-grid');
+                const rect = gridElement.getBoundingClientRect();
+                const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+                const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+                const caseX = Math.floor(((clientX - rect.left) / this.echelle()) / this.TAILLE_CASE) + 1;
+                const caseY = Math.floor(((clientY - rect.top) / this.echelle()) / this.TAILLE_CASE) + 1;
+
+                const planete = this.listePlanete().find(p => p.positionX === caseX && p.positionY === caseY);
+
+                if (planete) 
+                    this.planeteEditionOrbite.set(planete);
+            }
+
+            return; 
+        }
+        
+        this.astreSelectionneDetails.set(null);
         const estClicDroit = event instanceof MouseEvent && event.button === 2;
 
         if (this.modeEdition() && !this.systemeActif() && this.outilActif() != 'main') 
         {
             if (!estClicDroit) 
             {
-                // Clic Gauche : On peint
                 this.estEnTrainDePeindre.set(true);
                 this.AppliquerPeinture(event);
                 return;
             }
         }
-
-        if (this.modeEdition() && (event.target as HTMLElement).closest('.system-node')) 
-            return;
-
-        if (!(event.target as HTMLElement).closest('.grid-node')) 
-            this.astreSelectionneDetails.set(null);
 
         this.isDragging.set(true);
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
@@ -338,7 +349,6 @@ export class CarteGalactique implements OnInit
         this.outilActif.set('main');
         this.systemeSelectionneRoute.set(null);
         this.planeteSelectionneRoute.set(null);
-        this.asteroideSelectionneRoute.set(null);
         this.astreSelectionneDetails.set(null);
     }
 
@@ -511,96 +521,12 @@ export class CarteGalactique implements OnInit
         }
     }
 
-    protected GererClicAsteroide(asteroide: Asteroide): void 
-    {
-        if (!this.modeEdition()) 
-        {
-            this.astreSelectionneDetails.set(
-                this.astreSelectionneDetails()?.id == asteroide.id ? null : asteroide
-            );
-            return;
-        }
-
-        if (this.outilActif() !== 'main') 
-            return;
-
-        const cibleA = this.asteroideSelectionneRoute();
-        const cibleB = asteroide.id;
-
-        if (!cibleA) 
-            this.asteroideSelectionneRoute.set(asteroide);
-
-        else if (cibleA.id == asteroide.id) 
-            this.asteroideSelectionneRoute.set(null);
-
-        else 
-        { 
-            const routeExistante = this.listeAsteroideConnexion().find( c => 
-                (c.idAsteroideA === cibleA.id && c.idAsteroideB === cibleB) ||
-                (c.idAsteroideA === cibleB && c.idAsteroideB === cibleA.id)
-            );
-
-            if (routeExistante) 
-            {
-                this.asteroideServ.SupprimerConnexion({ idAsteroideA: cibleA.id, idAsteroideB: cibleB }).subscribe({
-                    next: () =>
-                    {
-                        this.listeAsteroideConnexion.update(liste =>
-                            liste.filter(c => 
-                                !( (c.idAsteroideA === cibleA.id && c.idAsteroideB === cibleB) || 
-                                (c.idAsteroideA === cibleB && c.idAsteroideB === cibleA.id) )
-                            )
-                        );
-                        
-                        this.snackBarServ.Ok("Route astéroide détruite");
-                    }
-                });
-            } 
-            else 
-            {
-                const DIALOG_REF = this.dialog.open(ModalDistanceConnexion, {
-                    width: "400px",
-                    data: { nomCibleA: cibleA.nom, nomCibleB: asteroide.nom }
-                });
-
-                DIALOG_REF.afterClosed().subscribe({
-                    next: (distanceSaisie: string | null) => 
-                    {
-                        // annuler
-                        if (distanceSaisie === undefined || distanceSaisie === null) 
-                        {
-                            this.asteroideSelectionneRoute.set(null);
-                            return;
-                        }
-
-                        this.asteroideServ.AjouterConnexion({ idAsteroideA: cibleA.id, idAsteroideB: cibleB, distance: distanceSaisie }).subscribe({
-                            next: () =>
-                            {
-                                this.listeAsteroideConnexion.update(liste => [
-                                    ...liste, 
-                                    { idAsteroideA: cibleA.id, idAsteroideB: cibleB, distance: distanceSaisie }
-                                ]);
-                                
-                                this.snackBarServ.Ok("Nouvelle route astéroide établie");
-                                this.asteroideSelectionneRoute.set(null);
-                            },
-                            error: () => this.asteroideSelectionneRoute.set(null)
-                        });
-                    }
-                });
-            }
-
-            this.planeteSelectionneRoute.set(null);
-        }
-    }
-
     protected RetourVueGalactique(): void
     {
         this.systemeActif.set(null);
         this.astreSelectionneDetails.set(null);
         this.RecentrerCarte();
         this.listePlanete.set([]);
-        this.listeAsteroide.set([]);
     }
 
     @HostListener('window:mouseup')
@@ -609,12 +535,60 @@ export class CarteGalactique implements OnInit
     {
         this.isDragging.set(false);
         this.estEnTrainDePeindre.set(false);
+        
+        // On relâche l'orbite (Vous pourrez ajouter un appel API de sauvegarde ici plus tard)
+        this.planeteEditionOrbite.set(null);
     }
 
     @HostListener('window:mousemove', ['$event'])
     @HostListener('window:touchmove', ['$event'])
     protected onMouseMove(event: MouseEvent | TouchEvent): void 
     {
+        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+        if (this.planeteEditionOrbite()) 
+        {
+            const planete = this.planeteEditionOrbite();
+            const gridElement = this.viewport().nativeElement.querySelector('.tactical-grid');
+            const rect = gridElement.getBoundingClientRect();
+
+            // Coordonnées de la souris et de la planète
+            const xReel = (clientX - rect.left) / this.echelle();
+            const yReel = (clientY - rect.top) / this.echelle();
+            const pX = (planete.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+            const pY = (planete.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+
+            // Calcul du vecteur
+            const dx = xReel - pX;
+            const dy = yReel - pY;
+            
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const diametre = Math.round(distance * 2);
+            const angle = Math.round(Math.atan2(dy, dx) * (180 / Math.PI));
+
+            // Mise à jour visuelle instantanée
+            this.listePlanete.update(liste => 
+            {
+                const cible = liste.find(p => p.id === planete.id);
+                if (this.outilActif() === 'orbite-decalage') 
+                {
+                    // On déplace le centre de l'orbite vers la souris
+                    cible.orbiteDecalageX = Math.round(dx);
+                    cible.orbiteDecalageY = Math.round(dy);
+                } 
+                else 
+                {
+                    // On redimensionne (Ovale ou Rond)
+                    cible.orbiteX = diametre;
+                    cible.orbiteY = this.outilActif() === 'orbite-ronde' ? diametre : Math.round(diametre * 0.5);
+                    cible.orbiteAngle = angle;
+                }
+                return [...liste];
+            });
+            return; 
+        }
+
         if (this.estEnTrainDePeindre()) 
         {
             this.AppliquerPeinture(event);
@@ -622,9 +596,6 @@ export class CarteGalactique implements OnInit
         }
 
         if (!this.isDragging()) return;
-
-        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
-        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
 
         this.panX.set(clientX - this.startDragX);
         this.panY.set(clientY - this.startDragY);
@@ -644,7 +615,7 @@ export class CarteGalactique implements OnInit
             noeudsVisibles = this.listeSysteme();
         } else {
             // VUE MICRO : On englobe les planètes, le soleil, les lunes et les astéroïdes
-            noeudsVisibles = [...this.listePlanete(), ...this.listeAsteroide()];
+            noeudsVisibles = this.listePlanete();
         }
 
         // S'il n'y a rien sur le radar, on se place au centre exact de la grille (Case 50,50)
@@ -790,7 +761,6 @@ export class CarteGalactique implements OnInit
         // 1. On réinitialise les cibles précédentes
         this.planeteCibleMenu.set(null);
         this.systemeCibleMenu.set(null);
-        this.asteroideCibleMenu.set(null);
 
         // On cherche si un astre occupe la case visée
         if (!this.systemeActif()) 
@@ -801,13 +771,9 @@ export class CarteGalactique implements OnInit
         else 
         {
             const planete = this.listePlanete().find(p => p.positionX == caseX && p.positionY == caseY);
-            const asteroide = this.listeAsteroide().find(a => a.positionX == caseX && a.positionY == caseY);
 
             if (planete) 
                 this.planeteCibleMenu.set(planete);
-
-            else if (asteroide) 
-                this.asteroideCibleMenu.set(asteroide);
         }
 
         // 3. Mise à jour des coordonnées
@@ -884,39 +850,6 @@ export class CarteGalactique implements OnInit
         });
     }
 
-    protected OuvrirModalAjouterModifierAsteroide(): void 
-    {
-        const DIALOG_REF = this.dialog.open(AjouterModifierAsteroide, {
-            width: this.estMobile ? "95%" : "60%", 
-            maxWidth: "100vw",
-            data: this.asteroideCibleMenu() ?? {
-                idSysteme: this.systemeActif().id,
-                positionX: this.clicX(),
-                positionY: this.clicY()
-            }
-        });
-
-        DIALOG_REF.afterClosed().subscribe({
-            next: (retour: Asteroide | null) =>
-            {
-                const estUneModification = this.asteroideCibleMenu() !== null;
-                this.asteroideCibleMenu.set(null);
-
-                if(retour)
-                {
-                    if(estUneModification)
-                    {
-                        this.listeAsteroide.update(liste => 
-                            liste.map(x => x.id === retour.id ? retour : x)
-                        );
-                    }
-                    else
-                        this.listeAsteroide.update(x => [...x, retour]);
-                }
-            }
-        });
-    }
-
     protected OuvrirModalAjouterModifierSecteur(secteur?: Secteur): void 
     {
         const DIALOG_REF = this.dialog.open(AjouterModifierSecteur, { 
@@ -937,9 +870,6 @@ export class CarteGalactique implements OnInit
         if (this.planeteCibleMenu()) 
             messageCible = "de la planète " + this.planeteCibleMenu().nom;
 
-        else if (this.asteroideCibleMenu()) 
-            messageCible = "de l'astéroïde " + this.asteroideCibleMenu().nom;
-
         else if (this.systemeCibleMenu()) 
             messageCible = "du système " + this.systemeCibleMenu().nom + " et de tous ses astres";
 
@@ -953,24 +883,11 @@ export class CarteGalactique implements OnInit
                     if (this.planeteCibleMenu()) 
                         this.SupprimerPlanete();
 
-                    else if (this.asteroideCibleMenu()) 
-                        this.SupprimerAsteroide();
-
                     else if (this.systemeCibleMenu()) 
                         this.SupprimerSysteme();
                 }
             }
         });
-    }
-
-    protected EstUnSoleil(statut: EStatusPlanete): boolean 
-    {
-        return statut == EStatusPlanete.Soleil; 
-    }
-
-    protected EstUneLune(statut: EStatusPlanete): boolean 
-    {
-        return statut == EStatusPlanete.Lune; 
     }
 
     protected ObtenirCouleurSecteur(idSecteur: number): string 
@@ -986,63 +903,77 @@ export class CarteGalactique implements OnInit
         return this.listeSecteur().find(s => s.id == idSecteur);
     }
 
+    protected ObtenirCouleurAppartenance(appartenance: EAppartenancePlanete): string 
+    {
+        switch (appartenance)
+        {
+            case EAppartenancePlanete.Humain:
+            case EAppartenancePlanete.UNSC: return "#00a8ff";
+            case EAppartenancePlanete.Convenant: return "#9c88ff";
+            case EAppartenancePlanete.Insurrection: return "#fbc531";
+            case EAppartenancePlanete.Brute: return "#e84118";
+            case EAppartenancePlanete.Parasite: return "#A0522D";
+            case EAppartenancePlanete.Foreneur: return "#00cec9";
+            case EAppartenancePlanete.ClassifierONI: return "#2d3436";
+            case EAppartenancePlanete.Neutre:
+            default: return "#7f8fa6";
+        }
+    }
+
+    protected GenererTableauDensite(densite: number): number[] 
+    {
+        // Sécurité : minimum 1 roche, maximum 3
+        const quantite = Math.max(1, Math.min(3, densite || 1));
+
+        return Array(quantite).fill(0);
+    }
+
     protected ObtenirLibelleStatut(statut: EStatusPlanete): string 
     {
         switch (statut) 
         {
-            case EStatusPlanete.ControleUNSC: return "Contrôle UNSC";
-            case EStatusPlanete.ControleCvenante: return "Contrôle Covenant";
-            case EStatusPlanete.InsurrectionPartielle: return "Insurrection partielle";
-            case EStatusPlanete.InsurrectionTotal: return "Insurrection totale";
-            case EStatusPlanete.Neutre: return "Système Neutre";
-            case EStatusPlanete.Inconnu: return "Statut Inconnu";
-            case EStatusPlanete.Inhabiter: return "Inhabité";
-            case EStatusPlanete.HorsRegistre: return "Hors Registre (O.N.I.)";
-            case EStatusPlanete.EnGuerre: return "Zone de Guerre Active";
             case EStatusPlanete.Vitrifier: return "Vitrifiée";
             case EStatusPlanete.VitrifierPartielle: return "Vitrification Partielle";
-            case EStatusPlanete.Soleil: return "Étoile Centrale";
-            case EStatusPlanete.Lune: return "Lune / Satellite";
-            default: return "Données corrompues";
+            case EStatusPlanete.EnGuerre: return "En Guerre";
+            case EStatusPlanete.EnPaix: return "En Paix";
+            case EStatusPlanete.RocheSpatial: return "Roche Spatiale";
+            case EStatusPlanete.Inhabiter: return "Inhabité";
+            case EStatusPlanete.ControlPartiel: return "Contrôle Partiel";
+            case EStatusPlanete.ControlTotal: return "Contrôle Total";
+            case EStatusPlanete.ClassifierONI: return "Classifié O.N.I.";
+            default: return "Inconnu";
         }
     }
 
-    protected ObtenirCouleurStatut(statut: EStatusPlanete): string 
+    protected ObtenirLibelleType(type: ETypePlanete): string 
     {
-        switch (statut) 
+        switch (type) 
         {
-            case EStatusPlanete.ControleUNSC: return "#00a8ff"; // Bleu clair
-            case EStatusPlanete.ControleCvenante: return "#9c88ff"; // Violet
-            case EStatusPlanete.InsurrectionPartielle: return "#fbc531"; // Jaune
-            case EStatusPlanete.InsurrectionTotal: return "#e1b12c"; // Orange
-            case EStatusPlanete.EnGuerre: return "#e84118"; // Rouge vif
-            case EStatusPlanete.Vitrifier: return "#2f3640"; // Gris cendre très sombre
-            case EStatusPlanete.VitrifierPartielle: return "#7158e2"; // Violet sombre/brûlé
-            case EStatusPlanete.HorsRegistre: return "#00cec9"; // Cyan (Furtif)
-            case EStatusPlanete.Soleil: return "#f1c40f";
-            case EStatusPlanete.Lune: return "#dcdde1";
-            default: return "#7f8fa6"; // Gris neutre par défaut
+            case ETypePlanete.Planete: return "Planète";
+            case ETypePlanete.Lune: return "Lune / Satellite";
+            case ETypePlanete.Asteroide: return "Champ d'astéroïdes";
+            case ETypePlanete.Soleil: return "Étoile Centrale";
+            case ETypePlanete.Halo: return "Installation Halo";
+            case ETypePlanete.StationCivil: return "Station Civile";
+            case ETypePlanete.StationMilitaire: return "Station Militaire";
+            default: return "Astre Inconnu";
         }
     }
 
-    protected ObtenirLibelleStatutAsteroide(statut: EStatutAsteroide): string 
+    protected ObtenirLibelleAppartenance(appartenance: EAppartenancePlanete): string 
     {
-        switch (statut) 
+        switch (appartenance) 
         {
-            case EStatutAsteroide.Neutre: return "Roche spatiale standard";
-            case EStatutAsteroide.Coloniser: return "Colonisé";
-            case EStatutAsteroide.HorsRegistre: return "Hors Registre (O.N.I.)";
-            default: return "Roche spatiale standard";
-        }
-    }
-
-    protected ObtenirCouleurStatutAsteroide(statut: any): string 
-    {
-        switch (statut) 
-        {
-            case EStatutAsteroide.Neutre: return "#7f8fa6";
-            case EStatutAsteroide.Coloniser: return "#00a8ff";
-            default: return "#7f8fa6"; // Gris rocheux par défaut
+            case EAppartenancePlanete.Humain: return "Humanité";
+            case EAppartenancePlanete.Insurrection: return "Insurrection";
+            case EAppartenancePlanete.Convenant: return "Alliance Covenante";
+            case EAppartenancePlanete.Parasite: return "Le Parasite";
+            case EAppartenancePlanete.Brute: return "Brutes";
+            case EAppartenancePlanete.Neutre: return "Non-Aligné";
+            case EAppartenancePlanete.ClassifierONI: return "Classifié O.N.I.";
+            case EAppartenancePlanete.UNSC: return "U.N.S.C.";
+            case EAppartenancePlanete.Foreneur: return "Forerunner";
+            default: return "Inconnue";
         }
     }
 
@@ -1138,32 +1069,14 @@ export class CarteGalactique implements OnInit
         });
     }
 
-    private SupprimerAsteroide(): void
-    {
-        const ID = this.asteroideCibleMenu().id;
-        
-        this.asteroideServ.Supprimer(ID).subscribe({
-            next: () =>
-            {
-                this.snackBarServ.Ok("Le champ d'astéroïdes a été pulvérisé par l'artillerie navale.");
-                this.listeAsteroide.update(x => x.filter(y => y.id != ID));
-                this.listeAsteroideConnexion.update(x => x.filter(y => !(y.idAsteroideA == ID || y.idAsteroideB == ID)))
-                
-                this.asteroideCibleMenu.set(null);
-            }
-        });
-    }
-
     private ListerPlaneteConnexion(): void 
     {
         this.planeteServ.ListerConnexion().subscribe({ next: (retour) => this.listePlaneteConnexion.set(retour) });
-        this.asteroideServ.ListerConnexion().subscribe({ next: (retour) => this.listeAsteroideConnexion.set(retour) });
     }
 
     private ListerPlaneteSysteme(_idSysteme: number): void 
     {
         this.planeteServ.Lister(_idSysteme).subscribe({ next: (retour) => this.listePlanete.set(retour) });
-        this.asteroideServ.Lister(_idSysteme).subscribe({ next: (retour) => this.listeAsteroide.set(retour) });
     }
 
     private ListerSysteme(): void 
