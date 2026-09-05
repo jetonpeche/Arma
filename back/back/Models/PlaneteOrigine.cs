@@ -29,6 +29,8 @@ public sealed class PlaneteOrigine
      /// Lune, planete, asteroide, etoile
      /// </summary>
      public int Type { get; set; }
+
+     public int Densite { get; set; }
      public bool EstPlaneteOrigine { get; set; }
 
     public decimal PositionX { get; set; }

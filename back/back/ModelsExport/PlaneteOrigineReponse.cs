@@ -15,6 +15,7 @@ public sealed class PlaneteOrigineReponse
     public int Statut { get; set; }
      public int Appartenance { get; set; }
      public int Type { get; set; }
+     public int Densite { get; set; }
      public bool EstPlaneteOrigine { get; set; }
      public List<Orbite> ListeOrbite { get; set; } = [];
 

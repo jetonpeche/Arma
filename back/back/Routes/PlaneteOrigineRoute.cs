@@ -102,6 +102,7 @@ public static class PlaneteOrigineRoute
                Type = x.Type,
                PositionX = x.PositionX,
                PositionY = x.PositionY,
+               Densite = x.Densite,
                NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
           })
           .Offset((_page - 1) * 12)
@@ -139,6 +140,7 @@ public static class PlaneteOrigineRoute
                 Appartenance = x.Appartenance,
                 Type = x.Type,
                 IdSysteme = x.Systeme.Id,
+                Densite = x.Densite,
                 EstPlaneteOrigine = x.EstPlaneteOrigine,
                 ListeOrbite = x.ListeOrbite,
                 NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
@@ -208,15 +210,16 @@ public static class PlaneteOrigineRoute
         
         var grade = new PlaneteOrigine
         {
-            Nom = _requete.Nom.XSS(),
-            Systeme = new Systeme { Id = _requete.IdSysteme },
-            Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
-            PositionX = _requete.PositionX,
-            PositionY = _requete.PositionY,
-            EstPlaneteOrigine = _requete.EstPlaneteOrigine,
-            Statut = _requete.Statut,
-            Appartenance = _requete.Appartenance,
-            Type = _requete.Type
+               Nom = _requete.Nom.XSS(),
+               Systeme = new Systeme { Id = _requete.IdSysteme },
+               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
+               PositionX = _requete.PositionX,
+               PositionY = _requete.PositionY,
+               EstPlaneteOrigine = _requete.EstPlaneteOrigine,
+               Statut = _requete.Statut,
+               Densite = _requete.Densite,
+               Appartenance = _requete.Appartenance,
+               Type = _requete.Type
         };
 
         int id = col.Insert(grade).AsInt32;
@@ -287,6 +290,7 @@ public static class PlaneteOrigineRoute
             PositionY = _requete.PositionY,
             Statut = _requete.Statut,
             Type = _requete.Type,
+            Densite = _requete.Densite,
             Appartenance = _requete.Appartenance,
             EstPlaneteOrigine = _requete.EstPlaneteOrigine
         }, x => x.Id == _idPlanete);
