@@ -55,6 +55,7 @@ export class CarteGalactique implements OnInit
     protected viewport = viewChild.required<ElementRef>('viewport');
     protected rechercheSysteme = signal<string>("");
     protected rechercheAstre = signal<string>("");
+    protected indexOrbiteEdition = signal<number | null>(null);
 
     // --- MENU CONTEXTUEL ---
     protected contextMenuTrigger = viewChild.required(MatMenuTrigger);
@@ -302,8 +303,7 @@ export class CarteGalactique implements OnInit
         
         if (targetElement.closest('.grid-node')) 
         {
-            // Si l'outil Orbite est actif, on verrouille la cible pour la dessiner
-            if (this.modeEdition() && (this.outilActif() === 'orbite' || this.outilActif() === 'orbite-ronde' || this.outilActif() === 'orbite-decalage') && this.systemeActif())            
+            if (this.modeEdition() && this.systemeActif()) 
             {
                 const gridElement = this.viewport().nativeElement.querySelector('.tactical-grid');
                 const rect = gridElement.getBoundingClientRect();
@@ -314,9 +314,33 @@ export class CarteGalactique implements OnInit
                 const caseY = Math.floor(((clientY - rect.top) / this.echelle()) / this.TAILLE_CASE) + 1;
 
                 const planete = this.listePlanete().find(p => p.positionX === caseX && p.positionY === caseY);
-
+                
                 if (planete) 
-                    this.planeteEditionOrbite.set(planete);
+                {
+                    // GESTION DU DESSIN D'ORBITE
+                    if (this.outilActif() === 'orbite' || this.outilActif() === 'orbite-ronde' || this.outilActif() === 'orbite-decalage') 
+                    {
+                        this.planeteEditionOrbite.set(planete);
+                        if (!planete.listeOrbite) 
+                            planete.listeOrbite = [];
+
+                        if (this.outilActif() === 'orbite' || this.outilActif() === 'orbite-ronde') 
+                        {
+                            // On ajoute une NOUVELLE orbite vierge au tableau
+                            planete.listeOrbite.push({ orbiteX: 0, orbiteY: 0, orbiteAngle: 0, orbiteDecalageX: 0, orbiteDecalageY: 0 });
+                            this.indexOrbiteEdition.set(planete.listeOrbite.length - 1);
+                        } 
+                        else if (this.outilActif() === 'orbite-decalage') 
+                        {
+                            // On décale la DERNIÈRE orbite tracée
+                            if (planete.listeOrbite.length > 0)
+                                this.indexOrbiteEdition.set(planete.listeOrbite.length - 1);
+
+                            else
+                                this.planeteEditionOrbite.set(null);
+                        }
+                    }
+                }
             }
 
             return; 
@@ -529,15 +553,54 @@ export class CarteGalactique implements OnInit
         this.listePlanete.set([]);
     }
 
+    protected SupprimerOrbiteCiblee(event: MouseEvent, planete: PlaneteOrigine, indexOrbite: number): void 
+    {
+        if (!this.modeEdition() || this.outilActif() != 'gomme') 
+            return;
+
+        event.stopPropagation(); 
+
+        this.listePlanete.update(liste => 
+        {
+            const c = liste.find(p => p.id == planete.id);
+            if (c && c.listeOrbite) 
+            {
+                // On supprime l'orbite exacte sur laquelle on a cliqué
+                c.listeOrbite.splice(indexOrbite, 1); 
+
+                this.planeteServ.ModifierOrbite(c.id, c.listeOrbite).subscribe({
+                    next: () => this.snackBarServ.Ok("Tracé orbital ciblé détruit")
+                });
+            }
+            
+            return [...liste];
+        });
+    }
+
     @HostListener('window:mouseup')
     @HostListener('window:touchend')
     protected onMouseUp(): void 
     {
         this.isDragging.set(false);
         this.estEnTrainDePeindre.set(false);
+
+        // === SAUVEGARDE DES ORBITES (DESSIN & DÉCALAGE) ===
+        const planeteCible = this.planeteEditionOrbite();
         
-        // On relâche l'orbite (Vous pourrez ajouter un appel API de sauvegarde ici plus tard)
+        if (planeteCible)
+        {
+            // Sécurité : On supprime les orbites de taille 0 (si l'officier a cliqué sans glisser)
+            planeteCible.listeOrbite = planeteCible.listeOrbite.filter(o => o.orbiteX > 5);
+
+            this.planeteServ.ModifierOrbite(planeteCible.id, planeteCible.listeOrbite).subscribe({
+                next: () => this.snackBarServ.Ok("Orbites synchronisées avec succès."),
+                error: () => this.snackBarServ.Erreur("Échec de la transmission orbitale.")
+            });
+        }
+        
+        // On relâche la prise
         this.planeteEditionOrbite.set(null);
+        this.indexOrbiteEdition.set(null);
     }
 
     @HostListener('window:mousemove', ['$event'])
@@ -547,19 +610,19 @@ export class CarteGalactique implements OnInit
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
 
-        if (this.planeteEditionOrbite()) 
+        if (this.planeteEditionOrbite() && this.indexOrbiteEdition() !== null) 
         {
             const planete = this.planeteEditionOrbite();
+            const index = this.indexOrbiteEdition();
+            
             const gridElement = this.viewport().nativeElement.querySelector('.tactical-grid');
             const rect = gridElement.getBoundingClientRect();
 
-            // Coordonnées de la souris et de la planète
             const xReel = (clientX - rect.left) / this.echelle();
             const yReel = (clientY - rect.top) / this.echelle();
             const pX = (planete.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
             const pY = (planete.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
 
-            // Calcul du vecteur
             const dx = xReel - pX;
             const dy = yReel - pY;
             
@@ -567,25 +630,27 @@ export class CarteGalactique implements OnInit
             const diametre = Math.round(distance * 2);
             const angle = Math.round(Math.atan2(dy, dx) * (180 / Math.PI));
 
-            // Mise à jour visuelle instantanée
             this.listePlanete.update(liste => 
             {
                 const cible = liste.find(p => p.id === planete.id);
-                if (this.outilActif() === 'orbite-decalage') 
+                if (cible && cible.listeOrbite[index]) 
                 {
-                    // On déplace le centre de l'orbite vers la souris
-                    cible.orbiteDecalageX = Math.round(dx);
-                    cible.orbiteDecalageY = Math.round(dy);
-                } 
-                else 
-                {
-                    // On redimensionne (Ovale ou Rond)
-                    cible.orbiteX = diametre;
-                    cible.orbiteY = this.outilActif() === 'orbite-ronde' ? diametre : Math.round(diametre * 0.5);
-                    cible.orbiteAngle = angle;
+                    if (this.outilActif() === 'orbite-decalage') 
+                    {
+                        cible.listeOrbite[index].orbiteDecalageX = Math.round(dx);
+                        cible.listeOrbite[index].orbiteDecalageY = Math.round(dy);
+                    } 
+                    else 
+                    {
+                        cible.listeOrbite[index].orbiteX = diametre;
+                        cible.listeOrbite[index].orbiteY = this.outilActif() === 'orbite-ronde' ? diametre : Math.round(diametre * 0.5);
+                        cible.listeOrbite[index].orbiteAngle = angle;
+                    }
                 }
+
                 return [...liste];
             });
+
             return; 
         }
 

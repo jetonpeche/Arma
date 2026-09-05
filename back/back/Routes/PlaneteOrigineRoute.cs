@@ -50,7 +50,12 @@ public static class PlaneteOrigineRoute
             .ProducesNotFound()
             .ProducesNoContent();
 
-        builder.MapPatch("modifier-position/{idPlanete:int}", ModifierPositionAsync)
+          builder.MapPatch("modifier-orbite/{idPlanete:int}", ModifierOrbiteAsync)
+              .WithDescription("Remplacer la liste des orbites d'une planete")
+              .ProducesNotFound()
+              .ProducesNoContent();
+
+          builder.MapPatch("modifier-position/{idPlanete:int}", ModifierPositionAsync)
             .WithDescription("Modifier les coordonnées d'une planete")
             .ProducesNotFound()
             .ProducesNoContent();
@@ -59,7 +64,7 @@ public static class PlaneteOrigineRoute
             .WithDescription("Supprimer une planete")
             .ProducesNoContent();
 
-        builder.MapDelete("supprimer-connexion", SupprimerConnexionAsync)
+          builder.MapDelete("supprimer-connexion", SupprimerConnexionAsync)
             .WithDescription("Supprimer une connexion entre deux planetes")
             .ProducesNoContent();
 
@@ -135,6 +140,7 @@ public static class PlaneteOrigineRoute
                 Type = x.Type,
                 IdSysteme = x.Systeme.Id,
                 EstPlaneteOrigine = x.EstPlaneteOrigine,
+                ListeOrbite = x.ListeOrbite,
                 NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_PLANETE + x.NomFichier : ""
             })
             .ToList();
@@ -287,6 +293,33 @@ public static class PlaneteOrigineRoute
 
         return ok > 0 ? Results.NoContent() : Results.NotFound("La planète n'existe pas");
     }
+
+     static async Task<IResult> ModifierOrbiteAsync(
+          [FromRoute(Name = "idPlanete")] int _idPlanete,
+          [FromBody] PlaneteOrbiteRequete[] _requete
+     )
+     {
+          if (_idPlanete <= 0)
+               return Results.NotFound("La planete existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var liste = _requete.Select(x => new Orbite
+          {
+               OrbiteAngle = x.OrbiteAngle,
+               OrbiteDecalageX = x.OrbiteDecalageX,
+               OrbiteDecalageY = x.OrbiteDecalageY,
+               OrbiteX = x.OrbiteX,
+               OrbiteY = x.OrbiteY
+          }).ToList();
+
+          var nb = db.GetCollection<PlaneteOrigine>().UpdateMany(_ => new()
+          {
+               ListeOrbite = liste
+          }, x => x.Id == _idPlanete);
+
+          return nb > 0 ? Results.NoContent() : Results.NotFound("La planete existe pas");
+     }
 
     static async Task<IResult> ModifierPositionAsync(
         [FromRoute(Name = "idPlanete")] int _idPlanete,

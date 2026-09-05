@@ -539,21 +539,31 @@ $cell-size: 100px;
 }
 
 /* =========================================================
-   TRACEURS ORBITAUX (Visuel paramétrable)
+   TRACEURS ORBITAUX (Visuel paramétrable SVG)
    ========================================================= */
-.visual-orbit
-{
+.visual-orbit {
     position: absolute;
     top: 50%;
     left: 50%;
-
-    border: 2px dashed;
-    border-radius: 50%;
-    opacity: 0.4;
+    overflow: visible;
     
-    /* Gestion des couches et interactions */
-    pointer-events: none;
+    pointer-events: none; 
     z-index: 1; 
+
+    .orbit-path {
+        opacity: 0.4;
+        
+        pointer-events: stroke; 
+        transition: opacity 0.2s, stroke-width 0.2s;
+    }
+}
+
+/* En mode édition avec la gomme, on met les orbites en surbrillance au survol */
+.galactic-canvas.edit-mode .visual-orbit .orbit-path:hover {
+    opacity: 1;
+    stroke-width: 4px;
+    cursor: crosshair; /* Curseur de visée */
+    stroke: var(--mat-sys-error) !important;
 }
 
 /* =========================================================

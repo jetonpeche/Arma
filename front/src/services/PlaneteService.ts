@@ -3,7 +3,7 @@ import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { PlaneteConnecter, PlaneteConnecterSupprimerRequete, PlaneteOrigine, PlaneteOrigineLeger, PlaneteOrigineRequete } from "@models/PlaneteOrigine";
+import { Orbite, PlaneteConnecter, PlaneteConnecterSupprimerRequete, PlaneteOrigine, PlaneteOrigineLeger, PlaneteOrigineRequete } from "@models/PlaneteOrigine";
 import { SystemePositionRequete } from "@models/Systeme";
 import { Pagination } from "@models/Pagination";
 
@@ -56,6 +56,11 @@ export class PlaneteService
     Modifier(_idPlanete: number, _planete: PlaneteOrigineRequete): Observable<void>
     {
         return this.http.put<void>(`${this.BASE_API}/modifier/${_idPlanete}`, _planete).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+    
+    ModifierOrbite(_idPlanete: number, _listeOrbite: Orbite[]): Observable<void>
+    {
+        return this.http.patch<void>(`${this.BASE_API}/modifier-orbite/${_idPlanete}`, _listeOrbite).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     ModifierPosition(_idPlanete: number, _position: SystemePositionRequete): Observable<void>

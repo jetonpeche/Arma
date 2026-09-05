@@ -13,15 +13,19 @@ export type PlaneteOrigine =
     appartenance: EAppartenancePlanete,
     densite: number,
     
+    listeOrbite: Orbite[],
+    
+    positionX: number,
+    positionY: number
+}
+
+export type Orbite = 
+{
     orbiteDecalageX: number | null,
     orbiteDecalageY: number | null,
     orbiteX: number | null,
     orbiteY: number | null,
     orbiteAngle: number | null,
-    
-
-    positionX: number,
-    positionY: number
 }
 
 export type PlaneteConnecter = 

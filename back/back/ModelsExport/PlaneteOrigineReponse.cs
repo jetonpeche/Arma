@@ -1,3 +1,4 @@
+using back.Models;
 using System.Text.Json.Serialization;
 
 namespace back.ModelsExport;
@@ -15,6 +16,7 @@ public sealed class PlaneteOrigineReponse
      public int Appartenance { get; set; }
      public int Type { get; set; }
      public bool EstPlaneteOrigine { get; set; }
+     public List<Orbite> ListeOrbite { get; set; } = [];
 
     public decimal PositionX { get; set; }
     public decimal PositionY { get; set; }
