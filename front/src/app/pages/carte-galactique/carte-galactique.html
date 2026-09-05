@@ -263,6 +263,10 @@
         }
 
         <div class="action-fabs">
+            <button matMiniFab (click)="afficherLegende.set(!afficherLegende())" matTooltip="Afficher le Manuel Tactique">
+                <mat-icon>menu_book</mat-icon>
+            </button>
+
             @if(systemeActif()) 
             {
                 <button matMiniFab (click)="RetourVueGalactique()" matTooltip="Remonter à la Galaxie">
@@ -495,6 +499,60 @@
                     </div>
                 }
             }
+        </div>
+    </div>
+
+    <!-- PANNEAU DE LÉGENDE TACTIQUE -->
+    <div class="map-legend" 
+            [class.legend-open]="afficherLegende()"
+            (wheel)="$event.stopPropagation()"
+            (touchmove)="$event.stopPropagation()"
+            (mousedown)="$event.stopPropagation()"
+            (touchstart)="$event.stopPropagation()">
+        <div class="legend-header">
+            <h3>CLASSIFICATION O.N.I.</h3>
+            <button mat-icon-button (click)="afficherLegende.set(false)">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <div class="legend-content">
+            <!-- FACTIONS -->
+            <div class="legend-section">
+                <h4>Factions (Couleurs)</h4>
+                <ul>
+                    <li><span class="color-box" style="background: #00a8ff;"></span> UNSC / Humanité</li>
+                    <li><span class="color-box" style="background: #9c88ff;"></span> Alliance Covenante</li>
+                    <li><span class="color-box" style="background: #fbc531;"></span> Insurrection</li>
+                    <li><span class="color-box" style="background: #e84118;"></span> Parias (Brutes)</li>
+                    <li><span class="color-box" style="background: #A0522D;"></span> Le Parasite</li>
+                    <li><span class="color-box" style="background: #00cec9;"></span> Forerunner</li>
+                    <li><span class="color-box" style="background: #2d3436;"></span> Classifié O.N.I.</li>
+                    <li><span class="color-box" style="background: #7f8fa6;"></span> Non-Aligné</li>
+                </ul>
+            </div>
+            
+            <!-- TYPES D'ASTRES -->
+            <div class="legend-section">
+                <h4>Formes d'Astres</h4>
+                <ul>
+                    <li><div class="shape-box planet"></div> Planète Standard</li>
+                    <li><div class="shape-box moon"></div> Lune / Satellite</li>
+                    <li><div class="shape-box sun"></div> Étoile Centrale</li>
+                    <li><div class="shape-box halo"></div> Installation Halo</li>
+                    <li><div class="shape-box station"></div> Station Spatiale</li>
+                    <li><div class="shape-box asteroid"></div> Champ d'Astéroïdes</li>
+                </ul>
+            </div>
+            
+            <!-- TRACÉS -->
+            <div class="legend-section">
+                <h4>Tracés Radars</h4>
+                <ul>
+                    <li><div class="trace-box" style="border-style: solid;"></div> Route Spatiale</li>
+                    <li><div class="trace-box" style="border-style: dashed; border-color: #00a8ff;"></div> Orbite d'un Astre (Exemple)</li>
+                    <li><div class="trace-box war-pulse" style="border-radius: 50%; border-color: #e84118; height: 16px;"></div> Zone de Guerre Actuelle</li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

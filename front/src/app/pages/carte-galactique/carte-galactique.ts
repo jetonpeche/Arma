@@ -45,6 +45,7 @@ export class CarteGalactique implements OnInit
     protected listeSystemeConnexion = signal<SystemeConnecter[]>([]);
     protected listePlaneteConnexion = signal<PlaneteConnecter[]>([]);
     protected droit: Droit;
+    protected afficherLegende = signal<boolean>(false);
 
     // --- MOTEUR PAN & ZOOM ---
     protected echelle = signal<number>(1);
@@ -572,7 +573,7 @@ export class CarteGalactique implements OnInit
                     next: () => this.snackBarServ.Ok("Tracé orbital ciblé détruit")
                 });
             }
-            
+
             return [...liste];
         });
     }
