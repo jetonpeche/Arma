@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, HostListener, inject, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { EUrl } from '@enums/EUrl';
 import { Droit } from '@models/DroitGroupe';
 import { PlaneteConnecter, PlaneteOrigine } from '@models/PlaneteOrigine';
@@ -38,7 +38,7 @@ type OutilEdition = 'main' | 'pinceau' | 'gomme' | 'orbite' | 'orbite-ronde' | '
   styleUrl: './carte-galactique.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CarteGalactique implements OnInit
+export class CarteGalactique implements OnInit, OnDestroy
 {
     protected listeSysteme = signal<Systeme[]>([]);
     protected listePlanete = signal<PlaneteOrigine[]>([]);
@@ -87,6 +87,11 @@ export class CarteGalactique implements OnInit
 
     protected archiveSecteurs = new Map<string, number>(); 
     protected brouillonSecteurs = signal<Map<string, number>>(new Map()); 
+
+    // --- MOTEUR DE NAVIGATION FLUIDE ---
+    private propulseursActifs = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+    private boucleAnimation: number | null = null;
+    private vitesseNavigation = 20;
     
     private startDragX = 0;
     private startDragY = 0;
@@ -143,6 +148,12 @@ export class CarteGalactique implements OnInit
         this.ListerSysteme();
         this.ListerSecteur();
         this.ListerPlaneteConnexion();
+    }
+
+    ngOnDestroy(): void 
+    {
+        if (this.boucleAnimation)
+            cancelAnimationFrame(this.boucleAnimation);
     }
     
     // Zoom à la molette
@@ -372,6 +383,46 @@ export class CarteGalactique implements OnInit
         
         this.startDragX = clientX - this.panX();
         this.startDragY = clientY - this.panY();
+    }
+
+    // deplacement avec les flèches
+    @HostListener('window:keydown', ['$event'])
+    protected onKeyDown(event: KeyboardEvent): void 
+    {
+        const target = event.target as HTMLElement;
+        if (target.tagName.toLowerCase() === 'input' || target.tagName.toLowerCase() === 'textarea') return;
+
+        // Si la touche pressée fait partie de nos commandes directionnelles
+        if (this.propulseursActifs.hasOwnProperty(event.key)) 
+        {
+            this.propulseursActifs[event.key as keyof typeof this.propulseursActifs] = true;
+            event.preventDefault(); // Bloque le défilement de la page
+
+            // On allume les moteurs si ce n'est pas déjà fait
+            if (!this.boucleAnimation) {
+                this.LancerMoteursCamera();
+            }
+        }
+    }
+
+    @HostListener('window:keyup', ['$event'])
+    protected onKeyUp(event: KeyboardEvent): void 
+    {
+        if (this.propulseursActifs.hasOwnProperty(event.key)) 
+        {
+            this.propulseursActifs[event.key as keyof typeof this.propulseursActifs] = false;
+            
+            // Si toutes les touches sont relâchées, on coupe les propulseurs
+            if (!this.propulseursActifs.ArrowUp && !this.propulseursActifs.ArrowDown && 
+                !this.propulseursActifs.ArrowLeft && !this.propulseursActifs.ArrowRight) 
+            {
+                if (this.boucleAnimation) 
+                {
+                    cancelAnimationFrame(this.boucleAnimation);
+                    this.boucleAnimation = null;
+                }
+            }
+        }
     }
 
     protected ActiverDesactiverModeEdition(): void 
@@ -1055,6 +1106,37 @@ export class CarteGalactique implements OnInit
             case EAppartenancePlanete.Foreneur: return "Forerunner";
             default: return "Inconnue";
         }
+    }
+
+    private LancerMoteursCamera(): void 
+    {
+        // Fonction récursive qui s'exécute à la vitesse de rafraîchissement de votre écran (ex: 60Hz)
+        const update = () => {
+            let dx = 0;
+            let dy = 0;
+
+            if (this.propulseursActifs.ArrowUp) 
+                dy += this.vitesseNavigation;
+
+            if (this.propulseursActifs.ArrowDown) 
+                dy -= this.vitesseNavigation;
+
+            if (this.propulseursActifs.ArrowLeft) 
+                dx += this.vitesseNavigation;
+
+            if (this.propulseursActifs.ArrowRight) 
+                dx -= this.vitesseNavigation;
+
+            if (dx !== 0 || dy !== 0) 
+            {
+                this.panX.set(this.panX() + dx);
+                this.panY.set(this.panY() + dy);
+            }
+
+            this.boucleAnimation = requestAnimationFrame(update);
+        };
+        
+        this.boucleAnimation = requestAnimationFrame(update);
     }
 
     private AppliquerSynchronisationLocale(): void 
