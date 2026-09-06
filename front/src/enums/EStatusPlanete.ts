@@ -19,7 +19,15 @@ export enum ETypePlanete
     Soleil,
     Halo,
     StationCivil,
-    StationMilitaire
+    StationMilitaire,
+    NaineBlanche,
+    NaineRouge,
+    GeanteRouge,
+    SupergeanteBleue,
+    GeanteGazeuse,
+    GeanteGazeuseAnneaux,
+    NaineGazeuse,
+    TrouNoir
 }
 
 export enum EAppartenancePlanete

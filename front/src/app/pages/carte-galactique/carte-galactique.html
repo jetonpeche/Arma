@@ -413,8 +413,21 @@
                         }
                         
                         <!-- FORME 2 : SOLEIL -->
-                        @else if(planete.type === eTypePlanete.Soleil) {
-                            <div class="node-core sun-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+                        @else if(
+                            planete.type === eTypePlanete.Soleil || 
+                            planete.type === eTypePlanete.NaineBlanche || 
+                            planete.type === eTypePlanete.NaineRouge || 
+                            planete.type === eTypePlanete.GeanteRouge || 
+                            planete.type === eTypePlanete.SupergeanteBleue
+                        ) {
+                            <div class="node-core" 
+                                 [class.sun-core]="planete.type === eTypePlanete.Soleil"
+                                 [class.white-dwarf-core]="planete.type === eTypePlanete.NaineBlanche"
+                                 [class.red-dwarf-core]="planete.type === eTypePlanete.NaineRouge"
+                                 [class.red-giant-core]="planete.type === eTypePlanete.GeanteRouge"
+                                 [class.blue-supergiant-core]="planete.type === eTypePlanete.SupergeanteBleue"
+                                 [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)">
+                            </div>
                         }
                         
                         <!-- FORME 3 : STATION MILITAIRE/CIVILE -->
@@ -436,6 +449,31 @@
                         <!-- FORME 5 : LUNE -->
                         @else if(planete.type === eTypePlanete.Lune) {
                             <div class="node-core moon-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+                        }
+
+                        <!-- FORME 6 : PLANÈTES GAZEUSES (Avec texture à rayures et anneaux) -->
+                        @else if(
+                            planete.type === eTypePlanete.GeanteGazeuse || 
+                            planete.type === eTypePlanete.GeanteGazeuseAnneaux || 
+                            planete.type === eTypePlanete.NaineGazeuse
+                        ) {
+                            <div class="node-core" 
+                                 [class.gas-giant-core]="planete.type === eTypePlanete.GeanteGazeuse || planete.type === eTypePlanete.GeanteGazeuseAnneaux"
+                                 [class.gas-dwarf-core]="planete.type === eTypePlanete.NaineGazeuse"
+                                 [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)">
+                                 
+                                 <!-- Génération de l'anneau holographique -->
+                                 @if(planete.type === eTypePlanete.GeanteGazeuseAnneaux) {
+                                     <div class="planetary-ring" [style.color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+                                 }
+                            </div>
+                        }
+
+                        <!-- FORME 7 : TROU NOIR -->
+                        @else if(planete.type === eTypePlanete.TrouNoir) {
+                            <div class="node-core black-hole-core">
+                                <div class="accretion-disk"></div>
+                            </div>
                         }
                         
                         <!-- FORME DÉFAUT : PLANÈTE -->

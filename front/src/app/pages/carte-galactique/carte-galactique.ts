@@ -1019,7 +1019,18 @@ export class CarteGalactique implements OnInit
             case ETypePlanete.Planete: return "Planète";
             case ETypePlanete.Lune: return "Lune / Satellite";
             case ETypePlanete.Asteroide: return "Champ d'astéroïdes";
-            case ETypePlanete.Soleil: return "Étoile Centrale";
+            
+            // --- LES ÉTOILES ---
+            case ETypePlanete.Soleil: return "Étoile Standard (Jaune)";
+            case ETypePlanete.NaineBlanche: return "Naine Blanche";
+            case ETypePlanete.NaineRouge: return "Naine Rouge";
+            case ETypePlanete.GeanteRouge: return "Géante Rouge";
+            case ETypePlanete.SupergeanteBleue: return "Supergéante Bleue";
+            case ETypePlanete.GeanteGazeuse: return "Géante Gazeuse";
+            case ETypePlanete.GeanteGazeuseAnneaux: return "Géante Gazeuse (Anneaux)";
+            case ETypePlanete.NaineGazeuse: return "Naine Gazeuse";
+            case ETypePlanete.TrouNoir: return "Trou Noir";
+            
             case ETypePlanete.Halo: return "Installation Halo";
             case ETypePlanete.StationCivil: return "Station Civile";
             case ETypePlanete.StationMilitaire: return "Station Militaire";

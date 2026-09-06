@@ -170,6 +170,12 @@ $cell-size: 100px;
     &:hover .node-core { transform: scale(1.4); }
     &:hover .node-core.halo-core { transform: scale(1.1); } 
     &:hover .node-label { opacity: 1; z-index: 10; }
+
+    &:hover .node-core.sun-core,
+    &:hover .node-core.white-dwarf-core,
+    &:hover .node-core.red-dwarf-core,
+    &:hover .node-core.red-giant-core,
+    &:hover .node-core.blue-supergiant-core { transform: scale(1.05); }
 }
 
 /* --- AFFICHAGE DES DISTANCES (SVG TEXT) --- */
@@ -274,41 +280,44 @@ $cell-size: 100px;
    LA FORGE GÉOMÉTRIQUE (TYPES D'ASTRES)
    ========================================================= */
 
-/* 1. PLANÈTE (Défaut) */
-.planet-core {
-    width: 46px; height: 46px;
-    box-shadow: inset -5px -5px 15px rgba(0,0,0,0.5);
+.node-core {
+    flex-shrink: 0 !important;
 }
 
-/* 2. LUNE */
+/* 1. PLANÈTE (Tellurique Standard) */
+.planet-core {
+    width: 50px !important; height: 50px !important;
+    box-shadow: inset -5px -5px 15px rgba(0,0,0,0.5); 
+}
+
+/* 2. LUNE (Plus petite que la planète) */
 .moon-core {
-    width: 28px; height: 28px;
+    width: 34px !important; height: 34px !important;
     box-shadow: inset -3px -3px 10px rgba(0,0,0,0.5);
     background-image: radial-gradient(circle, rgba(0,0,0,0.3) 2px, transparent 3px);
-    background-size: 8px 8px;
+    background-size: 8px 8px; 
 }
 
-/* 3. SOLEIL */
+/* 3. SOLEIL (Standard - Plus gros qu'une planète) */
 .sun-core {
-    width: 72px; height: 72px;
-    box-shadow: 0 0 30px currentColor, 0 0 60px currentColor; 
+    width: 72px !important; height: 72px !important;
+    box-shadow: 0 0 25px currentColor, 0 0 50px currentColor; 
     animation: star-pulse 3s infinite alternate ease-in-out;
 }
 
 /* 4. HALO (Installation Forerunner) */
 .halo-core {
-    width: 64px; height: 64px; 
+    width: 64px !important; height: 64px !important; 
     background-color: transparent !important; 
-    border: 8px solid currentColor; 
+    border: 6px solid currentColor; 
     border-radius: 50% !important;
     box-shadow: 0 0 10px currentColor !important; 
 }
 
 /* 5. STATIONS SPATIALES */
 .station-core {
-    width: 44px; height: 44px;    
+    width: 44px !important; height: 44px !important;    
     border-radius: 0 !important; 
-    
     clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
     display: flex; justify-content: center; align-items: center;
     
@@ -316,6 +325,70 @@ $cell-size: 100px;
         font-size: 24px; width: 24px; height: 24px;
         color: rgba(0, 0, 0, 0.8); 
     }
+}
+
+/* --- LES NOUVELLES ÉTOILES --- */
+.white-dwarf-core {
+    width: 28px !important; height: 28px !important; /* Très petite mais ultra dense */
+    background-color: #f5f6fa !important;
+    box-shadow: 0 0 10px #dcdde1, 0 0 25px #f5f6fa !important;
+    animation: star-pulse 1.5s infinite alternate ease-in-out;
+}
+
+.red-dwarf-core {
+    width: 42px !important; height: 42px !important; /* Plus petite qu'une planète */
+    background-color: #ff6b81 !important;
+    box-shadow: 0 0 15px #ff4757, 0 0 35px #ff6b81 !important;
+    animation: star-pulse 3.5s infinite alternate ease-in-out;
+}
+
+.red-giant-core {
+    width: 82px !important; height: 82px !important; /* Massive */
+    background-color: #ff7f50 !important;
+    box-shadow: 0 0 25px #ff6348, 0 0 50px #ff7f50 !important;
+    animation: star-pulse 4s infinite alternate ease-in-out;
+}
+
+.blue-supergiant-core {
+    /* La limite maximale avant de déborder de la case de 100px */
+    width: 92px !important; height: 92px !important; 
+    background-color: #70a1ff !important;
+    box-shadow: 0 0 30px #1e90ff, 0 0 60px #70a1ff !important;
+    animation: star-pulse 2s infinite alternate ease-in-out;
+}
+
+/* --- LES PLANÈTES GAZEUSES --- */
+.gas-giant-core {
+    width: 64px !important; height: 64px !important; /* Plus grosse que la tellurique */
+    box-shadow: inset -6px -6px 15px rgba(0,0,0,0.6) !important;
+    background-image: repeating-linear-gradient(
+        0deg, 
+        rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 8px, 
+        transparent 8px, transparent 16px
+    ) !important;
+}
+
+.gas-dwarf-core {
+    width: 42px !important; height: 42px !important; 
+    box-shadow: inset -4px -4px 10px rgba(0,0,0,0.6) !important;
+    background-image: repeating-linear-gradient(
+        0deg, 
+        rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 6px, 
+        transparent 6px, transparent 12px
+    ) !important;
+}
+
+/* L'Anneau Planétaire */
+.planetary-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 140%; height: 35%; 
+    transform: translate(-50%, -50%) rotate(-20deg);
+    border: 4px solid currentColor; 
+    border-radius: 50%;
+    box-shadow: 0 0 8px currentColor, inset 0 0 8px currentColor;
+    opacity: 0.8;
+    pointer-events: none;
 }
 
 /* 6. ASTÉROÏDES (Cluster de Densité) */
@@ -338,6 +411,34 @@ $cell-size: 100px;
             animation-duration: 35s;
         }
     }
+}
+
+/* 7. TROU NOIR */
+.black-hole-core {
+    width: 56px !important; height: 56px !important;
+    background-color: #030504 !important;
+    border: 2px solid #a55eea !important;
+    box-shadow: 0 0 25px #8854d0, inset 0 0 15px #000000 !important;
+    
+    /* Confinement absolu */
+    position: relative !important; 
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    border-radius: 50% !important;
+}
+
+.accretion-disk {
+    position: absolute !important;
+    width: 170%; height: 45%;
+    
+    transform: rotate(-25deg);
+    
+    border: 4px dotted #fed330;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #fa8231, inset 0 0 8px #fa8231;
+    animation: spin-rock 12s linear infinite;
+    pointer-events: none;
 }
 
 /* =========================================================
@@ -979,6 +1080,12 @@ $cell-size: 100px;
                 color: var(--mat-sys-on-surface); /* Force le texte du select en sombre */
             }
         }
+    }
+
+    .white-dwarf-core {
+        background-color: #f1f2f6 !important;
+        border: 2px solid #747d8c !important; /* Blindage visuel gris foncé */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important; /* Ombre de densité au lieu d'un halo */
     }
 
     /* Ajustement de l'Alerte d'édition (Vue Mobile) */

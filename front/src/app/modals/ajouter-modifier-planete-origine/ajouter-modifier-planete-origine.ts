@@ -27,7 +27,15 @@ export class AjouterModifierPlaneteOrigine implements OnInit
         { valeur: ETypePlanete.Planete, nom: "Planete" },
         { valeur: ETypePlanete.Soleil, nom: "Soleil" },
         { valeur: ETypePlanete.StationCivil, nom: "Station civil" },
-        { valeur: ETypePlanete.StationMilitaire, nom: "Station militaire" }
+        { valeur: ETypePlanete.StationMilitaire, nom: "Station militaire" },
+        { valeur: ETypePlanete.NaineBlanche, nom: "Naine Blanche" },
+        { valeur: ETypePlanete.NaineRouge, nom: "Naine Rouge" },
+        { valeur: ETypePlanete.GeanteRouge, nom: "Géante Rouge" },
+        { valeur: ETypePlanete.SupergeanteBleue, nom: "Supergéante Bleue" },
+        { valeur: ETypePlanete.GeanteGazeuse, nom: "Géante Gazeuse" },
+        { valeur: ETypePlanete.GeanteGazeuseAnneaux, nom: "Géante Gazeuse (Anneaux)" },
+        { valeur: ETypePlanete.NaineGazeuse, nom: "Naine Gazeuse" },
+        { valeur: ETypePlanete.TrouNoir, nom: "Trou noir" }
     ];
 
     protected listeAppartenance = [
