@@ -302,6 +302,11 @@ export class CarteGalactique implements OnInit
     protected onMouseDown(event: MouseEvent | TouchEvent): void 
     {
         const targetElement = event.target as HTMLElement;
+
+        if (targetElement.closest('.orbit-path')) 
+        {
+            return;
+        }
         
         if (targetElement.closest('.grid-node')) 
         {
@@ -1019,8 +1024,6 @@ export class CarteGalactique implements OnInit
             case ETypePlanete.Planete: return "Planète";
             case ETypePlanete.Lune: return "Lune / Satellite";
             case ETypePlanete.Asteroide: return "Champ d'astéroïdes";
-            
-            // --- LES ÉTOILES ---
             case ETypePlanete.Soleil: return "Étoile Standard (Jaune)";
             case ETypePlanete.NaineBlanche: return "Naine Blanche";
             case ETypePlanete.NaineRouge: return "Naine Rouge";
@@ -1030,7 +1033,6 @@ export class CarteGalactique implements OnInit
             case ETypePlanete.GeanteGazeuseAnneaux: return "Géante Gazeuse (Anneaux)";
             case ETypePlanete.NaineGazeuse: return "Naine Gazeuse";
             case ETypePlanete.TrouNoir: return "Trou Noir";
-            
             case ETypePlanete.Halo: return "Installation Halo";
             case ETypePlanete.StationCivil: return "Station Civile";
             case ETypePlanete.StationMilitaire: return "Station Militaire";
