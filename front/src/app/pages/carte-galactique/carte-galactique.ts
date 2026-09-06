@@ -1,4 +1,4 @@
-import { Component, computed, HostListener, inject, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, HostListener, inject, OnInit, signal, viewChild } from '@angular/core';
 import { EUrl } from '@enums/EUrl';
 import { Droit } from '@models/DroitGroupe';
 import { PlaneteConnecter, PlaneteOrigine } from '@models/PlaneteOrigine';
@@ -36,6 +36,7 @@ type OutilEdition = 'main' | 'pinceau' | 'gomme' | 'orbite' | 'orbite-ronde' | '
   imports: [MatSelectModule, FormsModule, MatFormFieldModule, MatInputModule, MatAutocompleteModule, MatMenuModule, DragDropModule, MatTooltipModule, MatIconModule, MatButtonModule, UpperCasePipe],
   templateUrl: './carte-galactique.html',
   styleUrl: './carte-galactique.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CarteGalactique implements OnInit
 {
@@ -156,7 +157,7 @@ export class CarteGalactique implements OnInit
             
             const oldScale = this.echelle();
             const delta = event.deltaY > 0 ? -0.1 : 0.1;
-            const newScale = Math.min(Math.max(0.1, oldScale + delta), 3);
+            const newScale = Math.min(Math.max(0.4, oldScale + delta), 3);
 
             // Si l'échelle n'a pas changé (on est au zoom minimum ou maximum), on ne fait rien
             if (oldScale == newScale) 
@@ -687,7 +688,7 @@ export class CarteGalactique implements OnInit
         // S'il n'y a rien sur le radar, on se place au centre exact de la grille (Case 50,50)
         if (noeudsVisibles.length === 0) 
         {
-            const vueGlobaleEchelle = 0.1;
+            const vueGlobaleEchelle = 0.4;
             this.echelle.set(vueGlobaleEchelle);
             this.panX.set((screenW / 2) - (5000 * vueGlobaleEchelle));
             this.panY.set((screenH / 2) - (5000 * vueGlobaleEchelle));
@@ -721,8 +722,8 @@ export class CarteGalactique implements OnInit
         const scaleY = screenH / hauteurZone;
         let echelleIdeale = Math.min(scaleX, scaleY);
         
-        // Sécurité : On bloque l'échelle entre 0.1 (très reculé) et 1.5 (pour ne pas trop zoomer s'il n'y a qu'une planète)
-        echelleIdeale = Math.min(Math.max(0.1, echelleIdeale), 1.5);
+        // Sécurité : On bloque l'échelle entre 0.4 (très reculé) et 1.5 (pour ne pas trop zoomer s'il n'y a qu'une planète)
+        echelleIdeale = Math.min(Math.max(0.4, echelleIdeale), 1.5);
 
         // 5. Exécution de la translation géométrique
         this.echelle.set(echelleIdeale);

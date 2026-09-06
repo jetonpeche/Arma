@@ -23,10 +23,9 @@
     pointer-events: none; /* Le clic traverse le HUD vide pour attraper la carte */
 
     .hud-info {
-        background-color: rgba(10, 17, 26, 0.75);
+        background-color: rgba(10, 17, 26, 0.90);
         border-left: 4px solid var(--mat-sys-primary);
         padding: 12px 24px;
-        backdrop-filter: blur(4px);
         
         h1 { margin: 0; color: var(--mat-sys-primary); font-family: 'Courier New', Courier, monospace; font-size: 1.5rem; letter-spacing: 2px;}
         .subtitle { color: var(--mat-sys-on-surface-variant); font-size: 0.8rem; letter-spacing: 1px; }
@@ -58,7 +57,16 @@
         radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
     background-size: 40px 40px; /* Étoiles lointaines */
 
-    &.grabbing { cursor: grabbing; }
+    &.grabbing { 
+        cursor: grabbing; 
+
+        /* OPTIMISATION GPU : On gèle toutes les animations et on désactive le survol 
+           sur TOUS les éléments de la carte pour libérer le processeur pendant le mouvement */
+        * {
+            pointer-events: none !important;
+            animation-play-state: paused !important; 
+        }
+    }
 }
 
 .galactic-canvas {
@@ -201,11 +209,10 @@ $cell-size: 100px;
     display: flex;
     align-items: center;
     gap: 8px;
-    background-color: rgba(10, 17, 26, 0.85);
+    background-color: rgba(10, 17, 26, 0.95);
     padding: 4px 12px;
     border-radius: 8px;
     border: 1px solid var(--mat-sys-primary);
-    backdrop-filter: blur(8px);
     pointer-events: auto;
 
     .outil-actif {
@@ -358,8 +365,8 @@ $cell-size: 100px;
 }
 
 @keyframes radar-pulse-war {
-    0% { transform: scale(1); opacity: 1; border-width: 3px; }
-    100% { transform: scale(1.6); opacity: 0; border-width: 1px; } 
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; } 
 }
 
 @keyframes star-pulse {
@@ -392,7 +399,6 @@ $cell-size: 100px;
     filter: drop-shadow(0 0 4px var(--mat-sys-primary)) drop-shadow(0 10px 15px rgba(0,0,0,0.5));
     background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 95%, transparent);
     padding: 16px;
-    backdrop-filter: blur(8px);
 
     /* Lignes de balayage */
     &::before {
@@ -539,6 +545,17 @@ $cell-size: 100px;
 }
 
 /* =========================================================
+   NOUVELLE COUCHE GLOBALE DES ORBITES
+   ========================================================= */
+.orbit-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Laisse passer la souris */
+    z-index: 1; /* Sera toujours en dessous des planètes (z-index: 5) */
+}
+
+/* =========================================================
    TRACEURS ORBITAUX (Visuel paramétrable SVG)
    ========================================================= */
 .visual-orbit {
@@ -550,11 +567,14 @@ $cell-size: 100px;
     pointer-events: none; 
     z-index: 1; 
 
+    /* On prévient le navigateur que ces éléments ne feront que s'afficher */
+    will-change: opacity;
+
     .orbit-path {
         opacity: 0.4;
         
         pointer-events: stroke; 
-        transition: opacity 0.2s, stroke-width 0.2s;
+        transition: opacity 0.1s ease-out, stroke-width 0.1s ease-out;
     }
 }
 
@@ -717,7 +737,7 @@ $cell-size: 100px;
     overflow: hidden;   
     
     /* Fond de blindage avec Lignes de Balayage (Scanlines) */
-    background-color: rgba(12, 18, 25, 0.95);
+    background-color: rgba(12, 18, 25, 0.98);
     background-image: repeating-linear-gradient(
         0deg, 
         transparent, 
@@ -725,7 +745,6 @@ $cell-size: 100px;
         rgba(255, 255, 255, 0.03) 2px, 
         rgba(255, 255, 255, 0.03) 4px
     );
-    backdrop-filter: blur(8px);
     
     /* Arêtes dures (plus d'arrondis) et bordures tactiques renforcées */
     border-radius: 0;
@@ -890,8 +909,13 @@ $cell-size: 100px;
     background-color: color-mix(in srgb, var(--mat-sys-surface-container-lowest) 80%, #fff);
 
     .visual-orbit {
-        opacity: 0.6;
-        filter: brightness(0.65) saturate(1.5); 
+        opacity: 0.9; 
+        
+        filter: brightness(0.4) saturate(2); 
+
+        .orbit-path {
+            opacity: 0.85; 
+        }
     }
 
     .node-details {
@@ -934,7 +958,7 @@ $cell-size: 100px;
 
     /* Ajustement du HUD pour qu'il soit lisible sur fond blanc */
     .map-hud .hud-info {
-        background-color: rgba(255, 255, 255, 0.85);
+        background-color: rgba(255, 255, 255, 0.95);
         
         .subtitle {
             color: var(--mat-sys-on-surface);

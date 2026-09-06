@@ -296,8 +296,11 @@
     position: fixed; 
     top: 0; left: 0; right: 0; 
     z-index: 100;
-    background: linear-gradient(to bottom, color-mix(in srgb, var(--mat-sys-surface-container-highest) 95%, transparent), color-mix(in srgb, var(--mat-sys-surface-container) 95%, transparent));
-    backdrop-filter: blur(12px);
+
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--mat-sys-surface-container-highest) 100%, transparent), color-mix(in srgb, var(--mat-sys-surface-container) 100%, transparent));
     color: var(--mat-sys-on-surface);
     border-bottom: 2px solid color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);

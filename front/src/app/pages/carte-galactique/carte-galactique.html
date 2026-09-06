@@ -364,7 +364,33 @@
             }
             @else
             {
-                <!-- AFFICHAGE UNIQUE DE TOUS LES ASTRES (Planètes, Soleils, Halos, Astéroïdes) -->
+                <!-- ========================================== -->
+                <!-- COUCHE 1 : TOUTES LES ORBITES (Arrière-plan)-->
+                <!-- ========================================== -->
+                @for (planete of listePlanete(); track planete.id) 
+                {
+                    <div class="orbit-container" [style.grid-column]="planete.positionX" [style.grid-row]="planete.positionY">
+                        @for(orbite of planete.listeOrbite; track $index) 
+                        {
+                            <svg class="visual-orbit" 
+                                 [style.width.px]="orbite.orbiteX" 
+                                 [style.height.px]="orbite.orbiteY || orbite.orbiteX"
+                                 [style.transform]="'translate(calc(-50% + ' + (orbite.orbiteDecalageX || 0) + 'px), calc(-50% + ' + (orbite.orbiteDecalageY || 0) + 'px)) rotate(' + (orbite.orbiteAngle || 0) + 'deg)'">
+                                <ellipse cx="50%" cy="50%" rx="48%" ry="48%" 
+                                         fill="none" 
+                                         [attr.stroke]="ObtenirCouleurAppartenance(planete.appartenance)" 
+                                         stroke-width="2" 
+                                         stroke-dasharray="6, 4"
+                                         class="orbit-path"
+                                         (click)="SupprimerOrbiteCiblee($event, planete, $index)" />
+                            </svg>
+                        }
+                    </div>
+                }
+
+                <!-- ========================================== -->
+                <!-- COUCHE 2 : TOUS LES ASTRES (Premier plan)  -->
+                <!-- ========================================== -->
                 @for (planete of listePlanete(); track planete.id) 
                 {
                     <div class="grid-node planet-node" 
@@ -385,34 +411,19 @@
                         @if(planete.type === eTypePlanete.Halo) {
                             <div class="node-core halo-core" [style.color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
                         }
+                        
                         <!-- FORME 2 : SOLEIL -->
-                        @else if(planete.type === eTypePlanete.Soleil) 
-                        {
-                            @for(orbite of planete.listeOrbite; track $index) 
-                            {
-                                <svg class="visual-orbit" 
-                                     [style.width.px]="orbite.orbiteX" 
-                                     [style.height.px]="orbite.orbiteY || orbite.orbiteX"
-                                     [style.transform]="'translate(calc(-50% + ' + (orbite.orbiteDecalageX || 0) + 'px), calc(-50% + ' + (orbite.orbiteDecalageY || 0) + 'px)) rotate(' + (orbite.orbiteAngle || 0) + 'deg)'">
-                                    
-                                    <ellipse cx="50%" cy="50%" rx="48%" ry="48%" 
-                                             fill="none" 
-                                             [attr.stroke]="ObtenirCouleurAppartenance(planete.appartenance)" 
-                                             stroke-width="2" 
-                                             stroke-dasharray="6, 4"
-                                             class="orbit-path"
-                                             (click)="SupprimerOrbiteCiblee($event, planete, $index)" />
-                                </svg>
-                            }
-
+                        @else if(planete.type === eTypePlanete.Soleil) {
                             <div class="node-core sun-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
                         }
+                        
                         <!-- FORME 3 : STATION MILITAIRE/CIVILE -->
                         @else if(planete.type === eTypePlanete.StationCivil || planete.type === eTypePlanete.StationMilitaire) {
                             <div class="node-core station-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)">
                                 <mat-icon>{{ planete.type === eTypePlanete.StationMilitaire ? 'security' : 'satellite' }}</mat-icon>
                             </div>
                         }
+                        
                         <!-- FORME 4 : ASTÉROÏDES (Cluster de débris) -->
                         @else if(planete.type === eTypePlanete.Asteroide) {
                             <div class="asteroid-cluster">
@@ -421,48 +432,14 @@
                                 }
                             </div>
                         }
+                        
                         <!-- FORME 5 : LUNE -->
-                        @else if(planete.type === eTypePlanete.Lune) 
-                        {
-                            @for(orbite of planete.listeOrbite; track $index) 
-                            {
-                                <svg class="visual-orbit" 
-                                     [style.width.px]="orbite.orbiteX" 
-                                     [style.height.px]="orbite.orbiteY || orbite.orbiteX"
-                                     [style.transform]="'translate(calc(-50% + ' + (orbite.orbiteDecalageX || 0) + 'px), calc(-50% + ' + (orbite.orbiteDecalageY || 0) + 'px)) rotate(' + (orbite.orbiteAngle || 0) + 'deg)'">
-                                    
-                                    <ellipse cx="50%" cy="50%" rx="48%" ry="48%" 
-                                             fill="none" 
-                                             [attr.stroke]="ObtenirCouleurAppartenance(planete.appartenance)" 
-                                             stroke-width="2" 
-                                             stroke-dasharray="6, 4"
-                                             class="orbit-path"
-                                             (click)="SupprimerOrbiteCiblee($event, planete, $index)" />
-                                </svg>
-                            }
-
+                        @else if(planete.type === eTypePlanete.Lune) {
                             <div class="node-core moon-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
                         }
+                        
                         <!-- FORME DÉFAUT : PLANÈTE -->
-                        @else 
-                        {
-                            @for(orbite of planete.listeOrbite; track $index) 
-                            {
-                               <svg class="visual-orbit" 
-                                     [style.width.px]="orbite.orbiteX" 
-                                     [style.height.px]="orbite.orbiteY || orbite.orbiteX"
-                                     [style.transform]="'translate(calc(-50% + ' + (orbite.orbiteDecalageX || 0) + 'px), calc(-50% + ' + (orbite.orbiteDecalageY || 0) + 'px)) rotate(' + (orbite.orbiteAngle || 0) + 'deg)'">
-                                    
-                                    <ellipse cx="50%" cy="50%" rx="48%" ry="48%" 
-                                             fill="none" 
-                                             [attr.stroke]="ObtenirCouleurAppartenance(planete.appartenance)" 
-                                             stroke-width="2" 
-                                             stroke-dasharray="6, 4"
-                                             class="orbit-path"
-                                             (click)="SupprimerOrbiteCiblee($event, planete, $index)" />
-                                </svg>
-                            }
-
+                        @else {
                             <div class="node-core planet-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
                         }
 
