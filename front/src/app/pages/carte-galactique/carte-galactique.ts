@@ -297,6 +297,7 @@ export class CarteGalactique implements OnInit, OnDestroy
                     return [...liste];
                 });
                 event.source._dragRef.reset();
+                this.CalculerOmbresStellaires();
             }
         });
     }
@@ -312,6 +313,9 @@ export class CarteGalactique implements OnInit, OnDestroy
 
     protected onMouseDown(event: MouseEvent | TouchEvent): void 
     {
+        if (event instanceof MouseEvent && event.button !== 0) 
+            return;
+
         const targetElement = event.target as HTMLElement;
 
         if (targetElement.closest('.orbit-path')) 
@@ -1107,6 +1111,38 @@ export class CarteGalactique implements OnInit, OnDestroy
         }
     }
 
+    protected CalculerOmbresStellaires(): void 
+    {
+        const planètes = this.listePlanete();
+        // On cherche l'étoile centrale du système (Soleil ou géante)
+        const etoile = planètes.find(p => 
+            p.type === ETypePlanete.Soleil || 
+            p.type === ETypePlanete.NaineBlanche || 
+            p.type === ETypePlanete.NaineRouge || 
+            p.type === ETypePlanete.GeanteRouge || 
+            p.type === ETypePlanete.SupergeanteBleue
+        );
+
+        if (!etoile) return;
+
+        planètes.forEach(p => {
+            if (p.id === etoile.id) return;
+
+            // Calcul de l'angle entre l'étoile et la planète
+            const dx = p.positionX - etoile.positionX;
+            const dy = p.positionY - etoile.positionY;
+            
+            const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+            
+            // Normalisation et inversion pour orienter l'ombre à l'opposé de l'étoile
+            const shadowX = Math.round((-dx / distance) * 12);
+            const shadowY = Math.round((-dy / distance) * 12);
+
+            // Injection des variables CSS personnalisées sur l'élément
+            p.shadowStyle = `inset ${shadowX}px ${shadowY}px 15px rgba(0,0,0,0.8)`;
+        });
+    }
+
     private LancerMoteursCamera(): void 
     {
         // Fonction récursive qui s'exécute à la vitesse de rafraîchissement de votre écran (ex: 60Hz)
@@ -1241,6 +1277,7 @@ export class CarteGalactique implements OnInit, OnDestroy
             next: (retour) => 
             {
                 this.listePlanete.set(retour);
+                this.CalculerOmbresStellaires();
                 this.RecentrerCarte();
             }
         });

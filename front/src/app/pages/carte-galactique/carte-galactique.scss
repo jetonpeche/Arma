@@ -321,14 +321,16 @@ $cell-size: 100px;
 
 /* 1. PLANÈTE (Tellurique Standard) */
 .planet-core {
-    width: 50px !important; height: 50px !important;
-    box-shadow: inset -5px -5px 15px rgba(0,0,0,0.5); 
+    width: 50px !important; 
+    height: 50px !important;
+    box-shadow: var(--shadow-style, inset -5px -5px 15px rgba(0,0,0,0.6)) !important; 
+    transition: box-shadow 0.3s ease;
 }
 
 /* 2. LUNE (Plus petite que la planète) */
 .moon-core {
     width: 34px !important; height: 34px !important;
-    box-shadow: inset -3px -3px 10px rgba(0,0,0,0.5);
+    box-shadow: var(--shadow-style, inset -3px -3px 10px rgba(0,0,0,0.5)) !important;
     background-image: radial-gradient(circle, rgba(0,0,0,0.3) 2px, transparent 3px);
     background-size: 8px 8px; 
 }
@@ -432,11 +434,12 @@ $cell-size: 100px;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 6px; /* Plus d'espace entre les roches */
-    width: 80px; height: 80px; /* Base élargie pour accueillir de gros blocs */
+    gap: 6px;
+    width: 80px; height: 80px;
 
     .rock {
         width: 32px; height: 32px; 
+        box-shadow: var(--shadow-style, inset -3px -3px 10px rgba(0,0,0,0.5));
         clip-path: polygon(20% 0%, 80% 10%, 100% 60%, 70% 100%, 30% 90%, 0% 50%);
         background-image: radial-gradient(circle at 30% 30%, transparent 20%, rgba(0,0,0,0.6));
         animation: spin-rock 25s linear infinite;

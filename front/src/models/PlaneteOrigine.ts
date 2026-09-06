@@ -16,7 +16,10 @@ export type PlaneteOrigine =
     listeOrbite: Orbite[],
     
     positionX: number,
-    positionY: number
+    positionY: number,
+
+    /** Pour carte galactique */
+    shadowStyle: string
 }
 
 export type Orbite = 
