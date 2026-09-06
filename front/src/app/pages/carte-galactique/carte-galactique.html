@@ -294,7 +294,18 @@
      [class.edit-mode]="modeEdition()"
      (mousedown)="onMouseDown($event)"
      (touchstart)="onMouseDown($event)">
-     
+
+   <!-- COUCHES DE PARALLAXE (Fond spatial chaotique et réactif au zoom) -->
+    
+    <!-- Couche 1 : Gaz et Nébuleuses (Très lent, réagit peu au zoom) -->
+    <div class="parallax-layer nebuleuse" [style.transform]="'translate(' + (panX() * 0.05) + 'px, ' + (panY() * 0.05) + 'px) scale(' + (1 + (echelle() - 1) * 0.1) + ')'"></div>
+    
+    <!-- Couche 2 : Voie lactée lointaine (Vitesse moyenne) -->
+    <div class="parallax-layer lointaine" [style.transform]="'translate(' + (panX() * 0.1) + 'px, ' + (panY() * 0.1) + 'px) scale(' + (1 + (echelle() - 1) * 0.3) + ')'"></div>
+    
+    <!-- Couche 3 : Étoiles de premier plan (Rapide, grossit plus avec le zoom) -->
+    <div class="parallax-layer proche" [style.transform]="'translate(' + (panX() * 0.25) + 'px, ' + (panY() * 0.25) + 'px) scale(' + (1 + (echelle() - 1) * 0.6) + ')'"></div>
+    
     <!-- LE CANEVAS (La carte qui bouge) -->
     <div class="galactic-canvas" 
          [class.edit-mode]="modeEdition()"
