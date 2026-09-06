@@ -439,7 +439,6 @@ export class CarteGalactique implements OnInit, OnDestroy
         if (!this.modeEdition()) 
         {
             this.systemeActif.set(systeme);
-            this.RecentrerCarte();
             this.ListerPlaneteSysteme(systeme.id);
             return;
         }
@@ -1238,12 +1237,27 @@ export class CarteGalactique implements OnInit, OnDestroy
 
     private ListerPlaneteSysteme(_idSysteme: number): void 
     {
-        this.planeteServ.Lister(_idSysteme).subscribe({ next: (retour) => this.listePlanete.set(retour) });
+        this.planeteServ.Lister(_idSysteme).subscribe({ 
+            next: (retour) => 
+            {
+                this.listePlanete.set(retour);
+                this.RecentrerCarte();
+            }
+        });
     }
 
     private ListerSysteme(): void 
     {
-        this.systemeServ.Lister().subscribe({ next: (retour) => this.listeSysteme.set(retour) });
+        this.systemeServ.Lister().subscribe({ 
+            next: (retour) => 
+            {
+                this.listeSysteme.set(retour);
+                
+                if (!this.systemeActif())
+                    this.RecentrerCarte();
+            }
+        });
+
         this.systemeServ.ListerConnexion().subscribe({ next: (retour) => this.listeSystemeConnexion.set(retour) });
     }
 
