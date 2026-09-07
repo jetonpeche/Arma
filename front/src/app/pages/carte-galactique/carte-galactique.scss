@@ -430,19 +430,18 @@ $cell-size: 100px;
 
 /* 6. ASTÉROÏDES (Cluster de Densité) */
 .asteroid-cluster {
-    display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     gap: 6px;
-    width: 80px; height: 80px;
+    width: 120px; 
+    height: 120px;
 
     .rock {
         width: 32px; height: 32px; 
         box-shadow: var(--shadow-style, inset -3px -3px 10px rgba(0,0,0,0.5));
         clip-path: polygon(20% 0%, 80% 10%, 100% 60%, 70% 100%, 30% 90%, 0% 50%);
         background-image: radial-gradient(circle at 30% 30%, transparent 20%, rgba(0,0,0,0.6));
-        animation: spin-rock 25s linear infinite;
         
         &:nth-child(even) {
             animation-direction: reverse;
@@ -481,8 +480,9 @@ $cell-size: 100px;
 /* =========================================================
    ACTIVATION EXCLUSIVE POUR LA GOMME
    ========================================================= */
-.galactic-canvas.outil-gomme 
-{
+.galactic-canvas.outil-gomme,
+.galactic-canvas.outil-densite {
+    
     .orbit-group {
         .orbit-hitbox { 
             pointer-events: stroke !important; 
@@ -490,22 +490,17 @@ $cell-size: 100px;
         
         &:hover {
             .orbit-hitbox { cursor: crosshair; }
-            
-            /* Action visuelle pour l'orbite classique (Ligne) */
-            .orbit-path {
-                stroke-width: 4px;
-                stroke: var(--mat-sys-error) !important;
-                opacity: 1;
-            }
-
-            /* Action visuelle pour la ceinture (Anneau en pointillé) */
-            .belt-guide {
-                opacity: 1;
-                border-color: var(--mat-sys-error) !important;
-                border-style: solid;
-            }
         }
     }
+}
+
+.galactic-canvas.outil-gomme .orbit-group:hover {
+    .orbit-path { stroke-width: 4px; stroke: var(--mat-sys-error) !important; opacity: 1; }
+    .belt-guide { opacity: 1; border-color: var(--mat-sys-error) !important; border-style: solid; }
+}
+
+.galactic-canvas.outil-densite .orbit-group:hover {
+    .belt-guide { opacity: 1; border-color: var(--mat-sys-primary) !important; border-style: solid; }
 }
 
 /* 7. TROU NOIR */

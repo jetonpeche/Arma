@@ -138,6 +138,13 @@
                     <mat-icon>group_work</mat-icon>
                 </button>
 
+                <button matMiniFab 
+                        [class.outil-actif]="outilActif() === 'densite'"
+                        (click)="outilActif.set('densite')" 
+                        matTooltip="Ajuster la densité (Cliquer sur une ceinture pour modifier 1 ➔ 2 ➔ 3)">
+                    <mat-icon>tune</mat-icon>
+                </button>
+
                 <!-- DÉPLACER L'ORBITE -->
                 <button matMiniFab 
                         [class.outil-actif]="outilActif() === 'orbite-decalage'"
@@ -325,6 +332,7 @@
     <!-- LE CANEVAS (La carte qui bouge) -->
     <div class="galactic-canvas" 
          [class.outil-gomme]="outilActif() == 'gomme'"
+         [class.outil-densite]="outilActif() === 'densite'"
          [class.edit-mode]="modeEdition()"
          [style.transform]="'translate(' + panX() + 'px, ' + panY() + 'px) scale(' + echelle() + ')'">
         
@@ -417,7 +425,7 @@
                                                  stroke-width="24" 
                                                  class="orbit-hitbox"
                                                  pointer-events="stroke"
-                                                 (click)="SupprimerOrbiteCiblee($event, planete, $index)" />
+                                                 (click)="InteragirAvecOrbite($event, planete, $index)" />
 
                                         <!-- 2. Le visuel -->
                                         <ellipse cx="50%" cy="50%" rx="48%" ry="48%" 
@@ -445,7 +453,7 @@
                                                       stroke="transparent" 
                                                       stroke-width="24" 
                                                       class="orbit-hitbox"
-                                                      (click)="SupprimerOrbiteCiblee($event, planete, $index)" />
+                                                      (click)="InteragirAvecOrbite($event, planete, $index)" />
                                          </svg>
 
                                          <!-- 2. LE GUIDE VISUEL -->
@@ -522,8 +530,16 @@
                         @else if(planete.type === eTypePlanete.Asteroide) 
                         {
                             <div class="asteroid-cluster">
-                                @for(roche of GenererTableauDensite(planete.densite); track $index) {
-                                    <div class="rock asteroid-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+                                @for(roche of GenererTableauDensite(planete.densite); track $index) 
+                                {
+                                    <div class="rock asteroid-core" 
+                                         [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"
+                                         [style.position]="'absolute'"
+                                         [style.left]="'calc(50% + ' + roche.x + 'px)'"
+                                         [style.top]="'calc(50% + ' + roche.y + 'px)'"
+                                         [style.transform]="'translate(-50%, -50%) rotate(' + roche.rotation + 'deg) scale(' + roche.scale + ')'"
+                                         [style.--shadow-style]="planete.shadowStyle">
+                                    </div>
                                 }
                             </div>
                         }

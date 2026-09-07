@@ -29,7 +29,7 @@ import { Secteur, SecteurSynchroniser } from '@models/Secteur';
 import { AjouterModifierSecteur } from '@modals/ajouter-modifier-secteur/ajouter-modifier-secteur';
 import { MatSelectModule } from '@angular/material/select';
 
-type OutilEdition = 'main' | 'pinceau' | 'gomme' | 'orbite' | 'orbite-ronde' | 'orbite-decalage' | 'ceinture' | 'ceinture-ronde';
+type OutilEdition = 'main' | 'pinceau' | 'gomme' | 'orbite' | 'orbite-ronde' | 'orbite-decalage' | 'ceinture' | 'ceinture-ronde' | 'densite';
 
 @Component({
   selector: 'app-carte-galactique',
@@ -359,7 +359,7 @@ export class CarteGalactique implements OnInit, OnDestroy
                                 orbiteDecalageX: 0, 
                                 orbiteDecalageY: 0, 
                                 estCeintureAsteroide: EST_CEINTURE, 
-                                densite: 'dense' 
+                                densite: 2
                             });
 
                             this.indexOrbiteEdition.set(planete.listeOrbite.length - 1);
@@ -618,9 +618,9 @@ export class CarteGalactique implements OnInit, OnDestroy
         }
     }
 
-    protected GenererRocheCeinture(orbiteX: number, orbiteY: number, densite: string | undefined): any[]
+    protected GenererRocheCeinture(orbiteX: number, orbiteY: number, densite: number | undefined): any[]
     {
-        const cle = `statique-chaos-${orbiteX}-${orbiteY}-${densite}`;
+        const cle = `statique-large-${orbiteX}-${orbiteY}-${densite}`;
         if (this.cacheRoches.has(cle)) return this.cacheRoches.get(cle)!;
 
         const roches = [];
@@ -628,25 +628,31 @@ export class CarteGalactique implements OnInit, OnDestroy
         const rayonY = (orbiteY || orbiteX) / 2;
         const perimetre = Math.PI * (rayonX + rayonY);
         
-        const espacement = densite === 'dense' ? 12 : 30; 
+        let espacement = 35;
+        let largeurCeinture = 15;
+        
+        if (densite == 2) 
+        {
+            espacement = 22;
+            largeurCeinture = 25;
+        } 
+        else if (densite >= 3) 
+        {
+            espacement = 10;
+            largeurCeinture = 40;
+        }
+        
         let nombreRoches = Math.max(12, Math.min(Math.floor(perimetre / espacement), 450));
 
-        // Niveau de dispersion
-        const largeurCeinture = densite === 'dense' ? 35 : 20;
-
-        for (let i = 0; i < nombreRoches; i++)
-        {
+        for (let i = 0; i < nombreRoches; i++) {
             const angle = (i / nombreRoches) * Math.PI * 2;
             
-            // Chaos géométrique : dispersion large et irrégulière autour du rail
             const chaosX = Math.sin(i * 17.3) * largeurCeinture;
             const chaosY = Math.cos(i * 23.8) * largeurCeinture;
             
-            // Chaos des tailles : certaines roches seront minuscules, d'autres massives (de 0.4 à 1.2)
             const echelle = 0.4 + (Math.abs(Math.sin(i * 89.73)) * 0.8); 
             const rotation = (i * 73) % 360; 
 
-            // Positionnement final
             const x = Math.cos(angle) * rayonX + chaosX;
             const y = Math.sin(angle) * rayonY + chaosY;
 
@@ -668,36 +674,54 @@ export class CarteGalactique implements OnInit, OnDestroy
         this.cacheRoches.clear();
     }
 
-    protected SupprimerOrbiteCiblee(event: MouseEvent, planete: PlaneteOrigine, indexOrbite: number): void 
+    InteragirAvecOrbite(event: Event, planete: any, indexOrbite: number) 
     {
-        if (!this.modeEdition() || this.outilActif() != 'gomme') 
-            return;
+        event.stopPropagation();
 
-        event.stopPropagation(); 
+        const orbiteCible = planete.listeOrbite[indexOrbite];
 
-        const LISTE = planete.listeOrbite.filter((x, index) => index != indexOrbite);
-        this.planeteServ.ModifierOrbite(planete.id, LISTE).subscribe({
-            next: () => 
-                {
-                    const orbiteCible = planete.listeOrbite[indexOrbite];
-
-                    if (orbiteCible?.estCeintureAsteroide)
+        // ACTION 1 : LA GOMME
+        if (this.outilActif() === 'gomme') 
+        {
+            const LISTE = planete.listeOrbite.filter((x, index) => index != indexOrbite);
+            this.planeteServ.ModifierOrbite(planete.id, LISTE).subscribe({
+                next: () => 
                     {
-                        const cle = `statique-large-${orbiteCible.orbiteX}-${orbiteCible.orbiteY}-${orbiteCible.densite}`;
-                        this.cacheRoches.delete(cle);
+                        const orbiteCible = planete.listeOrbite[indexOrbite];
+
+                        if (orbiteCible?.estCeintureAsteroide)
+                        {
+                            const cle = `statique-large-${orbiteCible.orbiteX}-${orbiteCible.orbiteY}-${orbiteCible.densite}`;
+                            this.cacheRoches.delete(cle);
+                        }
+
+                        this.listePlanete.update(liste => 
+                        {
+                            const c = liste.find(p => p.id == planete.id);
+                            c.listeOrbite = LISTE;
+
+                            return [...liste];
+                        });
+
+                        this.snackBarServ.Ok("Tracé orbital ciblé détruit");
                     }
+            });
+        }
+        else if (this.outilActif() === 'densite' && orbiteCible.estCeintureAsteroide) 
+        {
+            const ancienneCle = `statique-large-${orbiteCible.orbiteX}-${orbiteCible.orbiteY}-${orbiteCible.densite}`;
+            this.cacheRoches.delete(ancienneCle);
 
-                    this.listePlanete.update(liste => 
-                    {
-                        const c = liste.find(p => p.id == planete.id);
-                        c.listeOrbite = LISTE;
+            // 2. On boucle la densité (Si = 3, on repasse à 1, sinon on ajoute 1)
+            orbiteCible.densite = (orbiteCible.densite >= 3 || !orbiteCible.densite) ? 1 : orbiteCible.densite + 1;
 
-                        return [...liste];
-                    });
-
-                    this.snackBarServ.Ok("Tracé orbital ciblé détruit")
+            this.planeteServ.ModifierOrbite(planete.id, planete.listeOrbite).subscribe({ 
+                next: () => 
+                {
+                    this.snackBarServ.Ok("Tracé orbital ciblé modifié");
                 }
-        });
+            });
+        }
     }
 
     @HostListener('window:mouseup')
@@ -1110,12 +1134,43 @@ export class CarteGalactique implements OnInit, OnDestroy
         }
     }
 
-    protected GenererTableauDensite(densite: number): number[] 
+    protected GenererTableauDensite(densite: number = 2): any[] 
     {
-        // Sécurité : minimum 1 roche, maximum 3
-        const quantite = Math.max(1, Math.min(3, densite || 1));
+        let nombreDeRoches = 4;
+        let rayonDispersion = 20;
 
-        return Array(quantite).fill(0);
+        if (densite === 2) 
+        {
+            nombreDeRoches = 8;
+            rayonDispersion = 35;
+        } 
+        else if (densite >= 3) 
+        {
+            nombreDeRoches = 15;
+            rayonDispersion = 55;
+        }
+        
+        const roches = [];
+        
+        for (let i = 0; i < nombreDeRoches; i++) 
+        {
+            // Chaos directionnel (Répartition en spirale dorée pour un bel amas)
+            const angle = i * 2.39996; // 137.5 degrés
+            
+            // Distance aléatoire par rapport au centre du point
+            const rayon = (Math.abs(Math.sin(i * 45.2)) * rayonDispersion); 
+            
+            const x = Math.cos(angle) * rayon;
+            const y = Math.sin(angle) * rayon;
+            
+            // Variation des tailles (de très petit à très gros)
+            const echelle = 0.5 + (Math.abs(Math.cos(i * 12.7)) * 0.9);
+            const rotation = (i * 113) % 360;
+
+            roches.push({ x, y, rotation, scale: echelle });
+        }
+        
+        return roches;
     }
 
     protected ObtenirLibelleStatut(statut: EStatusPlanete): string 

@@ -30,7 +30,7 @@ export type Orbite =
     orbiteY: number | null,
     orbiteAngle: number | null,
     estCeintureAsteroide: boolean,
-    densite: 'dense' | 'sparse'
+    densite: number
 }
 
 export type PlaneteConnecter = 
