@@ -451,6 +451,63 @@ $cell-size: 100px;
     }
 }
 
+.orbit-group .orbit-hitbox {
+    pointer-events: none !important;
+}
+
+.asteroid-belt-container 
+{
+    position: absolute;
+    top: 50%; left: 50%;
+    border-radius: 50%;
+    pointer-events: none; 
+    
+    .belt-guide {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border: 2px dotted;
+        opacity: 0.1;
+        border-radius: 50%;
+        transition: opacity 0.2s ease, border-color 0.2s ease;
+    }
+
+    .rock {
+        clip-path: polygon(20% 0%, 80% 10%, 100% 60%, 70% 100%, 30% 90%, 0% 50%);
+        width: 32px; height: 32px;
+        background-image: radial-gradient(circle at 30% 30%, transparent 20%, rgba(0,0,0,0.6));
+    }
+}
+
+/* =========================================================
+   ACTIVATION EXCLUSIVE POUR LA GOMME
+   ========================================================= */
+.galactic-canvas.outil-gomme 
+{
+    .orbit-group {
+        .orbit-hitbox { 
+            pointer-events: stroke !important; 
+        }
+        
+        &:hover {
+            .orbit-hitbox { cursor: crosshair; }
+            
+            /* Action visuelle pour l'orbite classique (Ligne) */
+            .orbit-path {
+                stroke-width: 4px;
+                stroke: var(--mat-sys-error) !important;
+                opacity: 1;
+            }
+
+            /* Action visuelle pour la ceinture (Anneau en pointillé) */
+            .belt-guide {
+                opacity: 1;
+                border-color: var(--mat-sys-error) !important;
+                border-style: solid;
+            }
+        }
+    }
+}
+
 /* 7. TROU NOIR */
 .black-hole-core {
     width: 56px !important; height: 56px !important;
@@ -692,6 +749,11 @@ $cell-size: 100px;
     height: 100%;
     pointer-events: none; /* Laisse passer la souris */
     z-index: 1; /* Sera toujours en dessous des planètes (z-index: 5) */
+}
+
+.orbit-path {
+    transition: stroke-width 0.2s ease, stroke 0.2s ease, opacity 0.2s ease;
+    opacity: 0.7;
 }
 
 /* =========================================================

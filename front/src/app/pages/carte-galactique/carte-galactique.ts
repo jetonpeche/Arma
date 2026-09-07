@@ -29,7 +29,7 @@ import { Secteur, SecteurSynchroniser } from '@models/Secteur';
 import { AjouterModifierSecteur } from '@modals/ajouter-modifier-secteur/ajouter-modifier-secteur';
 import { MatSelectModule } from '@angular/material/select';
 
-type OutilEdition = 'main' | 'pinceau' | 'gomme' | 'orbite' | 'orbite-ronde' | 'orbite-decalage';
+type OutilEdition = 'main' | 'pinceau' | 'gomme' | 'orbite' | 'orbite-ronde' | 'orbite-decalage' | 'ceinture' | 'ceinture-ronde';
 
 @Component({
   selector: 'app-carte-galactique',
@@ -97,6 +97,7 @@ export class CarteGalactique implements OnInit, OnDestroy
     private startDragY = 0;
     private readonly TAILLE_CASE = 100;
     private readonly estMobile = window.innerWidth <= 800;
+    private cacheRoches = new Map<string, any[]>();
 
     private planeteServ = inject(PlaneteService);
     private systemeServ = inject(SystemeService);
@@ -340,16 +341,27 @@ export class CarteGalactique implements OnInit, OnDestroy
                 if (planete) 
                 {
                     // GESTION DU DESSIN D'ORBITE
-                    if (this.outilActif() === 'orbite' || this.outilActif() === 'orbite-ronde' || this.outilActif() === 'orbite-decalage') 
+                    if (["orbite", "orbite-ronde", "orbite-decalage", "ceinture", "ceinture-ronde"].includes(this.outilActif())) 
                     {
                         this.planeteEditionOrbite.set(planete);
                         if (!planete.listeOrbite) 
                             planete.listeOrbite = [];
 
-                        if (this.outilActif() === 'orbite' || this.outilActif() === 'orbite-ronde') 
+                        if (["orbite", "orbite-ronde", "ceinture", "ceinture-ronde"].includes(this.outilActif())) 
                         {
+                            const EST_CEINTURE = this.outilActif() == "ceinture" || this.outilActif() == "ceinture-ronde";
+
                             // On ajoute une NOUVELLE orbite vierge au tableau
-                            planete.listeOrbite.push({ orbiteX: 0, orbiteY: 0, orbiteAngle: 0, orbiteDecalageX: 0, orbiteDecalageY: 0 });
+                            planete.listeOrbite.push({ 
+                                orbiteX: 0, 
+                                orbiteY: 0, 
+                                orbiteAngle: 0, 
+                                orbiteDecalageX: 0, 
+                                orbiteDecalageY: 0, 
+                                estCeintureAsteroide: EST_CEINTURE, 
+                                densite: 'dense' 
+                            });
+
                             this.indexOrbiteEdition.set(planete.listeOrbite.length - 1);
                         } 
                         else if (this.outilActif() === 'orbite-decalage') 
@@ -606,12 +618,54 @@ export class CarteGalactique implements OnInit, OnDestroy
         }
     }
 
+    protected GenererRocheCeinture(orbiteX: number, orbiteY: number, densite: string | undefined): any[]
+    {
+        const cle = `statique-chaos-${orbiteX}-${orbiteY}-${densite}`;
+        if (this.cacheRoches.has(cle)) return this.cacheRoches.get(cle)!;
+
+        const roches = [];
+        const rayonX = orbiteX / 2;
+        const rayonY = (orbiteY || orbiteX) / 2;
+        const perimetre = Math.PI * (rayonX + rayonY);
+        
+        const espacement = densite === 'dense' ? 12 : 30; 
+        let nombreRoches = Math.max(12, Math.min(Math.floor(perimetre / espacement), 450));
+
+        // Niveau de dispersion
+        const largeurCeinture = densite === 'dense' ? 35 : 20;
+
+        for (let i = 0; i < nombreRoches; i++)
+        {
+            const angle = (i / nombreRoches) * Math.PI * 2;
+            
+            // Chaos géométrique : dispersion large et irrégulière autour du rail
+            const chaosX = Math.sin(i * 17.3) * largeurCeinture;
+            const chaosY = Math.cos(i * 23.8) * largeurCeinture;
+            
+            // Chaos des tailles : certaines roches seront minuscules, d'autres massives (de 0.4 à 1.2)
+            const echelle = 0.4 + (Math.abs(Math.sin(i * 89.73)) * 0.8); 
+            const rotation = (i * 73) % 360; 
+
+            // Positionnement final
+            const x = Math.cos(angle) * rayonX + chaosX;
+            const y = Math.sin(angle) * rayonY + chaosY;
+
+            roches.push({ x, y, rotation, scale: echelle });
+        }
+
+        this.cacheRoches.set(cle, roches);
+        return roches;
+    }
+
     protected RetourVueGalactique(): void
     {
+        this.modeEdition.set(false);
+        this.outilActif.set('main');
         this.systemeActif.set(null);
         this.astreSelectionneDetails.set(null);
         this.RecentrerCarte();
         this.listePlanete.set([]);
+        this.cacheRoches.clear();
     }
 
     protected SupprimerOrbiteCiblee(event: MouseEvent, planete: PlaneteOrigine, indexOrbite: number): void 
@@ -621,20 +675,28 @@ export class CarteGalactique implements OnInit, OnDestroy
 
         event.stopPropagation(); 
 
-        this.listePlanete.update(liste => 
-        {
-            const c = liste.find(p => p.id == planete.id);
-            if (c && c.listeOrbite) 
-            {
-                // On supprime l'orbite exacte sur laquelle on a cliqué
-                c.listeOrbite.splice(indexOrbite, 1); 
+        const LISTE = planete.listeOrbite.filter((x, index) => index != indexOrbite);
+        this.planeteServ.ModifierOrbite(planete.id, LISTE).subscribe({
+            next: () => 
+                {
+                    const orbiteCible = planete.listeOrbite[indexOrbite];
 
-                this.planeteServ.ModifierOrbite(c.id, c.listeOrbite).subscribe({
-                    next: () => this.snackBarServ.Ok("Tracé orbital ciblé détruit")
-                });
-            }
+                    if (orbiteCible?.estCeintureAsteroide)
+                    {
+                        const cle = `statique-large-${orbiteCible.orbiteX}-${orbiteCible.orbiteY}-${orbiteCible.densite}`;
+                        this.cacheRoches.delete(cle);
+                    }
 
-            return [...liste];
+                    this.listePlanete.update(liste => 
+                    {
+                        const c = liste.find(p => p.id == planete.id);
+                        c.listeOrbite = LISTE;
+
+                        return [...liste];
+                    });
+
+                    this.snackBarServ.Ok("Tracé orbital ciblé détruit")
+                }
         });
     }
 
@@ -703,8 +765,10 @@ export class CarteGalactique implements OnInit, OnDestroy
                     } 
                     else 
                     {
+                        const EST_ROND = this.outilActif() == "orbite-ronde" || this.outilActif() == "ceinture-ronde";
+
                         cible.listeOrbite[index].orbiteX = diametre;
-                        cible.listeOrbite[index].orbiteY = this.outilActif() === 'orbite-ronde' ? diametre : Math.round(diametre * 0.5);
+                        cible.listeOrbite[index].orbiteY = EST_ROND ? diametre : Math.round(diametre * 0.5);
                         cible.listeOrbite[index].orbiteAngle = angle;
                     }
                 }

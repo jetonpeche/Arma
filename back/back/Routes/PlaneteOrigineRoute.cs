@@ -310,11 +310,13 @@ public static class PlaneteOrigineRoute
 
           var liste = _requete.Select(x => new Orbite
           {
-               OrbiteAngle = x.OrbiteAngle,
-               OrbiteDecalageX = x.OrbiteDecalageX,
-               OrbiteDecalageY = x.OrbiteDecalageY,
-               OrbiteX = x.OrbiteX,
-               OrbiteY = x.OrbiteY
+                OrbiteAngle = x.OrbiteAngle,
+                OrbiteDecalageX = x.OrbiteDecalageX,
+                OrbiteDecalageY = x.OrbiteDecalageY,
+                OrbiteX = x.OrbiteX,
+                OrbiteY = x.OrbiteY,
+                EstCeintureAsteroide = x.EstCeintureAsteroide,
+                Densite = x.Densite
           }).ToList();
 
           var nb = db.GetCollection<PlaneteOrigine>().UpdateMany(_ => new()

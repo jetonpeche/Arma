@@ -122,6 +122,22 @@
                     <mat-icon>radio_button_unchecked</mat-icon>
                 </button>
 
+                <!-- LA CEINTURE -->
+                <button matMiniFab 
+                        [class.outil-actif]="outilActif() === 'ceinture'"
+                        (click)="outilActif.set('ceinture')" 
+                        matTooltip="Tracer une ceinture d'asteroïdes (Ovale)">
+                    <mat-icon>blur_circular</mat-icon>
+                </button>
+
+                <!-- LA CEINTURE RONDE -->
+                <button matMiniFab 
+                        [class.outil-actif]="outilActif() === 'ceinture-ronde'"
+                        (click)="outilActif.set('ceinture-ronde')" 
+                        matTooltip="Tracer une ceinture d'asteroïdes (Ronde)">
+                    <mat-icon>group_work</mat-icon>
+                </button>
+
                 <!-- DÉPLACER L'ORBITE -->
                 <button matMiniFab 
                         [class.outil-actif]="outilActif() === 'orbite-decalage'"
@@ -308,6 +324,7 @@
 
     <!-- LE CANEVAS (La carte qui bouge) -->
     <div class="galactic-canvas" 
+         [class.outil-gomme]="outilActif() == 'gomme'"
          [class.edit-mode]="modeEdition()"
          [style.transform]="'translate(' + panX() + 'px, ' + panY() + 'px) scale(' + echelle() + ')'">
         
@@ -383,18 +400,70 @@
                     <div class="orbit-container" [style.grid-column]="planete.positionX" [style.grid-row]="planete.positionY">
                         @for(orbite of planete.listeOrbite; track $index) 
                         {
-                            <svg class="visual-orbit" 
-                                 [style.width.px]="orbite.orbiteX" 
-                                 [style.height.px]="orbite.orbiteY || orbite.orbiteX"
-                                 [style.transform]="'translate(calc(-50% + ' + (orbite.orbiteDecalageX || 0) + 'px), calc(-50% + ' + (orbite.orbiteDecalageY || 0) + 'px)) rotate(' + (orbite.orbiteAngle || 0) + 'deg)'">
-                                <ellipse cx="50%" cy="50%" rx="48%" ry="48%" 
-                                         fill="none" 
-                                         [attr.stroke]="ObtenirCouleurAppartenance(planete.appartenance)" 
-                                         stroke-width="2" 
-                                         stroke-dasharray="6, 4"
-                                         class="orbit-path"
-                                         (click)="SupprimerOrbiteCiblee($event, planete, $index)" />
-                            </svg>
+
+                            <!-- orbite normal -->
+                            @if(orbite.estCeintureAsteroide !== true) 
+                            {
+                                <svg class="visual-orbit" 
+                                        [style.width.px]="orbite.orbiteX" 
+                                        [style.height.px]="orbite.orbiteY || orbite.orbiteX"
+                                        [style.transform]="'translate(calc(-50% + ' + (orbite.orbiteDecalageX || 0) + 'px), calc(-50% + ' + (orbite.orbiteDecalageY || 0) + 'px)) rotate(' + (orbite.orbiteAngle || 0) + 'deg)'">
+
+                                    <g class="orbit-group">
+                                        <!-- 1. La hitbox pour supprimer -->
+                                        <ellipse cx="50%" cy="50%" rx="48%" ry="48%" 
+                                                 fill="none" 
+                                                 stroke="transparent" 
+                                                 stroke-width="24" 
+                                                 class="orbit-hitbox"
+                                                 pointer-events="stroke"
+                                                 (click)="SupprimerOrbiteCiblee($event, planete, $index)" />
+
+                                        <!-- 2. Le visuel -->
+                                        <ellipse cx="50%" cy="50%" rx="48%" ry="48%" 
+                                                 fill="none" 
+                                                 [attr.stroke]="ObtenirCouleurAppartenance(planete.appartenance)" 
+                                                 stroke-width="2" 
+                                                 stroke-dasharray="6, 4"
+                                                 class="orbit-path" 
+                                                 pointer-events="none" />
+                                    </g>
+                                </svg>
+                            }
+                            <!-- Si c'est une CEINTURE D'ASTÉROÏDES (Vrais cailloux) -->
+                            @else 
+                            {
+                                <div class="asteroid-belt-container visual-orbit orbit-group"
+                                         [style.width.px]="orbite.orbiteX" 
+                                         [style.height.px]="orbite.orbiteY || orbite.orbiteX"
+                                         [style.transform]="'translate(calc(-50% + ' + (orbite.orbiteDecalageX || 0) + 'px), calc(-50% + ' + (orbite.orbiteDecalageY || 0) + 'px)) rotate(' + (orbite.orbiteAngle || 0) + 'deg)'">
+                                         
+                                         <!-- 1. LA HITBOX (Ligne invisible de 24px pour attraper le clic de la gomme) -->
+                                         <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible; z-index: 10;">
+                                             <ellipse cx="50%" cy="50%" rx="48%" ry="48%" 
+                                                      fill="none" 
+                                                      stroke="transparent" 
+                                                      stroke-width="24" 
+                                                      class="orbit-hitbox"
+                                                      (click)="SupprimerOrbiteCiblee($event, planete, $index)" />
+                                         </svg>
+
+                                         <!-- 2. LE GUIDE VISUEL -->
+                                         <div class="belt-guide" [style.border-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
+
+                                         <!-- 3. LES ROCHES STATIQUES -->
+                                         @for (roche of GenererRocheCeinture(orbite.orbiteX, orbite.orbiteY, orbite.densite); track $index) 
+                                         {
+                                            <div class="rock"
+                                                [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"
+                                                [style.position]="'absolute'"
+                                                [style.left]="'calc(50% + ' + roche.x + 'px)'"
+                                                [style.top]="'calc(50% + ' + roche.y + 'px)'"
+                                                [style.transform]="'translate(-50%, -50%) rotate(' + roche.rotation + 'deg) scale(' + roche.scale + ')'">
+                                            </div>
+                                         }
+                                    </div>
+                            }
                         }
                     </div>
                 }
@@ -450,7 +519,8 @@
                         }
                         
                         <!-- FORME 4 : ASTÉROÏDES (Cluster de débris) -->
-                        @else if(planete.type === eTypePlanete.Asteroide) {
+                        @else if(planete.type === eTypePlanete.Asteroide) 
+                        {
                             <div class="asteroid-cluster">
                                 @for(roche of GenererTableauDensite(planete.densite); track $index) {
                                     <div class="rock asteroid-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>

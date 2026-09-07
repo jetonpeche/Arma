@@ -31,7 +31,7 @@ public sealed class PlaneteOrigine
      public int Type { get; set; }
 
      public int Densite { get; set; }
-     public bool EstPlaneteOrigine { get; set; }
+    public bool EstPlaneteOrigine { get; set; }
 
     public decimal PositionX { get; set; }
     public decimal PositionY { get; set; }
@@ -45,5 +45,7 @@ public sealed class Orbite
      public decimal OrbiteDecalageY { get; set; }
      public decimal OrbiteX { get; set; }
      public decimal OrbiteY { get; set; }
-     public decimal OrbiteAngle { get; set; }
+    public decimal OrbiteAngle { get; set; }
+    public bool EstCeintureAsteroide { get; set; }
+    public string Densite { get; set; } = null!;
 }

@@ -7,4 +7,6 @@ public sealed class PlaneteOrbiteRequete
      public decimal OrbiteX { get; set; }
      public decimal OrbiteY { get; set; }
      public decimal OrbiteAngle { get; set; }
+    public bool EstCeintureAsteroide { get; set; }
+    public string Densite { get; set; } = null!;
 }
