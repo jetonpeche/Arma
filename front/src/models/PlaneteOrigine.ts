@@ -19,7 +19,7 @@ export type PlaneteOrigine =
     positionY: number,
 
     /** Pour carte galactique */
-    shadowStyle: string
+    shadowStyle?: string
 }
 
 export type Orbite = 
@@ -48,12 +48,14 @@ export type PlaneteOrigineLeger =
 
 export type PlaneteOrigineRequete = 
 {
-    nom: string,
+    idSysteme: number,
+    nom: string | null,
     description: string | null,
     statut: EStatusPlanete,
     estPlaneteOrigine: boolean,
     type: number,
     appartenance: number,
+    densite: number,
 
     positionX: number,
     positionY: number

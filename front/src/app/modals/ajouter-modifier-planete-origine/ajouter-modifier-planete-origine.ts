@@ -73,8 +73,8 @@ export class AjouterModifierPlaneteOrigine implements OnInit
             this.labelBtn.set("Modifier");
 
         this.form = new FormGroup({
-            nom: new FormControl(this.matDialogData?.nom ?? "", [Validators.required, Validators.maxLength(70)]),
-            description: new FormControl(this.matDialogData?.description ?? "", [Validators.maxLength(400)]),
+            nom: new FormControl(this.matDialogData?.nom ?? null, [Validators.maxLength(70)]),
+            description: new FormControl(this.matDialogData?.description ?? null, [Validators.maxLength(400)]),
             statut: new FormControl(this.matDialogData?.statut ?? EStatusPlanete.Inhabiter, [Validators.required]),
             appartenance: new FormControl(this.matDialogData?.appartenance ?? EAppartenancePlanete.Neutre, [Validators.required]),
             type: new FormControl(this.matDialogData?.type ?? ETypePlanete.Planete, [Validators.required]),

@@ -88,7 +88,7 @@ public static class PlaneteOrigineRoute
                .OrderBy(x => x.Nom);
 
           if (!string.IsNullOrWhiteSpace(_recherche))
-               requete = requete.Where(x => x.Nom.ToLower().Contains(_recherche.ToLower()));
+               requete = requete.Where(x => x.Nom != null && x.Nom.ToLower().Contains(_recherche.ToLower()));
 
           var liste = requete.Select(x => new PlaneteOrigineReponse
           {
@@ -160,7 +160,7 @@ public static class PlaneteOrigineRoute
               .Select(x => new PlaneteOrigineLegerReponse
               {
                    Id = x.Id,
-                   Nom = x.Nom
+                   Nom = x.Nom!
               }).ToArray();
 
           return Results.Extensions.Ok(requete, PlaneteOrigineLegerReponseContext.Default);
@@ -175,7 +175,7 @@ public static class PlaneteOrigineRoute
             .Select(x => new PlaneteOrigineLegerReponse
             {
                 Id = x.Id,
-                Nom = x.Nom
+                Nom = x.Nom!
             }).ToArray();
 
         return Results.Extensions.Ok(requete, PlaneteOrigineLegerReponseContext.Default);
@@ -210,16 +210,16 @@ public static class PlaneteOrigineRoute
         
         var grade = new PlaneteOrigine
         {
-               Nom = _requete.Nom.XSS(),
-               Systeme = new Systeme { Id = _requete.IdSysteme },
-               Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
-               PositionX = _requete.PositionX,
-               PositionY = _requete.PositionY,
-               EstPlaneteOrigine = _requete.EstPlaneteOrigine,
-               Statut = _requete.Statut,
-               Densite = _requete.Densite,
-               Appartenance = _requete.Appartenance,
-               Type = _requete.Type
+            Nom = string.IsNullOrWhiteSpace(_requete.Nom) ? null : _requete.Nom.XSS(),
+            Systeme = new Systeme { Id = _requete.IdSysteme },
+            Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
+            PositionX = _requete.PositionX,
+            PositionY = _requete.PositionY,
+            EstPlaneteOrigine = _requete.EstPlaneteOrigine,
+            Statut = _requete.Statut,
+            Densite = _requete.Densite,
+            Appartenance = _requete.Appartenance,
+            Type = _requete.Type
         };
 
         int id = col.Insert(grade).AsInt32;
@@ -283,7 +283,7 @@ public static class PlaneteOrigineRoute
 
         var ok = db.GetCollection<PlaneteOrigine>().UpdateMany(_ => new()
         {
-            Nom = _requete.Nom.XSS(),
+            Nom = string.IsNullOrWhiteSpace(_requete.Nom) ? null : _requete.Nom.XSS(),
             Systeme = new Systeme { Id = _requete.IdSysteme },
             Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
             PositionX = _requete.PositionX,

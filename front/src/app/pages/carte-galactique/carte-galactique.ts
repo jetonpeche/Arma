@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { EUrl } from '@enums/EUrl';
 import { Droit } from '@models/DroitGroupe';
-import { PlaneteConnecter, PlaneteOrigine } from '@models/PlaneteOrigine';
+import { PlaneteConnecter, PlaneteOrigine, PlaneteOrigineRequete } from '@models/PlaneteOrigine';
 import { Systeme, SystemeConnecter } from '@models/Systeme';
 import { AuthentificationService } from '@services/AuthentificationService';
 import { PlaneteService } from '@services/PlaneteService';
@@ -29,7 +29,7 @@ import { Secteur, SecteurSynchroniser } from '@models/Secteur';
 import { AjouterModifierSecteur } from '@modals/ajouter-modifier-secteur/ajouter-modifier-secteur';
 import { MatSelectModule } from '@angular/material/select';
 
-type OutilEdition = 'main' | 'pinceau' | 'gomme' | 'orbite' | 'orbite-ronde' | 'orbite-decalage' | 'ceinture' | 'ceinture-ronde' | 'densite';
+type OutilEdition = 'main' | 'pinceau' | 'gomme' | 'orbite' | 'orbite-ronde' | 'orbite-decalage' | 'ceinture' | 'ceinture-ronde' | 'densite' | 'amas';
 
 @Component({
   selector: 'app-carte-galactique',
@@ -84,6 +84,7 @@ export class CarteGalactique implements OnInit, OnDestroy
     protected secteurActifId = signal<number | null>(null);
     protected verrouFrontiere = signal<boolean>(true);
     protected estEnTrainDePeindre = signal<boolean>(false);
+    protected densitePinceau = signal<number>(2);
 
     protected archiveSecteurs = new Map<string, number>(); 
     protected brouillonSecteurs = signal<Map<string, number>>(new Map()); 
@@ -199,6 +200,12 @@ export class CarteGalactique implements OnInit, OnDestroy
     protected AfficherNomAstre(astre: any): string 
     {
         return astre ? astre.nom.toUpperCase() : '';
+    }
+
+    protected ActiverOutilDensite(niveau: number): void 
+    {
+        this.densitePinceau.set(niveau);
+        this.outilActif.set('densite');
     }
 
     protected ModifierSecteurActif(): void
@@ -351,7 +358,6 @@ export class CarteGalactique implements OnInit, OnDestroy
                         {
                             const EST_CEINTURE = this.outilActif() == "ceinture" || this.outilActif() == "ceinture-ronde";
 
-                            // On ajoute une NOUVELLE orbite vierge au tableau
                             planete.listeOrbite.push({ 
                                 orbiteX: 0, 
                                 orbiteY: 0, 
@@ -359,7 +365,7 @@ export class CarteGalactique implements OnInit, OnDestroy
                                 orbiteDecalageX: 0, 
                                 orbiteDecalageY: 0, 
                                 estCeintureAsteroide: EST_CEINTURE, 
-                                densite: 2
+                                densite: this.densitePinceau()
                             });
 
                             this.indexOrbiteEdition.set(planete.listeOrbite.length - 1);
@@ -382,6 +388,68 @@ export class CarteGalactique implements OnInit, OnDestroy
         
         this.astreSelectionneDetails.set(null);
         const estClicDroit = event instanceof MouseEvent && event.button === 2;
+
+        if (this.modeEdition() && this.systemeActif() && this.outilActif() === 'amas' && !estClicDroit) 
+        {
+            const gridElement = this.viewport().nativeElement.querySelector('.tactical-grid');
+            const rect = gridElement.getBoundingClientRect();
+            const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+            const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+
+            const caseX = Math.floor(((clientX - rect.left) / this.echelle()) / this.TAILLE_CASE) + 1;
+            const caseY = Math.floor(((clientY - rect.top) / this.echelle()) / this.TAILLE_CASE) + 1;
+
+            if (caseX >= 1 && caseX <= 100 && caseY >= 1 && caseY <= 100) 
+            {
+                const caseOccupee = this.listePlanete().find(p => p.positionX === caseX && p.positionY === caseY);
+                
+                if (!caseOccupee) 
+                {
+                    event.stopPropagation();
+
+                    const nouvelAmas = {
+                        nom: null,
+                        idSysteme: this.systemeActif().id,
+                        positionX: caseX,
+                        positionY: caseY,
+                        type: this.eTypePlanete.Asteroide,
+                        statut: this.eStatusPlanete.RocheSpatial,
+                        appartenance: EAppartenancePlanete.Neutre,
+                        densite: this.densitePinceau(),
+                        description: null,
+                        estPlaneteOrigine: false
+                    };
+
+                    this.planeteServ.Ajouter(nouvelAmas).subscribe({
+                        next: (retour) => 
+                        {
+                            const asteroide: PlaneteOrigine =
+                            {
+                                nom: null,
+                                idSysteme: this.systemeActif().id,
+                                positionX: nouvelAmas.positionX,
+                                positionY: nouvelAmas.positionY,
+                                type: nouvelAmas.type,
+                                statut: nouvelAmas.statut,
+                                appartenance: nouvelAmas.appartenance,
+                                densite: this.densitePinceau(),
+                                description: null,
+                                estPlaneteOrigine: false,
+                                id: retour,
+                                listeOrbite: [],
+                                nomFichier: null
+                            }
+
+                            this.listePlanete.update(liste => [...liste, asteroide]);
+                            this.snackBarServ.Ok("Champ de débris déployé");
+                        },
+                        error: () => this.snackBarServ.Erreur("Échec du déploiement de l'amas.")
+                    });
+                    
+                    return;
+                }
+            }
+        }
 
         if (this.modeEdition() && !this.systemeActif() && this.outilActif() != 'main') 
         {
@@ -545,7 +613,21 @@ export class CarteGalactique implements OnInit, OnDestroy
             return;
         }
 
-        if (this.outilActif() !== 'main') 
+        if (this.outilActif() == 'densite' && planete.type === this.eTypePlanete.Asteroide) 
+        {
+            const ancienneCle = `cluster-eclate-${planete.id}-${planete.densite}`;
+            this.cacheRoches.delete(ancienneCle);
+
+            planete.densite = this.densitePinceau();
+
+            this.planeteServ.Modifier(planete.id, planete).subscribe({
+                next: () => this.snackBarServ.Ok(`Amas calibré au niveau ${this.densitePinceau()}`)
+            });
+
+            return;
+        }
+
+        if (this.outilActif() != 'main') 
             return;
 
         const cibleA = this.planeteSelectionneRoute();
@@ -712,14 +794,10 @@ export class CarteGalactique implements OnInit, OnDestroy
             const ancienneCle = `statique-large-${orbiteCible.orbiteX}-${orbiteCible.orbiteY}-${orbiteCible.densite}`;
             this.cacheRoches.delete(ancienneCle);
 
-            // 2. On boucle la densité (Si = 3, on repasse à 1, sinon on ajoute 1)
-            orbiteCible.densite = (orbiteCible.densite >= 3 || !orbiteCible.densite) ? 1 : orbiteCible.densite + 1;
+            orbiteCible.densite = this.densitePinceau();
 
             this.planeteServ.ModifierOrbite(planete.id, planete.listeOrbite).subscribe({ 
-                next: () => 
-                {
-                    this.snackBarServ.Ok("Tracé orbital ciblé modifié");
-                }
+                next: () => this.snackBarServ.Ok(`Ceinture calibrée au niveau ${this.densitePinceau()}`)
             });
         }
     }
@@ -1134,42 +1212,47 @@ export class CarteGalactique implements OnInit, OnDestroy
         }
     }
 
-    protected GenererTableauDensite(densite: number = 2): any[] 
+    protected GenererRochesCluster(planeteId: number, densite: number = 2): any[] 
     {
-        let nombreDeRoches = 4;
-        let rayonDispersion = 20;
+        const cle = `cluster-eclate-${planeteId}-${densite}`;
+        if (this.cacheRoches.has(cle)) return this.cacheRoches.get(cle)!;
 
-        if (densite === 2) 
+        let nombreDeRoches = 4;
+        let rayonDispersion = 35; 
+
+        if (densite === 2)
         {
-            nombreDeRoches = 8;
-            rayonDispersion = 35;
+            nombreDeRoches = 10; 
+            rayonDispersion = 55;
         } 
         else if (densite >= 3) 
         {
-            nombreDeRoches = 15;
-            rayonDispersion = 55;
+            nombreDeRoches = 25;
+            rayonDispersion = 80;
         }
         
         const roches = [];
         
-        for (let i = 0; i < nombreDeRoches; i++) 
-        {
-            // Chaos directionnel (Répartition en spirale dorée pour un bel amas)
-            const angle = i * 2.39996; // 137.5 degrés
+        for (let i = 0; i < nombreDeRoches; i++) {
+            // Répartition en cercle (comme les ceintures) pour forcer l'étalement dans toutes les directions
+            const angle = (i / nombreDeRoches) * Math.PI * 2;
             
-            // Distance aléatoire par rapport au centre du point
-            const rayon = (Math.abs(Math.sin(i * 45.2)) * rayonDispersion); 
+            // Distance du centre : on force l'éloignement (minimum 20% du rayon max, max 100%)
+            const eloignement = 0.2 + (Math.abs(Math.sin(i * 33.7)) * 0.8);
+            const rayon = rayonDispersion * eloignement;
             
+            // Coordonnées relatives au point zéro (le centre absolu)
             const x = Math.cos(angle) * rayon;
             const y = Math.sin(angle) * rayon;
             
-            // Variation des tailles (de très petit à très gros)
-            const echelle = 0.5 + (Math.abs(Math.cos(i * 12.7)) * 0.9);
+            // Échelles chaotiques (de 0.3 pour les poussières à 1.3 pour les astéroïdes massifs)
+            const echelle = 0.3 + (Math.abs(Math.cos(i * 19.4)) * 1.0);
             const rotation = (i * 113) % 360;
 
             roches.push({ x, y, rotation, scale: echelle });
         }
         
+        this.cacheRoches.set(cle, roches);
         return roches;
     }
 

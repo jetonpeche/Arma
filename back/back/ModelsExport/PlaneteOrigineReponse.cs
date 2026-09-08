@@ -9,7 +9,7 @@ public sealed class PlaneteOrigineReponse
 
     public int IdSysteme { get; set; }
 
-    public string Nom { get; set; } = null!;
+    public string? Nom { get; set; }
     public string? Description { get; set; }
     public string? NomFichier { get; set; }
     public int Statut { get; set; }

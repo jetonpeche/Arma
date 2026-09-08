@@ -5,8 +5,8 @@ namespace back.ModelsImport;
 public sealed class PlaneteOrigineRequete
 {
     public required int IdSysteme { get; set; }
-    public required string Nom{ get; set; }
-    public required string Description { get; set; }
+    public string? Nom{ get; set; }
+    public string? Description { get; set; }
     public required int Statut { get; set; }
     public required int Type { get; set; }
     public required int Appartenance { get; set; }

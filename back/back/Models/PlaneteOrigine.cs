@@ -10,7 +10,7 @@ public sealed class PlaneteOrigine
      [BsonRef]
      public Systeme Systeme { get; set; } = null!;
 
-     public string Nom { get; set; } = null!;
+     public string? Nom { get; set; }
      public string? Description { get; set; }
      public string? NomFichier { get; set; }
 

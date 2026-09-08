@@ -140,10 +140,28 @@
 
                 <button matMiniFab 
                         [class.outil-actif]="outilActif() === 'densite'"
-                        (click)="outilActif.set('densite')" 
-                        matTooltip="Ajuster la densité (Cliquer sur une ceinture pour modifier 1 ➔ 2 ➔ 3)">
+                        [matMenuTriggerFor]="menuDensite"
+                        matTooltip="Outil Densité (Actuel : Niveau {{ densitePinceau() }})">
                     <mat-icon>tune</mat-icon>
                 </button>
+
+                <mat-menu #menuDensite="matMenu" class="unsc-context-menu">
+                    <div class="menu-header">
+                        <mat-icon>tune</mat-icon> CALIBRATION (1 à 3)
+                    </div>
+                    <button mat-menu-item (click)="ActiverOutilDensite(1)">
+                        <mat-icon [color]="densitePinceau() === 1 ? 'primary' : ''">filter_1</mat-icon> 
+                        Niveau 1 (Clairsemé)
+                    </button>
+                    <button mat-menu-item (click)="ActiverOutilDensite(2)">
+                        <mat-icon [color]="densitePinceau() === 2 ? 'primary' : ''">filter_2</mat-icon> 
+                        Niveau 2 (Standard)
+                    </button>
+                    <button mat-menu-item (click)="ActiverOutilDensite(3)">
+                        <mat-icon [color]="densitePinceau() === 3 ? 'primary' : ''">filter_3</mat-icon> 
+                        Niveau 3 (Massif)
+                    </button>
+                </mat-menu>
 
                 <!-- DÉPLACER L'ORBITE -->
                 <button matMiniFab 
@@ -151,6 +169,14 @@
                         (click)="outilActif.set('orbite-decalage')" 
                         matTooltip="Désaxer l'orbite">
                     <mat-icon>open_with</mat-icon>
+                </button>
+
+                <!-- DÉPLOIEMENT RAPIDE D'AMAS ASTEROIDES -->
+                <button matMiniFab 
+                        [class.outil-actif]="outilActif() === 'amas'"
+                        (click)="outilActif.set('amas')" 
+                        matTooltip="Déployer un Amas (Clic sur une case vide pour créer un champ d'astéroïdes)">
+                    <mat-icon>scatter_plot</mat-icon>
                 </button>
 
                 <!-- GOMME DE PRÉCISION -->
@@ -483,6 +509,7 @@
                 {
                     <div class="grid-node planet-node" 
                          [style.--shadow-style]="planete.shadowStyle"
+                         [class.is-asteroid]="planete.type === eTypePlanete.Asteroide"
                          [class.statut-guerre]="planete.statut === eStatusPlanete.EnGuerre"
                          [class.statut-vitrifie]="planete.statut === eStatusPlanete.Vitrifier || planete.statut === eStatusPlanete.VitrifierPartielle"
                          [style.grid-column]="planete.positionX" 
@@ -530,11 +557,10 @@
                         @else if(planete.type === eTypePlanete.Asteroide) 
                         {
                             <div class="asteroid-cluster">
-                                @for(roche of GenererTableauDensite(planete.densite); track $index) 
+                                @for(roche of GenererRochesCluster(planete.id, planete.densite); track $index) 
                                 {
-                                    <div class="rock asteroid-core" 
+                                    <div class="rock" 
                                          [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"
-                                         [style.position]="'absolute'"
                                          [style.left]="'calc(50% + ' + roche.x + 'px)'"
                                          [style.top]="'calc(50% + ' + roche.y + 'px)'"
                                          [style.transform]="'translate(-50%, -50%) rotate(' + roche.rotation + 'deg) scale(' + roche.scale + ')'"
@@ -579,9 +605,12 @@
                             <div class="node-core planet-core" [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"></div>
                         }
 
-                        <div class="node-label">
-                            <span>{{ planete.nom | uppercase }}</span>
-                        </div>
+                        @if (planete.nom) 
+                        {
+                            <div class="node-label">
+                                <span>{{ planete.nom | uppercase }}</span>
+                            </div>
+                        }
 
                         <!-- PANNEAU HOLOGRAPHIQUE DE DÉTAILS -->
                         <div class="node-details" (click)="$event.stopPropagation()">
