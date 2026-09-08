@@ -281,11 +281,14 @@ public static class PlaneteOrigineRoute
         if (!db.GetCollection<Systeme>().Exists(x => x.Id == _requete.IdSysteme))
             return Results.NotFound("Le systeme n'existe pas");
 
+        string? nom = string.IsNullOrWhiteSpace(_requete.Nom) ? null : _requete.Nom.XSS();
+        string? description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS();
+
         var ok = db.GetCollection<PlaneteOrigine>().UpdateMany(_ => new()
         {
-            Nom = string.IsNullOrWhiteSpace(_requete.Nom) ? null : _requete.Nom.XSS(),
+            Nom = nom,
             Systeme = new Systeme { Id = _requete.IdSysteme },
-            Description = string.IsNullOrWhiteSpace(_requete.Description) ? null : _requete.Description.XSS(),
+            Description = description,
             PositionX = _requete.PositionX,
             PositionY = _requete.PositionY,
             Statut = _requete.Statut,
