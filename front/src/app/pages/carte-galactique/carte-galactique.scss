@@ -466,9 +466,14 @@ $cell-size: 100px;
     }
 
     .rock {
-        clip-path: polygon(20% 0%, 80% 10%, 100% 60%, 70% 100%, 30% 90%, 0% 50%);
+position: absolute;
+        background-color: #7f8fa6; 
         width: 32px; height: 32px;
+        clip-path: polygon(20% 0%, 80% 10%, 100% 60%, 70% 100%, 30% 90%, 0% 50%);
         background-image: radial-gradient(circle at 30% 30%, transparent 20%, rgba(0,0,0,0.6));
+        
+        /* CORRECTIF : Application du même ombrage 3D que pour les amas fixes */
+        box-shadow: var(--shadow-style, inset -3px -3px 10px rgba(0,0,0,0.5));
     }
 }
 

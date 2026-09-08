@@ -4,7 +4,7 @@ export type PlaneteOrigine =
 {
     id: number,
     idSysteme: number,
-    nom: string,
+    nom: string | null,
     description: string | null,
     nomFichier: string,
     estPlaneteOrigine: boolean,

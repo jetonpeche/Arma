@@ -489,7 +489,7 @@
                                          @for (roche of GenererRocheCeinture(orbite.orbiteX, orbite.orbiteY, orbite.densite); track $index) 
                                          {
                                             <div class="rock"
-                                                [style.background-color]="ObtenirCouleurAppartenance(planete.appartenance)"
+                                                [style.--shadow-style]="planete.shadowStyle"
                                                 [style.position]="'absolute'"
                                                 [style.left]="'calc(50% + ' + roche.x + 'px)'"
                                                 [style.top]="'calc(50% + ' + roche.y + 'px)'"

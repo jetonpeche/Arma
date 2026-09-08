@@ -809,21 +809,29 @@ export class CarteGalactique implements OnInit, OnDestroy
         this.isDragging.set(false);
         this.estEnTrainDePeindre.set(false);
 
-        // === SAUVEGARDE DES ORBITES (DESSIN & DÉCALAGE) ===
         const planeteCible = this.planeteEditionOrbite();
+        const indexEdition = this.indexOrbiteEdition();
         
-        if (planeteCible)
+        if (planeteCible && indexEdition !== null)
         {
-            // Sécurité : On supprime les orbites de taille 0 (si l'officier a cliqué sans glisser)
-            planeteCible.listeOrbite = planeteCible.listeOrbite.filter(o => o.orbiteX > 5);
+            const orbiteEnCours = planeteCible.listeOrbite[indexEdition];
+
+            if (this.outilActif() !== 'orbite-decalage' && orbiteEnCours.orbiteX <= 10) 
+            {
+                planeteCible.listeOrbite.splice(indexEdition, 1);
+                this.planeteEditionOrbite.set(null);
+                this.indexOrbiteEdition.set(null);
+
+                return; 
+            }
 
             this.planeteServ.ModifierOrbite(planeteCible.id, planeteCible.listeOrbite).subscribe({
-                next: () => this.snackBarServ.Ok("Orbites synchronisées avec succès."),
-                error: () => this.snackBarServ.Erreur("Échec de la transmission orbitale.")
+                next: () => this.snackBarServ.Ok("Orbites synchronisées avec succès"),
+                error: () => this.snackBarServ.Erreur("Échec de la transmission orbitale")
             });
         }
         
-        // On relâche la prise
+        // On relâche la prise dans tous les cas
         this.planeteEditionOrbite.set(null);
         this.indexOrbiteEdition.set(null);
     }
@@ -1132,7 +1140,15 @@ export class CarteGalactique implements OnInit, OnDestroy
                     if(estUneModification)
                     {
                         this.listePlanete.update(liste => 
-                            liste.map(x => x.id === retour.id ? retour : x)
+                            liste.map(x => 
+                            {
+                                if (x.id === retour.id)
+                                {
+                                    retour.listeOrbite = x.listeOrbite;
+                                    return retour;
+                                }
+                                return x;
+                            })
                         );
                     }
                     else
@@ -1160,9 +1176,9 @@ export class CarteGalactique implements OnInit, OnDestroy
         let messageCible = "";
         
         if (this.planeteCibleMenu()) 
-            messageCible = "de la planète " + this.planeteCibleMenu().nom;
+            messageCible = "de la planète " + this.planeteCibleMenu().nom ? this.planeteCibleMenu().nom : "";
 
-        else if (this.systemeCibleMenu()) 
+        else if (this.systemeCibleMenu())
             messageCible = "du système " + this.systemeCibleMenu().nom + " et de tous ses astres";
 
         const MESSAGE = `Confirmez-vous la suppression ${messageCible} ?`;
