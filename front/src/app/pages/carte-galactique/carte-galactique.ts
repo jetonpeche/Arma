@@ -93,6 +93,15 @@ export class CarteGalactique implements OnInit, OnDestroy
     private propulseursActifs = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
     private boucleAnimation: number | null = null;
     private vitesseNavigation = 20;
+
+    // --- MOTEUR EDGE SCROLLING (Nouveau) ---
+    private margeScrollEdge = 30; // Distance en pixels pour déclencher le défilement
+    private vitesseEdgeScroll = 10;
+    private scrollDirectionX = 0;
+    private scrollDirectionY = 0;
+    private derniereSourisX = 0;
+    private derniereSourisY = 0;
+    private boucleEdgeScroll: number | null = null;
     
     private startDragX = 0;
     private startDragY = 0;
@@ -762,7 +771,6 @@ export class CarteGalactique implements OnInit, OnDestroy
 
         const orbiteCible = planete.listeOrbite[indexOrbite];
 
-        // ACTION 1 : LA GOMME
         if (this.outilActif() === 'gomme') 
         {
             const LISTE = planete.listeOrbite.filter((x, index) => index != indexOrbite);
@@ -806,6 +814,9 @@ export class CarteGalactique implements OnInit, OnDestroy
     @HostListener('window:touchend')
     protected onMouseUp(): void 
     {
+        this.scrollDirectionX = 0;
+        this.scrollDirectionY = 0;
+
         this.isDragging.set(false);
         this.estEnTrainDePeindre.set(false);
 
@@ -843,48 +854,31 @@ export class CarteGalactique implements OnInit, OnDestroy
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
 
+        // Mise à jour de la mémoire radar
+        this.derniereSourisX = clientX;
+        this.derniereSourisY = clientY;
+
         if (this.planeteEditionOrbite() && this.indexOrbiteEdition() !== null) 
         {
-            const planete = this.planeteEditionOrbite();
-            const index = this.indexOrbiteEdition();
+            // 1. On dessine l'orbite avec la position actuelle
+            this.MettreAJourOrbiteEnCours();
+
+            // 2. Analyse de proximité des bords de l'écran
+            const viewportRect = this.viewport().nativeElement.getBoundingClientRect();
             
-            const gridElement = this.viewport().nativeElement.querySelector('.tactical-grid');
-            const rect = gridElement.getBoundingClientRect();
+            this.scrollDirectionX = 0;
+            this.scrollDirectionY = 0;
 
-            const xReel = (clientX - rect.left) / this.echelle();
-            const yReel = (clientY - rect.top) / this.echelle();
-            const pX = (planete.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
-            const pY = (planete.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+            if (clientX < viewportRect.left + this.margeScrollEdge) this.scrollDirectionX = 1; // Bord Gauche
+            else if (clientX > viewportRect.right - this.margeScrollEdge) this.scrollDirectionX = -1; // Bord Droit
 
-            const dx = xReel - pX;
-            const dy = yReel - pY;
-            
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const diametre = Math.round(distance * 2);
-            const angle = Math.round(Math.atan2(dy, dx) * (180 / Math.PI));
+            if (clientY < viewportRect.top + this.margeScrollEdge) this.scrollDirectionY = 1; // Bord Haut
+            else if (clientY > viewportRect.bottom - this.margeScrollEdge) this.scrollDirectionY = -1; // Bord Bas
 
-            this.listePlanete.update(liste => 
-            {
-                const cible = liste.find(p => p.id === planete.id);
-                if (cible && cible.listeOrbite[index]) 
-                {
-                    if (this.outilActif() === 'orbite-decalage') 
-                    {
-                        cible.listeOrbite[index].orbiteDecalageX = Math.round(dx);
-                        cible.listeOrbite[index].orbiteDecalageY = Math.round(dy);
-                    } 
-                    else 
-                    {
-                        const EST_ROND = this.outilActif() == "orbite-ronde" || this.outilActif() == "ceinture-ronde";
-
-                        cible.listeOrbite[index].orbiteX = diametre;
-                        cible.listeOrbite[index].orbiteY = EST_ROND ? diametre : Math.round(diametre * 0.5);
-                        cible.listeOrbite[index].orbiteAngle = angle;
-                    }
-                }
-
-                return [...liste];
-            });
+            // 3. Allumage des moteurs si on est sur un bord et qu'ils sont éteints
+            if ((this.scrollDirectionX !== 0 || this.scrollDirectionY !== 0) && !this.boucleEdgeScroll) {
+                this.LancerEdgeScrolling();
+            }
 
             return; 
         }
@@ -1359,6 +1353,73 @@ export class CarteGalactique implements OnInit, OnDestroy
             // Injection des variables CSS personnalisées sur l'élément
             p.shadowStyle = `inset ${shadowX}px ${shadowY}px 15px rgba(0,0,0,0.8)`;
         });
+    }
+
+    private MettreAJourOrbiteEnCours(): void 
+    {
+        const planete = this.planeteEditionOrbite();
+        const index = this.indexOrbiteEdition();
+        
+        if (!planete || index === null) return;
+
+        const gridElement = this.viewport().nativeElement.querySelector('.tactical-grid');
+        const rect = gridElement.getBoundingClientRect();
+
+        // On utilise la dernière position connue de la souris
+        const xReel = (this.derniereSourisX - rect.left) / this.echelle();
+        const yReel = (this.derniereSourisY - rect.top) / this.echelle();
+        const pX = (planete.positionX - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+        const pY = (planete.positionY - 1) * this.TAILLE_CASE + (this.TAILLE_CASE / 2);
+
+        const dx = xReel - pX;
+        const dy = yReel - pY;
+        
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const diametre = Math.round(distance * 2);
+        const angle = Math.round(Math.atan2(dy, dx) * (180 / Math.PI));
+
+        this.listePlanete.update(liste => 
+        {
+            const cible = liste.find(p => p.id === planete.id);
+            if (cible && cible.listeOrbite[index]) 
+            {
+                if (this.outilActif() === 'orbite-decalage') 
+                {
+                    cible.listeOrbite[index].orbiteDecalageX = Math.round(dx);
+                    cible.listeOrbite[index].orbiteDecalageY = Math.round(dy);
+                } 
+                else 
+                {
+                    const EST_ROND = this.outilActif() == "orbite-ronde" || this.outilActif() == "ceinture-ronde";
+                    cible.listeOrbite[index].orbiteX = diametre;
+                    cible.listeOrbite[index].orbiteY = EST_ROND ? diametre : Math.round(diametre * 0.5);
+                    cible.listeOrbite[index].orbiteAngle = angle;
+                }
+            }
+            return [...liste];
+        });
+    }
+
+    private LancerEdgeScrolling(): void 
+    {
+        const update = () => {
+            // Si on lâche l'orbite ou si on quitte la bordure, on coupe les moteurs
+            if (!this.planeteEditionOrbite() || (this.scrollDirectionX === 0 && this.scrollDirectionY === 0)) {
+                this.boucleEdgeScroll = null;
+                return;
+            }
+
+            // 1. Déplacement de la caméra
+            this.panX.set(this.panX() + (this.scrollDirectionX * this.vitesseEdgeScroll));
+            this.panY.set(this.panY() + (this.scrollDirectionY * this.vitesseEdgeScroll));
+
+            // 2. Recalcul visuel de l'orbite (indispensable car la planète s'éloigne de la souris !)
+            this.MettreAJourOrbiteEnCours();
+
+            this.boucleEdgeScroll = requestAnimationFrame(update);
+        };
+        
+        this.boucleEdgeScroll = requestAnimationFrame(update);
     }
 
     private LancerMoteursCamera(): void 

@@ -27,7 +27,7 @@ public static class LogRoute
                 Id = x.Id,
                 NomAuteur = x.NomAuteur,
                 ListePersonnage = x.ListePersonnage,
-                DateString = x.DateCreation.ToString("g")
+                DateString = x.DateCreation.ToString("dd/MM/yyyy")
             })
             .FirstOrDefault();
 
