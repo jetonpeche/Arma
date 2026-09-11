@@ -18,4 +18,5 @@ public static class Constant
      public const string CHEMIN_IMG_CAMPAGNE = "/Photos/Campagne/";
      public const string CHEMIN_IMG_ORBAT = "/Photos/Orbat/";
      public const string CHEMIN_FICHIER_PRESET = "/Photos/Preset/";
+     public const string CHEMIN_FICHIER_BATAILLE_SPATIALE = "/Photos/Bataille/";
 }

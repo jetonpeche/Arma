@@ -1,4 +1,5 @@
-﻿using back.Extensions;
+﻿using back.Enums;
+using back.Extensions;
 using back.Models;
 using back.ModelsExport;
 using back.ModelsImport;
@@ -198,6 +199,10 @@ public static class VaisseauRoute
                          .GroupBy(a => a.Aeronef.Id)
                          .ToDictionary(g => g.Key, g => g.First()) ?? [];
 
+                    var dictModule = x.ListeModule
+                         .GroupBy(a => a.IdModuleDefaut)
+                         .ToDictionary(g => g.Key, g => g.First()) ?? [];
+
                    var dictStockageOccupe = x.ListeStockage?
                          .Where(s => s.Stockage != null)
                          .GroupBy(s => s.Stockage.Id)
@@ -209,6 +214,12 @@ public static class VaisseauRoute
                     {
                          Id = x.Id,
                          Information = x.Information,
+                         RayonDeplacement = x.Vaisseau.RayonDeplacement,
+                         RotationMaxDegres = x.Vaisseau.RotationMaxDegres,
+                         NomFichierSprite = x.Vaisseau.NomFichierSprite,
+                         EstEpave = x.EstEpave,
+                         NombreBataillesSurvecue = x.NombreBataillesSurvecue,
+                         NombreVaisseauDetruit = x.NombreVaisseauDetruit,
                          NomVaisseauAlias = x.NomVaisseau,
                          NomVaisseau = x.Vaisseau.Nom,
                          NomCommandant = x.NomCommandant,
@@ -236,7 +247,11 @@ public static class VaisseauRoute
                                    EstUsageUnique = y.EstUsageUnique,
                                    MunitionInfini = y.MunitionInfini,
                                    NbTourReload = y.NbTourReload,
-                                   NbNombreReloadParNbTour = y.NbNombreReloadParNbTour
+                                   NbNombreReloadParNbTour = y.NbNombreReloadParNbTour,
+                                   AngleOffsetDegres = y.AngleOffsetDegres,
+                                   AngleOuvertureDegres = y.AngleOuvertureDegres,
+                                   PorteeMaximale = y.PorteeMaximale,
+                                   PorteeMinimale = y.PorteeMinimale
                               };
                          })],
                          ListeStockage = [.. x.Vaisseau.ListeStockage.Select(y => 
@@ -254,6 +269,20 @@ public static class VaisseauRoute
                               };
                          })],
 
+                         ListeModule = [.. x.Vaisseau.ListeModuleDefaut.Select(y =>
+                         {
+                              var statut = dictModule.TryGetValue(y.Id, out var module);
+
+                              return new ModuleVaisseauPossederReponse
+                              {
+                                   Id = y.Id,
+                                   Nom = y.Nom,
+                                   Type = y.Type,
+                                   ImpactRotationPourcentage = y.ImpactRotationPourcentage,
+                                   ImpactVitessePourcentage = y.ImpactVitessePourcentage,
+                                   Statut = module?.Statut ?? EStatutModuleVaisseau.Operationnel
+                              };
+                         })],
                         ListeAeronef = [.. x.Vaisseau.ListeAeronef.Select(y =>
                         {
                               dictAeronef.TryGetValue(y.Aeronef.Id, out var aeronef);

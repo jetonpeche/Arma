@@ -12,4 +12,9 @@ public sealed class ArmementVaisseau
      public bool EstUsageUnique { get; set; }
      public int NbTourReload { get; set; }
      public int NbNombreReloadParNbTour { get; set; }
+
+     public float AngleOffsetDegres { get; set; }
+     public float AngleOuvertureDegres { get; set; }
+     public float PorteeMinimale { get; set; }
+     public float PorteeMaximale { get; set; }
 }
