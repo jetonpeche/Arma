@@ -22,9 +22,8 @@ public class CombatSession
 public sealed class PionVaisseauCombat
 {
     public Guid IdPion { get; set; }
-    public int IdVaisseauPosseder { get; set; }
-    public string NomAffichage { get; set; } = null!;
-    public string AssetSpriteUrl { get; set; } = null!;
+    public int IdVaisseau { get; set; }
+     public bool EstVaisseauPosseder { get; set; }
 
     // Données spatiales sur le Canvas
     public float PositionX { get; set; }
@@ -33,7 +32,7 @@ public sealed class PionVaisseauCombat
 
     // Contrôle du pion
     // Null = contrôlé uniquement par le MJ
-    public int? IdUtilisateurAssigner { get; set; } 
+    public int? IdUtilisateurAssigner { get; set; }
 
     // Gestion de la Visibilité Sélective
     public EModeVisibilite VisibiliteMode { get; set; } = EModeVisibilite.Tous;
@@ -43,8 +42,8 @@ public sealed class PionVaisseauCombat
 
 public sealed class ElementDecorCombat
 {
-    public Guid IdDecor { get; set; } = Guid.NewGuid();
-    public string AssetNomImage { get; set; } = null!;
+    public Guid IdDecor { get; set; }
+    public string NomImage { get; set; } = null!;
     
     public float PositionX { get; set; }
     public float PositionY { get; set; }

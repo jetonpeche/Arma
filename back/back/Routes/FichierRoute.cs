@@ -204,7 +204,10 @@ public static class FichierRoute
                col.Update(ressource);
           }
           else
+          {
+
                nouveauNomFichier = nomFichier;
+          }
 
           var baseUrl = Path.Join(Environment.CurrentDirectory, _cheminBase);
 
