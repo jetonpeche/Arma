@@ -2,7 +2,6 @@
 
 public sealed class ModifierDecorTransformRequete
 {
-     public required int IdSession { get; set; }
      public required Guid IdDecor { get; set; }
      public required float PositionX { get; set; }
      public required float PositionY { get; set; }

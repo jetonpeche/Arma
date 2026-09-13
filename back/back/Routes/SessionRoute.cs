@@ -32,12 +32,18 @@ public static class SessionRoute
                .ProducesNotFound()
                .Produces<string>();
 
-          builder.MapPut("modifier-decor-transform", ModifierDecorTransformAsync)
+          builder.MapPost("modifier-fond-transform/{idSession:int}", ModifierFondTransformAsync)
+               .WithDescription("Modifier le transform du fond et de la carte")
+               .ProducesBadRequest()
+               .ProducesNotFound()
+               .Produces<string>();
+
+          builder.MapPut("modifier-decor-transform/{idSession:int}", ModifierDecorTransformAsync)
                .WithDescription("Met à jour position, échelle, rotation d'un décor existant")
                .ProducesNotFound()
                .ProducesNoContent();
 
-          builder.MapPut("modifier-pion-transform", ModifierPionTransformAsync)
+          builder.MapPut("modifier-pion-transform/{idSession:int}", ModifierPionTransformAsync)
                .WithDescription("Met à jour position, échelle, rotation d'un décor existant")
                .ProducesNotFound()
                .ProducesNoContent();
@@ -272,18 +278,38 @@ public static class SessionRoute
           return Results.Ok(ConstruireUrlFichier(_httpContext, _requete.IdSession, nouveauNomFichier));
      }
 
+     static async Task<IResult> ModifierFondTransformAsync(
+          [FromRoute(Name = "idSession")] int _idSession,
+          [FromBody] ModifierFondTransformRequete _requete
+     )
+     {
+          if (_idSession <= 0)
+               return Results.NotFound("La session existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var nb = db.GetCollection<CombatSession>().UpdateMany(_ => new CombatSession
+          {
+               Hauteur = _requete.Hauteur,
+               Largeur = _requete.Largeur
+          }, x => x.Id == _idSession);
+
+          return nb > 0 ? Results.NoContent() : Results.NotFound("La session existe pas");
+     }
+
      static async Task<IResult> ModifierDecorTransformAsync(
+          [FromRoute(Name = "idSession")] int _idSession,
           [FromBody] ModifierDecorTransformRequete _requete
      )
      {
-          if (_requete.IdSession <= 0)
+          if (_idSession <= 0)
                return Results.NotFound("La session existe pas");
 
           if (_requete.IdDecor == Guid.Empty)
                return Results.NotFound("Le decor existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
-          var session = db.GetCollection<CombatSession>().FindById(_requete.IdSession);
+          var session = db.GetCollection<CombatSession>().FindById(_idSession);
 
           if (session is null) 
                return Results.NotFound("La session existe pas");
@@ -304,10 +330,11 @@ public static class SessionRoute
      }
 
      static async Task<IResult> ModifierPionTransformAsync(
+          [FromRoute(Name = "idSession")] int _idSession,
           [FromBody] ModifierPionTransformRequete _requete
      )
      {
-          if (_requete.IdSession <= 0)
+          if (_idSession <= 0)
                return Results.NotFound("La session existe pas");
 
           if (_requete.IdPion == Guid.Empty)
@@ -315,7 +342,7 @@ public static class SessionRoute
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var session = db.GetCollection<CombatSession>().FindById(_requete.IdSession);
+          var session = db.GetCollection<CombatSession>().FindById(_idSession);
 
           if (session is null)
                return Results.NotFound("La session existe pas");
