@@ -37,6 +37,11 @@ public static class SessionRoute
                .ProducesNotFound()
                .ProducesNoContent();
 
+          builder.MapPut("modifier-pion-transform", ModifierPionTransformAsync)
+               .WithDescription("Met à jour position, échelle, rotation d'un décor existant")
+               .ProducesNotFound()
+               .ProducesNoContent();
+
           builder.MapDelete("supprimer-fond/{idSession:int}", SupprimerFondAsync)
                .WithDescription("Supprime l'image de fond")
                .ProducesNotFound()
@@ -44,6 +49,11 @@ public static class SessionRoute
 
           builder.MapDelete("supprimer-decor/{idSession:int}/{idDecor:guid}", SupprimerDecorAsync)
                .WithDescription("Supprime un décor")
+               .ProducesNotFound()
+               .ProducesNoContent();
+
+          builder.MapDelete("supprimer-pion/{idSession:int}/{idPion:guid}", SupprimerPionAsync)
+               .WithDescription("Supprime l'image de fond")
                .ProducesNotFound()
                .ProducesNoContent();
 
@@ -116,7 +126,7 @@ public static class SessionRoute
                pion.IdVaisseau = vaisseauPosseder.Id;
 
                db.GetCollection<VaisseauPosseder>().Insert(vaisseauPosseder);
-               session.ListeVaisseauSurCarte.Add(pion);
+               session.ListePionSurCarte.Add(pion);
           }
 
           db.GetCollection<CombatSession>().Update(session);
@@ -293,6 +303,37 @@ public static class SessionRoute
           return Results.NoContent();
      }
 
+     static async Task<IResult> ModifierPionTransformAsync(
+          [FromBody] ModifierPionTransformRequete _requete
+     )
+     {
+          if (_requete.IdSession <= 0)
+               return Results.NotFound("La session existe pas");
+
+          if (_requete.IdPion == Guid.Empty)
+               return Results.NotFound("Le pion existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var session = db.GetCollection<CombatSession>().FindById(_requete.IdSession);
+
+          if (session is null)
+               return Results.NotFound("La session existe pas");
+
+          var vaisseau = session.ListePionSurCarte.FirstOrDefault(x => x.IdPion == _requete.IdPion);
+
+          if (vaisseau is null)
+               return Results.NotFound("Le pion existe pas");
+
+          vaisseau.RotationDegres = _requete.RotationDegres;
+          vaisseau.PositionX = _requete.PositionX;
+          vaisseau.PositionY = _requete.PositionY;
+
+          db.GetCollection<CombatSession>().Update(session);
+
+          return Results.NoContent();
+     }
+
      static async Task<IResult> SupprimerFondAsync(
           [FromRoute(Name = "idSession")] int _idSession
      )
@@ -350,6 +391,41 @@ public static class SessionRoute
           session.ListeDecorSurCarte.RemoveAll(x => x.IdDecor == _idDecor);
 
           db.GetCollection<CombatSession>().Update(session);
+
+          return Results.NoContent();
+     }
+
+     static async Task<IResult> SupprimerPionAsync(
+          [FromRoute(Name = "idSession")] int _idSession,
+          [FromRoute(Name = "idPion")] Guid _idPion
+     )
+     {
+          if (_idSession <= 0)
+               return Results.NotFound("La session existe pas");
+
+          if (_idPion == Guid.Empty)
+               return Results.NotFound("Le pion dans la session existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var session = db.GetCollection<CombatSession>().Query()
+               .Where(x => x.Id == _idSession)
+               .FirstOrDefault();
+
+          if (session is null)
+               return Results.NotFound("La session existe pas");
+
+          var pion = session.ListePionSurCarte.FirstOrDefault(x => x.IdPion == _idPion);
+
+          if (pion is null)
+               return Results.NotFound("Le pion dans la session existe pas");
+
+          session.ListePionSurCarte.RemoveAll(x => x.IdPion == _idPion);
+
+          db.GetCollection<CombatSession>().Update(session);
+
+          if(!pion.EstVaisseauPosseder)
+               db.GetCollection<VaisseauPosseder>().DeleteMany(x => x.Id == pion.IdVaisseau);
 
           return Results.NoContent();
      }

@@ -15,7 +15,7 @@ public class CombatSession
     public int Hauteur { get; set; }
 
     // Liste des pions actuellement déployés
-    public List<PionVaisseauCombat> ListeVaisseauSurCarte { get; set; } = [];
+    public List<PionVaisseauCombat> ListePionSurCarte { get; set; } = [];
     public List<ElementDecorCombat> ListeDecorSurCarte { get; set; } = [];
 }
 
