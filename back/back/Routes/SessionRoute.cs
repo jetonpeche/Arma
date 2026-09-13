@@ -14,6 +14,12 @@ public static class SessionRoute
                .WithDescription("Ajouter une nouvelle session")
                .ProducesCreated<int>();
 
+          builder.MapPost("ajouter-pion/{idSession:int}", AjouterPionAsync)
+               .WithDescription("Ajouter ou modifier un pion dans la session")
+               .ProducesBadRequest()
+               .ProducesNotFound()
+               .Produces<string>();
+
           builder.MapPost("upload-fond", UploadAsync)
                .WithDescription("Ajouter ou modifier l'image de font d'une session")
                .ProducesBadRequest()
@@ -61,6 +67,61 @@ public static class SessionRoute
           db.GetCollection<CombatSession>().Insert(session);
 
           return Results.Created("", session.Id);
+     }
+
+     static async Task<IResult> AjouterPionAsync(
+          [FromRoute(Name = "idSession")] int _idSession,
+          [FromBody] PionRequete _requete
+     )
+     {
+          if (_idSession <= 0)
+               return Results.NotFound("La session existe pas");
+
+          using var db = new LiteDatabase(Constant.BDD_NOM);
+
+          var session = db.GetCollection<CombatSession>().FindById(_idSession);
+
+          if(session is null)
+               return Results.NotFound("La session existe pas");
+
+          var pion = new PionVaisseauCombat
+          {
+               IdPion = Guid.NewGuid(),
+               IdVaisseau = _requete.IdVaisseau,
+               PositionX = _requete.PositionX,
+               PositionY  = _requete.PositionY,
+               RotationDegres = _requete.RotationDegres,
+               EstVaisseauPosseder = _requete.Appartenance == Enums.EPionAjout.Posseder,
+               IdUtilisateurAutoriser = [],
+               RevelationType = Enums.ETypeRevelation.Complet,
+               VisibiliteMode = _requete.Visibilite is 0 ? Enums.EModeVisibilite.Tous : Enums.EModeVisibilite.MjUniquement
+          };
+
+          if(_requete.Appartenance is Enums.EPionAjout.Pnj)
+          {
+               if (!db.GetCollection<Vaisseau>().Exists(x => x.Id == _requete.IdVaisseau))
+                    return Results.NotFound("Le vaisseau existe pas");
+
+               var vaisseauPosseder = new VaisseauPosseder
+               {
+                    EstEpave = false,
+                    EstPnj = true,
+                    Vaisseau = new Vaisseau { Id = _requete.IdVaisseau },
+                    NomCommandant = _requete.NomCommandant?.XSS(),
+                    NomVaisseau = _requete.NomVaisseau?.XSS(),
+                    NombreVaisseauDetruit = 0,
+                    NombreBataillesSurvecue = 0
+               };
+
+               pion.IdVaisseau = vaisseauPosseder.Id;
+
+               db.GetCollection<VaisseauPosseder>().Insert(vaisseauPosseder);
+               session.ListeVaisseauSurCarte.Add(pion);
+          }
+
+          db.GetCollection<CombatSession>().Update(session);
+
+          return Results.Created("", new { pion.IdPion, pion.IdVaisseau });
      }
 
      static async Task<IResult> UploadAsync(

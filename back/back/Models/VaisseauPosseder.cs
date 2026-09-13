@@ -18,8 +18,14 @@ public sealed class VaisseauPosseder
 
     public List<AeronefVaisseauPosseder> ListeAeronef { get; set; } = [];
 
+     /// <summary>
+     /// Liste module endommagé
+     /// </summary>
     public List<ModuleVaisseauPosseder> ListeModule { get; set; } = [];
 
+     /// <summary>
+     /// Equipage encore en vie
+     /// </summary>
     public EquipageVaisseau? Equipage { get; set; }
 
     public int NombreBataillesSurvecue { get; set; }
@@ -30,7 +36,6 @@ public sealed class VaisseauPosseder
     public string? Information { get; set; }
     public bool EstEpave { get; set; }
     public bool EstPnj { get; set; }
-    public int IdUtilisateur { get; set; }
 }
 
 public sealed class ModuleVaisseauPosseder

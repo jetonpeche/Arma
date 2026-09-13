@@ -21,23 +21,22 @@ public class CombatSession
 
 public sealed class PionVaisseauCombat
 {
-    public Guid IdPion { get; set; }
-    public int IdVaisseau { get; set; }
+     public Guid IdPion { get; set; }
+     public int IdVaisseau { get; set; }
      public bool EstVaisseauPosseder { get; set; }
 
-    // Données spatiales sur le Canvas
-    public float PositionX { get; set; }
-    public float PositionY { get; set; }
-    public float RotationDegres { get; set; }
+     // Données spatiales sur le Canvas
+     public float PositionX { get; set; }
+     public float PositionY { get; set; }
+     public float RotationDegres { get; set; }
 
-    // Contrôle du pion
-    // Null = contrôlé uniquement par le MJ
-    public int? IdUtilisateurAssigner { get; set; }
+     // Null = contrôlé uniquement par le MJ
+     public int? IdUtilisateurAssigner { get; set; }
 
-    // Gestion de la Visibilité Sélective
-    public EModeVisibilite VisibiliteMode { get; set; } = EModeVisibilite.Tous;
-    public List<int> IdUtilisateurAutoriser { get; set; } = [];
-    public ETypeRevelation RevelationType { get; set; } = ETypeRevelation.Complet;
+     // Gestion de la Visibilité Sélective
+     public EModeVisibilite VisibiliteMode { get; set; }
+     public List<int> IdUtilisateurAutoriser { get; set; } = [];
+     public ETypeRevelation RevelationType { get; set; }
 }
 
 public sealed class ElementDecorCombat
