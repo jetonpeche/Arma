@@ -431,5 +431,5 @@ public static class SessionRoute
      }
 
      static string ConstruireUrlFichier(HttpContext _httpContext, int _idSession, string _nomFichier)
-       => $"{_httpContext.Request.Scheme}://{_httpContext.Request.Host.Value}{_httpContext.Request.PathBase.Value}{Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE}{_idSession}/{_nomFichier}";
+          => $"{_httpContext.Request.Scheme}://{_httpContext.Request.Host.Value}{_httpContext.Request.PathBase.Value}{Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE}{_idSession}/{_nomFichier}";
 }
