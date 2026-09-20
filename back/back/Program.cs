@@ -47,6 +47,8 @@ app.UseForwardedHeaders(new()
      ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
+app.UseCors();
+
 // permet d'avoir acces au fichier du dossier Photos par url
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -57,7 +59,6 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Photos"
 });
 
-app.UseCors();
 // l'ordre est important
 app.UseAuthentication();
 app.UseAuthorization();

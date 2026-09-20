@@ -175,6 +175,11 @@
                     <span matListItemTitle>Carte galactique</span>
                 </a>
 
+                <a mat-list-item class="standalone-item" routerLink="editeur-carte" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+                    <mat-icon matListItemIcon class="admin-icon-orbat">schema</mat-icon> 
+                    <span matListItemTitle>Editeur carte</span>
+                </a>
+
                 <!-- ACCÈS ADMINISTRATEUR (Hors dossier) -->
                 @if(droit())
                 {

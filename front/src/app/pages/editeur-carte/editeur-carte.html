@@ -1,0 +1,78 @@
+<!-- Ancre invisible pour positionner le menu contextuel au clic droit -->
+<div style="visibility: hidden; position: fixed;" [style.left]="menuPosition.x" [style.top]="menuPosition.y"
+    [matMenuTriggerFor]="decorMenu">
+</div>
+
+<!-- Menu contextuel Décor -->
+<mat-menu #decorMenu="matMenu" class="unsc-context-menu">
+    @if (decorCibleMenu(); as decor)
+    {
+    <div class="menu-header">
+        <mat-icon>palette</mat-icon>
+        DÉCOR TACTIQUE
+    </div>
+
+    <!-- Option Visibilité : Bascule entre 0 (Tous) et 1 (MJ) -->
+    <button mat-menu-item (click)="basculerVisibiliteDecor(decor)">
+        <mat-icon [color]="decor.visibiliteMode === 1 ? 'accent' : 'primary'">
+            {{ decor.visibiliteMode === 1 ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+        <span>
+            {{ decor.visibiliteMode === 1 ? 'Rendre visible aux Joueurs' : 'Masquer aux Joueurs (MJ seul)' }}
+        </span>
+    </button>
+
+    <mat-divider></mat-divider>
+
+    <!-- Option Suppression (bonus pratique) -->
+    <button mat-menu-item class="btn-danger" (click)="supprimerDecor(decor)">
+        <mat-icon>delete</mat-icon>
+        <span>Supprimer le décor</span>
+    </button>
+    }
+</mat-menu>
+
+<div class="editeur-container" (contextmenu)="$event.preventDefault()">
+    <div class="toolbar">
+        <button matButton="filled" (click)="ouvrirModalCreationSession()">
+            <mat-icon>add_photo_alternate</mat-icon>
+            Nouvelle Session
+        </button>
+
+        <input #fileDecor type="file" (change)="onUploadDecor($event)" accept="image/*" style="display: none" />
+
+        <button matButton="filled" (click)="fileDecor.click()" [disabled]="!idSessionActuelle()">
+            <mat-icon>add_photo_alternate</mat-icon>
+            Ajouter Décor
+        </button>
+
+        @if (spriteFond())
+        {
+        <div class="panneau-fond">
+            <mat-icon class="icone-fond">aspect_ratio</mat-icon>
+
+            <mat-form-field subscriptSizing="dynamic" class="champ-dim">
+                <mat-label>Largeur</mat-label>
+                <input matInput type="number" [ngModel]="carteLargeur" (ngModelChange)="changerLargeurFond($event)" />
+            </mat-form-field>
+
+            <button mat-icon-button (click)="conserverRatio.set(!conserverRatio())"
+                [matTooltip]="conserverRatio() ? 'Ratio verrouillé' : 'Ratio libre'">
+                <mat-icon>{{ conserverRatio() ? 'link' : 'link_off' }}</mat-icon>
+            </button>
+
+            <mat-form-field subscriptSizing="dynamic" class="champ-dim">
+                <mat-label>Hauteur</mat-label>
+                <input matInput type="number" [ngModel]="carteHauteur" (ngModelChange)="changerHauteurFond($event)" />
+            </mat-form-field>
+
+            <button matMiniFab (click)="sauvegarderDimensionsFond()"
+                matTooltip="Enregistrer les dimensions">
+                <mat-icon>save</mat-icon>
+            </button>
+        </div>
+        }
+    </div>
+
+    <div #canvasContainer class="canvas-wrapper" [class.grabbing]="isDragging()"></div>
+</div>

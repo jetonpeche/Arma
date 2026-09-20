@@ -20,29 +20,30 @@ export class SessionCombatService
         return this.http.post<number>(`${this.BASE_API}/initialiser`, INFO).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    AjouterFond(_fichier: File, _hauteur: number, _largeur: number): Observable<string>
+    AjouterFond(_idSession: number,  _fichier: File, _hauteur: number, _largeur: number): Observable<string>
     {
         const FORM_DATA = new FormData();
         FORM_DATA.append("Fichier", _fichier, _fichier.name);
         FORM_DATA.append("Hauteur", _hauteur.toString());
-        FORM_DATA.append("Hauteur", _hauteur.toString());
+        FORM_DATA.append("Largeur", _largeur.toString());
+        FORM_DATA.append("IdSession", _idSession.toString());
 
         return this.http.post<string>(`${this.BASE_API}/upload-fond`, FORM_DATA).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    AjouterDecor(_decor: DecorRequete): Observable<string>
+    AjouterDecor(_decor: DecorRequete): Observable<{idDecor: string, urlImage: string }>
     {
         const FORM_DATA = new FormData();
         FORM_DATA.append("Fichier", _decor.fichier, _decor.fichier.name);
-        FORM_DATA.append("positionX", _decor.positionX.toString());
-        FORM_DATA.append("positionY", _decor.positionY.toString());
-        FORM_DATA.append("echelle", _decor.echelle.toString());
-        FORM_DATA.append("ordreCalque", _decor.ordreCalque.toString());
-        FORM_DATA.append("rotationDegres", _decor.rotationDegres.toString());
-        FORM_DATA.append("visibiliteMode", _decor.visibiliteMode.toString());
-        FORM_DATA.append("idSession", _decor.idSession.toString());
+        FORM_DATA.append("PositionX", _decor.positionX.toString());
+        FORM_DATA.append("PositionY", _decor.positionY.toString());
+        FORM_DATA.append("Echelle", _decor.echelle.toString());
+        FORM_DATA.append("OrdreCalque", _decor.ordreCalque.toString());
+        FORM_DATA.append("RotationDegres", _decor.rotationDegres.toString());
+        FORM_DATA.append("VisibiliteMode", _decor.visibiliteMode.toString());
+        FORM_DATA.append("IdSession", _decor.idSession.toString());
 
-        return this.http.post<string>(`${this.BASE_API}/upload-decor`, FORM_DATA).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.post<{idDecor: string, urlImage: string }>(`${this.BASE_API}/upload-decor`, FORM_DATA).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     AjouterPion(_idSession: number, _pion: PionRequete): Observable<string>

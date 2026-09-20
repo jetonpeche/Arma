@@ -14,7 +14,7 @@ export const connecterGuard: CanActivateFn = (route, state) =>
         EUrl.Boutique, EUrl.Personnage, EUrl.Specialite, EUrl.Medaille, 
         EUrl.HistoriqueCampagne, EUrl.Grade, EUrl.PlaneteOrigine, 
         EUrl.Vaisseau, EUrl.Formation, EUrl.Aeronef, EUrl.Orbat,
-        "/cimetiere", "/flotte", "/carte-galactique"
+        "/cimetiere", "/flotte", "/carte-galactique", "/editeur-carte"
     ];
 
     if (routesAccèsLibre.includes(state.url)) 

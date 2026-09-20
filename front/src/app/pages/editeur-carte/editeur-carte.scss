@@ -1,0 +1,114 @@
+:host {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 112px); 
+    background-color: #0a111a;
+    overflow: hidden;
+}
+
+.toolbar {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 100;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    pointer-events: none;
+
+    button, input, mat-form-field {
+        pointer-events: auto;
+    }
+}
+
+.editeur-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background-color: #0a111a;
+    user-select: none;
+    touch-action: none;
+}
+
+.canvas-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+    cursor: grab;
+
+    &.grabbing {
+        cursor: grabbing;
+    }
+
+    canvas {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+
+.panneau-fond {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(10, 17, 26, 0.9);
+    border: 1px solid rgba(0, 168, 255, 0.4);
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #00a8ff;
+
+    .champ-dim {
+        width: 110px;
+
+        ::ng-deep .mat-mdc-form-field-infix {
+            display: flex !important;
+            align-items: center !important; // Centrage vertical uniquement
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            min-height: 40px !important;
+        }
+
+        /* Masquer les flèches des inputs number */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    }
+}
+
+@media screen and (max-width: 800px) 
+{
+    .toolbar {
+        top: auto;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .panneau-fond {
+        width: 100%;
+        box-sizing: border-box;
+        justify-content: space-between;
+        padding: 6px 10px;
+        gap: 6px;
+
+        .icone-fond {
+            display: none;
+        }
+
+        .champ-dim {
+            flex: 1;
+            min-width: 70px;
+        }
+    }
+}

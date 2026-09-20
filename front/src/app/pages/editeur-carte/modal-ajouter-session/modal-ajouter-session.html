@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>[ INITIALISATION DE MISSION SPATIALE ]</h2>
+
+    <mat-dialog-content style="display: flex; flex-direction: column; gap: 16px; min-width: 380px;">
+      <mat-form-field appearance="outline">
+        <mat-label>Désignation de l'engagement</mat-label>
+        <input matInput [(ngModel)]="nomSession" placeholder="Ex: Bataille de Reach - Secteur 4" required />
+      </mat-form-field>
+
+      <div class="upload-zone">
+        <input #fileInput type="file" (change)="onFichierSelectionne($event)" accept="image/*" style="display: none" />
+        <button mat-stroked-button type="button" (click)="fileInput.click()">
+          <mat-icon>upload_file</mat-icon>
+          {{ fichierSelectionne() ? fichierSelectionne()!.name : 'Sélectionner la carte stellaire' }}
+        </button>
+
+        @if (fichierSelectionne()) {
+          <span class="info-dim">Résolution : {{ largeurDetectee() }} x {{ hauteurDetectee() }} px</span>
+        }
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="dialogRef.close()">Annuler</button>
+      <button mat-flat-button color="primary" 
+              [disabled]="!nomSession.trim() || !fichierSelectionne()" 
+              (click)="valider()">
+        Déployer
+      </button>
+    </mat-dialog-actions>

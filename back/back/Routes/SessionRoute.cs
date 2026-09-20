@@ -24,15 +24,17 @@ public static class SessionRoute
                .WithDescription("Ajouter ou modifier l'image de font d'une session")
                .ProducesBadRequest()
                .ProducesNotFound()
-               .Produces<string>();
+               .Produces<string>()
+               .DisableAntiforgery();
 
           builder.MapPost("upload-decor", UploadDecorAsync)
                .WithDescription("Ajouter ou modifier l'image de font d'une session")
                .ProducesBadRequest()
                .ProducesNotFound()
-               .Produces<string>();
+               .Produces<string>()
+               .DisableAntiforgery();
 
-          builder.MapPost("modifier-fond-transform/{idSession:int}", ModifierFondTransformAsync)
+          builder.MapPut("modifier-fond-transform/{idSession:int}", ModifierFondTransformAsync)
                .WithDescription("Modifier le transform du fond et de la carte")
                .ProducesBadRequest()
                .ProducesNotFound()
@@ -229,6 +231,7 @@ public static class SessionRoute
           if (!Directory.Exists(baseUrl))
                Directory.CreateDirectory(baseUrl);
 
+          Guid idDecor = Guid.NewGuid();
           if (_requete.IdDecor.HasValue)
           {
                var decor = session.ListeDecorSurCarte.FirstOrDefault(x => x.IdDecor == _requete.IdDecor.Value);
@@ -258,7 +261,7 @@ public static class SessionRoute
                nouveauNomFichier = $"{Guid.NewGuid()}{Path.GetExtension(_requete.Fichier.FileName)}";
                var decor = new ElementDecorCombat
                {
-                    IdDecor = Guid.NewGuid(),
+                    IdDecor = idDecor,
                     Echelle = _requete.Echelle,
                     PositionX = _requete.PositionX,
                     PositionY = _requete.PositionY,
@@ -275,7 +278,7 @@ public static class SessionRoute
           using var stream = File.Create(Path.Combine(baseUrl, nouveauNomFichier));
           await _requete.Fichier.CopyToAsync(stream);
           
-          return Results.Ok(ConstruireUrlFichier(_httpContext, _requete.IdSession, nouveauNomFichier));
+          return Results.Ok(new { IdDecor = idDecor, UrlImage = ConstruireUrlFichier(_httpContext, _requete.IdSession, nouveauNomFichier) });
      }
 
      static async Task<IResult> ModifierFondTransformAsync(

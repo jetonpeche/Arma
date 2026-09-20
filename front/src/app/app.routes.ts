@@ -8,6 +8,12 @@ export const routes: Routes = [
         title: "Accueil"
     },
     {
+        path: "editeur-carte",
+        loadComponent: () => import("./pages/editeur-carte/editeur-carte").then(x => x.EditeurCarte),
+        title: "Editeur carte",
+        canActivate: [connecterGuard]
+    },
+    {
         path: "connexion",
         loadComponent: () => import("./pages/connexion/connexion").then(x => x.ConnexionPage),
         title: "Connexion"
