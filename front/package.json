@@ -23,7 +23,7 @@
   "private": true,
   "packageManager": "npm@11.6.3",
   "dependencies": {
-    "@angular/cdk": "^21.2.23",
+    "@angular/cdk": "~21.0.1",
     "@angular/common": "^21.2.23",
     "@angular/compiler": "^21.2.23",
     "@angular/core": "^21.2.23",
@@ -38,8 +38,8 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular/build": "^21.2.23",
-    "@angular/cli": "^21.2.23",
+    "@angular/build": "^21.0.0",
+    "@angular/cli": "^21.0.0",
     "@angular/compiler-cli": "^21.2.23",
     "baseline-browser-mapping": "^2.9.18",
     "typescript": "~5.9.2"
