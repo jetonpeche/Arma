@@ -10,11 +10,7 @@ public static class SessionRoute
 {
     public static RouteGroupBuilder AjouterRouteSession(this RouteGroupBuilder builder)
     {
-          builder.MapPost("initialiser", CreerAsync)
-               .WithDescription("Ajouter une nouvelle session")
-               .ProducesCreated<int>();
-
-          builder.MapPost("ajouter-pion/{idSession:int}", AjouterPionAsync)
+          builder.MapPost("ajouter-pion", AjouterPionAsync)
                .WithDescription("Ajouter ou modifier un pion dans la session")
                .ProducesBadRequest()
                .ProducesNotFound()
@@ -34,33 +30,33 @@ public static class SessionRoute
                .Produces<string>()
                .DisableAntiforgery();
 
-          builder.MapPut("modifier-fond-transform/{idSession:int}", ModifierFondTransformAsync)
+          builder.MapPut("modifier-fond-transform", ModifierFondTransformAsync)
                .WithDescription("Modifier le transform du fond et de la carte")
                .ProducesBadRequest()
                .ProducesNotFound()
                .Produces<string>();
 
-          builder.MapPut("modifier-decor-transform/{idSession:int}", ModifierDecorTransformAsync)
+          builder.MapPut("modifier-decor-transform", ModifierDecorTransformAsync)
                .WithDescription("Met à jour position, échelle, rotation d'un décor existant")
                .ProducesNotFound()
                .ProducesNoContent();
 
-          builder.MapPut("modifier-pion-transform/{idSession:int}", ModifierPionTransformAsync)
+          builder.MapPut("modifier-pion-transform", ModifierPionTransformAsync)
                .WithDescription("Met à jour position, échelle, rotation d'un décor existant")
                .ProducesNotFound()
                .ProducesNoContent();
 
-          builder.MapDelete("supprimer-fond/{idSession:int}", SupprimerFondAsync)
+          builder.MapDelete("supprimer-fond", SupprimerFondAsync)
                .WithDescription("Supprime l'image de fond")
                .ProducesNotFound()
                .ProducesNoContent();
 
-          builder.MapDelete("supprimer-decor/{idSession:int}/{idDecor:guid}", SupprimerDecorAsync)
+          builder.MapDelete("supprimer-decor/{idDecor:guid}", SupprimerDecorAsync)
                .WithDescription("Supprime un décor")
                .ProducesNotFound()
                .ProducesNoContent();
 
-          builder.MapDelete("supprimer-pion/{idSession:int}/{idPion:guid}", SupprimerPionAsync)
+          builder.MapDelete("supprimer-pion/{idPion:guid}", SupprimerPionAsync)
                .WithDescription("Supprime l'image de fond")
                .ProducesNotFound()
                .ProducesNoContent();
@@ -68,39 +64,13 @@ public static class SessionRoute
           return builder;
     }
 
-     static async Task<IResult> CreerAsync(
-          [FromBody] CreerSessionRequete _requete
-     )
-     {
-          using var db = new LiteDatabase(Constant.BDD_NOM);
-
-          var session = new CombatSession
-          {
-               NomPartie = _requete.Nom.XSS(),
-               NomImageCarte = "",
-               Hauteur = 0,
-               Largeur = 0
-          };
-
-          db.GetCollection<CombatSession>().Insert(session);
-
-          return Results.Created("", session.Id);
-     }
-
      static async Task<IResult> AjouterPionAsync(
-          [FromRoute(Name = "idSession")] int _idSession,
           [FromBody] PionRequete _requete
      )
      {
-          if (_idSession <= 0)
-               return Results.NotFound("La session existe pas");
-
-          using var db = new LiteDatabase(Constant.BDD_NOM);
-
-          var session = db.GetCollection<CombatSession>().FindById(_idSession);
-
-          if(session is null)
-               return Results.NotFound("La session existe pas");
+        using var db = new LiteDatabase(Constant.BDD_NOM);
+        
+        var session = db.GetCollection<CombatSession>().Query().First();
 
           var pion = new PionVaisseauCombat
           {
@@ -149,10 +119,7 @@ public static class SessionRoute
      {
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var session = db.GetCollection<CombatSession>().FindById(_requete.IdSession);
-
-          if (session is null)
-               return Results.NotFound("La session existe pas");
+          var session = db.GetCollection<CombatSession>().Query().First();
 
           var resultat = _requete.Fichier.Verifier(1_000_000, []);
 
@@ -184,15 +151,15 @@ public static class SessionRoute
                nouveauNomFichier = session.NomImageCarte;
           }
 
-          var baseUrl = Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE, session.Id.ToString());
+          var baseUrl = Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE);
 
           if (!Directory.Exists(baseUrl))
                Directory.CreateDirectory(baseUrl);
 
-          using var stream = File.Create(Path.Combine(baseUrl, nouveauNomFichier));
+          await using var stream = File.Create(Path.Combine(baseUrl, nouveauNomFichier));
           await _requete.Fichier.CopyToAsync(stream);
 
-          return Results.Ok(ConstruireUrlFichier(_httpContext, _requete.IdSession, nouveauNomFichier));
+          return Results.Ok(ConstruireUrlFichier(_httpContext, nouveauNomFichier));
      }
 
      static async Task<IResult> UploadDecorAsync(
@@ -200,15 +167,9 @@ public static class SessionRoute
           [FromForm] SessionFichierDecorRequete _requete
      )
      {
-          if (_requete.IdSession <= 0)
-               return Results.NotFound("La session existe pas");
-
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var session = db.GetCollection<CombatSession>().FindById(_requete.IdSession);
-
-          if (session is null)
-               return Results.NotFound("La session existe pas");
+          var session = db.GetCollection<CombatSession>().Query().First();
 
           var resultat = _requete.Fichier.Verifier(1_000_000, []);
 
@@ -226,7 +187,7 @@ public static class SessionRoute
           }
 
           string? nouveauNomFichier = null;
-          var baseUrl = Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE, session.Id.ToString());
+          var baseUrl = Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE);
 
           if (!Directory.Exists(baseUrl))
                Directory.CreateDirectory(baseUrl);
@@ -275,19 +236,16 @@ public static class SessionRoute
           }
 
           db.GetCollection<CombatSession>().Update(session);
-          using var stream = File.Create(Path.Combine(baseUrl, nouveauNomFichier));
+          await using var stream = File.Create(Path.Combine(baseUrl, nouveauNomFichier));
           await _requete.Fichier.CopyToAsync(stream);
           
-          return Results.Ok(new { IdDecor = idDecor, UrlImage = ConstruireUrlFichier(_httpContext, _requete.IdSession, nouveauNomFichier) });
+          return Results.Ok(new { IdDecor = idDecor, UrlImage = ConstruireUrlFichier(_httpContext, nouveauNomFichier) });
      }
 
      static async Task<IResult> ModifierFondTransformAsync(
-          [FromRoute(Name = "idSession")] int _idSession,
           [FromBody] ModifierFondTransformRequete _requete
      )
      {
-          if (_idSession <= 0)
-               return Results.NotFound("La session existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
@@ -295,27 +253,20 @@ public static class SessionRoute
           {
                Hauteur = _requete.Hauteur,
                Largeur = _requete.Largeur
-          }, x => x.Id == _idSession);
+          }, x => x.Id > 0);
 
           return nb > 0 ? Results.NoContent() : Results.NotFound("La session existe pas");
      }
 
      static async Task<IResult> ModifierDecorTransformAsync(
-          [FromRoute(Name = "idSession")] int _idSession,
           [FromBody] ModifierDecorTransformRequete _requete
      )
      {
-          if (_idSession <= 0)
-               return Results.NotFound("La session existe pas");
-
           if (_requete.IdDecor == Guid.Empty)
                return Results.NotFound("Le decor existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
-          var session = db.GetCollection<CombatSession>().FindById(_idSession);
-
-          if (session is null) 
-               return Results.NotFound("La session existe pas");
+          var session = db.GetCollection<CombatSession>().Query().First();
 
           var decor = session.ListeDecorSurCarte.FirstOrDefault(x => x.IdDecor == _requete.IdDecor);
           if (decor is null) 
@@ -333,22 +284,15 @@ public static class SessionRoute
      }
 
      static async Task<IResult> ModifierPionTransformAsync(
-          [FromRoute(Name = "idSession")] int _idSession,
           [FromBody] ModifierPionTransformRequete _requete
      )
      {
-          if (_idSession <= 0)
-               return Results.NotFound("La session existe pas");
-
           if (_requete.IdPion == Guid.Empty)
                return Results.NotFound("Le pion existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
-          var session = db.GetCollection<CombatSession>().FindById(_idSession);
-
-          if (session is null)
-               return Results.NotFound("La session existe pas");
+          var session = db.GetCollection<CombatSession>().Query().First();
 
           var vaisseau = session.ListePionSurCarte.FirstOrDefault(x => x.IdPion == _requete.IdPion);
 
@@ -364,49 +308,37 @@ public static class SessionRoute
           return Results.NoContent();
      }
 
-     static async Task<IResult> SupprimerFondAsync(
-          [FromRoute(Name = "idSession")] int _idSession
-     )
+     static async Task<IResult> SupprimerFondAsync()
      {
-          if (_idSession <= 0)
-               return Results.NotFound("La session existe pas");
-
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
           var nomFichier = db.GetCollection<CombatSession>().Query()
-               .Where(x => x.Id == _idSession)
                .Select(x => x.NomImageCarte)
                .FirstOrDefault();
 
           if (string.IsNullOrWhiteSpace(nomFichier))
                return Results.NoContent();
 
-          File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE, _idSession.ToString(), nomFichier));
+          File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE, nomFichier));
 
           db.GetCollection<CombatSession>().UpdateMany(_ => new CombatSession
           {
                NomImageCarte = ""
-          },
-          x => x.Id == _idSession);
+          }, x => x.Id > 0);
 
           return Results.NoContent();
      }
 
      static async Task<IResult> SupprimerDecorAsync(
-          [FromRoute(Name = "idSession")] int _idSession,
           [FromRoute(Name = "idDecor")] Guid _idDecor
      )
      {
-          if (_idSession <= 0)
-               return Results.NotFound("La session existe pas");
-
           if (_idDecor == Guid.Empty)
                return Results.NotFound("Le decor dans la session existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
           var session = db.GetCollection<CombatSession>().Query()
-               .Where(x => x.Id == _idSession)
                .FirstOrDefault();
 
           if(session is null)
@@ -417,7 +349,7 @@ public static class SessionRoute
           if(decor is null)
                return Results.NotFound("Le decor dans la session existe pas");
 
-          File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE, _idSession.ToString(), decor.NomImage));
+          File.Delete(Path.Join(Environment.CurrentDirectory, Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE, decor.NomImage));
           session.ListeDecorSurCarte.RemoveAll(x => x.IdDecor == _idDecor);
 
           db.GetCollection<CombatSession>().Update(session);
@@ -426,20 +358,15 @@ public static class SessionRoute
      }
 
      static async Task<IResult> SupprimerPionAsync(
-          [FromRoute(Name = "idSession")] int _idSession,
           [FromRoute(Name = "idPion")] Guid _idPion
      )
      {
-          if (_idSession <= 0)
-               return Results.NotFound("La session existe pas");
-
           if (_idPion == Guid.Empty)
                return Results.NotFound("Le pion dans la session existe pas");
 
           using var db = new LiteDatabase(Constant.BDD_NOM);
 
           var session = db.GetCollection<CombatSession>().Query()
-               .Where(x => x.Id == _idSession)
                .FirstOrDefault();
 
           if (session is null)
@@ -460,6 +387,6 @@ public static class SessionRoute
           return Results.NoContent();
      }
 
-     static string ConstruireUrlFichier(HttpContext _httpContext, int _idSession, string _nomFichier)
-          => $"{_httpContext.Request.Scheme}://{_httpContext.Request.Host.Value}{_httpContext.Request.PathBase.Value}{Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE}{_idSession}/{_nomFichier}";
+     static string ConstruireUrlFichier(HttpContext _httpContext, string _nomFichier)
+          => $"{_httpContext.Request.Scheme}://{_httpContext.Request.Host.Value}{_httpContext.Request.PathBase.Value}{Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE}{_nomFichier}";
 }

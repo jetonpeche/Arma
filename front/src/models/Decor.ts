@@ -1,6 +1,5 @@
 export type DecorRequete =
 {
-    idSession: number,
     fichier: File,
     positionX: number,
     positionY: number,

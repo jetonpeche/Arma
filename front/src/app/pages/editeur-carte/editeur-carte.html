@@ -34,14 +34,10 @@
 
 <div class="editeur-container" (contextmenu)="$event.preventDefault()">
     <div class="toolbar">
-        <button matButton="filled" (click)="ouvrirModalCreationSession()">
-            <mat-icon>add_photo_alternate</mat-icon>
-            Nouvelle Session
-        </button>
 
         <input #fileDecor type="file" (change)="onUploadDecor($event)" accept="image/*" style="display: none" />
 
-        <button matButton="filled" (click)="fileDecor.click()" [disabled]="!idSessionActuelle()">
+        <button matButton="filled" (click)="fileDecor.click()">
             <mat-icon>add_photo_alternate</mat-icon>
             Ajouter Décor
         </button>

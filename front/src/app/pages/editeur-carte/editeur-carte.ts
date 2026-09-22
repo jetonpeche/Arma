@@ -4,8 +4,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { SessionCombatService } from '@services/SessionCombatService';
 import { Application, Container, Sprite, Assets, FederatedPointerEvent, Graphics } from 'pixi.js';
-import { ModalAjouterSession } from './modal-ajouter-session/modal-ajouter-session';
-import { switchMap } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,7 +27,6 @@ interface PionInteractifEtat
     sprite: Sprite;
     poignee: Graphics;
     dessinerArcs: (visible: boolean) => void;
-    idSession: number;
     idPion: string;
     isDragging: boolean;
     isRotating: boolean;
@@ -39,7 +36,6 @@ interface PionInteractifEtat
 export interface DecorVisualisation
 {
     idDecor: string;
-    idSession: number;
     urlSprite: string;
     positionX: number;
     positionY: number;
@@ -55,7 +51,6 @@ interface DecorInteractifEtat
     sprite: Sprite;
     poigneeRotation: Graphics;
     poigneeEchelle: Graphics;
-    idSession: number;
     idDecor: string;
     ordreCalque: number;
     visibiliteMode: number;
@@ -109,7 +104,6 @@ export class EditeurCarte implements OnInit, OnDestroy
     private decorSelectionne: DecorInteractifEtat | null = null;
 
     private dialog = inject(MatDialog);
-    protected idSessionActuelle = signal<number | null>(null);
     protected spriteFond = signal<Sprite>(null);
 
     async ngOnInit(): Promise<void>
@@ -117,44 +111,6 @@ export class EditeurCarte implements OnInit, OnDestroy
         await this.initialiserPixi();
         this.configurerPanEtZoom();
         this.configurerEcouteursGlobaux();
-    }
-
-    protected ouvrirModalCreationSession(): void
-    {
-        console.log("zzzz");
-
-        const ref = this.dialog.open(ModalAjouterSession,
-            {
-                width: '450px'
-            });
-
-        ref.afterClosed().subscribe((resultat) =>
-        {
-            if (!resultat)
-                return;
-
-            // 1. Initialisation de la session en BDD
-            this.sessionService.NouvelleSession(resultat.nom).pipe(
-                switchMap((idSession: number) =>
-                {
-                    this.idSessionActuelle.set(idSession);
-                    // 2. Upload de l'image de fond avec les dimensions calculées
-                    return this.sessionService.AjouterFond(
-                        idSession,
-                        resultat.fichierFond,
-                        resultat.hauteur,
-                        resultat.largeur
-                    );
-                })
-            ).subscribe({
-                next: async (urlImageServeur: string) =>
-                {
-                    // 3. Mise à jour des dimensions et chargement visuel dans PixiJS
-                    await this.appliquerFondDeCarte(urlImageServeur, resultat.largeur, resultat.hauteur);
-                },
-                error: (err) => console.error("Erreur lors de l'initialisation de la session :", err)
-            });
-        });
     }
 
     private async appliquerFondDeCarte(urlImage: string, largeur: number, hauteur: number): Promise<void>
@@ -202,11 +158,7 @@ export class EditeurCarte implements OnInit, OnDestroy
 
     protected sauvegarderDimensionsFond(): void
     {
-        const idSession = this.idSessionActuelle();
-        if (!idSession)
-            return;
-
-        this.sessionService.ModifierFondTransform(idSession, {
+        this.sessionService.ModifierFondTransform({
             largeur: this.carteLargeur,
             hauteur: this.carteHauteur
         }).subscribe({
@@ -274,7 +226,6 @@ export class EditeurCarte implements OnInit, OnDestroy
                 sprite,
                 poigneeRotation,
                 poigneeEchelle,
-                idSession: decor.idSession,
                 idDecor: decor.idDecor,
                 ordreCalque: decor.ordreCalque,
                 visibiliteMode: decor.visibiliteMode,
@@ -305,7 +256,6 @@ export class EditeurCarte implements OnInit, OnDestroy
                 sprite,
                 poigneeRotation,
                 poigneeEchelle,
-                idSession: decor.idSession,
                 idDecor: decor.idDecor,
                 ordreCalque: decor.ordreCalque,
                 visibiliteMode: decor.visibiliteMode,
@@ -352,7 +302,7 @@ export class EditeurCarte implements OnInit, OnDestroy
         const rotDegres = (decor.container.rotation * 180) / Math.PI;
 
         // Persistance vers l'API backend
-        this.sessionService.ModifierDecorTransform(decor.idSession, {
+        this.sessionService.ModifierDecorTransform({
             idDecor: decor.idDecor,
             positionX: Math.round(decor.container.x),
             positionY: Math.round(decor.container.y),
@@ -368,7 +318,7 @@ export class EditeurCarte implements OnInit, OnDestroy
         this.layerDecors.removeChild(decor.container);
         decor.container.destroy({ children: true });
         this.deselectionnerTout();
-        this.sessionService.SupprimerDecor(decor.idSession, decor.idDecor).subscribe();
+        this.sessionService.SupprimerDecor(decor.idDecor).subscribe();
     }
 
     private deselectionnerTout(): void
@@ -708,7 +658,7 @@ export class EditeurCarte implements OnInit, OnDestroy
 
                 const rotDegres = (this.decorSelectionne.container.rotation * 180) / Math.PI;
 
-                this.sessionService.ModifierDecorTransform(this.decorSelectionne.idSession, {
+                this.sessionService.ModifierDecorTransform({
                     idDecor: this.decorSelectionne.idDecor,
                     positionX: Math.round(this.decorSelectionne.container.x),
                     positionY: Math.round(this.decorSelectionne.container.y),
@@ -728,7 +678,7 @@ export class EditeurCarte implements OnInit, OnDestroy
 
                 const rotDegres = (this.pionSelectionne.container.rotation * 180) / Math.PI;
 
-                this.sessionService.ModifierPionTransform(this.pionSelectionne.idSession, {
+                this.sessionService.ModifierPionTransform({
                     idPion: this.pionSelectionne.idPion,
                     positionX: this.pionSelectionne.container.x,
                     positionY: this.pionSelectionne.container.y,
@@ -818,7 +768,6 @@ export class EditeurCarte implements OnInit, OnDestroy
                 sprite,
                 poignee,
                 dessinerArcs,
-                idSession,
                 idPion,
                 isDragging: true,
                 isRotating: false,
@@ -844,8 +793,7 @@ export class EditeurCarte implements OnInit, OnDestroy
     protected onUploadDecor(event: Event): void
     {
         const input = event.target as HTMLInputElement;
-        const session = this.idSessionActuelle();
-        if (!input.files || input.files.length === 0 || !session) return;
+        if (!input.files || input.files.length === 0) return;
 
         const fichier = input.files[0];
 
@@ -861,7 +809,6 @@ export class EditeurCarte implements OnInit, OnDestroy
         const posY = Math.max(0, Math.min(this.carteHauteur, centreMonde.y));
 
         const requete: DecorRequete = {
-            idSession: session,
             fichier,
             positionX: Math.round(posX),
             positionY: Math.round(posY),
@@ -876,7 +823,6 @@ export class EditeurCarte implements OnInit, OnDestroy
             {
                 await this.instancierDecorInteractif({
                     idDecor: retour.idDecor,
-                    idSession: session,
                     urlSprite: retour.urlImage,
                     positionX: requete.positionX,
                     positionY: requete.positionY,

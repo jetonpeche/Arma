@@ -2,7 +2,6 @@
 
 public sealed class SessionFichierDecorRequete
 {
-     public required int IdSession { get; set; }
      public Guid? IdDecor { get; set; }
      public required IFormFile Fichier { get; set; }
      public required float PositionX { get; set; }

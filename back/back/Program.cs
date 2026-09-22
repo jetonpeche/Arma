@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using back;
 using back.Extensions;
 using back.Models;
@@ -5,7 +6,6 @@ using FluentValidation;
 using LiteDB;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.FileProviders;
-using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,7 +76,24 @@ using (var db = new LiteDatabase(Constant.BDD_NOM))
      var banque = db.GetCollection<Banque>().FindOne(x => x.Id == 1);
 
      if (banque is null)
-          db.GetCollection<Banque>().Insert(new Banque { Id = 1, Argent = 0 });
+        db.GetCollection<Banque>().Insert(new Banque { Id = 1, Argent = 0 });
+
+    var session = db.GetCollection<CombatSession>().FindOne(x => x.Id == 1);
+
+    if (session is null)
+    {
+        session = new CombatSession
+        {
+            Hauteur = 0,
+            Largeur = 0,
+            NomPartie = "Bataille spatiale",
+            ListeDecorSurCarte = [],
+            ListePionSurCarte = [],
+            NomImageCarte = ""
+        };
+        
+        db.GetCollection<CombatSession>().Insert(session);
+    }
 }
 
 app.Run();
