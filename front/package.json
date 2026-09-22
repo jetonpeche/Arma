@@ -23,12 +23,12 @@
   "private": true,
   "packageManager": "npm@11.6.3",
   "dependencies": {
-    "@angular/cdk": "~21.0.1",
+    "@angular/cdk": "~21.2.14",
     "@angular/common": "^21.2.23",
     "@angular/compiler": "^21.2.23",
     "@angular/core": "^21.2.23",
     "@angular/forms": "^21.2.23",
-    "@angular/material": "~21.0.1",
+    "@angular/material": "~21.2.14",
     "@angular/platform-browser": "^21.2.23",
     "@angular/router": "^21.2.23",
     "@jetonpeche/angular-mat-input": "^1.2.10",
@@ -43,12 +43,5 @@
     "@angular/compiler-cli": "^21.2.23",
     "baseline-browser-mapping": "^2.9.18",
     "typescript": "~5.9.2"
-  },
-  "allowScripts": {
-    "@parcel/watcher@2.5.1": true,
-    "esbuild@0.26.0": true,
-    "esbuild@0.25.12": true,
-    "lmdb@3.4.3": true,
-    "msgpackr-extract@3.0.3": true
   }
 }
