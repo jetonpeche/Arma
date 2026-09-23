@@ -1,16 +1,15 @@
 import { Component, ElementRef, OnInit, OnDestroy, viewChild, inject, signal, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { SessionCombatService } from '@services/SessionCombatService';
-import { Application, Container, Sprite, Assets, FederatedPointerEvent, Graphics } from 'pixi.js';
+import { Application, Container, Sprite, Assets, FederatedPointerEvent, Graphics, Circle, Rectangle } from 'pixi.js';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
-import { DecorRequete } from '@models/Decor';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { SessionCombatBibliotheque } from '@models/SessionCombat';
 
 export interface ArmeVisualisation
 {
@@ -77,6 +76,7 @@ export class EditeurCarte implements OnInit, OnDestroy
 
     protected isDragging = signal<boolean>(false);
     protected conserverRatio = signal<boolean>(true);
+    protected bibliothequeDecors = signal<SessionCombatBibliotheque[]>([]);
     private ratioFondOriginal = 16 / 9;
 
     // Configuration de la navigation souris & tactile
@@ -98,12 +98,18 @@ export class EditeurCarte implements OnInit, OnDestroy
     protected carteLargeur = 3840;
     protected carteHauteur = 2160;
 
+    protected tiroirBibliothequeOuvert = signal<boolean>(false);
+    private decorEnCoursDeDrag: SessionCombatBibliotheque | null = null;
+
     private pionSelectionne: PionInteractifEtat | null = null;
     private redimensionnementObservateur?: ResizeObserver;
 
     private decorSelectionne: DecorInteractifEtat | null = null;
 
-    private dialog = inject(MatDialog);
+    private listeDecorsInstancies: DecorInteractifEtat[] = [];
+    private listePionsInstancies: PionInteractifEtat[] = [];
+
+    private dragEnCours = false;
     protected spriteFond = signal<Sprite>(null);
 
     async ngOnInit(): Promise<void>
@@ -111,58 +117,251 @@ export class EditeurCarte implements OnInit, OnDestroy
         await this.initialiserPixi();
         this.configurerPanEtZoom();
         this.configurerEcouteursGlobaux();
+        this.chargerSessionActive();
     }
 
-    private async appliquerFondDeCarte(urlImage: string, largeur: number, hauteur: number): Promise<void>
+    private async appliquerFondDeCarte(urlImage: string | null | undefined, largeur: number, hauteur: number): Promise<void>
     {
-        this.carteLargeur = largeur;
-        this.carteHauteur = hauteur;
-        this.ratioFondOriginal = largeur / (hauteur || 1);
+        this.carteLargeur = largeur || 3840;
+        this.carteHauteur = hauteur || 2160;
+        this.ratioFondOriginal = this.carteLargeur / (this.carteHauteur || 1);
 
+        // 1. Nettoyage de l'existant
         this.layerFond.removeChildren();
 
-        const texture = await Assets.load(urlImage);
-        this.spriteFond.set(new Sprite(texture));
-        this.spriteFond().width = largeur;
-        this.spriteFond().height = hauteur;
+        // 2. Si une URL valide est fournie, on instancie le Sprite
+        if (urlImage && urlImage.trim() !== '')
+        {
+            try
+            {
+                const texture = await Assets.load(urlImage);
+                const nouveauSprite = new Sprite(texture);
+                nouveauSprite.width = this.carteLargeur;
+                nouveauSprite.height = this.carteHauteur;
 
-        this.layerFond.addChild(this.spriteFond());
+                this.spriteFond.set(nouveauSprite);
+                this.layerFond.addChild(nouveauSprite);
+            } catch (err)
+            {
+                console.error("Échec du chargement de l'image de fond :", err);
+                this.spriteFond.set(null);
+                this.dessinerGrilleParDefaut();
+            }
+        }
+        else
+        {
+            // 3. Fond vide : on réinitialise le signal et on dessine la grille tactique
+            this.spriteFond.set(null);
+            this.dessinerGrilleParDefaut();
+        }
+
         this.recentrerVue();
+    }
+
+    private dessinerGrilleParDefaut(): void
+    {
+        const fondTactique = new Graphics();
+
+        // Fond spatial sombre
+        fondTactique
+            .rect(0, 0, this.carteLargeur, this.carteHauteur)
+            .fill({ color: 0x070c14 })
+            .stroke({ width: 3, color: 0x00a8ff, alpha: 0.6 });
+
+        // Quadrillage tactique espacé (mailles de 200px)
+        const pas = 200;
+        fondTactique.beginPath();
+        for (let x = pas; x < this.carteLargeur; x += pas)
+        {
+            fondTactique.moveTo(x, 0).lineTo(x, this.carteHauteur);
+        }
+        for (let y = pas; y < this.carteHauteur; y += pas)
+        {
+            fondTactique.moveTo(0, y).lineTo(this.carteLargeur, y);
+        }
+        fondTactique.stroke({ width: 1, color: 0x00a8ff, alpha: 0.08 });
+
+        this.layerFond.addChild(fondTactique);
+    }
+
+    protected onDragStartDecor(event: DragEvent, item: SessionCombatBibliotheque): void
+    {
+        this.dragEnCours = true;
+        this.decorEnCoursDeDrag = item;
+        if (event.dataTransfer)
+        {
+            event.dataTransfer.setData('text/plain', item.id.toString());
+            event.dataTransfer.effectAllowed = 'copy';
+        }
+    }
+
+    // Autorise le drop au-dessus du canvas
+    protected onDragOverCanvas(event: DragEvent): void
+    {
+        event.preventDefault();
+        if (event.dataTransfer)
+        {
+            event.dataTransfer.dropEffect = 'copy';
+        }
+    }
+
+    protected onDropDecorSurCanvas(event: DragEvent): void
+    {
+        event.preventDefault();
+        if (!this.decorEnCoursDeDrag) return;
+
+        const decorItem = this.decorEnCoursDeDrag;
+        this.decorEnCoursDeDrag = null;
+
+        // Coordonnées de dépôt converties dans l'espace du monde PixiJS
+        const canvasBounds = this.app.canvas.getBoundingClientRect();
+        const mouseGlobal = {
+            x: event.clientX - canvasBounds.left,
+            y: event.clientY - canvasBounds.top
+        };
+        const pointMonde = this.viewport.toLocal(mouseGlobal);
+
+        const posX = Math.round(Math.max(0, Math.min(this.carteLargeur, pointMonde.x)));
+        const posY = Math.round(Math.max(0, Math.min(this.carteHauteur, pointMonde.y)));
+
+        const requetePlacement = {
+            idBibliothequeDecor: decorItem.id,
+            positionX: posX,
+            positionY: posY,
+            echelle: 1,
+            rotationDegres: 0,
+            ordreCalque: this.layerDecors.children.length,
+            visibiliteMode: 0
+        };
+
+        // Sauvegarde en base et instanciation immédiate sous le curseur
+        this.sessionService.PlacerDecor(requetePlacement).subscribe({
+            next: async (idDecorGenere: string) =>
+            {
+                await this.instancierDecorInteractif({
+                    idDecor: idDecorGenere,
+                    urlSprite: decorItem.urlImage,
+                    positionX: requetePlacement.positionX,
+                    positionY: requetePlacement.positionY,
+                    rotationDegres: requetePlacement.rotationDegres,
+                    echelle: requetePlacement.echelle,
+                    ordreCalque: requetePlacement.ordreCalque,
+                    visibiliteMode: requetePlacement.visibiliteMode
+                });
+            },
+            error: (err) => console.error("Erreur placement décor via drag & drop :", err)
+        });
     }
 
     protected changerLargeurFond(nouvelleLargeur: number): void
     {
         if (nouvelleLargeur <= 200) return;
-        this.carteLargeur = Number(nouvelleLargeur);
+
+        const ancienneL = this.carteLargeur;
+        const ancienneH = this.carteHauteur;
+
+        this.carteLargeur = nouvelleLargeur;
 
         if (this.conserverRatio())
         {
             this.carteHauteur = Math.round(this.carteLargeur / this.ratioFondOriginal);
         }
 
+        // Recalcul proportionnel des éléments
+        this.recalculerPositionsElements(ancienneL, ancienneH);
         this.actualiserRenduFond();
     }
 
     protected changerHauteurFond(nouvelleHauteur: number): void
     {
         if (nouvelleHauteur <= 200) return;
-        this.carteHauteur = Number(nouvelleHauteur);
+
+        const ancienneL = this.carteLargeur;
+        const ancienneH = this.carteHauteur;
+
+        this.carteHauteur = nouvelleHauteur;
 
         if (this.conserverRatio())
         {
             this.carteLargeur = Math.round(this.carteHauteur * this.ratioFondOriginal);
         }
 
+        // Recalcul proportionnel des éléments
+        this.recalculerPositionsElements(ancienneL, ancienneH);
         this.actualiserRenduFond();
+    }
+
+    // Permet de poser le décor au centre de l'écran en un tap sur mobile
+    protected placerDecorAuCentre(decorItem: SessionCombatBibliotheque): void
+    {
+        // Si c'était un drag ou si on est sur grand écran avec souris, on annule
+        if (this.dragEnCours || window.innerWidth > 800)
+        {
+            this.dragEnCours = false;
+            return;
+        }
+
+        const centreMonde = this.viewport.toLocal({
+            x: this.app.screen.width / 2,
+            y: this.app.screen.height / 2
+        });
+
+        const requetePlacement = {
+            idBibliothequeDecor: decorItem.id,
+            positionX: Math.round(Math.max(0, Math.min(this.carteLargeur, centreMonde.x))),
+            positionY: Math.round(Math.max(0, Math.min(this.carteHauteur, centreMonde.y))),
+            echelle: 1,
+            rotationDegres: 0,
+            ordreCalque: this.layerDecors.children.length,
+            visibiliteMode: 0
+        };
+
+        this.sessionService.PlacerDecor(requetePlacement).subscribe({
+            next: async (idDecorGenere: string) =>
+            {
+                await this.instancierDecorInteractif({
+                    idDecor: idDecorGenere,
+                    urlSprite: decorItem.urlImage,
+                    positionX: requetePlacement.positionX,
+                    positionY: requetePlacement.positionY,
+                    rotationDegres: requetePlacement.rotationDegres,
+                    echelle: requetePlacement.echelle,
+                    ordreCalque: requetePlacement.ordreCalque,
+                    visibiliteMode: requetePlacement.visibiliteMode
+                });
+                // Ferme automatiquement le tiroir sur mobile après sélection
+                this.tiroirBibliothequeOuvert.set(false);
+            }
+        });
     }
 
     protected sauvegarderDimensionsFond(): void
     {
+        // 1. Sauvegarde du fond
         this.sessionService.ModifierFondTransform({
             largeur: this.carteLargeur,
             hauteur: this.carteHauteur
         }).subscribe({
-            next: () => console.log('Dimensions de carte mises à jour en base.'),
+            next: () =>
+            {
+                // 2. Persistance des nouvelles coordonnées des décors
+                for (const decor of this.listeDecorsInstancies)
+                {
+                    this.sauvegarderTransformDecor(decor);
+                }
+
+                // 3. Persistance des nouvelles coordonnées des pions
+                for (const pion of this.listePionsInstancies)
+                {
+                    const rotDegres = (pion.container.rotation * 180) / Math.PI;
+                    this.sessionService.ModifierPionTransform({
+                        idPion: pion.idPion,
+                        positionX: Math.round(pion.container.x),
+                        positionY: Math.round(pion.container.y),
+                        rotationDegres: ((rotDegres % 360) + 360) % 360
+                    }).subscribe();
+                }
+            },
             error: (err) => console.error('Erreur de sauvegarde des dimensions :', err)
         });
     }
@@ -175,11 +374,13 @@ export class EditeurCarte implements OnInit, OnDestroy
         decorContainer.scale.set(decor.echelle || 1);
         decorContainer.zIndex = decor.ordreCalque;
 
-        // Si réservé au MJ, légère transparence pour indiquer son statut masqué aux joueurs
         if (decor.visibiliteMode === 1)
         {
             decorContainer.alpha = 0.65;
         }
+
+        const estTactile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const tailleVisibleRot = estTactile ? 12 : 8;
 
         // 1. Sprite
         const texture = await Assets.load(decor.urlSprite);
@@ -189,33 +390,50 @@ export class EditeurCarte implements OnInit, OnDestroy
         sprite.cursor = 'grab';
         decorContainer.addChild(sprite);
 
-        // 2. Poignée de rotation (cyan)
-        const rayonDistance = (sprite.height / 2) + 30;
+        // 2. Poignée de rotation (Cyan) centrée sur (0, -rayonDistance)
+        const rayonDistance = (sprite.height / 2) + (estTactile ? 45 : 30);
         const poigneeRotation = new Graphics()
-            .circle(0, -rayonDistance, 8)
+            .circle(0, 0, tailleVisibleRot)
             .fill({ color: 0x00e5ff, alpha: 0.9 })
             .stroke({ width: 2, color: 0xffffff });
+
+        poigneeRotation.position.set(0, -rayonDistance);
         poigneeRotation.eventMode = 'static';
         poigneeRotation.cursor = 'crosshair';
         poigneeRotation.visible = false;
+
+        if (estTactile)
+        {
+            poigneeRotation.hitArea = new Circle(0, 0, 24);
+        }
         decorContainer.addChild(poigneeRotation);
 
-        // 3. Poignée d'échelle (jaune)
+        // 3. Poignée d'échelle (Jaune) centrée sur (decalageX, decalageY)
+        const tailleVisibleEch = estTactile ? 18 : 14;
+        const decalageX = sprite.width / 2 + 10;
+        const decalageY = sprite.height / 2 + 10;
+
         const poigneeEchelle = new Graphics()
-            .rect(sprite.width / 2 + 8, sprite.height / 2 + 8, 14, 14)
+            .rect(-tailleVisibleEch / 2, -tailleVisibleEch / 2, tailleVisibleEch, tailleVisibleEch)
             .fill({ color: 0xffcc00, alpha: 0.9 })
             .stroke({ width: 2, color: 0xffffff });
+
+        poigneeEchelle.position.set(decalageX, decalageY);
         poigneeEchelle.eventMode = 'static';
         poigneeEchelle.cursor = 'nwse-resize';
         poigneeEchelle.visible = false;
+
+        if (estTactile) 
+        {
+            poigneeEchelle.hitArea = new Rectangle(-22, -22, 44, 44);
+        }
         decorContainer.addChild(poigneeEchelle);
 
-        // menu contextuelle
+        // Menu contextuel (clic droit)
         sprite.on('rightclick', (e: FederatedPointerEvent) =>
         {
             e.stopPropagation();
 
-            // Positionne l'ancre invisible là où l'utilisateur a cliqué
             this.menuPosition = {
                 x: `${e.client.x}px`,
                 y: `${e.client.y}px`
@@ -235,11 +453,10 @@ export class EditeurCarte implements OnInit, OnDestroy
                 dragOffset: { x: 0, y: 0 }
             });
 
-            // Ouvre le menu Angular Material
             this.decorMenuTrigger().openMenu();
         });
 
-        // --- Sélections et manipulations ---
+        // Événements de sélection et déplacement
         sprite.on('pointerdown', (e: FederatedPointerEvent) =>
         {
             if (e.button !== 0) return;
@@ -286,31 +503,29 @@ export class EditeurCarte implements OnInit, OnDestroy
             e.stopPropagation();
         });
 
-        // Activation du tri par calque
         this.layerDecors.sortableChildren = true;
         this.layerDecors.addChild(decorContainer);
+
+        this.listeDecorsInstancies.push({
+            container: decorContainer,
+            sprite,
+            poigneeRotation,
+            poigneeEchelle,
+            idDecor: decor.idDecor,
+            ordreCalque: decor.ordreCalque,
+            visibiliteMode: decor.visibiliteMode,
+            isDragging: false,
+            isRotating: false,
+            isScaling: false,
+            dragOffset: { x: 0, y: 0 }
+        });
     }
 
     protected basculerVisibiliteDecor(decor: DecorInteractifEtat): void 
     {
-        const nouveauMode = decor.visibiliteMode === 0 ? 1 : 0;
-        decor.visibiliteMode = nouveauMode;
-
-        // Feedback visuel immédiat pour le MJ : opacité réduite (65%) si masqué aux joueurs
-        decor.container.alpha = nouveauMode === 1 ? 0.85 : 1.0;
-
-        const rotDegres = (decor.container.rotation * 180) / Math.PI;
-
-        // Persistance vers l'API backend
-        this.sessionService.ModifierDecorTransform({
-            idDecor: decor.idDecor,
-            positionX: Math.round(decor.container.x),
-            positionY: Math.round(decor.container.y),
-            rotationDegres: ((rotDegres % 360) + 360) % 360,
-            ordreCalque: decor.ordreCalque,
-            visibiliteMode: nouveauMode,
-            echelle: Number(decor.container.scale.x.toFixed(3))
-        }).subscribe();
+        decor.visibiliteMode = decor.visibiliteMode === 0 ? 1 : 0;
+        decor.container.alpha = decor.visibiliteMode === 1 ? 0.65 : 1.0;
+        this.sauvegarderTransformDecor(decor);
     }
 
     protected supprimerDecor(decor: DecorInteractifEtat): void 
@@ -318,7 +533,32 @@ export class EditeurCarte implements OnInit, OnDestroy
         this.layerDecors.removeChild(decor.container);
         decor.container.destroy({ children: true });
         this.deselectionnerTout();
-        this.sessionService.SupprimerDecor(decor.idDecor).subscribe();
+        this.sessionService.SupprimerDecor(decor.idDecor).subscribe(() =>
+        {
+            this.listeDecorsInstancies = this.listeDecorsInstancies.filter(d => d.idDecor !== decor.idDecor);
+        });
+    }
+
+    private recalculerPositionsElements(ancienneLargeur: number, ancienneHauteur: number): void
+    {
+        if (ancienneLargeur <= 0 || ancienneHauteur <= 0) return;
+
+        const ratioX = this.carteLargeur / ancienneLargeur;
+        const ratioY = this.carteHauteur / ancienneHauteur;
+
+        // 1. Recalcul des positions des décors
+        for (const decor of this.listeDecorsInstancies)
+        {
+            decor.container.x = Math.round(decor.container.x * ratioX);
+            decor.container.y = Math.round(decor.container.y * ratioY);
+        }
+
+        // 2. Recalcul des positions des pions
+        for (const pion of this.listePionsInstancies)
+        {
+            pion.container.x = Math.round(pion.container.x * ratioX);
+            pion.container.y = Math.round(pion.container.y * ratioY);
+        }
     }
 
     private deselectionnerTout(): void
@@ -560,9 +800,13 @@ export class EditeurCarte implements OnInit, OnDestroy
         let startPanX = 0;
         let startPanY = 0;
 
+
         // Début de clic : si on clique sur le fond ou le stage, on déplace la carte
         this.app.stage.on('pointerdown', (e: FederatedPointerEvent) =>
         {
+            if (e.target !== this.app.stage && e.target !== this.layerFond && (!this.spriteFond() || e.target !== this.spriteFond()))
+                return;
+
             // Si on a cliqué sur un décor ou un pion, stopPropagation() aura déjà empêché d'arriver ici
             if (e.button === 0 || e.button === 1)
             {
@@ -572,9 +816,7 @@ export class EditeurCarte implements OnInit, OnDestroy
 
                 // Désélectionne si on clique dans le vide spatial
                 if (e.target === this.app.stage || e.target === this.layerFond || (this.spriteFond() && e.target === this.spriteFond()))
-                {
                     this.deselectionnerTout();
-                }
             }
         });
 
@@ -656,17 +898,7 @@ export class EditeurCarte implements OnInit, OnDestroy
                 this.decorSelectionne.isScaling = false;
                 this.decorSelectionne.sprite.cursor = 'grab';
 
-                const rotDegres = (this.decorSelectionne.container.rotation * 180) / Math.PI;
-
-                this.sessionService.ModifierDecorTransform({
-                    idDecor: this.decorSelectionne.idDecor,
-                    positionX: Math.round(this.decorSelectionne.container.x),
-                    positionY: Math.round(this.decorSelectionne.container.y),
-                    rotationDegres: ((rotDegres % 360) + 360) % 360,
-                    ordreCalque: this.decorSelectionne.ordreCalque,
-                    visibiliteMode: this.decorSelectionne.visibiliteMode,
-                    echelle: Number(this.decorSelectionne.container.scale.x.toFixed(3))
-                }).subscribe();
+                this.sauvegarderTransformDecor(this.decorSelectionne);
             }
 
             // Sauvegarde Pion
@@ -692,7 +924,6 @@ export class EditeurCarte implements OnInit, OnDestroy
     }
 
     protected async instancierPionInteractif(
-        idSession: number,
         idPion: string,
         urlSprite: string,
         posX: number,
@@ -701,6 +932,9 @@ export class EditeurCarte implements OnInit, OnDestroy
         armes: ArmeVisualisation[] = []
     ): Promise<void>
     {
+        const estTactile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const tailleVisibleRot = estTactile ? 12 : 8;
+
         const pionContainer = new Container();
         pionContainer.position.set(posX, posY);
         pionContainer.rotation = (rotationDegres * Math.PI) / 180;
@@ -715,15 +949,22 @@ export class EditeurCarte implements OnInit, OnDestroy
         sprite.cursor = 'grab';
         pionContainer.addChild(sprite);
 
-        const rayonDistance = sprite.height / 2 + 35;
+        // Poignée de rotation centrée sur (0, -distancePion)
+        const distancePion = sprite.height / 2 + (estTactile ? 50 : 35);
         const poignee = new Graphics()
-            .circle(0, -rayonDistance, 8)
+            .circle(0, 0, tailleVisibleRot)
             .fill({ color: 0x00ffcc, alpha: 0.85 })
             .stroke({ width: 2, color: 0xffffff });
 
+        poignee.position.set(0, -distancePion);
         poignee.eventMode = 'static';
         poignee.cursor = 'crosshair';
         poignee.visible = false;
+
+        if (estTactile)
+        {
+            poignee.hitArea = new Circle(0, 0, 24);
+        }
         pionContainer.addChild(poignee);
 
         const dessinerArcs = (visible: boolean) =>
@@ -788,52 +1029,216 @@ export class EditeurCarte implements OnInit, OnDestroy
         });
 
         this.layerPions.addChild(pionContainer);
+        this.listePionsInstancies.push({
+            container: pionContainer,
+            sprite,
+            poignee,
+            dessinerArcs,
+            idPion,
+            isDragging: false,
+            isRotating: false,
+            dragOffset: { x: 0, y: 0 }
+        });
     }
 
-    protected onUploadDecor(event: Event): void
+    protected viderPlateau(): void
+    {
+        const confirmation = window.confirm("ATTENTION : Cette action supprimera tous les pions, décors et le fond de carte de la session. Confirmer la purge ?");
+        if (!confirmation) return;
+
+        this.sessionService.Vider().subscribe({
+            next: () =>
+            {
+                // 1. Désélectionne les éléments actifs pour éviter les références fantômes
+                this.deselectionnerTout();
+
+                // 2. Nettoie les conteneurs PixiJS
+                this.layerDecors.removeChildren();
+                this.layerPions.removeChildren();
+                this.layerFond.removeChildren();
+
+                // 3. Purge les listes mémoires
+                this.listeDecorsInstancies = [];
+                this.listePionsInstancies = [];
+
+                // 4. Réinitialise le sprite de fond et redessine la grille tactique neutre
+                this.spriteFond.set(null);
+                this.dessinerGrilleParDefaut();
+
+                this.recentrerVue();
+            },
+            error: (err) => console.error("Erreur lors de la purge de la session :", err)
+        });
+    }
+
+    protected onUploadFond(event: Event): void
+    {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0)
+            return;
+
+        const fichier = input.files[0];
+        const img = new Image();
+        img.src = URL.createObjectURL(fichier);
+
+        img.onload = () =>
+        {
+            const largeur = img.naturalWidth;
+            const hauteur = img.naturalHeight;
+            URL.revokeObjectURL(img.src);
+
+            this.sessionService.AjouterFond(fichier, hauteur, largeur).subscribe({
+                next: async (urlImage) => 
+                {
+                    await this.appliquerFondDeCarte(urlImage, largeur, hauteur);
+                    input.value = '';
+                },
+                error: (err) => console.error("Erreur upload fond :", err)
+            });
+        };
+    }
+
+    protected onUploadNouveauDecor(event: Event): void
     {
         const input = event.target as HTMLInputElement;
         if (!input.files || input.files.length === 0) return;
 
         const fichier = input.files[0];
+        const nomFichierNettoye = fichier.name.replace(/\.[^/.]+$/, "");
 
-        // Calcul du centre visible de l'écran converti dans l'espace du monde PixiJS
-        const centreEcranGlobal = {
-            x: this.app.screen.width / 2,
-            y: this.app.screen.height / 2
-        };
-        const centreMonde = this.viewport.toLocal(centreEcranGlobal);
-
-        // Bornage à l'intérieur des limites de la carte
-        const posX = Math.max(0, Math.min(this.carteLargeur, centreMonde.x));
-        const posY = Math.max(0, Math.min(this.carteHauteur, centreMonde.y));
-
-        const requete: DecorRequete = {
-            fichier,
-            positionX: Math.round(posX),
-            positionY: Math.round(posY),
-            echelle: 1,
-            rotationDegres: 0,
-            ordreCalque: this.layerDecors.children.length,
-            visibiliteMode: 0
-        };
-
-        this.sessionService.AjouterDecor(requete).subscribe({
-            next: async (retour) =>
+        // 1. Sauvegarde dans la bibliothèque
+        this.sessionService.AjouterDecor(fichier, null, nomFichierNettoye).subscribe({
+            next: (retour) =>
             {
-                await this.instancierDecorInteractif({
-                    idDecor: retour.idDecor,
-                    urlSprite: retour.urlImage,
-                    positionX: requete.positionX,
-                    positionY: requete.positionY,
-                    rotationDegres: requete.rotationDegres,
-                    echelle: requete.echelle,
-                    ordreCalque: requete.ordreCalque,
-                    visibiliteMode: requete.visibiliteMode
+                const idBibliotheque: number = retour.id;
+                const urlImage: string = retour.urlImage;
+
+                // Ajout local à la bibliothèque
+                this.bibliothequeDecors.update(liste => [...liste, {
+                    id: idBibliotheque,
+                    nomRecherche: nomFichierNettoye,
+                    urlImage: urlImage
+                }]);
+
+                // 2. Positionnement au centre de la caméra
+                const centreMonde = this.viewport.toLocal({
+                    x: this.app.screen.width / 2,
+                    y: this.app.screen.height / 2
                 });
-                input.value = '';
+
+                const requetePlacement = {
+                    idBibliothequeDecor: idBibliotheque,
+                    positionX: Math.round(Math.max(0, Math.min(this.carteLargeur, centreMonde.x))),
+                    positionY: Math.round(Math.max(0, Math.min(this.carteHauteur, centreMonde.y))),
+                    echelle: 1,
+                    rotationDegres: 0,
+                    ordreCalque: this.layerDecors.children.length,
+                    visibiliteMode: 0
+                };
+
+                // 3. Placement sur le plateau
+                this.sessionService.PlacerDecor(requetePlacement).subscribe({
+                    next: async (idDecorGenere: string) =>
+                    {
+                        await this.instancierDecorInteractif({
+                            idDecor: idDecorGenere,
+                            urlSprite: urlImage,
+                            positionX: requetePlacement.positionX,
+                            positionY: requetePlacement.positionY,
+                            rotationDegres: requetePlacement.rotationDegres,
+                            echelle: requetePlacement.echelle,
+                            ordreCalque: requetePlacement.ordreCalque,
+                            visibiliteMode: requetePlacement.visibiliteMode
+                        });
+                        input.value = '';
+                    },
+                    error: (err) => console.error("Erreur placement décor :", err)
+                });
             },
-            error: (err) => console.error("Erreur lors de l'ajout du décor :", err)
+            error: (err) => console.error("Erreur upload décor bibliothèque :", err)
+        });
+    }
+
+    protected sauvegarderTransformDecor(decor: DecorInteractifEtat): void
+    {
+        const rotDegres = ((decor.container.rotation * 180) / Math.PI);
+
+        const requete = {
+            idDecor: decor.idDecor,
+            positionX: Math.round(decor.container.x),
+            positionY: Math.round(decor.container.y),
+            rotationDegres: ((rotDegres % 360) + 360) % 360,
+            ordreCalque: decor.ordreCalque,
+            visibiliteMode: decor.visibiliteMode,
+            echelle: Number(decor.container.scale.x.toFixed(3))
+        };
+
+        this.sessionService.ModifierDecorTransform(requete).subscribe();
+    }
+
+    private chargerSessionActive(): void
+    {
+        this.listeDecorsInstancies = [];
+        this.listePionsInstancies = [];
+        this.layerDecors.removeChildren();
+        this.layerPions.removeChildren();
+
+        this.sessionService.recuperer().subscribe({
+            next: async (session) =>
+            {
+                if (!session) return;
+
+                this.bibliothequeDecors.set(session.bibliothequeDecor || []);
+
+                // 1. Fond de carte
+                if (session.urlImagecarte)
+                {
+                    await this.appliquerFondDeCarte(session.urlImagecarte, session.largeur, session.hauteur);
+                }
+                else
+                {
+                    this.carteLargeur = session.largeur || 3840;
+                    this.carteHauteur = session.hauteur || 2160;
+                    this.actualiserRenduFond();
+                }
+
+                // 2. Décors
+                if (session.listeDecor?.length)
+                {
+                    for (const decor of session.listeDecor)
+                    {
+                        const biblioItem = this.bibliothequeDecors().find(b => b.id === decor.idBibliothequeDecor);
+                        if (!biblioItem) continue;
+
+                        await this.instancierDecorInteractif({
+                            idDecor: decor.idDecor,
+                            urlSprite: biblioItem.urlImage,
+                            positionX: decor.positionX,
+                            positionY: decor.positionY,
+                            rotationDegres: decor.rotationDegres,
+                            echelle: decor.echelle,
+                            ordreCalque: decor.ordreCalque,
+                            visibiliteMode: Number(decor.visibiliteMode)
+                        });
+                    }
+                }
+
+                // 3. Pions (si présents)
+                if (session.listePion?.length)
+                {
+                    for (const pion of session.listePion)
+                    {
+                        await this.instancierPionInteractif(
+                            pion.idPion,
+                            '/assets/paris_class.png',
+                            pion.positionX,
+                            pion.positionY,
+                            pion.rotationDegres
+                        );
+                    }
+                }
+            },
+            error: (err) => console.error("Erreur de récupération de la session :", err)
         });
     }
 

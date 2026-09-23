@@ -42,7 +42,9 @@ public sealed class PionVaisseauCombat
 public sealed class ElementDecorCombat
 {
     public Guid IdDecor { get; set; }
-    public string NomImage { get; set; } = null!;
+
+    [BsonRef]
+    public BibliothequeDecorCombat BibliothequeDecor { get; set; } = null!;
     
     public float PositionX { get; set; }
     public float PositionY { get; set; }

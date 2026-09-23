@@ -3,7 +3,7 @@ import { DestroyRef, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { environment } from "../environements/environement";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ModifierFondTransformRequete } from "@models/SessionCombat";
+import { ModifierFondTransformRequete, SessionCombat } from "@models/SessionCombat";
 import { DecorRequete, ModifierDecorTransformRequete } from "@models/Decor";
 import { ModifierPionTransformRequete, PionRequete } from "@models/Pion";
 
@@ -13,6 +13,11 @@ export class SessionCombatService
     private destroyRef: DestroyRef = inject(DestroyRef);
 
     private readonly BASE_API = `${environment.urlApi}/session`;
+
+    recuperer(): Observable<SessionCombat>
+    {
+        return this.http.get<SessionCombat>(`${this.BASE_API}/recuperer`).pipe(takeUntilDestroyed(this.destroyRef));
+    }
 
     AjouterFond(_fichier: File, _hauteur: number, _largeur: number): Observable<string>
     {
@@ -24,18 +29,23 @@ export class SessionCombatService
         return this.http.post<string>(`${this.BASE_API}/upload-fond`, FORM_DATA).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    AjouterDecor(_decor: DecorRequete): Observable<{idDecor: string, urlImage: string }>
+    AjouterDecor(_fichier: File, _idBibliotheque: number | null, _nomRecherche: string | null): Observable<{ id: number, urlImage: string }>
     {
         const FORM_DATA = new FormData();
-        FORM_DATA.append("Fichier", _decor.fichier, _decor.fichier.name);
-        FORM_DATA.append("PositionX", _decor.positionX.toString());
-        FORM_DATA.append("PositionY", _decor.positionY.toString());
-        FORM_DATA.append("Echelle", _decor.echelle.toString());
-        FORM_DATA.append("OrdreCalque", _decor.ordreCalque.toString());
-        FORM_DATA.append("RotationDegres", _decor.rotationDegres.toString());
-        FORM_DATA.append("VisibiliteMode", _decor.visibiliteMode.toString());
+        FORM_DATA.append("Fichier", _fichier, _fichier.name);
 
-        return this.http.post<{idDecor: string, urlImage: string }>(`${this.BASE_API}/upload-decor`, FORM_DATA).pipe(takeUntilDestroyed(this.destroyRef));
+        if(_idBibliotheque > 0 && _idBibliotheque != null && _idBibliotheque != undefined)
+            FORM_DATA.append("Id", _idBibliotheque.toString());
+
+        if(_nomRecherche != null && _nomRecherche != undefined && _nomRecherche.trim() != "")
+            FORM_DATA.append("NomRecherche", _nomRecherche);
+
+        return this.http.post<{ id: number, urlImage: string }>(`${this.BASE_API}/upload-decor`, FORM_DATA).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    PlacerDecor(_decor: DecorRequete): Observable<string>
+    {
+        return this.http.post<string>(`${this.BASE_API}/placer-decor`, _decor).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     AjouterPion(_pion: PionRequete): Observable<string>
@@ -56,6 +66,11 @@ export class SessionCombatService
     ModifierPionTransform(_transform: ModifierPionTransformRequete): Observable<void>
     {
         return this.http.put<void>(`${this.BASE_API}/modifier-pion-transform`, _transform).pipe(takeUntilDestroyed(this.destroyRef));
+    }
+
+    Vider(): Observable<void>
+    {
+        return this.http.delete<void>(`${this.BASE_API}/vider`).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     SupprimerFond(_idSession: number): Observable<void>

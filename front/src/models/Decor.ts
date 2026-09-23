@@ -1,6 +1,6 @@
 export type DecorRequete =
 {
-    fichier: File,
+    idBibliothequeDecor: number,
     positionX: number,
     positionY: number,
     echelle: number,

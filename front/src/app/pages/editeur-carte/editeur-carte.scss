@@ -83,8 +83,225 @@
     }
 }
 
+.tiroir-bibliotheque.unsc-panel {
+    position: absolute;
+    top: 72px;
+    left: 16px;
+    width: 450px;
+    max-height: calc(100% - 96px);
+    
+    /* Variables de surface et bordures Angular Material */
+    background: color-mix(in srgb, var(--mat-sys-surface) 90%, black);
+    border: 1px solid var(--mat-sys-primary);
+    box-shadow: 0 0 15px color-mix(in srgb, var(--mat-sys-primary) 25%, transparent),
+                inset 0 0 12px rgba(0, 0, 0, 0.8);
+    
+    border-radius: 2px; /* Angles techniques droits */
+    z-index: 105;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Courier New', Courier, monospace;
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+
+    /* Effet subtil de balayage cathodique / CRT */
+    &::before {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+        z-index: 2;
+        background-size: 100% 3px, 6px 100%;
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+    .tiroir-entete {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent);
+        border-bottom: 1px solid var(--mat-sys-primary);
+        color: var(--mat-sys-primary);
+
+        .titre {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        button {
+            color: var(--mat-sys-on-surface);
+            transform: scale(0.85);
+        }
+    }
+
+    .tiroir-upload {
+        position: relative;
+        z-index: 3;
+        padding: 12px;
+        border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline) 30%, transparent);
+
+        .unsc-btn-upload {
+            width: 100%;
+            height: 38px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border-radius: 2px;
+        }
+    }
+
+    .liste-decors {
+        position: relative;
+        z-index: 3;
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+
+        &::-webkit-scrollbar {
+            width: 5px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+        }
+
+        .carte-decor-item {
+            background: color-mix(in srgb, var(--mat-sys-surface-container) 70%, transparent);
+            border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+            border-radius: 2px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: grab;
+            transition: all 0.15s ease-in-out;
+
+            &:hover {
+                border-color: var(--mat-sys-primary);
+                background: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+                box-shadow: 0 0 10px color-mix(in srgb, var(--mat-sys-primary) 35%, transparent);
+            }
+
+            &:active {
+                cursor: grabbing;
+                transform: scale(0.96);
+            }
+
+            .cadre-apercu {
+                width: 100%;
+                height: 75px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, 0.4);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+
+                img {
+                    max-width: 90%;
+                    max-height: 90%;
+                    object-fit: contain;
+                    filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.2));
+                }
+            }
+
+            .nom-decor {
+                margin-top: 6px;
+                font-size: 0.7rem;
+                font-weight: 600;
+                color: var(--mat-sys-on-surface-variant, #a0aec0);
+                letter-spacing: 0.5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        .aucun-decor {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--mat-sys-error);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            padding: 24px 0;
+            opacity: 0.8;
+        }
+    }
+
+    .tiroir-statut {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 10px;
+        background: rgba(0, 0, 0, 0.6);
+        border-top: 1px solid color-mix(in srgb, var(--mat-sys-outline) 30%, transparent);
+        font-size: 0.65rem;
+        color: var(--mat-sys-outline);
+        letter-spacing: 1px;
+    }
+}
+
 @media screen and (max-width: 800px) 
 {
+    .tiroir-bibliotheque.unsc-panel {
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        width: auto; /* Occupe toute la largeur disponible */
+        max-height: calc(100% - 76px);
+
+        .liste-decors {
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            padding: 8px;
+
+            .carte-decor-item {
+                padding: 4px;
+                min-height: 85px;
+
+                .cadre-apercu {
+                    height: 55px;
+
+                    img {
+                        max-width: 85%;
+                        max-height: 85%;
+                    }
+                }
+
+                .nom-decor {
+                    font-size: 0.6rem;
+                    margin-top: 4px;
+                }
+            }
+        }
+
+        .tiroir-upload {
+            padding: 8px;
+
+            .unsc-btn-upload {
+                height: 34px;
+                font-size: 0.75rem;
+            }
+        }
+    }
+
     .toolbar {
         top: auto;
         bottom: 12px;

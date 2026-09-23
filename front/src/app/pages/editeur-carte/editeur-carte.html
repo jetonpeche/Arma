@@ -12,7 +12,6 @@
         DÉCOR TACTIQUE
     </div>
 
-    <!-- Option Visibilité : Bascule entre 0 (Tous) et 1 (MJ) -->
     <button mat-menu-item (click)="basculerVisibiliteDecor(decor)">
         <mat-icon [color]="decor.visibiliteMode === 1 ? 'accent' : 'primary'">
             {{ decor.visibiliteMode === 1 ? 'visibility_off' : 'visibility' }}
@@ -24,7 +23,6 @@
 
     <mat-divider></mat-divider>
 
-    <!-- Option Suppression (bonus pratique) -->
     <button mat-menu-item class="btn-danger" (click)="supprimerDecor(decor)">
         <mat-icon>delete</mat-icon>
         <span>Supprimer le décor</span>
@@ -34,14 +32,26 @@
 
 <div class="editeur-container" (contextmenu)="$event.preventDefault()">
     <div class="toolbar">
-
-        <input #fileDecor type="file" (change)="onUploadDecor($event)" accept="image/*" style="display: none" />
-
-        <button matButton="filled" (click)="fileDecor.click()">
-            <mat-icon>add_photo_alternate</mat-icon>
-            Ajouter Décor
+        <!-- Fond de carte -->
+        <input #fileFond type="file" (change)="onUploadFond($event)" accept="image/*" style="display: none" />
+        <button matButton="filled" (click)="fileFond.click()">
+            <mat-icon>wallpaper</mat-icon>
+            {{ spriteFond() ? 'Changer Fond' : 'Définir Fond' }}
         </button>
 
+        <button matButton="filled" (click)="viderPlateau()" matTooltip="Purger tous les éléments du plateau">
+            <mat-icon>delete_sweep</mat-icon>
+            Purger Carte
+        </button>
+
+        <!-- Bascule tiroir bibliothèque -->
+        <button matButton="filled" [color]="tiroirBibliothequeOuvert() ? 'accent' : 'primary'"
+            (click)="tiroirBibliothequeOuvert.set(!tiroirBibliothequeOuvert())">
+            <mat-icon>collections_bookmark</mat-icon>
+            Bibliothèque Décor
+        </button>
+
+        <!-- Contrôle des dimensions -->
         @if (spriteFond())
         {
         <div class="panneau-fond">
@@ -62,13 +72,69 @@
                 <input matInput type="number" [ngModel]="carteHauteur" (ngModelChange)="changerHauteurFond($event)" />
             </mat-form-field>
 
-            <button matMiniFab (click)="sauvegarderDimensionsFond()"
-                matTooltip="Enregistrer les dimensions">
+            <button matMiniFab (click)="sauvegarderDimensionsFond()" matTooltip="Enregistrer les dimensions">
                 <mat-icon>save</mat-icon>
             </button>
         </div>
         }
     </div>
 
-    <div #canvasContainer class="canvas-wrapper" [class.grabbing]="isDragging()"></div>
+    <!-- Encart Tiroir Bibliothèque de Décors -->
+    @if (tiroirBibliothequeOuvert()) {
+    <aside class="tiroir-bibliotheque unsc-panel">
+        <!-- Header tactique UNSC -->
+        <div class="tiroir-entete">
+            <div class="titre">
+                <mat-icon>inventory_2</mat-icon>
+                <span>[ARCHIVES TACTIQUES // DÉCORS]</span>
+            </div>
+            <button mat-icon-button (click)="tiroirBibliothequeOuvert.set(false)" aria-label="Fermer le terminal">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <!-- Zone d'importation de données -->
+        <div class="tiroir-upload">
+            <input #fileDecor type="file" (change)="onUploadNouveauDecor($event)" accept="image/*"
+                style="display: none" />
+            <button mat-flat-button color="primary" class="unsc-btn-upload" (click)="fileDecor.click()">
+                <mat-icon>upload_file</mat-icon>
+                CHARGER SCHÉMA TACTIQUE
+            </button>
+        </div>
+
+        <!-- Grille des matrices visuelles -->
+        <div class="liste-decors">
+            @for (item of bibliothequeDecors(); track item.id) 
+            {
+            <div class="carte-decor-item" 
+                    draggable="true" 
+                    (dragstart)="onDragStartDecor($event, item)"
+                    (click)="placerDecorAuCentre(item)">
+
+                <div class="cadre-apercu">
+                    <img [src]="item.urlImage" [alt]="item.nomRecherche || 'Matrice décor'" draggable="false" />
+                </div>
+                <span class="nom-decor">// {{ (item.nomRecherche || 'OBJET_NON_IDENTIFIE') }}</span>
+            </div>
+            } @empty {
+            <div class="aucun-decor">
+                <mat-icon>warning_amber</mat-icon>
+                <span>AUCUNE DONNÉE CARTOGRAPHIQUE</span>
+            </div>
+            }
+        </div>
+
+        <!-- Footer d'état Datapad -->
+        <div class="tiroir-statut">
+            <span>NETCOM: ACTIF</span>
+            <span>ENTRÉES: {{ bibliothequeDecors().length }}</span>
+        </div>
+    </aside>
+    }
+
+    <!-- Zone de rendu PixiJS réceptrice du Drop -->
+    <div #canvasContainer class="canvas-wrapper" [class.grabbing]="isDragging()" (dragover)="onDragOverCanvas($event)"
+        (drop)="onDropDecorSurCanvas($event)">
+    </div>
 </div>
