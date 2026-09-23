@@ -92,7 +92,6 @@ export class EditeurCarte implements OnInit, OnDestroy
     private layerFond = new Container();
     private layerDecors = new Container();
     private layerPions = new Container();
-    private layerOverlay = new Container();
 
     // Dimensions de la zone de bataille
     protected carteLargeur = 3840;
@@ -110,6 +109,7 @@ export class EditeurCarte implements OnInit, OnDestroy
     private listePionsInstancies: PionInteractifEtat[] = [];
 
     private dragEnCours = false;
+    private themeObserver?: MutationObserver;
     protected spriteFond = signal<Sprite>(null);
 
     async ngOnInit(): Promise<void>
@@ -161,14 +161,15 @@ export class EditeurCarte implements OnInit, OnDestroy
     private dessinerGrilleParDefaut(): void
     {
         const fondTactique = new Graphics();
+        const c = this.getCouleursTheme();
 
-        // Fond spatial sombre
+        // Fond plateau
         fondTactique
             .rect(0, 0, this.carteLargeur, this.carteHauteur)
-            .fill({ color: 0x070c14 })
-            .stroke({ width: 3, color: 0x00a8ff, alpha: 0.6 });
+            .fill({ color: c.fondPlateau })
+            .stroke({ width: 3, color: c.bordurePlateau, alpha: 0.6 });
 
-        // Quadrillage tactique espacé (mailles de 200px)
+        // Quadrillage
         const pas = 200;
         fondTactique.beginPath();
         for (let x = pas; x < this.carteLargeur; x += pas)
@@ -179,7 +180,7 @@ export class EditeurCarte implements OnInit, OnDestroy
         {
             fondTactique.moveTo(0, y).lineTo(this.carteLargeur, y);
         }
-        fondTactique.stroke({ width: 1, color: 0x00a8ff, alpha: 0.08 });
+        fondTactique.stroke({ width: 1, color: c.couleurGrille, alpha: c.grilleAlpha });
 
         this.layerFond.addChild(fondTactique);
     }
@@ -598,7 +599,7 @@ export class EditeurCarte implements OnInit, OnDestroy
 
         await this.app.init({
             resizeTo: elementConteneur,
-            backgroundColor: 0x0a111a,
+            backgroundColor: this.getCouleursTheme().fondCanvas,
             resolution: window.devicePixelRatio || 1,
             autoDensity: true,
             antialias: true
@@ -610,15 +611,10 @@ export class EditeurCarte implements OnInit, OnDestroy
         this.viewport.addChild(this.layerFond);
         this.viewport.addChild(this.layerDecors);
         this.viewport.addChild(this.layerPions);
-        this.viewport.addChild(this.layerOverlay);
         this.app.stage.addChild(this.viewport);
 
-        // Tracé du fond de carte et bordure
-        const fondZone = new Graphics()
-            .rect(0, 0, this.carteLargeur, this.carteHauteur)
-            .fill({ color: 0x070c14 })
-            .stroke({ width: 3, color: 0x00a8ff, alpha: 0.6 });
-        this.layerFond.addChild(fondZone);
+        // Grille initiale dynamique (adapte au thème clair/sombre dès l'ouverture)
+        this.dessinerGrilleParDefaut();
 
         // Recentrage initial
         this.recentrerVue();
@@ -629,6 +625,20 @@ export class EditeurCarte implements OnInit, OnDestroy
             this.app.resize();
         });
         this.redimensionnementObservateur.observe(elementConteneur);
+
+        // Surveillance du changement de thème
+        this.themeObserver = new MutationObserver(() =>
+        {
+            const c = this.getCouleursTheme();
+            this.app.renderer.background.color = c.fondCanvas;
+
+            if (!this.spriteFond()) 
+            {
+                this.layerFond.removeChildren();
+                this.dessinerGrilleParDefaut();
+            }
+        });
+        this.themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     }
 
     private recentrerVue(): void
@@ -1242,12 +1252,30 @@ export class EditeurCarte implements OnInit, OnDestroy
         });
     }
 
+    private estModeClair(): boolean 
+    {
+        return document.documentElement.classList.contains('light-mode');
+    }
+
+    private getCouleursTheme() 
+    {
+        const light = this.estModeClair();
+        return {
+            fondCanvas: light ? 0xf4f6f9 : 0x0a111a,
+            fondPlateau: light ? 0xe9edf2 : 0x070c14,
+            bordurePlateau: light ? 0x0077b6 : 0x00a8ff,
+            grilleAlpha: light ? 0.12 : 0.08,
+            couleurGrille: light ? 0x0077b6 : 0x00a8ff
+        };
+    }
+
     ngOnDestroy(): void
     {
         if (this.boucleAnimationClavier)
             cancelAnimationFrame(this.boucleAnimationClavier);
 
         this.redimensionnementObservateur?.disconnect();
+        this.themeObserver?.disconnect();
         this.app.destroy(true, { children: true });
     }
 }

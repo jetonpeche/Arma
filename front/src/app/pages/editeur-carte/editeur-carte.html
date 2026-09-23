@@ -45,8 +45,7 @@
         </button>
 
         <!-- Bascule tiroir bibliothèque -->
-        <button matButton="filled" [color]="tiroirBibliothequeOuvert() ? 'accent' : 'primary'"
-            (click)="tiroirBibliothequeOuvert.set(!tiroirBibliothequeOuvert())">
+        <button matButton="filled" (click)="tiroirBibliothequeOuvert.set(!tiroirBibliothequeOuvert())">
             <mat-icon>collections_bookmark</mat-icon>
             Bibliothèque Décor
         </button>
