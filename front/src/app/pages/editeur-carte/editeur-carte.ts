@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import { SessionCombatBibliotheque } from '@models/SessionCombat';
+import { SessionCombatBibliothequeDecor } from '@models/SessionCombat';
 
 export interface ArmeVisualisation
 {
@@ -76,7 +76,7 @@ export class EditeurCarte implements OnInit, OnDestroy
 
     protected isDragging = signal<boolean>(false);
     protected conserverRatio = signal<boolean>(true);
-    protected bibliothequeDecors = signal<SessionCombatBibliotheque[]>([]);
+    protected bibliothequeDecors = signal<SessionCombatBibliothequeDecor[]>([]);
     private ratioFondOriginal = 16 / 9;
 
     // Configuration de la navigation souris & tactile
@@ -98,7 +98,7 @@ export class EditeurCarte implements OnInit, OnDestroy
     protected carteHauteur = 2160;
 
     protected tiroirBibliothequeOuvert = signal<boolean>(false);
-    private decorEnCoursDeDrag: SessionCombatBibliotheque | null = null;
+    private decorEnCoursDeDrag: SessionCombatBibliothequeDecor | null = null;
 
     private pionSelectionne: PionInteractifEtat | null = null;
     private redimensionnementObservateur?: ResizeObserver;
@@ -185,7 +185,7 @@ export class EditeurCarte implements OnInit, OnDestroy
         this.layerFond.addChild(fondTactique);
     }
 
-    protected onDragStartDecor(event: DragEvent, item: SessionCombatBibliotheque): void
+    protected onDragStartDecor(event: DragEvent, item: SessionCombatBibliothequeDecor): void
     {
         this.dragEnCours = true;
         this.decorEnCoursDeDrag = item;
@@ -293,7 +293,7 @@ export class EditeurCarte implements OnInit, OnDestroy
     }
 
     // Permet de poser le décor au centre de l'écran en un tap sur mobile
-    protected placerDecorAuCentre(decorItem: SessionCombatBibliotheque): void
+    protected placerDecorAuCentre(decorItem: SessionCombatBibliothequeDecor): void
     {
         // Si c'était un drag ou si on est sur grand écran avec souris, on annule
         if (this.dragEnCours || window.innerWidth > 800)

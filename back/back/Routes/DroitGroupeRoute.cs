@@ -114,7 +114,7 @@ public static class DroitGroupeRoute
           int id = db.GetCollection<DroitGroupe>().Insert(droitGroupe);
 
           if(_requete.EstDefaut)
-               db.GetCollection<DroitGroupe>().UpdateMany(x => new() { EstDefaut = false }, x => x.Id != id);
+               db.GetCollection<DroitGroupe>().UpdateMany(_ => new() { EstDefaut = false }, x => x.Id != id);
 
           return Results.Created("", id);
      }
@@ -147,7 +147,7 @@ public static class DroitGroupeRoute
           var ok = db.GetCollection<DroitGroupe>().Update(droitGroupe);
 
           if(_requete.EstDefaut)
-               db.GetCollection<DroitGroupe>().UpdateMany(x => new() { EstDefaut = false }, x => x.Id != _idDroitGroupe);
+               db.GetCollection<DroitGroupe>().UpdateMany(_ => new() { EstDefaut = false }, x => x.Id != _idDroitGroupe);
 
           return ok ? Results.NoContent() : Results.NotFound("Le groupe de droit n'existe pas");
      }
@@ -165,8 +165,8 @@ public static class DroitGroupeRoute
 
           if (droitGroupeCol.Exists(x => x.Id == _idDroitGroupe))
           {
-               droitGroupeCol.UpdateMany(x => new() { EstDefaut = false }, x => x.Id != _idDroitGroupe);
-               droitGroupeCol.UpdateMany(x => new() { EstDefaut = true }, x => x.Id == _idDroitGroupe);
+               droitGroupeCol.UpdateMany(_ => new() { EstDefaut = false }, x => x.Id != _idDroitGroupe);
+               droitGroupeCol.UpdateMany(_ => new() { EstDefaut = true }, x => x.Id == _idDroitGroupe);
 
                return Results.NoContent();
           }

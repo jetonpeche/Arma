@@ -14,6 +14,14 @@ public sealed class SessionCombatReponse
     public required List<SessionCombatPionReponse> ListePion { get; set; }
     public required List<SessionCombatDecorReponse> ListeDecor { get; set; }
     public List<SessionCombatBibliothequeDecorReponse> BibliothequeDecor { get; set; } = [];
+    public List<SessionCombatBibliothequeVaisseauReponse> BibliothequeVaisseau { get; set; } = [];
+}
+
+public sealed class SessionCombatBibliothequeVaisseauReponse
+{
+    public int Id { get; set; }
+    public string? UrlImage { get; set; }
+    public string? Nom { get; set; }
 }
 
 public sealed class SessionCombatPionReponse

@@ -9,7 +9,8 @@ export type SessionCombat =
     largeur: number,
     listePion: SessionCombatPion[],
     listeDecor: SessionCombatDecor[],
-    bibliothequeDecor: SessionCombatBibliotheque[]
+    bibliothequeDecor: SessionCombatBibliothequeDecor[],
+    bibliothequeVaisseau: SessionCombatBibliothequeVaisseau[]
 }
 
 export type SessionCombatPion =
@@ -38,12 +39,20 @@ export type SessionCombatDecor =
     listeIdUtilisateurAutoriser: number[]
 }
 
-export type SessionCombatBibliotheque =
+export type SessionCombatBibliothequeDecor =
 {
     id: number,
     nomRecherche: string | null,
     urlImage: string
 }
+
+export type SessionCombatBibliothequeVaisseau =
+{
+    id: number,
+    nom: string,
+    urlImage: string
+}
+
 
 export type ModifierFondTransformRequete =
 {

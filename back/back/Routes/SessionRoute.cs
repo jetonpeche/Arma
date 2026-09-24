@@ -126,6 +126,16 @@ public static class SessionRoute
                 UrlImage = baseUrl + x.NomImage
             }).ToList());
 
+        string baseUrlVaisseau = _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_VAISSEAU;
+
+        plateau.BibliothequeVaisseau.AddRange(db.GetCollection<Vaisseau>().Query()
+            .Select(x => new SessionCombatBibliothequeVaisseauReponse
+            {
+                Id = x.Id,
+                Nom = x.Nom,
+                UrlImage = baseUrlVaisseau +  x.NomFichierSprite
+            }).ToList());
+
         return Results.Ok(plateau);
     }
 
