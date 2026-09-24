@@ -15,6 +15,7 @@ public sealed class SessionCombatReponse
     public required List<SessionCombatDecorReponse> ListeDecor { get; set; }
     public List<SessionCombatBibliothequeDecorReponse> BibliothequeDecor { get; set; } = [];
     public List<SessionCombatBibliothequeVaisseauReponse> BibliothequeVaisseau { get; set; } = [];
+    public List<SessionCombatBibliothequeVaisseauReponse> BibliothequeAeronef { get; set; } = [];
 }
 
 public sealed class SessionCombatBibliothequeVaisseauReponse

@@ -41,6 +41,7 @@ public sealed class VaisseauPosseder
 public sealed class ModuleVaisseauPosseder
 {
     public Guid IdModuleDefaut { get; set; }
+    public int NbDetruit { get; set; }
     public EStatutModuleVaisseau Statut { get; set; }
 }
 

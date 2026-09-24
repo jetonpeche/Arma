@@ -1,4 +1,6 @@
+import { ETypeModule } from "@enums/ETypeModule"
 import { TypeStockageLogistique } from "./Logistique"
+import { EEmplacementModule } from "@enums/EEmplacementModule"
 
 export type Vaisseau =
 {
@@ -13,10 +15,26 @@ export type Vaisseau =
     listeStockage: VaisseauStockage[],
     listeVaisseauEnfant: VaisseauLeger[],
     listeAeronef: VaisseauAeronef[],
+    listeModule: VaisseauModule[],
     vitesse: string,
     blindage: string,
     capaciteSpeciale: string | null,
     equipage: VaisseauEquipage
+}
+
+export type VaisseauModule =
+{
+    id?: string,
+    nom: string,
+    type: ETypeModule,
+    emplacement: EEmplacementModule,
+    quantite: number,
+
+    malusPousseeAvantPourcentageParUnite: number,
+    malusFreinagePourcentageParUnite: number,
+
+    malusVirageGauchePourcentageParUnite: number,
+    malusVirageDroitePourcentageParUnite: number
 }
 
 export type VaisseauAeronef =

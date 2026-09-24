@@ -77,10 +77,16 @@ public sealed class ModuleVaisseauPossederReponse
 {
     public required Guid Id { get; set; }
     public required string Nom { get; set; }
+    public required int QuantiteMax { get; set; }
+    public required int QuantiteRestante { get; set; }
     public ETypeModuleVaisseau Type { get; set; }
+    public EEmplacementModule Emplacement { get; set; }
     public EStatutModuleVaisseau Statut { get; set; }
-    public int ImpactVitessePourcentage { get; set; }
-    public int ImpactRotationPourcentage { get; set; }
+    public int MalusPousseeAvantPourcentageParUnite { get; set; }
+    public int MalusFreinagePourcentageParUnite { get; set; }
+
+    public int MalusVirageGauchePourcentageParUnite { get; set; }
+    public int MalusVirageDroitePourcentageParUnite { get; set; }
 }
 
 [JsonSerializable(typeof(List<VaisseauPossederReponse>))]

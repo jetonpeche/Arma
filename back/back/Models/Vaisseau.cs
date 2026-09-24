@@ -41,10 +41,16 @@ public sealed class Vaisseau
 public sealed class ModuleVaisseauDefaut
 {
      public Guid Id { get; set; }
-     public string Nom { get; set; } = null!;
-     public ETypeModuleVaisseau Type { get; set; }
-     public int ImpactVitessePourcentage { get; set; }
-     public int ImpactRotationPourcentage { get; set; }
+    public string Nom { get; set; } = null!;
+    public ETypeModuleVaisseau Type { get; set; }
+    public EEmplacementModule Emplacement { get; set; }
+    public int Quantite { get; set; }
+
+    public int MalusPousseeAvantPourcentageParUnite { get; set; }
+    public int MalusFreinagePourcentageParUnite { get; set; }
+
+    public int MalusVirageGauchePourcentageParUnite { get; set; }
+    public int MalusVirageDroitePourcentageParUnite { get; set; }
 }
 
 public sealed class VaisseauAeronef

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using back.Enums;
 
 namespace back.ModelsExport;
 
@@ -17,10 +18,26 @@ public sealed class VaisseauReponse
      public required ArmementVaisseauReponse[] ListeArmement { get; set; }
      public required VaisseauLegerReponse[] ListeVaisseauEnfant { get; set; }
      public required VaisseauAeronefReponse[] ListeAeronef { get; set; }
+     public required VaisseauModuleReponse[] ListeModule { get; set; }
      public required EquipageVaisseauReponse Equipage { get; set; }
 
      public string Vitesse { get; set; } = null!;
      public string Blindage { get; set; } = null!;
+}
+
+public sealed class VaisseauModuleReponse
+{
+     public Guid Id { get; set; }
+    public string Nom { get; set; } = null!;
+    public ETypeModuleVaisseau Type { get; set; }
+    public EEmplacementModule Emplacement { get; set; }
+    public int Quantite { get; set; }
+
+    public int MalusPousseeAvantPourcentageParUnite { get; set; }
+    public int MalusFreinagePourcentageParUnite { get; set; }
+
+    public int MalusVirageGauchePourcentageParUnite { get; set; }
+    public int MalusVirageDroitePourcentageParUnite { get; set; }
 }
 
 public sealed class VaisseauAeronefReponse

@@ -142,6 +142,88 @@
                     </div>
                     </mat-expansion-panel>
 
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>Escadron(s) embarqué(s) ({{ listeModuleFormArray.length }})</mat-panel-title>
+                            <jp-button-loader matIconButton 
+                                              icon="add" 
+                                              (clicked)="AjouterModule()"
+                                              matTooltip="Ajouter un nouveau module" />
+                        </mat-expansion-panel-header>
+
+                        <div formArrayName="listeModule">
+                            @for (element of listeModuleFormArray.controls; track element; let i = $index; let last = $last) 
+                            {
+                                <jp-grid-container [gap]="15" [formGroupName]="i" style="margin-top: 15px; align-items: center;">
+
+                                    <jp-grid-element [colXs]="12" [colMd]="6">
+                                        <jp-input-text label="Nom" formControlName="nom" />
+                                    </jp-grid-element>
+
+                                    <jp-grid-element [colXs]="12" [colMd]="6">
+                                        <jp-input-number label="Nombre" formControlName="quantite" />
+                                    </jp-grid-element>
+
+                                    <jp-grid-element [colXs]="12" [colMd]="6">
+                                        <jp-input-number label="Malus poussé avant par unité (%)" formControlName="malusPousseeAvantPourcentageParUnite" />
+                                    </jp-grid-element>
+                                    
+                                    <jp-grid-element [colXs]="12" [colMd]="6">
+                                        <jp-input-number label="Malus freinage par unité (%)" formControlName="malusFreinagePourcentageParUnite" />
+                                    </jp-grid-element>
+
+                                    <jp-grid-element [colXs]="12" [colMd]="6">
+                                        <jp-input-number label="Malus virage gauche avant par unité (%)" formControlName="malusVirageGauchePourcentageParUnite" />
+                                    </jp-grid-element>
+                                    
+                                    <jp-grid-element [colXs]="12" [colMd]="6">
+                                        <jp-input-number label="Malus virage droite par unité (%)" formControlName="malusVirageDroitePourcentageParUnite" />
+                                    </jp-grid-element>
+
+                                    <jp-grid-element [colXs]="12" [colMd]="6">
+                                        <mat-form-field>
+                                            <mat-label>Type</mat-label>
+                                            <mat-select formControlName="type">
+                                                @for (type of listeTypeModule; track type.valeur) 
+                                                {
+                                                    <mat-option [value]="type.valeur">{{ type.nom }}</mat-option>
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </jp-grid-element>
+
+                                    <jp-grid-element [colXs]="12" [colMd]="6">
+                                        <mat-form-field>
+                                            <mat-label>Emplacement</mat-label>
+                                            <mat-select formControlName="emplacement">
+                                                @for (emplacement of listeEmplacement; track emplacement.valeur) 
+                                                {
+                                                    <mat-option [value]="emplacement.valeur">{{ emplacement.nom }}</mat-option>
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    </jp-grid-element>
+
+                                    <jp-grid-element [colDefault]="12">
+                                        <div style="text-align: end;">
+                                            <jp-button-loader matMiniFab 
+                                                                        (clicked)="SupprimerModule(i)" 
+                                                                        icon="delete" />
+                                        </div>
+                                    </jp-grid-element>
+                                </jp-grid-container>
+
+                                @if(!last)
+                                {
+                                    <jp-grid-element [colDefault]="12">
+                                        <hr>
+                                    </jp-grid-element>
+                                }
+                            }
+                        </div>
+                    
+                    </mat-expansion-panel>
+
                     <!-- liste des aeronefs -->
                     <mat-expansion-panel>
                         <mat-expansion-panel-header>

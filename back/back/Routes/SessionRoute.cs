@@ -136,6 +136,14 @@ public static class SessionRoute
                 UrlImage = baseUrlVaisseau +  x.NomFichierSprite
             }).ToList());
 
+        plateau.BibliothequeAeronef.AddRange(db.GetCollection<Aeronef>().Query()
+            .Select(x => new SessionCombatBibliothequeVaisseauReponse
+            {
+                Id = x.Id,
+                Nom = x.Nom,
+                UrlImage = baseUrlVaisseau +  x.NomFichierSprite
+            }).ToList());
+
         return Results.Ok(plateau);
     }
 

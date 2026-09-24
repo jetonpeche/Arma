@@ -152,6 +152,19 @@ public static class VaisseauRoute
                          Id = y.Aeronef.Id,
                          Nom = y.Aeronef.Nom,
                          Nombre = y.Nombre
+                    })],
+
+                    ListeModule = [.. x.ListeModuleDefaut.Select(y => new VaisseauModuleReponse
+                    {
+                         Id = y.Id,
+                         Nom = y.Nom,
+                         Quantite = y.Quantite,
+                         Type = y.Type,
+                         Emplacement = y.Emplacement,
+                         MalusFreinagePourcentageParUnite = y.MalusFreinagePourcentageParUnite,
+                         MalusPousseeAvantPourcentageParUnite = y.MalusPousseeAvantPourcentageParUnite,
+                         MalusVirageDroitePourcentageParUnite = y.MalusVirageDroitePourcentageParUnite,
+                         MalusVirageGauchePourcentageParUnite = y.MalusVirageGauchePourcentageParUnite
                     })]
                })
                .ToArray();
@@ -271,15 +284,20 @@ public static class VaisseauRoute
 
                          ListeModule = [.. x.Vaisseau.ListeModuleDefaut.Select(y =>
                          {
-                              var statut = dictModule.TryGetValue(y.Id, out var module);
+                              dictModule.TryGetValue(y.Id, out var module);
 
                               return new ModuleVaisseauPossederReponse
                               {
                                    Id = y.Id,
                                    Nom = y.Nom,
                                    Type = y.Type,
-                                   ImpactRotationPourcentage = y.ImpactRotationPourcentage,
-                                   ImpactVitessePourcentage = y.ImpactVitessePourcentage,
+                                   QuantiteMax = y.Quantite,
+                                   QuantiteRestante = module is null ? y.Quantite : (y.Quantite - module.NbDetruit),
+                                   MalusFreinagePourcentageParUnite = y.MalusFreinagePourcentageParUnite,
+                                   MalusPousseeAvantPourcentageParUnite = y.MalusPousseeAvantPourcentageParUnite,
+                                   MalusVirageDroitePourcentageParUnite = y.MalusVirageDroitePourcentageParUnite,
+                                   MalusVirageGauchePourcentageParUnite = y.MalusVirageGauchePourcentageParUnite,
+                                   Emplacement = y.Emplacement,
                                    Statut = module?.Statut ?? EStatutModuleVaisseau.Operationnel
                               };
                          })],
@@ -438,6 +456,25 @@ public static class VaisseauRoute
                     return Results.BadRequest($"L'aéronef {element.Id} existe pas");
           }
 
+          for (int i = 0; i < _requete.ListeModule.Length; i++)
+          {
+               var element = _requete.ListeModule[i];
+               if (element.Quantite <= 0)
+                    return Results.BadRequest("La quantité de module ne peut pas être négatif");
+
+               if (element.MalusFreinagePourcentageParUnite < 0)
+                    element.MalusFreinagePourcentageParUnite = 0;
+
+               if (element.MalusPousseeAvantPourcentageParUnite < 0)
+                    element.MalusPousseeAvantPourcentageParUnite = 0;
+
+               if (element.MalusVirageDroitePourcentageParUnite < 0)
+                    element.MalusVirageDroitePourcentageParUnite = 0;
+
+               if (element.MalusVirageGauchePourcentageParUnite < 0)
+                    element.MalusVirageGauchePourcentageParUnite = 0;
+          }
+
           for (int i = 0; i < _requete.ListeStockage.Length; i++)
           {
                var element = _requete.ListeStockage[i];
@@ -462,7 +499,7 @@ public static class VaisseauRoute
                     if (nb != element.ListeContenuDefaut.Length)
                          return Results.BadRequest($"Un idLogistique n'existe pas dans {element.Nom}");
                }
-        }
+          }
 
           for (int i = 0; i < _requete.ListeIdVaisseauEnfant.Length; i++)
           {
@@ -491,7 +528,19 @@ public static class VaisseauRoute
                {
                     NbPlaceMarines = _requete.Equipage.NbPlaceMarines,
                     NbPlacePassager = _requete.Equipage.NbPlacePassager
-               }
+               },
+               ListeModuleDefaut = [.. _requete.ListeModule.Select(x => new ModuleVaisseauDefaut
+               {
+                    Id = Guid.NewGuid(),
+                    Nom = x.Nom.XSS(),
+                    Emplacement = x.Emplacement,
+                    Quantite = x.Quantite,
+                    Type = x.Type,
+                    MalusFreinagePourcentageParUnite = x.MalusFreinagePourcentageParUnite,
+                    MalusPousseeAvantPourcentageParUnite = x.MalusPousseeAvantPourcentageParUnite,
+                    MalusVirageDroitePourcentageParUnite = x.MalusVirageDroitePourcentageParUnite,
+                    MalusVirageGauchePourcentageParUnite = x.MalusVirageGauchePourcentageParUnite
+               })]
           };
 
           if (_requete.ListeIdVaisseauEnfant.Length > 0)
@@ -759,7 +808,26 @@ public static class VaisseauRoute
 
                if (element.NbNombreReloadParNbTour < 0)
                     return Results.BadRequest("Le nombre de munition recharger ne peut pas être inférieur à zéro");
-        }
+          }
+
+          for (int i = 0; i < _requete.ListeModule.Length; i++)
+          {
+               var element = _requete.ListeModule[i];
+               if (element.Quantite <= 0)
+                    return Results.BadRequest("La quantité de module ne peut pas être négatif");
+
+               if (element.MalusFreinagePourcentageParUnite < 0)
+                    element.MalusFreinagePourcentageParUnite = 0;
+
+               if (element.MalusPousseeAvantPourcentageParUnite < 0)
+                    element.MalusPousseeAvantPourcentageParUnite = 0;
+
+               if (element.MalusVirageDroitePourcentageParUnite < 0)
+                    element.MalusVirageDroitePourcentageParUnite = 0;
+
+               if (element.MalusVirageGauchePourcentageParUnite < 0)
+                    element.MalusVirageGauchePourcentageParUnite = 0;
+          }
 
           for (int i = 0; i < _requete.ListeStockage.Length; i++)
           {
@@ -791,7 +859,7 @@ public static class VaisseauRoute
                     if (nb != element.ListeContenuDefaut.Length)
                          return Results.BadRequest($"Un idLogistique n'existe pas dans {element.Nom}");
                }
-        }
+          }
 
           for (int i = 0; i < _requete.ListeIdVaisseauEnfant.Length; i++)
           {
@@ -867,7 +935,41 @@ public static class VaisseauRoute
                };
           })];
 
-          // supprime les stockages existants qui ne sont pas dans la requete
+          var dictModuleDefaut = vaisseau.ListeModuleDefaut.ToDictionary(x => x.Id);
+
+          vaisseau.ListeModuleDefaut = [.. _requete.ListeModule.Select(x =>
+          {
+               if(x.Id.HasValue && dictModuleDefaut.TryGetValue(x.Id.Value, out var moduleRef))
+               {
+                    return new ModuleVaisseauDefaut
+                    {
+                         Id = moduleRef.Id,
+                         Nom = x.Nom.XSS(),
+                         Quantite = x.Quantite,
+                         Emplacement = x.Emplacement,
+                         Type = x.Type,
+                         MalusFreinagePourcentageParUnite = x.MalusFreinagePourcentageParUnite,
+                         MalusPousseeAvantPourcentageParUnite = x.MalusPousseeAvantPourcentageParUnite,
+                         MalusVirageDroitePourcentageParUnite = x.MalusVirageDroitePourcentageParUnite,
+                         MalusVirageGauchePourcentageParUnite = x.MalusVirageGauchePourcentageParUnite
+                    };
+               }
+
+               return new ModuleVaisseauDefaut
+               {
+                    Id = Guid.NewGuid(),
+                    Nom = x.Nom.XSS(),
+                    Quantite = x.Quantite,
+                    Emplacement = x.Emplacement,
+                    Type = x.Type,
+                    MalusFreinagePourcentageParUnite = x.MalusFreinagePourcentageParUnite,
+                    MalusPousseeAvantPourcentageParUnite = x.MalusPousseeAvantPourcentageParUnite,
+                    MalusVirageDroitePourcentageParUnite = x.MalusVirageDroitePourcentageParUnite,
+                    MalusVirageGauchePourcentageParUnite = x.MalusVirageGauchePourcentageParUnite
+               };
+          })];
+
+        // supprime les stockages existants qui ne sont pas dans la requete
           if (_requete.ListeStockage.Count(x => x.Id.HasValue) < vaisseau.ListeStockage.Count)
           {
                var stockageSupprimer = vaisseau.ListeStockage
@@ -887,7 +989,7 @@ public static class VaisseauRoute
                }
           }
 
-        var listeIdAeronef = _requete.ListeAeronef.Select(x => x.Id);
+          var listeIdAeronef = _requete.ListeAeronef.Select(x => x.Id);
 
           // supprimer les aeronefs dans vaisseaux possedé qui ne sont pas dans la requete
           var listeIdAeronefSupprimer = vaisseau.ListeAeronef
@@ -905,6 +1007,22 @@ public static class VaisseauRoute
                db.GetCollection<VaisseauPosseder>().Update(listeVaisseauPosseder);
           }
 
+        // supprimer les modules dans vaisseaux possedé qui ne sont pas dans la requete
+          var listeIdModuleSupprimer = vaisseau.ListeModuleDefaut
+                    .Where(x => !_requete.ListeModule.Any(y => y.Id == x.Id))
+                    .Select(x => x.Id)
+                    .ToArray();
+
+          if (listeIdModuleSupprimer.Length > 0)
+          {
+               var listeVaisseauPosseder = db.GetCollection<VaisseauPosseder>().Query().Where(x => x.Vaisseau.Id == vaisseau.Id).ToArray();
+
+               foreach (var element in listeVaisseauPosseder)
+                    element.ListeModule.RemoveAll(x => listeIdModuleSupprimer.Contains(x.IdModuleDefaut));
+
+               db.GetCollection<VaisseauPosseder>().Update(listeVaisseauPosseder);
+          }
+
           var dictStockage = vaisseau.ListeStockage
               .ToDictionary(x => x.Id);
 
@@ -914,7 +1032,7 @@ public static class VaisseauRoute
                Nombre = x.Nombre
           })];
 
-        vaisseau.ListeStockage = [.. _requete.ListeStockage.Select(x =>
+          vaisseau.ListeStockage = [.. _requete.ListeStockage.Select(x =>
           {
                if(x.Id.HasValue && dictStockage.TryGetValue(x.Id.Value, out var stockage))
                {

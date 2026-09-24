@@ -13,4 +13,5 @@ public sealed class Aeronef
     public string Role { get; set; } = null!;
     public string? Description { get; set; }
     public string? NomImage { get; set; }
+    public string? NomFichierSprite { get; set; }
 }

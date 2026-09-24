@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { InputText, ButtonLoader, InputNumber, InputTextarea, InputAutocomplete, AutocompleteDataSource } from "@jetonpeche/angular-mat-input";
-import { Vaisseau, VaisseauArmement, VaisseauLeger, VaisseauStockage } from '@models/Vaisseau';
+import { Vaisseau, VaisseauArmement, VaisseauLeger, VaisseauModule, VaisseauStockage } from '@models/Vaisseau';
 import { SnackBarService } from '@services/SnackBarService';
 import { GridContainer, GridElement } from "@jetonpeche/angular-responsive";
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -17,6 +17,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from "@angular/material/button";
 import { AeronefService } from '@services/AeronefService';
 import { AeronefLeger } from '@models/Aeronef';
+import { ETypeModule } from '@enums/ETypeModule';
+import { EEmplacementModule } from '@enums/EEmplacementModule';
 
 @Component({
   selector: 'app-ajouter-modifier-vaisseau',
@@ -33,6 +35,33 @@ export class AjouterModifierVaisseau implements OnInit
     protected listeVaisseauLeger = signal<VaisseauLeger[]>([]);
     protected listeLogistiqueGlobale = signal<Logistique[]>([]);
     protected listeAeronef = signal<AeronefLeger[]>([]);
+    protected listeTypeModule = [
+        { valeur: ETypeModule.Bouclier, nom: "Bouclier" },
+        { valeur: ETypeModule.Moteur, nom: "Moteur" },
+        { valeur: ETypeModule.Passerelle, nom: "Passerelle" },
+        { valeur: ETypeModule.Reacteur, nom: "Reacteur" },
+        { valeur: ETypeModule.Senseurs, nom: "Senseurs" },
+        { valeur: ETypeModule.Autre, nom: "Autre" }
+    ];
+
+    protected listeEmplacement = [
+        { valeur: EEmplacementModule.Arriere, nom: "Arrière" },
+        { valeur: EEmplacementModule.ArriereDroit, nom: "Arrière droite" },
+        { valeur: EEmplacementModule.ArriereGauche, nom: "Arrière gauche" },
+        { valeur: EEmplacementModule.ArriereCentre, nom: "Arrière centre" },
+
+        { valeur: EEmplacementModule.Avant, nom: "Avant" },
+        { valeur: EEmplacementModule.AvantDroit, nom: "Avant droit" },
+        { valeur: EEmplacementModule.AvantGauche, nom: "Avant gauche" },
+        { valeur: EEmplacementModule.AvantCentre, nom: "Avant centre" },
+
+        { valeur: EEmplacementModule.Central, nom: "Central" },
+        { valeur: EEmplacementModule.CentralDroit, nom: "Central droit" },
+        { valeur: EEmplacementModule.CentralGauche, nom: "Central gauche" },
+
+        { valeur: EEmplacementModule.Droite, nom: "Droite" },
+        { valeur: EEmplacementModule.Gauche, nom: "Gauche" }
+    ];
 
     private matDialogData: Vaisseau = inject(MAT_DIALOG_DATA);
 
@@ -56,6 +85,11 @@ export class AjouterModifierVaisseau implements OnInit
     get listeAeronefFormArray(): FormArray 
     {
         return this.form.get('listeAeronef') as FormArray;
+    }
+
+    get listeModuleFormArray(): FormArray 
+    {
+        return this.form.get('listeModule') as FormArray;
     }
 
     ngOnInit(): void
@@ -87,7 +121,8 @@ export class AjouterModifierVaisseau implements OnInit
             listeIdVaisseauEnfant: new FormControl<number[]>(this.matDialogData?.listeVaisseauEnfant.map(x => x.id) ?? []),
             listeStockage: new FormArray([]),
             listeArmement: new FormArray([]),
-            listeAeronef: new FormArray([])
+            listeAeronef: new FormArray([]),
+            listeModule: new FormArray([])
         });
 
         if(this.matDialogData)
@@ -102,7 +137,29 @@ export class AjouterModifierVaisseau implements OnInit
 
             for (const element of this.matDialogData.listeAeronef)
                 this.AjouterAeronef(element);
+
+            for (const element of this.matDialogData.listeModule)
+                this.AjouterModule(element);
         }
+    }
+
+    protected AjouterModule(_module?: VaisseauModule): void
+    {
+        this.listeModuleFormArray.push(new FormGroup({
+            id: new FormControl(_module?.id),
+            type: new FormControl(_module?.type ?? ETypeModule.Reacteur, [Validators.required]),
+            emplacement: new FormControl(_module?.emplacement ?? EEmplacementModule.Arriere, [Validators.required]),
+            malusFreinagePourcentageParUnite: new FormControl(_module?.malusFreinagePourcentageParUnite ?? 0, [Validators.required, Validators.min(0)]),
+            malusPousseeAvantPourcentageParUnite: new FormControl(_module?.malusPousseeAvantPourcentageParUnite ?? 0, [Validators.required, Validators.min(0)]),
+            malusVirageGauchePourcentageParUnite: new FormControl(_module?.malusVirageGauchePourcentageParUnite ?? 0, [Validators.required, Validators.min(0)]),
+            malusVirageDroitePourcentageParUnite: new FormControl(_module?.malusVirageDroitePourcentageParUnite ?? 0, [Validators.required, Validators.min(0)]),
+            quantite: new FormControl(_module?.quantite ?? 1, [Validators.required, Validators.min(1)]),
+        }));
+    }
+
+    protected SupprimerModule(_index: number): void
+    {
+        this.listeModuleFormArray.removeAt(_index);
     }
 
     protected AjouterAeronef(_aeronef?: any): void

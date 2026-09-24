@@ -16,5 +16,6 @@ public class VaisseauModifierRequete
      public required ArmementVaisseauModifierRequete[] ListeArmement { get; set; }
     public required StockageVaisseauModifierRequete[] ListeStockage { get; set; }
      public required AeronefVaisseauRequete[] ListeAeronef { get; set; }
+     public required ModuleVaisseauRequete[] ListeModule { get; set; }
     public required int[] ListeIdVaisseauEnfant { get; set; }
 }
