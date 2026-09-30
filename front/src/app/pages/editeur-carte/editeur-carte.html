@@ -79,58 +79,126 @@
     </div>
 
     <!-- Encart Tiroir Bibliothèque de Décors -->
-    @if (tiroirBibliothequeOuvert()) {
-    <aside class="tiroir-bibliotheque unsc-panel">
-        <!-- Header tactique UNSC -->
-        <div class="tiroir-entete">
-            <div class="titre">
-                <mat-icon>inventory_2</mat-icon>
-                <span>[ARCHIVES TACTIQUES // DÉCORS]</span>
-            </div>
-            <button mat-icon-button (click)="tiroirBibliothequeOuvert.set(false)" aria-label="Fermer le terminal">
-                <mat-icon>close</mat-icon>
-            </button>
+<!-- Encart Tiroir Bibliothèque Tactique -->
+@if (tiroirBibliothequeOuvert()) {
+<aside class="tiroir-bibliotheque unsc-panel">
+    <!-- Header Datapad UNSC -->
+    <div class="tiroir-entete">
+        <div class="titre">
+            <mat-icon>inventory_2</mat-icon>
+            <span>[ ARCHIVES TACTIQUES // DÉPLOIEMENT ]</span>
         </div>
+        <button mat-icon-button (click)="tiroirBibliothequeOuvert.set(false)" aria-label="Fermer le terminal">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
 
-        <!-- Zone d'importation de données -->
-        <div class="tiroir-upload">
-            <input #fileDecor type="file" (change)="onUploadNouveauDecor($event)" accept="image/*"
-                style="display: none" />
-            <button mat-flat-button color="primary" class="unsc-btn-upload" (click)="fileDecor.click()">
-                <mat-icon>upload_file</mat-icon>
-                CHARGER SCHÉMA TACTIQUE
-            </button>
-        </div>
+    <!-- Onglets par catégorie d'actifs -->
+    <mat-tab-group class="unsc-tabs" dynamicHeight="false" animationDuration="150ms">
 
-        <!-- Grille des matrices visuelles -->
-        <div class="liste-decors">
-            @for (item of bibliothequeDecors(); track item.id) 
-            {
-            <div class="carte-decor-item" 
-                    draggable="true" 
-                    (dragstart)="onDragStartDecor($event, item)"
-                    (click)="placerDecorAuCentre(item)">
+        <!-- 1. DÉCORS -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">landscape</mat-icon>
+                <span>DÉCORS ({{ bibliothequeDecors().length }})</span>
+            </ng-template>
 
-                <div class="cadre-apercu">
-                    <img [src]="item.urlImage" [alt]="item.nomRecherche || 'Matrice décor'" draggable="false" />
+            <div class="tab-content">
+                <div class="tiroir-upload">
+                    <input #fileDecor type="file" (change)="onUploadNouveauDecor($event)" accept="image/*" style="display: none" />
+                    <button mat-flat-button color="primary" class="unsc-btn-action" (click)="fileDecor.click()">
+                        <mat-icon>upload_file</mat-icon>
+                        IMPORTER UN DÉCOR
+                    </button>
                 </div>
-                <span class="nom-decor">// {{ (item.nomRecherche || 'OBJET_NON_IDENTIFIE') }}</span>
-            </div>
-            } @empty {
-            <div class="aucun-decor">
-                <mat-icon>warning_amber</mat-icon>
-                <span>AUCUNE DONNÉE CARTOGRAPHIQUE</span>
-            </div>
-            }
-        </div>
 
-        <!-- Footer d'état Datapad -->
-        <div class="tiroir-statut">
-            <span>NETCOM: ACTIF</span>
-            <span>ENTRÉES: {{ bibliothequeDecors().length }}</span>
-        </div>
-    </aside>
-    }
+                <div class="liste-elements">
+                    @for (item of bibliothequeDecors(); track item.id) {
+                    <div class="carte-item" 
+                         draggable="true" 
+                         (dragstart)="onDragStartDecor($event, item)"
+                         (click)="placerDecorAuCentre(item)">
+                        <div class="cadre-apercu">
+                            <img [src]="item.urlImage" [alt]="item.nomRecherche || 'Décor'" draggable="false" />
+                        </div>
+                        <span class="nom-item">// {{ item.nomRecherche || 'OBJET_INCONNU' }}</span>
+                    </div>
+                    } @empty {
+                    <div class="aucun-element">
+                        <mat-icon>warning_amber</mat-icon>
+                        <span>AUCUN DÉCOR DISPONIBLE</span>
+                    </div>
+                    }
+                </div>
+            </div>
+        </mat-tab>
+
+        <!-- 2. VAISSEAUX -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">rocket</mat-icon>
+                <span>VAISSEAUX ({{ bibliothequeVaisseaux().length }})</span>
+            </ng-template>
+
+            <div class="tab-content">
+                <div class="liste-elements">
+                    @for (vaisseau of bibliothequeVaisseaux(); track vaisseau.id) {
+                    <div class="carte-item" 
+                         draggable="true" 
+                         (dragstart)="onDragStartVaisseau($event, vaisseau)"
+                         (click)="placerVaisseauAuCentre(vaisseau)">
+                        <div class="cadre-apercu">
+                            <img [src]="vaisseau.urlImage" [alt]="vaisseau.nom" draggable="false" />
+                        </div>
+                        <span class="nom-item">// {{ vaisseau.nom }}</span>
+                    </div>
+                    } @empty {
+                    <div class="aucun-element">
+                        <mat-icon>warning_amber</mat-icon>
+                        <span>AUCUN CHÂSSIS DE VAISSEAU</span>
+                    </div>
+                    }
+                </div>
+            </div>
+        </mat-tab>
+
+        <!-- 3. AÉRONEFS -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">flight</mat-icon>
+                <span>AÉRONEFS ({{ bibliothequeAeronefs().length }})</span>
+            </ng-template>
+
+            <div class="tab-content">
+                <div class="liste-elements">
+                    @for (aeronef of bibliothequeAeronefs(); track aeronef.id) {
+                    <div class="carte-item" 
+                         draggable="true" 
+                         (dragstart)="onDragStartAeronef($event, aeronef)"
+                         (click)="placerAeronefAuCentre(aeronef)">
+                        <div class="cadre-apercu">
+                            <img [src]="aeronef.urlImage" [alt]="aeronef.nom" draggable="false" />
+                        </div>
+                        <span class="nom-item">// {{ aeronef.nom }}</span>
+                    </div>
+                    } @empty {
+                    <div class="aucun-element">
+                        <mat-icon>warning_amber</mat-icon>
+                        <span>AUCUN ESCADRON RÉPERTORIÉ</span>
+                    </div>
+                    }
+                </div>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+
+    <!-- Footer Datapad -->
+    <div class="tiroir-statut">
+        <span>STATUT: OPÉRATIONNEL</span>
+        <span>REGISTRES: {{ bibliothequeDecors().length + bibliothequeVaisseaux().length + bibliothequeAeronefs().length }}</span>
+    </div>
+</aside>
+}
 
     <!-- Zone de rendu PixiJS réceptrice du Drop -->
     <div #canvasContainer class="canvas-wrapper" [class.grabbing]="isDragging()" (dragover)="onDragOverCanvas($event)"

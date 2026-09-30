@@ -9,7 +9,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import { SessionCombatBibliothequeDecor } from '@models/SessionCombat';
+import { SessionCombatBibliothequeDecor, SessionCombatBibliothequeVaisseau } from '@models/SessionCombat';
+import { MatTabsModule } from '@angular/material/tabs';
 
 export interface ArmeVisualisation
 {
@@ -62,7 +63,7 @@ interface DecorInteractifEtat
 @Component({
     selector: 'app-editeur-carte',
     standalone: true,
-    imports: [MatDividerModule, MatMenuModule, FormsModule, MatTooltipModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule],
+    imports: [MatTabsModule, MatDividerModule, MatMenuModule, FormsModule, MatTooltipModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule],
     templateUrl: './editeur-carte.html',
     styleUrl: './editeur-carte.scss',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -77,6 +78,9 @@ export class EditeurCarte implements OnInit, OnDestroy
     protected isDragging = signal<boolean>(false);
     protected conserverRatio = signal<boolean>(true);
     protected bibliothequeDecors = signal<SessionCombatBibliothequeDecor[]>([]);
+    protected bibliothequeVaisseaux = signal<SessionCombatBibliothequeVaisseau[]>([]);
+    protected bibliothequeAeronefs = signal<SessionCombatBibliothequeVaisseau[]>([]);
+
     private ratioFondOriginal = 16 / 9;
 
     // Configuration de la navigation souris & tactile
@@ -108,6 +112,7 @@ export class EditeurCarte implements OnInit, OnDestroy
     private listeDecorsInstancies: DecorInteractifEtat[] = [];
     private listePionsInstancies: PionInteractifEtat[] = [];
 
+    private elementEnCoursDeDrag: { type: 'decor' | 'vaisseau' | 'aeronef'; data: any } | null = null;
     private dragEnCours = false;
     private themeObserver?: MutationObserver;
     protected spriteFond = signal<Sprite>(null);
@@ -1186,6 +1191,46 @@ export class EditeurCarte implements OnInit, OnDestroy
         this.sessionService.ModifierDecorTransform(requete).subscribe();
     }
 
+    protected onDragStartVaisseau(event: DragEvent, item: SessionCombatBibliothequeVaisseau): void
+    {
+        this.dragEnCours = true;
+        this.elementEnCoursDeDrag = { type: 'vaisseau', data: item };
+        event.dataTransfer?.setData('text/plain', item.id.toString());
+    }
+
+    protected onDragStartAeronef(event: DragEvent, item: SessionCombatBibliothequeVaisseau): void
+    {
+        this.dragEnCours = true;
+        this.elementEnCoursDeDrag = { type: 'aeronef', data: item };
+        event.dataTransfer?.setData('text/plain', item.id.toString());
+    }
+
+    // Placement tactile mobile au tap
+    protected placerVaisseauAuCentre(item: SessionCombatBibliothequeVaisseau): void
+    {
+        if (this.dragEnCours || window.innerWidth > 800)
+        {
+            this.dragEnCours = false;
+            return;
+        }
+        // Appel pour instancier un nouveau pion vaisseau
+        const centre = this.viewport.toLocal({ x: this.app.screen.width / 2, y: this.app.screen.height / 2 });
+        this.instancierPionInteractif(crypto.randomUUID(), item.urlImage, centre.x, centre.y, 0);
+        this.tiroirBibliothequeOuvert.set(false);
+    }
+
+    protected placerAeronefAuCentre(item: SessionCombatBibliothequeVaisseau): void
+    {
+        if (this.dragEnCours || window.innerWidth > 800)
+        {
+            this.dragEnCours = false;
+            return;
+        }
+        const centre = this.viewport.toLocal({ x: this.app.screen.width / 2, y: this.app.screen.height / 2 });
+        this.instancierPionInteractif(crypto.randomUUID(), item.urlImage, centre.x, centre.y, 0);
+        this.tiroirBibliothequeOuvert.set(false);
+    }
+
     private chargerSessionActive(): void
     {
         this.listeDecorsInstancies = [];
@@ -1199,6 +1244,8 @@ export class EditeurCarte implements OnInit, OnDestroy
                 if (!session) return;
 
                 this.bibliothequeDecors.set(session.bibliothequeDecor || []);
+                this.bibliothequeVaisseaux.set(session.bibliothequeVaisseau || []);
+                this.bibliothequeAeronefs.set(session.bibliothequeAeronef || []);
 
                 // 1. Fond de carte
                 if (session.urlImagecarte)

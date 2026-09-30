@@ -10,7 +10,8 @@ export type SessionCombat =
     listePion: SessionCombatPion[],
     listeDecor: SessionCombatDecor[],
     bibliothequeDecor: SessionCombatBibliothequeDecor[],
-    bibliothequeVaisseau: SessionCombatBibliothequeVaisseau[]
+    bibliothequeVaisseau: SessionCombatBibliothequeVaisseau[],
+    bibliothequeAeronef: SessionCombatBibliothequeVaisseau[]
 }
 
 export type SessionCombatPion =
