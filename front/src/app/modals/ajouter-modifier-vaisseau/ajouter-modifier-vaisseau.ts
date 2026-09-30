@@ -147,6 +147,7 @@ export class AjouterModifierVaisseau implements OnInit
     {
         this.listeModuleFormArray.push(new FormGroup({
             id: new FormControl(_module?.id),
+            nom: new FormControl(_module?.nom ?? "", [Validators.required, Validators.maxLength(100)]),
             type: new FormControl(_module?.type ?? ETypeModule.Reacteur, [Validators.required]),
             emplacement: new FormControl(_module?.emplacement ?? EEmplacementModule.Arriere, [Validators.required]),
             malusFreinagePourcentageParUnite: new FormControl(_module?.malusFreinagePourcentageParUnite ?? 0, [Validators.required, Validators.min(0)]),
