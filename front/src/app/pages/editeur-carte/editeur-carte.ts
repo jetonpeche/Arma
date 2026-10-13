@@ -11,6 +11,9 @@ import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { SessionCombatBibliothequeDecor, SessionCombatBibliothequeVaisseau } from '@models/SessionCombat';
 import { MatTabsModule } from '@angular/material/tabs';
+import { EEPionAjout } from '@enums/EPionAjout';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalAjouterPion } from './modal-ajouter-pion/modal-ajouter-pion';
 
 export interface ArmeVisualisation
 {
@@ -26,10 +29,13 @@ interface PionInteractifEtat
     container: Container;
     sprite: Sprite;
     poignee: Graphics;
+    poigneeEchelle: Graphics;
     dessinerArcs: (visible: boolean) => void;
     idPion: string;
+    visibilite: number;
     isDragging: boolean;
     isRotating: boolean;
+    isScaling: boolean;
     dragOffset: { x: number; y: number };
 }
 
@@ -71,15 +77,23 @@ interface DecorInteractifEtat
 export class EditeurCarte implements OnInit, OnDestroy
 {
     // 2. Propriétés pour le menu contextuel dans la classe :
-    protected decorMenuTrigger = viewChild.required(MatMenuTrigger);
+    protected decorMenuTrigger = viewChild.required<MatMenuTrigger>("decorTrigger");
     protected menuPosition = { x: '0px', y: '0px' };
     protected decorCibleMenu = signal<DecorInteractifEtat | null>(null);
+
+    // Référence au trigger du menu pion
+    protected pionMenuTrigger = viewChild.required<MatMenuTrigger>('pionTrigger');
+    protected pionCibleMenu = signal<PionInteractifEtat | null>(null);
+    protected arcsVisibles = signal<boolean>(false);
 
     protected isDragging = signal<boolean>(false);
     protected conserverRatio = signal<boolean>(true);
     protected bibliothequeDecors = signal<SessionCombatBibliothequeDecor[]>([]);
     protected bibliothequeVaisseaux = signal<SessionCombatBibliothequeVaisseau[]>([]);
     protected bibliothequeAeronefs = signal<SessionCombatBibliothequeVaisseau[]>([]);
+
+    private dialog = inject(MatDialog);
+    private estMobile = window.innerWidth <= 800;
 
     private ratioFondOriginal = 16 / 9;
 
@@ -102,7 +116,6 @@ export class EditeurCarte implements OnInit, OnDestroy
     protected carteHauteur = 2160;
 
     protected tiroirBibliothequeOuvert = signal<boolean>(false);
-    private decorEnCoursDeDrag: SessionCombatBibliothequeDecor | null = null;
 
     private pionSelectionne: PionInteractifEtat | null = null;
     private redimensionnementObservateur?: ResizeObserver;
@@ -193,7 +206,7 @@ export class EditeurCarte implements OnInit, OnDestroy
     protected onDragStartDecor(event: DragEvent, item: SessionCombatBibliothequeDecor): void
     {
         this.dragEnCours = true;
-        this.decorEnCoursDeDrag = item;
+        this.elementEnCoursDeDrag = { type: 'decor', data: item };
         if (event.dataTransfer)
         {
             event.dataTransfer.setData('text/plain', item.id.toString());
@@ -206,20 +219,20 @@ export class EditeurCarte implements OnInit, OnDestroy
     {
         event.preventDefault();
         if (event.dataTransfer)
-        {
             event.dataTransfer.dropEffect = 'copy';
-        }
     }
 
     protected onDropDecorSurCanvas(event: DragEvent): void
     {
         event.preventDefault();
-        if (!this.decorEnCoursDeDrag) return;
+        if (!this.elementEnCoursDeDrag)
+            return;
 
-        const decorItem = this.decorEnCoursDeDrag;
-        this.decorEnCoursDeDrag = null;
+        const dragItem = this.elementEnCoursDeDrag;
+        this.elementEnCoursDeDrag = null;
+        this.dragEnCours = false;
 
-        // Coordonnées de dépôt converties dans l'espace du monde PixiJS
+        // Coordonnées de dépôt converties dans le repère PixiJS
         const canvasBounds = this.app.canvas.getBoundingClientRect();
         const mouseGlobal = {
             x: event.clientX - canvasBounds.left,
@@ -230,33 +243,81 @@ export class EditeurCarte implements OnInit, OnDestroy
         const posX = Math.round(Math.max(0, Math.min(this.carteLargeur, pointMonde.x)));
         const posY = Math.round(Math.max(0, Math.min(this.carteHauteur, pointMonde.y)));
 
-        const requetePlacement = {
-            idBibliothequeDecor: decorItem.id,
-            positionX: posX,
-            positionY: posY,
-            echelle: 1,
-            rotationDegres: 0,
-            ordreCalque: this.layerDecors.children.length,
-            visibiliteMode: 0
-        };
+        // CAS 1 : C'est un décor
+        if (dragItem.type === 'decor')
+        {
+            const decorItem: SessionCombatBibliothequeDecor = dragItem.data;
+            const requetePlacement = {
+                idBibliothequeDecor: decorItem.id,
+                positionX: posX,
+                positionY: posY,
+                echelle: 1,
+                rotationDegres: 0,
+                ordreCalque: this.layerDecors.children.length,
+                visibiliteMode: 0
+            };
 
-        // Sauvegarde en base et instanciation immédiate sous le curseur
-        this.sessionService.PlacerDecor(requetePlacement).subscribe({
-            next: async (idDecorGenere: string) =>
+            this.sessionService.PlacerDecor(requetePlacement).subscribe({
+                next: async (idDecorGenere: string) =>
+                {
+                    await this.instancierDecorInteractif({
+                        idDecor: idDecorGenere,
+                        urlSprite: decorItem.urlImage,
+                        positionX: requetePlacement.positionX,
+                        positionY: requetePlacement.positionY,
+                        rotationDegres: requetePlacement.rotationDegres,
+                        echelle: requetePlacement.echelle,
+                        ordreCalque: requetePlacement.ordreCalque,
+                        visibiliteMode: requetePlacement.visibiliteMode
+                    });
+                },
+                error: (err) => console.error("Erreur placement décor via drag & drop :", err)
+            });
+        }
+
+        // CAS 2 : C'est un vaisseau ou un aéronef
+        else if (dragItem.type === 'vaisseau' || dragItem.type === 'aeronef')
+        {
+            const unite: SessionCombatBibliothequeVaisseau = dragItem.data;
+
+            if (dragItem.type == 'vaisseau')
             {
-                await this.instancierDecorInteractif({
-                    idDecor: idDecorGenere,
-                    urlSprite: decorItem.urlImage,
-                    positionX: requetePlacement.positionX,
-                    positionY: requetePlacement.positionY,
-                    rotationDegres: requetePlacement.rotationDegres,
-                    echelle: requetePlacement.echelle,
-                    ordreCalque: requetePlacement.ordreCalque,
-                    visibiliteMode: requetePlacement.visibiliteMode
+                this.dialog.open(ModalAjouterPion, { width: this.estMobile ? "95%" : "50%", maxWidth: "100vw", }).afterClosed().subscribe({
+                    next: (retour) =>
+                    {
+                        if (!retour)
+                            return;
+
+                        console.log(unite);
+
+
+                        this.sessionService.AjouterPion({
+                            idVaisseau: unite.id,
+                            appartenance: EEPionAjout.Pnj,
+                            visibilite: 0,
+                            rotationDegres: 0,
+                            positionY: posY,
+                            positionX: posX,
+                            nomVaisseau: retour.nomVaisseau,
+                            nomCommandant: retour.nomCommandant
+                        }).subscribe({
+                            next: (retour) =>
+                            {
+                                // Instanciation directe d'un pion vaisseau aux coordonnées de dépose
+                                this.instancierPionInteractif(
+                                    retour.idPion,
+                                    unite.urlImage,
+                                    posX,
+                                    posY,
+                                    0
+                                );
+                            }
+                        });
+                    }
                 });
-            },
-            error: (err) => console.error("Erreur placement décor via drag & drop :", err)
-        });
+            }
+
+        }
     }
 
     protected changerLargeurFond(nouvelleLargeur: number): void
@@ -364,7 +425,9 @@ export class EditeurCarte implements OnInit, OnDestroy
                         idPion: pion.idPion,
                         positionX: Math.round(pion.container.x),
                         positionY: Math.round(pion.container.y),
-                        rotationDegres: ((rotDegres % 360) + 360) % 360
+                        rotationDegres: ((rotDegres % 360) + 360) % 360,
+                        echelle: +pion.container.scale.x.toFixed(3),
+                        visibiliteMode: pion.visibilite
                     }).subscribe();
                 }
             },
@@ -572,6 +635,7 @@ export class EditeurCarte implements OnInit, OnDestroy
         if (this.pionSelectionne)
         {
             this.pionSelectionne.poignee.visible = false;
+            this.pionSelectionne.poigneeEchelle.visible = false;
             this.pionSelectionne.dessinerArcs(false);
             this.pionSelectionne = null;
         }
@@ -874,7 +938,7 @@ export class EditeurCarte implements OnInit, OnDestroy
                 return;
             }
 
-            // CAS 2 : Déplacement d'un pion
+            // CAS 2 : Déplacement ou manipulation d'un pion
             if (this.pionSelectionne)
             {
                 if (this.pionSelectionne.isDragging)
@@ -883,13 +947,26 @@ export class EditeurCarte implements OnInit, OnDestroy
                     const cibleY = posLocale.y - this.pionSelectionne.dragOffset.y;
                     this.pionSelectionne.container.x = Math.max(0, Math.min(this.carteLargeur, cibleX));
                     this.pionSelectionne.container.y = Math.max(0, Math.min(this.carteHauteur, cibleY));
-                } else if (this.pionSelectionne.isRotating)
+                } 
+                else if (this.pionSelectionne.isRotating)
                 {
                     const dx = posLocale.x - this.pionSelectionne.container.x;
                     const dy = posLocale.y - this.pionSelectionne.container.y;
                     this.pionSelectionne.container.rotation = Math.atan2(dy, dx) + Math.PI / 2;
                 }
-                return; // Empêche de déplacer la carte en même temps !
+                else if (this.pionSelectionne.isScaling) // Ajout du scaling pour les pions
+                {
+                    const dx = posLocale.x - this.pionSelectionne.container.x;
+                    const dy = posLocale.y - this.pionSelectionne.container.y;
+                    const distanceCurseur = Math.hypot(dx, dy);
+
+                    const texture = this.pionSelectionne.sprite.texture;
+                    const rayonDeReference = Math.hypot(texture.width / 2, texture.height / 2) || 100;
+                    const echelleCalculee = Math.max(0.02, Math.min(distanceCurseur / rayonDeReference, 5.0));
+
+                    this.pionSelectionne.container.scale.set(echelleCalculee);
+                }
+                return;
             }
 
             // CAS 3 : Déplacement de la caméra (Pan)
@@ -917,10 +994,11 @@ export class EditeurCarte implements OnInit, OnDestroy
             }
 
             // Sauvegarde Pion
-            if (this.pionSelectionne && (this.pionSelectionne.isDragging || this.pionSelectionne.isRotating))
+            if (this.pionSelectionne && (this.pionSelectionne.isDragging || this.pionSelectionne.isRotating || this.pionSelectionne.isScaling))
             {
                 this.pionSelectionne.isDragging = false;
                 this.pionSelectionne.isRotating = false;
+                this.pionSelectionne.isScaling = false;
                 this.pionSelectionne.sprite.cursor = 'grab';
 
                 const rotDegres = (this.pionSelectionne.container.rotation * 180) / Math.PI;
@@ -929,7 +1007,9 @@ export class EditeurCarte implements OnInit, OnDestroy
                     idPion: this.pionSelectionne.idPion,
                     positionX: this.pionSelectionne.container.x,
                     positionY: this.pionSelectionne.container.y,
-                    rotationDegres: ((rotDegres % 360) + 360) % 360
+                    rotationDegres: ((rotDegres % 360) + 360) % 360,
+                    echelle: Number(this.pionSelectionne.container.scale.x.toFixed(3)),
+                    visibiliteMode: this.pionSelectionne.visibilite
                 }).subscribe();
             }
         };
@@ -944,6 +1024,8 @@ export class EditeurCarte implements OnInit, OnDestroy
         posX: number,
         posY: number,
         rotationDegres: number,
+        echelle: number = 1,
+        visibilite: number = 0,
         armes: ArmeVisualisation[] = []
     ): Promise<void>
     {
@@ -953,6 +1035,9 @@ export class EditeurCarte implements OnInit, OnDestroy
         const pionContainer = new Container();
         pionContainer.position.set(posX, posY);
         pionContainer.rotation = (rotationDegres * Math.PI) / 180;
+        pionContainer.scale.set(echelle || 1);
+
+        pionContainer.alpha = visibilite === 1 ? 0.65 : 1.0;
 
         const arcsGraphics = new Graphics();
         pionContainer.addChild(arcsGraphics);
@@ -964,7 +1049,7 @@ export class EditeurCarte implements OnInit, OnDestroy
         sprite.cursor = 'grab';
         pionContainer.addChild(sprite);
 
-        // Poignée de rotation centrée sur (0, -distancePion)
+        // 1. Poignée de rotation (Cyan)
         const distancePion = sprite.height / 2 + (estTactile ? 50 : 35);
         const poignee = new Graphics()
             .circle(0, 0, tailleVisibleRot)
@@ -981,6 +1066,27 @@ export class EditeurCarte implements OnInit, OnDestroy
             poignee.hitArea = new Circle(0, 0, 24);
         }
         pionContainer.addChild(poignee);
+
+        // 2. Poignée d'échelle (Jaune)
+        const tailleVisibleEch = estTactile ? 18 : 14;
+        const decalageX = sprite.width / 2 + 10;
+        const decalageY = sprite.height / 2 + 10;
+
+        const poigneeEchelle = new Graphics()
+            .rect(-tailleVisibleEch / 2, -tailleVisibleEch / 2, tailleVisibleEch, tailleVisibleEch)
+            .fill({ color: 0xffcc00, alpha: 0.9 })
+            .stroke({ width: 2, color: 0xffffff });
+
+        poigneeEchelle.position.set(decalageX, decalageY);
+        poigneeEchelle.eventMode = 'static';
+        poigneeEchelle.cursor = 'nwse-resize';
+        poigneeEchelle.visible = false;
+
+        if (estTactile) 
+        {
+            poigneeEchelle.hitArea = new Rectangle(-22, -22, 44, 44);
+        }
+        pionContainer.addChild(poigneeEchelle);
 
         const dessinerArcs = (visible: boolean) =>
         {
@@ -1004,17 +1110,46 @@ export class EditeurCarte implements OnInit, OnDestroy
             }
         };
 
+        // Clic droit : Menu contextuel Vaisseau
+        sprite.on('rightclick', (e: FederatedPointerEvent) =>
+        {
+            e.stopPropagation();
+
+            // Positionne l'ancre invisible sous le curseur
+            this.menuPosition = {
+                x: `${e.client.x}px`,
+                y: `${e.client.y}px`
+            };
+
+            const etatPion: PionInteractifEtat = {
+                container: pionContainer,
+                sprite,
+                poignee,
+                poigneeEchelle,
+                dessinerArcs,
+                idPion,
+                visibilite,
+                isDragging: false,
+                isRotating: false,
+                isScaling: false,
+                dragOffset: { x: 0, y: 0 }
+            };
+
+            this.pionCibleMenu.set(etatPion);
+
+            // Ouvre le menu Angular Material
+            this.pionMenuTrigger().openMenu();
+        });
+
         sprite.on('pointerdown', (e: FederatedPointerEvent) =>
         {
             if (e.button !== 0) return;
 
-            if (this.pionSelectionne && this.pionSelectionne.container !== pionContainer)
-            {
-                this.pionSelectionne.poignee.visible = false;
-                this.pionSelectionne.dessinerArcs(false);
-            }
+            // CORRECTION DU BUG DE SÉLECTION :
+            this.deselectionnerTout();
 
             poignee.visible = true;
+            poigneeEchelle.visible = true;
             dessinerArcs(true);
             sprite.cursor = 'grabbing';
 
@@ -1023,10 +1158,13 @@ export class EditeurCarte implements OnInit, OnDestroy
                 container: pionContainer,
                 sprite,
                 poignee,
+                poigneeEchelle,
                 dessinerArcs,
                 idPion,
+                visibilite,
                 isDragging: true,
                 isRotating: false,
+                isScaling: false,
                 dragOffset: {
                     x: posLocale.x - pionContainer.x,
                     y: posLocale.y - pionContainer.y
@@ -1040,6 +1178,16 @@ export class EditeurCarte implements OnInit, OnDestroy
             if (e.button !== 0 || !this.pionSelectionne) return;
             this.pionSelectionne.isRotating = true;
             this.pionSelectionne.isDragging = false;
+            this.pionSelectionne.isScaling = false;
+            e.stopPropagation();
+        });
+
+        poigneeEchelle.on('pointerdown', (e: FederatedPointerEvent) =>
+        {
+            if (e.button !== 0 || !this.pionSelectionne) return;
+            this.pionSelectionne.isScaling = true;
+            this.pionSelectionne.isDragging = false;
+            this.pionSelectionne.isRotating = false;
             e.stopPropagation();
         });
 
@@ -1048,10 +1196,13 @@ export class EditeurCarte implements OnInit, OnDestroy
             container: pionContainer,
             sprite,
             poignee,
+            poigneeEchelle,
             dessinerArcs,
             idPion,
+            visibilite,
             isDragging: false,
             isRotating: false,
+            isScaling: false,
             dragOffset: { x: 0, y: 0 }
         });
     }
@@ -1195,14 +1346,24 @@ export class EditeurCarte implements OnInit, OnDestroy
     {
         this.dragEnCours = true;
         this.elementEnCoursDeDrag = { type: 'vaisseau', data: item };
-        event.dataTransfer?.setData('text/plain', item.id.toString());
+
+        if (event.dataTransfer) 
+        {
+            event.dataTransfer.setData('text/plain', item.id.toString());
+            event.dataTransfer.effectAllowed = 'copy';
+        }
     }
 
     protected onDragStartAeronef(event: DragEvent, item: SessionCombatBibliothequeVaisseau): void
     {
         this.dragEnCours = true;
         this.elementEnCoursDeDrag = { type: 'aeronef', data: item };
-        event.dataTransfer?.setData('text/plain', item.id.toString());
+
+        if (event.dataTransfer)
+        {
+            event.dataTransfer.setData('text/plain', item.id.toString());
+            event.dataTransfer.effectAllowed = 'copy';
+        }
     }
 
     // Placement tactile mobile au tap
@@ -1229,6 +1390,49 @@ export class EditeurCarte implements OnInit, OnDestroy
         const centre = this.viewport.toLocal({ x: this.app.screen.width / 2, y: this.app.screen.height / 2 });
         this.instancierPionInteractif(crypto.randomUUID(), item.urlImage, centre.x, centre.y, 0);
         this.tiroirBibliothequeOuvert.set(false);
+    }
+
+    // Bascule l'affichage des cônes et portées d'armes
+    protected basculerArcsTir(pion: PionInteractifEtat): void
+    {
+        this.arcsVisibles.set(!this.arcsVisibles());
+        pion.dessinerArcs(this.arcsVisibles());
+    }
+
+    // Bascule le statut furtif / masqué aux joueurs
+    protected basculerVisibilitePion(pion: PionInteractifEtat): void
+    {
+        const estActuellementMasque = pion.container.alpha < 1;
+        const nouvelleAlpha = estActuellementMasque ? 1.0 : 0.65;
+        const visibiliteValeur = estActuellementMasque ? 0 : 1;
+
+        pion.container.alpha = nouvelleAlpha;
+
+        this.sessionService.ModifierPionTransform({
+            idPion: pion.idPion,
+            echelle: +pion.container.scale.x.toFixed(3),
+            positionX: Math.round(pion.container.x),
+            positionY: Math.round(pion.container.y),
+            rotationDegres: Math.round((pion.container.rotation * 180) / Math.PI),
+            visibiliteMode: visibiliteValeur
+        }).subscribe();
+    }
+
+    // Suppression du pion de la scène et en BDD
+    protected supprimerPion(pion: PionInteractifEtat): void
+    {
+        this.sessionService.SupprimerPion(pion.idPion).subscribe({
+            next: () =>
+            {
+                this.layerPions.removeChild(pion.container);
+                pion.container.destroy({ children: true });
+                this.deselectionnerTout();
+
+                // Nettoyage de la liste locale
+                this.listePionsInstancies = this.listePionsInstancies.filter(p => p.idPion !== pion.idPion);
+            },
+            error: (err) => console.error("Erreur suppression pion :", err)
+        });
     }
 
     private chargerSessionActive(): void
@@ -1285,12 +1489,16 @@ export class EditeurCarte implements OnInit, OnDestroy
                 {
                     for (const pion of session.listePion)
                     {
+                        let urlSprite = session.bibliothequeVaisseau.find(x => x.id == pion.idBibliothequePion).urlImage;
+
                         await this.instancierPionInteractif(
                             pion.idPion,
-                            '/assets/paris_class.png',
+                            urlSprite,
                             pion.positionX,
                             pion.positionY,
-                            pion.rotationDegres
+                            pion.rotationDegres,
+                            pion.echelle ?? 1,
+                            pion.visibiliteMode
                         );
                     }
                 }

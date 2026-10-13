@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Ajouter un pion</h2>
+<mat-dialog-content [formGroup]="form">
+    <mat-form-field>
+        <mat-label>Identifiant / Nom du vaisseau</mat-label>
+        <input matInput formControlName="nomVaisseau" />
+    </mat-form-field>
+
+    <mat-form-field style="margin-top: 15px;">
+        <mat-label>Officier commandant</mat-label>
+        <input matInput formControlName="nomCommandant" />
+    </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button matButton="filled" (click)="Valider()">Valider</button>
+    <button matButton="filled" mat-dialog-close>Fermer</button>
+</mat-dialog-actions>

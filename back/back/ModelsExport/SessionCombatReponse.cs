@@ -29,10 +29,12 @@ public sealed class SessionCombatPionReponse
 {
     public required Guid IdPion { get; set; }
     public required int IdVaisseau { get; set; }
+    public required int IdBibliothequePion { get; set; }
 
     public required float PositionX { get; set; }
     public required float PositionY { get; set; }
     public required float RotationDegres { get; set; }
+    public required float Echelle { get; set; }
 
     // Null = contrôlé uniquement par le MJ
     public required int? IdUtilisateurAssigner { get; set; }

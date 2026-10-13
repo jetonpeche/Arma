@@ -96,6 +96,17 @@ public static class FichierRoute
                     );
 
                     return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_VAISSEAU + nouveauNomFichierVaisseau));
+                
+               case ETypeRessource.VaisseauSprite:
+                    var nouveauNomFichierVaisseauSprite = await UploadAsync<Vaisseau>(
+                         _requete.idRessource,
+                         _requete.Fichier,
+                         Constant.CHEMIN_IMG_VAISSEAU,
+                         (x) => x.NomFichierSprite,
+                         (x, s) => x.NomFichierSprite = s
+                    );
+
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_VAISSEAU + nouveauNomFichierVaisseauSprite));
 
                case ETypeRessource.Medaille:
                     var nouveauNomFichierMedaille = await UploadAsync<Medaille>(

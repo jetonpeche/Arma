@@ -18,10 +18,12 @@ export type SessionCombatPion =
 {
     idPion: string,
     idVaisseau: number,
+    idBibliothequePion: number,
     idUtilisateurAssigner: number | null,
     positionX: number,
     positionY: number,
     rotationDegres: number,
+    echelle: number,
     visibiliteMode: EModeVisibilite,
     listeIdUtilisateurAutoriser: number[],
     revelationType: ETypeRevelation

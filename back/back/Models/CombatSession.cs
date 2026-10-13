@@ -8,7 +8,7 @@ public class CombatSession
     [BsonId]
     public int Id { get; set; }
     public string NomPartie { get; set; } = null!;
-    
+
     // Paramètres de la carte
     public string NomImageCarte { get; set; } = null!;
     public int Largeur { get; set; }
@@ -21,22 +21,26 @@ public class CombatSession
 
 public sealed class PionVaisseauCombat
 {
-     public Guid IdPion { get; set; }
-     public int IdVaisseau { get; set; }
-     public bool EstVaisseauPosseder { get; set; }
+    public Guid IdPion { get; set; }
+    public int IdVaisseau { get; set; }
 
-     // Données spatiales sur le Canvas
-     public float PositionX { get; set; }
-     public float PositionY { get; set; }
-     public float RotationDegres { get; set; }
+    [BsonRef]
+    public Vaisseau Vaisseau { get; set; } = null!;
+    public bool EstVaisseauPosseder { get; set; }
 
-     // Null = contrôlé uniquement par le MJ
-     public int? IdUtilisateurAssigner { get; set; }
+    // Données spatiales sur le Canvas
+    public float PositionX { get; set; }
+    public float PositionY { get; set; }
+    public float RotationDegres { get; set; }
+    public float Echelle { get; set; }
 
-     // Gestion de la Visibilité Sélective
-     public EModeVisibilite VisibiliteMode { get; set; }
-     public List<int> IdUtilisateurAutoriser { get; set; } = [];
-     public ETypeRevelation RevelationType { get; set; }
+    // Null = contrôlé uniquement par le MJ
+    public int? IdUtilisateurAssigner { get; set; }
+
+    // Gestion de la Visibilité Sélective
+    public EModeVisibilite VisibiliteMode { get; set; }
+    public List<int> IdUtilisateurAutoriser { get; set; } = [];
+    public ETypeRevelation RevelationType { get; set; }
 }
 
 public sealed class ElementDecorCombat
@@ -45,7 +49,7 @@ public sealed class ElementDecorCombat
 
     [BsonRef]
     public BibliothequeDecorCombat BibliothequeDecor { get; set; } = null!;
-    
+
     public float PositionX { get; set; }
     public float PositionY { get; set; }
     public float Echelle { get; set; } = 1.0f;

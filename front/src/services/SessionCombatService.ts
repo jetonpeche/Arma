@@ -48,9 +48,9 @@ export class SessionCombatService
         return this.http.post<string>(`${this.BASE_API}/placer-decor`, _decor).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
-    AjouterPion(_pion: PionRequete): Observable<string>
+    AjouterPion(_pion: PionRequete): Observable<{ idPion: string, idVaisseau: number }>
     {
-        return this.http.post<string>(`${this.BASE_API}/ajouter-pion`, _pion).pipe(takeUntilDestroyed(this.destroyRef));
+        return this.http.post<{ idPion: string, idVaisseau: number }>(`${this.BASE_API}/ajouter-pion`, _pion).pipe(takeUntilDestroyed(this.destroyRef));
     }
 
     ModifierFondTransform(_transform: ModifierFondTransformRequete): Observable<void>

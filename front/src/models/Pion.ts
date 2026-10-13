@@ -3,16 +3,16 @@ import { EEPionAjout } from "@enums/EPionAjout"
 export type PionRequete = 
 {
     idVaisseau: number,
-    Appartenance: EEPionAjout,
+    appartenance: EEPionAjout,
 
     positionX: number,
     positionY: number,
     rotationDegres: number,
 
-     /// <summary>
-     /// 0 => Tous,
-     /// 1 => MJ uniquement
-     /// </summary>
+     /**
+     * 0 => Tous,
+     * 1 => MJ uniquement
+     */
     visibilite: number,
 
     nomCommandant: string | null,
@@ -24,5 +24,12 @@ export type ModifierPionTransformRequete =
     idPion: string,
     positionX: number,
     positionY: number,
-    rotationDegres: number
+    rotationDegres: number,
+    echelle: number,
+
+    /**
+      * 0 => Tous (defaut)
+      * 1 => MJ seulement
+      */
+    visibiliteMode: number
 }

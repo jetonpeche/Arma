@@ -1,6 +1,16 @@
 <!-- Ancre invisible pour positionner le menu contextuel au clic droit -->
-<div style="visibility: hidden; position: fixed;" [style.left]="menuPosition.x" [style.top]="menuPosition.y"
-    [matMenuTriggerFor]="decorMenu">
+<div style="visibility: hidden; position: fixed;" 
+    [style.left]="menuPosition.x" 
+    [style.top]="menuPosition.y"
+    [matMenuTriggerFor]="decorMenu"
+    #decorTrigger="matMenuTrigger">
+</div>
+
+<div style="visibility: hidden; position: fixed;" 
+     [style.left]="menuPosition.x" 
+     [style.top]="menuPosition.y"
+     [matMenuTriggerFor]="pionMenu"
+     #pionTrigger="matMenuTrigger">
 </div>
 
 <!-- Menu contextuel Décor -->
@@ -26,6 +36,37 @@
     <button mat-menu-item class="btn-danger" (click)="supprimerDecor(decor)">
         <mat-icon>delete</mat-icon>
         <span>Supprimer le décor</span>
+    </button>
+    }
+</mat-menu>
+
+<mat-menu #pionMenu="matMenu" class="unsc-context-menu">
+    @if (pionCibleMenu(); as pion)
+    {
+    <div class="menu-header">
+        <mat-icon>rocket</mat-icon>
+        VECTEUR TACTIQUE
+    </div>
+
+    <button mat-menu-item (click)="basculerArcsTir(pion)">
+        <mat-icon color="primary">radar</mat-icon>
+        <span>{{ arcsVisibles() ? 'Masquer arcs de tir' : 'Afficher arcs de tir' }}</span>
+    </button>
+
+    <button mat-menu-item (click)="basculerVisibilitePion(pion)">
+        <mat-icon [color]="pion.container.alpha < 1 ? 'accent' : 'primary'">
+            {{ pion.container.alpha < 1 ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+        <span>
+            {{ pion.container.alpha < 1 ? 'Révéler aux Joueurs' : 'Camoufler (MJ seul)' }}
+        </span>
+    </button>
+
+    <mat-divider></mat-divider>
+
+    <button mat-menu-item class="btn-danger" (click)="supprimerPion(pion)">
+        <mat-icon>delete</mat-icon>
+        <span>Détruire le vecteur</span>
     </button>
     }
 </mat-menu>

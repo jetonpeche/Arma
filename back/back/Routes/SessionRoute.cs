@@ -85,6 +85,7 @@ public static class SessionRoute
 
         string baseUrl = _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_FICHIER_BATAILLE_SPATIALE;
 
+    #pragma warning disable
         var plateau = db.GetCollection<CombatSession>().Query()
             .Select(x => new SessionCombatReponse
             {
@@ -110,13 +111,16 @@ public static class SessionRoute
                     PositionX = y.PositionX,
                     PositionY = y.PositionY,
                     RotationDegres = y.RotationDegres,
+                    Echelle = y.Echelle,
                     RevelationType = y.RevelationType,
                     VisibiliteMode = y.VisibiliteMode,
                     IdUtilisateurAssigner = y.IdUtilisateurAssigner,
                     ListeIdUtilisateurAutoriser = y.IdUtilisateurAutoriser,
-                    IdVaisseau = y.IdVaisseau
+                    IdVaisseau = y.IdVaisseau,
+                    IdBibliothequePion = y.Vaisseau.Id
                 }).ToList()
             }).First();
+#pragma warning restore
 
         plateau.BibliothequeDecor.AddRange(db.GetCollection<BibliothequeDecorCombat>().Query()
             .Select(x => new SessionCombatBibliothequeDecorReponse
@@ -159,11 +163,13 @@ public static class SessionRoute
         {
             IdPion = Guid.NewGuid(),
             IdVaisseau = _requete.IdVaisseau,
+            Vaisseau = new Vaisseau { Id = _requete.IdVaisseau },
             PositionX = _requete.PositionX,
             PositionY = _requete.PositionY,
             RotationDegres = _requete.RotationDegres,
             EstVaisseauPosseder = _requete.Appartenance == Enums.EPionAjout.Posseder,
             IdUtilisateurAutoriser = [],
+            Echelle = 1,
             RevelationType = Enums.ETypeRevelation.Complet,
             VisibiliteMode = _requete.Visibilite is 0 ? Enums.EModeVisibilite.Tous : Enums.EModeVisibilite.MjUniquement
         };
@@ -184,9 +190,9 @@ public static class SessionRoute
                 NombreBataillesSurvecue = 0
             };
 
-            pion.IdVaisseau = vaisseauPosseder.Id;
-
             db.GetCollection<VaisseauPosseder>().Insert(vaisseauPosseder);
+
+            pion.IdVaisseau = vaisseauPosseder.Id;
             session.ListePionSurCarte.Add(pion);
         }
 
@@ -396,6 +402,8 @@ public static class SessionRoute
         vaisseau.RotationDegres = _requete.RotationDegres;
         vaisseau.PositionX = _requete.PositionX;
         vaisseau.PositionY = _requete.PositionY;
+        vaisseau.Echelle = _requete.Echelle;
+        vaisseau.VisibiliteMode = _requete.visibiliteMode is 0 ? Enums.EModeVisibilite.Tous : Enums.EModeVisibilite.MjUniquement;
 
         db.GetCollection<CombatSession>().Update(session);
 

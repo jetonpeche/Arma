@@ -10,5 +10,6 @@ export enum ETypeRessource
     Planete,
     Specialite,
     Aeronef,
-    Orbat
+    Orbat,
+    VaisseauSprite
 }
