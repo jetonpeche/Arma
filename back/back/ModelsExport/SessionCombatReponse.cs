@@ -23,6 +23,8 @@ public sealed class SessionCombatBibliothequeVaisseauReponse
     public int Id { get; set; }
     public string? UrlImage { get; set; }
     public string? Nom { get; set; }
+    public int RayonDeplacement { get; set; }
+    public int RotationMaxDegres { get; set; }
 }
 
 public sealed class SessionCombatPionReponse

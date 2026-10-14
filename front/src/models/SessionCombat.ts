@@ -53,7 +53,9 @@ export type SessionCombatBibliothequeVaisseau =
 {
     id: number,
     nom: string,
-    urlImage: string
+    urlImage: string,
+    rayonDeplacement: number,
+    rotationMaxDegres: number
 }
 
 

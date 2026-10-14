@@ -293,9 +293,6 @@ export class EditeurCarte implements OnInit, OnDestroy
                         if (!retour)
                             return;
 
-                        console.log(unite);
-
-
                         this.sessionService.AjouterPion({
                             idVaisseau: unite.id,
                             appartenance: EEPionAjout.Pnj,
@@ -314,7 +311,11 @@ export class EditeurCarte implements OnInit, OnDestroy
                                     unite.urlImage,
                                     posX,
                                     posY,
-                                    0
+                                    0,
+                                    1,                                  // Échelle par défaut
+                                    0,                                  // Visibilité
+                                    unite.rayonDeplacement ?? 6,       // Rayon propre au modèle
+                                    unite.rotationMaxDegres ?? 60      // Angle de braquage propre au modèle
                                 );
                             }
                         });
@@ -1460,10 +1461,20 @@ export class EditeurCarte implements OnInit, OnDestroy
             this.dragEnCours = false;
             return;
         }
-        // Appel pour instancier un nouveau pion vaisseau
         const centre = this.viewport.toLocal({ x: this.app.screen.width / 2, y: this.app.screen.height / 2 });
-        this.instancierPionInteractif(crypto.randomUUID(), item.urlImage, centre.x, centre.y, 0);
         this.tiroirBibliothequeOuvert.set(false);
+
+        this.instancierPionInteractif(
+            crypto.randomUUID(),
+            item.urlImage,
+            Math.round(centre.x),
+            Math.round(centre.y),
+            0,
+            1,
+            0,
+            item.rayonDeplacement,
+            item.rotationMaxDegres
+        );
     }
 
     protected placerAeronefAuCentre(item: SessionCombatBibliothequeVaisseau): void
@@ -1474,8 +1485,19 @@ export class EditeurCarte implements OnInit, OnDestroy
             return;
         }
         const centre = this.viewport.toLocal({ x: this.app.screen.width / 2, y: this.app.screen.height / 2 });
-        this.instancierPionInteractif(crypto.randomUUID(), item.urlImage, centre.x, centre.y, 0);
         this.tiroirBibliothequeOuvert.set(false);
+
+        this.instancierPionInteractif(
+            crypto.randomUUID(),
+            item.urlImage,
+            Math.round(centre.x),
+            Math.round(centre.y),
+            0,
+            1,
+            0,
+            item.rayonDeplacement,
+            item.rotationMaxDegres
+        );
     }
 
     // Bascule l'affichage des cônes et portées d'armes
@@ -1575,7 +1597,12 @@ export class EditeurCarte implements OnInit, OnDestroy
                 {
                     for (const pion of session.listePion)
                     {
-                        let urlSprite = session.bibliothequeVaisseau.find(x => x.id == pion.idBibliothequePion).urlImage;
+                        // Recherche dans les vaisseaux, sinon dans les aéronefs
+                        const modele = session.bibliothequeVaisseau?.find(x => x.id === pion.idBibliothequePion);
+
+                        const urlSprite = modele.urlImage;
+                        const rayon = modele.rayonDeplacement;
+                        const rotationMax = modele.rotationMaxDegres;
 
                         await this.instancierPionInteractif(
                             pion.idPion,
@@ -1583,8 +1610,10 @@ export class EditeurCarte implements OnInit, OnDestroy
                             pion.positionX,
                             pion.positionY,
                             pion.rotationDegres,
-                            pion.echelle ?? 1,
-                            pion.visibiliteMode
+                            pion.echelle,
+                            pion.visibiliteMode,
+                            rayon,
+                            rotationMax
                         );
                     }
                 }
