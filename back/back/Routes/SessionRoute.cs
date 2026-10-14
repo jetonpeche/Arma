@@ -147,7 +147,9 @@ public static class SessionRoute
             {
                 Id = x.Id,
                 Nom = x.Nom,
-                UrlImage = baseUrlVaisseau +  x.NomFichierSprite
+                UrlImage = baseUrlVaisseau + x.NomFichierSprite,
+                RayonDeplacement = x.RayonDeplacement,
+                RotationMaxDegres = x.RotationMaxDegres
             }).ToList());
 
         return Results.Ok(plateau);

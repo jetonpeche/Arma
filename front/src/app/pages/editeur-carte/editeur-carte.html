@@ -97,7 +97,7 @@
         <div class="panneau-fond">
             <mat-icon class="icone-fond">aspect_ratio</mat-icon>
 
-            <mat-form-field subscriptSizing="dynamic" class="champ-dim">
+            <mat-form-field class="champ-dim">
                 <mat-label>Largeur</mat-label>
                 <input matInput type="number" [ngModel]="carteLargeur" (ngModelChange)="changerLargeurFond($event)" />
             </mat-form-field>
@@ -107,7 +107,7 @@
                 <mat-icon>{{ conserverRatio() ? 'link' : 'link_off' }}</mat-icon>
             </button>
 
-            <mat-form-field subscriptSizing="dynamic" class="champ-dim">
+            <mat-form-field class="champ-dim">
                 <mat-label>Hauteur</mat-label>
                 <input matInput type="number" [ngModel]="carteHauteur" (ngModelChange)="changerHauteurFond($event)" />
             </mat-form-field>
@@ -117,7 +117,7 @@
             </button>
 
 
-            <mat-form-field subscriptSizing="dynamic" class="champ-dim" matTooltip="Échelle : Pixels par unité de déplacement">
+            <mat-form-field class="champ-dim" matTooltip="Échelle : Pixels par unité de déplacement">
                 <mat-label>Taille Case (px)</mat-label>
                 <input matInput type="number" [ngModel]="tailleCasePixels()" (ngModelChange)="changerEchelleGrille($event)" />
             </mat-form-field>

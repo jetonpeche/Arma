@@ -14,4 +14,6 @@ public sealed class Aeronef
     public string? Description { get; set; }
     public string? NomImage { get; set; }
     public string? NomFichierSprite { get; set; }
+    public int RayonDeplacement { get; set; }
+    public int RotationMaxDegres { get; set; }
 }

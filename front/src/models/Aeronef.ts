@@ -6,7 +6,9 @@ export type Aeronef =
     description: string | null,
     prix: number,
     urlImage: string,
-    urlImageSprite: string
+    urlImageSprite: string,
+    rayonDeplacement: number,
+    rotationMaxDegres: number
 }
 
 export type AeronefLeger =

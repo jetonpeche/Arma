@@ -35,6 +35,8 @@ export class AjouterModifierAeronef implements OnInit
         role: new FormControl(this.matDialogData?.role ?? "", [Validators.maxLength(100), Validators.required]),
         prix: new FormControl(this.matDialogData?.prix ?? "", [Validators.min(1), Validators.required]),
         description: new FormControl(this.matDialogData?.description, [Validators.maxLength(500)]),
+        rayonDeplacement: new FormControl(this.matDialogData?.rayonDeplacement ?? 10, [Validators.required, Validators.min(1)]),
+        rotationMaxDegres: new FormControl(this.matDialogData?.rotationMaxDegres ?? 360, [Validators.required, Validators.min(0), Validators.max(360)])
     });
   }
 
