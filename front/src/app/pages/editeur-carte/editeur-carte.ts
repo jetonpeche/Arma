@@ -30,8 +30,12 @@ interface PionInteractifEtat
     sprite: Sprite;
     poignee: Graphics;
     poigneeEchelle: Graphics;
+    gabaritMouvement: Graphics; // Nouveau calque vectoriel pour le rayon de déplacement
+    dessinerGabarits: (visible: boolean) => void;
     dessinerArcs: (visible: boolean) => void;
     idPion: string;
+    vitesse: number;
+    anglePivotMaxDegres: number;
     visibilite: number;
     isDragging: boolean;
     isRotating: boolean;
@@ -85,6 +89,7 @@ export class EditeurCarte implements OnInit, OnDestroy
     protected pionMenuTrigger = viewChild.required<MatMenuTrigger>('pionTrigger');
     protected pionCibleMenu = signal<PionInteractifEtat | null>(null);
     protected arcsVisibles = signal<boolean>(false);
+    protected tailleCasePixels = signal<number>(100); // 1 unité tactique = 100 pixels
 
     protected isDragging = signal<boolean>(false);
     protected conserverRatio = signal<boolean>(true);
@@ -608,6 +613,20 @@ export class EditeurCarte implements OnInit, OnDestroy
         });
     }
 
+    protected changerEchelleGrille(nouvelleTaille: number): void
+    {
+        if (nouvelleTaille < 20)
+            return;
+
+        this.tailleCasePixels.set(nouvelleTaille);
+
+        // Si un pion est sélectionné, rafraîchit immédiatement son gabarit
+        if (this.pionSelectionne)
+        {
+            this.pionSelectionne.dessinerGabarits(true);
+        }
+    }
+
     private recalculerPositionsElements(ancienneLargeur: number, ancienneHauteur: number): void
     {
         if (ancienneLargeur <= 0 || ancienneHauteur <= 0) return;
@@ -636,6 +655,7 @@ export class EditeurCarte implements OnInit, OnDestroy
         {
             this.pionSelectionne.poignee.visible = false;
             this.pionSelectionne.poigneeEchelle.visible = false;
+            this.pionSelectionne.dessinerGabarits(false);
             this.pionSelectionne.dessinerArcs(false);
             this.pionSelectionne = null;
         }
@@ -947,12 +967,12 @@ export class EditeurCarte implements OnInit, OnDestroy
                     const cibleY = posLocale.y - this.pionSelectionne.dragOffset.y;
                     this.pionSelectionne.container.x = Math.max(0, Math.min(this.carteLargeur, cibleX));
                     this.pionSelectionne.container.y = Math.max(0, Math.min(this.carteHauteur, cibleY));
-                } 
+                }
                 else if (this.pionSelectionne.isRotating)
                 {
                     const dx = posLocale.x - this.pionSelectionne.container.x;
                     const dy = posLocale.y - this.pionSelectionne.container.y;
-                    this.pionSelectionne.container.rotation = Math.atan2(dy, dx) + Math.PI / 2;
+                    this.pionSelectionne.container.rotation = Math.atan2(dy, dx);
                 }
                 else if (this.pionSelectionne.isScaling) // Ajout du scaling pour les pions
                 {
@@ -1026,6 +1046,8 @@ export class EditeurCarte implements OnInit, OnDestroy
         rotationDegres: number,
         echelle: number = 1,
         visibilite: number = 0,
+        vitesse: number = 6,
+        anglePivotMaxDegres: number = 60,
         armes: ArmeVisualisation[] = []
     ): Promise<void>
     {
@@ -1036,12 +1058,15 @@ export class EditeurCarte implements OnInit, OnDestroy
         pionContainer.position.set(posX, posY);
         pionContainer.rotation = (rotationDegres * Math.PI) / 180;
         pionContainer.scale.set(echelle || 1);
-
         pionContainer.alpha = visibilite === 1 ? 0.65 : 1.0;
 
+        // Calques vectoriels sous le sprite
+        const gabaritMouvement = new Graphics();
         const arcsGraphics = new Graphics();
+        pionContainer.addChild(gabaritMouvement);
         pionContainer.addChild(arcsGraphics);
 
+        // Sprite du vaisseau
         const texture = await Assets.load(urlSprite);
         const sprite = new Sprite(texture);
         sprite.anchor.set(0.5);
@@ -1050,13 +1075,13 @@ export class EditeurCarte implements OnInit, OnDestroy
         pionContainer.addChild(sprite);
 
         // 1. Poignée de rotation (Cyan)
-        const distancePion = sprite.height / 2 + (estTactile ? 50 : 35);
+        const distancePion = (sprite.width / 2) + (estTactile ? 50 : 35);
         const poignee = new Graphics()
             .circle(0, 0, tailleVisibleRot)
             .fill({ color: 0x00ffcc, alpha: 0.85 })
             .stroke({ width: 2, color: 0xffffff });
 
-        poignee.position.set(0, -distancePion);
+        poignee.position.set(distancePion, 0);
         poignee.eventMode = 'static';
         poignee.cursor = 'crosshair';
         poignee.visible = false;
@@ -1088,24 +1113,73 @@ export class EditeurCarte implements OnInit, OnDestroy
         }
         pionContainer.addChild(poigneeEchelle);
 
+        // Fonction de rendu du rayon de déplacement & secteur de rotation
+        const dessinerGabarits = (visible: boolean) =>
+        {
+            gabaritMouvement.clear();
+            if (!visible) return;
+
+            const echelle = pionContainer.scale.x || 1;
+            const rayonPixels = (vitesse * this.tailleCasePixels()) / echelle;
+
+            // 1. Cercle global de propulsion
+            gabaritMouvement
+                .circle(0, 0, rayonPixels)
+                .fill({ color: 0x00e5ff, alpha: 0.04 })
+                .stroke({ width: 1.5, color: 0x00e5ff, alpha: 0.35 });
+
+            // Cercles concentriques intermédiaires
+            for (let step = 2; step < vitesse; step += 2)
+            {
+                const stepRayon = (step * this.tailleCasePixels()) / echelle;
+                gabaritMouvement
+                    .circle(0, 0, stepRayon)
+                    .stroke({ width: 1, color: 0x00e5ff, alpha: 0.12 });
+            }
+
+            const demiAngleRad = ((anglePivotMaxDegres / 2) * Math.PI) / 180;
+
+            // 2. CÔNE AVANT (Vert) : Axé vers la DROITE (0 rad)
+            const capAvantRad = 0;
+            const debutAvant = capAvantRad - demiAngleRad;
+            const finAvant = capAvantRad + demiAngleRad;
+
+            gabaritMouvement
+                .moveTo(0, 0)
+                .arc(0, 0, rayonPixels, debutAvant, finAvant)
+                .lineTo(0, 0)
+                .fill({ color: 0x00ff88, alpha: 0.15 })
+                .stroke({ width: 2, color: 0x00ff88, alpha: 0.8 });
+
+            // 3. CÔNE ARRIÈRE (Orange) : Axé vers la GAUCHE (PI rad / 180°)
+            const rayonRetro = rayonPixels * 0.5;
+            const capArriereRad = Math.PI;
+            const debutArriere = capArriereRad - (demiAngleRad * 0.5);
+            const finArriere = capArriereRad + (demiAngleRad * 0.5);
+
+            gabaritMouvement
+                .moveTo(0, 0)
+                .arc(0, 0, rayonRetro, debutArriere, finArriere)
+                .lineTo(0, 0)
+                .fill({ color: 0xffaa00, alpha: 0.12 })
+                .stroke({ width: 1.5, color: 0xffaa00, alpha: 0.7 });
+        };
+
         const dessinerArcs = (visible: boolean) =>
         {
             arcsGraphics.clear();
             if (!visible) return;
-
             for (const arme of armes)
             {
-                const portee = arme.porteeMaximale > 0 ? arme.porteeMaximale : 800;
+                const portee = (arme.porteeMaximale > 0 ? arme.porteeMaximale : 8) * this.tailleCasePixels() / (pionContainer.scale.x || 1);
                 const demiOuvertureRad = ((arme.angleOuvertureDegres / 2) * Math.PI) / 180;
                 const axeCentralRad = ((arme.angleOffsetDegres - 90) * Math.PI) / 180;
-                const angleDebut = axeCentralRad - demiOuvertureRad;
-                const angleFin = axeCentralRad + demiOuvertureRad;
 
                 arcsGraphics
                     .moveTo(0, 0)
-                    .arc(0, 0, portee, angleDebut, angleFin)
+                    .arc(0, 0, portee, axeCentralRad - demiOuvertureRad, axeCentralRad + demiOuvertureRad)
                     .lineTo(0, 0)
-                    .fill({ color: arme.couleurHex, alpha: 0.15 })
+                    .fill({ color: arme.couleurHex, alpha: 0.12 })
                     .stroke({ width: 1.5, color: arme.couleurHex, alpha: 0.6 });
             }
         };
@@ -1126,8 +1200,12 @@ export class EditeurCarte implements OnInit, OnDestroy
                 sprite,
                 poignee,
                 poigneeEchelle,
+                gabaritMouvement,
+                dessinerGabarits,
                 dessinerArcs,
                 idPion,
+                vitesse,
+                anglePivotMaxDegres,
                 visibilite,
                 isDragging: false,
                 isRotating: false,
@@ -1143,14 +1221,14 @@ export class EditeurCarte implements OnInit, OnDestroy
 
         sprite.on('pointerdown', (e: FederatedPointerEvent) =>
         {
-            if (e.button !== 0) return;
+            if (e.button !== 0)
+                return;
 
-            // CORRECTION DU BUG DE SÉLECTION :
             this.deselectionnerTout();
 
             poignee.visible = true;
             poigneeEchelle.visible = true;
-            dessinerArcs(true);
+            dessinerGabarits(true); // Affiche le cercle de portée et l'angle de braquage
             sprite.cursor = 'grabbing';
 
             const posLocale = this.viewport.toLocal(e.global);
@@ -1159,8 +1237,12 @@ export class EditeurCarte implements OnInit, OnDestroy
                 sprite,
                 poignee,
                 poigneeEchelle,
+                gabaritMouvement,
+                dessinerGabarits,
                 dessinerArcs,
                 idPion,
+                vitesse,
+                anglePivotMaxDegres,
                 visibilite,
                 isDragging: true,
                 isRotating: false,
@@ -1197,8 +1279,12 @@ export class EditeurCarte implements OnInit, OnDestroy
             sprite,
             poignee,
             poigneeEchelle,
+            gabaritMouvement,
+            dessinerGabarits,
             dessinerArcs,
             idPion,
+            vitesse,
+            anglePivotMaxDegres,
             visibilite,
             isDragging: false,
             isRotating: false,

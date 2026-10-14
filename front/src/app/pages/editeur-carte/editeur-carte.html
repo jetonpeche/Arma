@@ -115,6 +115,12 @@
             <button matMiniFab (click)="sauvegarderDimensionsFond()" matTooltip="Enregistrer les dimensions">
                 <mat-icon>save</mat-icon>
             </button>
+
+
+            <mat-form-field subscriptSizing="dynamic" class="champ-dim" matTooltip="Échelle : Pixels par unité de déplacement">
+                <mat-label>Taille Case (px)</mat-label>
+                <input matInput type="number" [ngModel]="tailleCasePixels()" (ngModelChange)="changerEchelleGrille($event)" />
+            </mat-form-field>
         </div>
         }
     </div>
