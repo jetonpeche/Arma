@@ -12,6 +12,7 @@ public sealed class AeronefReponse
     public string Role { get; set; } = null!;
     public string? Description { get; set; }
     public required string UrlImage { get; set; }
+    public required string UrlImageSprite { get; set; }
 }
 
 public sealed class AeronefLegerReponse

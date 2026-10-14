@@ -47,6 +47,7 @@ public static class AeronefRoute
     {
         using var db = new LiteDatabase(Constant.BDD_NOM);
 
+        var baseUrl =  _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_AERONEF;
         var liste = db.GetCollection<Aeronef>().Query()
             .Select(x => new AeronefReponse
             {
@@ -55,7 +56,8 @@ public static class AeronefRoute
                 Prix = x.Prix,
                 Role = x.Role,
                 Description = x.Description,
-                UrlImage = x.NomImage != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_AERONEF + x.NomImage : "",
+                UrlImage = x.NomImage != null ? baseUrl + x.NomImage : "",
+                UrlImageSprite = x.NomFichierSprite != null ? baseUrl + x.NomFichierSprite : ""
             }).ToArray();
 
         return Results.Extensions.Ok(liste, AeronefReponseContext.Default);

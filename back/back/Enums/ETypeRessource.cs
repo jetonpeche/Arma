@@ -13,5 +13,6 @@ public enum ETypeRessource
     Specialite,
     Aeronef,
     Orbat,
-    VaisseauSprite
+    VaisseauSprite,
+    AeronefSprite
 }

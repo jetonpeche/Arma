@@ -5,7 +5,8 @@ export type Aeronef =
     role: string,
     description: string | null,
     prix: number,
-    urlImage: string
+    urlImage: string,
+    urlImageSprite: string
 }
 
 export type AeronefLeger =

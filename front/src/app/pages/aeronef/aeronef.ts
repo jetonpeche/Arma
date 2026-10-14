@@ -74,6 +74,26 @@ export class AeronefPage implements OnInit
       });
   }
 
+    protected UploadFichierSprite(_idAeronef: number, _fichier: File): void
+  {
+      this.fichierServ.Upload(_idAeronef, ETypeRessource.Aeronef, _fichier).subscribe({
+          next: (url: string) => 
+          {
+            this.snackBarServ.Ok("Le fichier a été uploadé");
+            this.listeAeronef.update(x => 
+            {
+                return x.map(y => 
+                {
+                    if (y.id == _idAeronef)
+                        return { ...y, urlImageSprite: `${url}?t=${new Date().getTime()}` }
+                    
+                    return y;
+                });
+            });
+          }
+      });
+  }
+
   protected OuvrirModalAchater(_aeronef: Aeronef): void
   {
     const DIALOG_REF = this.dialog.open(ModalAcheter, {

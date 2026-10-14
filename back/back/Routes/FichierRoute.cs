@@ -172,6 +172,17 @@ public static class FichierRoute
 
                     return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_AERONEF + nouveauNomFichierAeronef));
 
+               case ETypeRessource.AeronefSprite:
+                    var nouveauNomFichierAeronefSprite = await UploadAsync<Aeronef>(
+                         _requete.idRessource,
+                         _requete.Fichier,
+                         Constant.CHEMIN_IMG_AERONEF,
+                         (x) => x.NomFichierSprite,
+                         (x, s) => x.NomFichierSprite = s
+                    );
+
+                    return Results.Ok(ConstruireUrlFichier(_httpContext, Constant.CHEMIN_IMG_AERONEF + nouveauNomFichierAeronefSprite));
+                
                case ETypeRessource.Orbat:
                     var nouveauNomFichierOrbat = await UploadAsync<Orbat>(
                           _requete.idRessource,

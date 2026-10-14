@@ -53,9 +53,14 @@
                 {
                     <div class="upload-overlay">
                         <jp-input-file-btn matIconButton
-                                           icon="photo"    
-                                           (fileChange)="UploadFichier(aeronef.id, $any($event))"            
-                                           accept=".png, .jpg, .webp, .jpeg" />
+                                                    icon="photo"    
+                                                    (fileChange)="UploadFichier(aeronef.id, $any($event))"            
+                                                    accept=".png, .jpg, .webp, .jpeg" />
+
+                        <jp-input-file-btn matIconButton
+                                                    [icon]="aeronef.urlImageSprite ? 'radar' : 'add_photo_alternate'"
+                                                    accept=".png, .webp"
+                                                    (fileChange)="UploadFichierSprite(aeronef.id, $any($event))" />
                     </div>
                 }
             </div>
