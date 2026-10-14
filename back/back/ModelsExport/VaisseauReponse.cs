@@ -24,6 +24,8 @@ public sealed class VaisseauReponse
 
      public string Vitesse { get; set; } = null!;
      public string Blindage { get; set; } = null!;
+     public required int RayonDeplacement { get; set; }
+     public required int RotationMaxDegres { get; set; }
 }
 
 public sealed class VaisseauModuleReponse

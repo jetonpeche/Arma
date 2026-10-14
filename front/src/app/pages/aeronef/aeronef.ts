@@ -74,7 +74,7 @@ export class AeronefPage implements OnInit
       });
   }
 
-    protected UploadFichierSprite(_idAeronef: number, _fichier: File): void
+  protected UploadFichierSprite(_idAeronef: number, _fichier: File): void
   {
       this.fichierServ.Upload(_idAeronef, ETypeRessource.Aeronef, _fichier).subscribe({
           next: (url: string) => 

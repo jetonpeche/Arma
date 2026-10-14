@@ -19,6 +19,8 @@ export type Vaisseau =
     listeModule: VaisseauModule[],
     vitesse: string,
     blindage: string,
+    rayonDeplacement: number,
+    rotationMaxDegres: number,
     capaciteSpeciale: string | null,
     equipage: VaisseauEquipage
 }
@@ -100,6 +102,8 @@ export type VaisseauRequete =
     bloquerAchat: boolean,
     capaciteSpeciale: string | null,
     equipage: VaisseauEquipage,
+    rayonDeplacement: number,
+    rotationMaxDegres: number,
     listeArmement: VaisseauArmement[],
     listeStockage: VaisseauStockageRequete[],
     listeAeronef: VaisseauAeronefRequete[],

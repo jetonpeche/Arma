@@ -101,6 +101,8 @@ public static class VaisseauRoute
                     CapaciteSpeciale = x.CapaciteSpeciale,
                     Blindage = x.Blindage,
                     Vitesse = x.Vitesse,
+                    RayonDeplacement = x.RayonDeplacement,
+                    RotationMaxDegres = x.RotationMaxDegres,
                     BloquerAchat = x.BloquerAchat,
                     NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_VAISSEAU + x.NomFichier : "",
                     NomFichierSprite = x.NomFichierSprite != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_VAISSEAU + x.NomFichierSprite : "",
@@ -519,6 +521,8 @@ public static class VaisseauRoute
                Prix = _requete.Prix,
                Stock = 0,
                BloquerAchat = _requete.BloquerAchat,
+               RayonDeplacement = _requete.RayonDeplacement,
+               RotationMaxDegres = _requete.RotationMaxDegres,
                ListeAeronef = [.. _requete.ListeAeronef.Select(x => new VaisseauAeronef
                {
                     Aeronef = new() { Id = x.Id },
@@ -884,6 +888,8 @@ public static class VaisseauRoute
           vaisseau.CapaciteSpeciale = string.IsNullOrWhiteSpace(_requete.CapaciteSpeciale) ? null : _requete.CapaciteSpeciale.XSS();
           vaisseau.Equipage.NbPlaceMarines = _requete.Equipage.NbPlaceMarines;
           vaisseau.Equipage.NbPlacePassager = _requete.Equipage.NbPlacePassager;
+          vaisseau.RayonDeplacement = _requete.RayonDeplacement;
+          vaisseau.RotationMaxDegres = _requete.RotationMaxDegres;
 
           if (_requete.ListeIdVaisseauEnfant.Length > 0)
           {

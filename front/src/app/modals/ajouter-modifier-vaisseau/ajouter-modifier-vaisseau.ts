@@ -108,6 +108,8 @@ export class AjouterModifierVaisseau implements OnInit
             vitesse: new FormControl(this.matDialogData?.vitesse ?? "", [Validators.required, Validators.maxLength(50)]),
             blindage: new FormControl(this.matDialogData?.blindage ?? "", [Validators.required, Validators.maxLength(50)]),
             bloquerAchat: new FormControl(this.matDialogData?.bloquerAchat ?? false, [Validators.required]),
+            rotationMaxDegres: new FormControl(this.matDialogData?.rotationMaxDegres ?? 360, [Validators.required, Validators.min(0), Validators.max(360)]),
+            rayonDeplacement: new FormControl(this.matDialogData?.rayonDeplacement ?? 10, [Validators.required, Validators.min(0)]),
             equipage: new FormGroup({
                 nbPlacePassager: new FormControl(
                     this.matDialogData?.equipage.nbPlacePassager ?? 0, 
