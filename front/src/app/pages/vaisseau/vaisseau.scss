@@ -119,6 +119,7 @@
         position: absolute; inset: 0; background-color: rgba(0, 20, 0, 0.8);
         display: flex; justify-content: center; align-items: center;
         opacity: 0; transition: opacity 0.2s ease; z-index: 4;
+        gap: 16px;
     }
     &:hover .upload-matrix { opacity: 1; }
 }

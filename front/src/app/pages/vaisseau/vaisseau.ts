@@ -106,7 +106,27 @@ export class VaisseauPage implements OnInit
                     return x.map(y => 
                     {
                         if (y.id == _idVaisseau)
-                            return { ...y, urlImageObjet: `${url}?t=${new Date().getTime()}` }
+                            return { ...y, nomFichier: `${url}?t=${new Date().getTime()}` }
+                        
+                        return y;
+                    });
+                });
+            }
+        });
+    }
+
+    protected UploadFichierSprite(_idVaisseau: number, _fichier: File): void
+    {
+        this.fichierServ.Upload(_idVaisseau, ETypeRessource.VaisseauSprite, _fichier).subscribe({
+            next: (url: string) => 
+            {
+                this.snackBarServ.Ok("Le fichier a été uploadé");
+                this.listeVaisseau.update(x => 
+                {
+                    return x.map(y => 
+                    {
+                        if (y.id == _idVaisseau)
+                            return { ...y, nomFichierSprite: `${url}?t=${new Date().getTime()}` }
                         
                         return y;
                     });

@@ -11,6 +11,7 @@ public sealed class VaisseauReponse
      public required int Stock { get; set; }
      public required string Role { get; set; }
      public required string? NomFichier { get; set; }
+     public required string? NomFichierSprite { get; set; }
      public required string? CapaciteSpeciale { get; set; }
      public required bool BloquerAchat { get; set; }
 

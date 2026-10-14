@@ -48,6 +48,11 @@
                                                icon="photo"    
                                                (fileChange)="UploadFichier(element.id, $any($event))"            
                                                accept=".png, .jpg, .webp, .jpeg" />
+
+                            <jp-input-file-btn matIconButton
+                                                        [icon]="element.nomFichierSprite ? 'radar' : 'add_photo_alternate'"
+                                                        accept=".png, .webp"
+                                                        (fileChange)="UploadFichierSprite(element.id, $any($event))" />
                         </div>
                     }
                 </div>

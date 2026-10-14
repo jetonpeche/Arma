@@ -103,7 +103,7 @@ public static class VaisseauRoute
                     Vitesse = x.Vitesse,
                     BloquerAchat = x.BloquerAchat,
                     NomFichier = x.NomFichier != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_VAISSEAU + x.NomFichier : "",
-
+                    NomFichierSprite = x.NomFichierSprite != null ? _httpContext.Request.Scheme + "://" + _httpContext.Request.Host.Value + _httpContext.Request.PathBase.Value + Constant.CHEMIN_IMG_VAISSEAU + x.NomFichierSprite : "",
                     Equipage = new ()
                     {
                          NbPlaceMarines = x.Equipage.NbPlaceMarines,

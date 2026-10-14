@@ -10,6 +10,7 @@ export type Vaisseau =
     stock: number,
     role: string,
     nomFichier: string,
+    nomFichierSprite: string,
     bloquerAchat: boolean,
     listeArmement: VaisseauArmement[],
     listeStockage: VaisseauStockage[],
